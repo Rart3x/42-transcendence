@@ -1,52 +1,39 @@
 version: '3.8'
 
 services:
-  nginx:
-    build: requirements/nginx
-    image: nginx
-    container_name: nginx
-    ports:
-      - "443:443"
-    networks:
-      - transcendence
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: admin
     volumes:
-      - wp-volume:/var/www/html
-    restart: always
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "8080:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=kramjatt@42.fr
+      - PGADMIN_DEFAULT_PASSWORD=admin
 
 volumes:
   wp-volume:
     driver_opts:
       o: bind
       type: none
-      device: ${HOME}/data/postgreSQL
+      device: ./data/postgreSQL
 
   db-volume:
     driver_opts:
       o: bind
       type: none
-      device: ${HOME}/data/postgreSQL
+      device: ../data/postgreSQL
 
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  phppgadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    environment:
-      PMA_ARBITRARY: 1
-    ports:
-      - "8080:80"
-    links:
-      - postgres:db
-volumes:
   postgres_data:
 
 networks:
-    transcendence:
-        name: transcendence
-        driver: bridge
+  transcendence:
+    name: transcendence
+    driver: bridge

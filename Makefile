@@ -1,26 +1,26 @@
-NAME = inception
+NAME = transcendence
 
 all: build
 	@printf "Launch configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env up -d
+	@docker compose -f ./srcs/docker-compose.yml up -d || @docker-compose -f ./srcs/docker-compose.yml up -d
 
 build:
-	@mkdir -p ~/data/wordpress
-	@mkdir -p ~/data/mariadb
+	@mkdir -p ~/data/postregreSQL
+	@mkdir -p ~/data/phppgadmin
 	@printf "Building configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env build
+	@docker compose -f ./srcs/docker-compose.yml build || @docker-compose -f ./srcs/docker-compose.yml build
 
 down:
 	@printf "Stopping configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env down
+	@docker compose -f ./srcs/docker-compose.yml down
 
 re: down
 	@printf "Rebuild configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env up -d --build
+	@docker compose -f ./srcs/docker-compose.yml up -d --build || @docker-compose -f ./srcs/docker-compose.yml up -d --build
 
 rm_data:
-	@sudo rm -rf ~/data/wordpress
-	@sudo rm -rf ~/data/mariadb
+	@rm -rf ~/data/postregreSQL
+	@rm -rf ~/data/phppgadmin
 
 clean: down rm_data
 	@printf "Cleaning configuration ${NAME}...\n"
