@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  nginx:
+    build: requirements/nginx
+    image: nginx
+    container_name: nginx
+    ports:
+      - "443:443"
+    networks:
+      - transcendence
+    volumes:
+      - wp-volume:/var/www/html
+    restart: always
+
+volumes:
+  wp-volume:
+    driver_opts:
+      o: bind
+      type: none
+      device: ${HOME}/data/postgreSQL
+
+  db-volume:
+    driver_opts:
+      o: bind
+      type: none
+      device: ${HOME}/data/postgreSQL
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  phppgadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_ARBITRARY: 1
+    ports:
+      - "8080:80"
+    links:
+      - postgres:db
+volumes:
+  postgres_data:
+
+networks:
+    transcendence:
+        name: transcendence
+        driver: bridge
