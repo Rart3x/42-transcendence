@@ -8,7 +8,6 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: admin
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
       - postgres_data:/var/lib/postgresql/data
 
   pgadmin:
@@ -18,7 +17,18 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=kramjatt@42.fr
       - PGADMIN_DEFAULT_PASSWORD=admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 
 volumes:
   postgres_data:
+    driver_opts:
+        o: bind
+        type: none
+        device: ${HOME}/data/postgres_data
+
   pgadmin_data:
+    driver_opts:
+      o: bind
+      type: none
+      device: ${HOME}/data/pgadmin_data
