@@ -24,7 +24,9 @@ clean: down
 
 fclean:
 	@printf "Total clean of all configurations docker\n"
-	@docker stop $$(docker ps -qa)
+	@if [ $$(docker ps -q | wc -l) -gt 0 ]; then \
+	    docker stop $$(docker ps -qa); \
+	fi
 	@docker system prune --all --force --volumes
 	@docker network prune --force
 	@docker volume prune --force
