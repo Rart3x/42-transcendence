@@ -3,12 +3,12 @@
 import { RouterLink, RouterView } from 'vue-router';
 import { ref } from 'vue';
 
-import Header from '@/components/Header.vue';
+import Navbar from '@/components/Navbar.vue';
 
 </script>
 
 <template>
-    <Header />
+    <Navbar />
 </template>
 
 <style scoped>
