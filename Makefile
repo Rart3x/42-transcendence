@@ -12,7 +12,7 @@ build:
 
 down:
 	@printf "Stopping configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml down || docker compose -f ./srcs/docker-compose.yml down
+	@docker-compose -f ./srcs/docker-compose.yml down -v || docker compose -f ./srcs/docker-compose.yml down -v
 
 re: down
 	@printf "Rebuild configuration ${NAME}...\n"

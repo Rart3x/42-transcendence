@@ -22,13 +22,15 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
     driver_opts:
         o: bind
         type: none
         device: ${HOME}/data/postgres_data
 
   pgadmin_data:
+    driver: local
     driver_opts:
       o: bind
       type: none
-      device: ${HOME}/data/pgadmin_data
+      device: ${HOME}/data/pgadmin_data   
