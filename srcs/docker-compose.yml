@@ -17,23 +17,18 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=kramjatt@42.fr
       - PGADMIN_DEFAULT_PASSWORD=admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 
 volumes:
-  wp-volume:
-    driver_opts:
-      o: bind
-      type: none
-      device: ./data/postgreSQL
-
-  db-volume:
-    driver_opts:
-      o: bind
-      type: none
-      device: ../data/postgreSQL
-
   postgres_data:
+    driver_opts:
+        o: bind
+        type: none
+        device: ${HOME}/data/postgres_data
 
-networks:
-  transcendence:
-    name: transcendence
-    driver: bridge
+  pgadmin_data:
+    driver_opts:
+      o: bind
+      type: none
+      device: ${HOME}/data/pgadmin_data
