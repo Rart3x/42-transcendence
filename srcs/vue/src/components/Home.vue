@@ -6,8 +6,7 @@ import Header from "@/components/Header.vue";
 </script>
 
 <template>
-  <Header />
-  <router-view></router-view>
+  <h1>HOME</h1>
 </template>
 
 <style scoped></style>

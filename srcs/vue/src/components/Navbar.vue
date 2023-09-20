@@ -1,52 +1,54 @@
 <script setup>
-
-import { RouterLink, RouterView } from 'vue-router';
-import { ref } from 'vue';
-
+import { RouterLink, RouterView } from "vue-router";
+import { ref } from "vue";
 </script>
 
 <template>
-
-    <div class="Navbar_container">
-        <ol class="Navbar_list">
-            <li>
-                <RouterLink to="/Home" class="Navbar_content"> Home </RouterLink>
-                <RouterLink to="/Game" class="Navbar_content"> Game </RouterLink>
-                <RouterLink to="/About" class="Navbar_content"> About </RouterLink>
-                <RouterLink to="/Profile" class="Navbar_content"> Profile </RouterLink>
-            </li>
-        </ol>
-    </div>
+  <div class="Navbar_container">
+    <ol class="Navbar_list">
+      <li>
+        <router-link to="/" class="Navbar_content"> Home </router-link>
+      </li>
+      <li>
+        <router-link to="/game" class="Navbar_content"> Game </router-link>
+      </li>
+      <li>
+        <router-link to="/about" class="Navbar_content"> About </router-link>
+      </li>
+      <li>
+        <router-link to="/profile" class="Navbar_content">
+          Profile
+        </router-link>
+      </li>
+    </ol>
+  </div>
 </template>
 
 <style scoped>
+.Navbar_container {
+  border-radius: 10px;
+  border-color: #313628;
+  background-color: #a4ac96;
 
-.Navbar_container{
-    border-style:ridge;
-    border-color:cornsilk;
-
-    position: absolute;
-    top: 2%;
-    bottom: 88%;
-    left: 5%;
-    right: 5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vh;
+  margin: 0vh 2vw 0vh 2vw;
+}
+.Navbar_icon {
+  display: flex;
+  border-style: dotted;
 }
 
-.Navbar_list{
-    list-style-type:none;
-    text-align: center;
-    position: absolute;
-    top: 35%;
-    bottom: 35%;
-    left: 5%;
-    right: 5%;
+.Navbar_list {
+  display: flex;
+  list-style-type: none;
+  text-align: center;
 }
 
-.Navbar_content{
-    color:blueviolet;
-    border-style:ridge;
-    position: relative;
-    padding: 1% 5% 1% 5%;
-
+.Navbar_content {
+  color: #595358;
+  padding: 0.9vh 4vw 0.9vh 4vw;
 }
 </style>
