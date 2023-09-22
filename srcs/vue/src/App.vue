@@ -1,11 +1,9 @@
 <script setup>
-
-import * as Components from "@/components/Components.vue"
-
+import Header from "@/components/Header.vue";
 </script>
 
 <template>
-  <Components.Header />
+  <Header />
   <router-view></router-view>
 </template>
 
