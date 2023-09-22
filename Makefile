@@ -5,14 +5,30 @@ all: build
 	@docker-compose -f ./srcs/docker-compose.yml up -d || docker compose -f ./srcs/docker-compose.yml up -d
 
 build:
-	@mkdir -p ${HOME}/data/postgres_data
-	@mkdir -p ${HOME}/data/pgadmin_data
 	@printf "Building configuration ${NAME}...\n"
 	@docker-compose -f ./srcs/docker-compose.yml build || docker compose -f ./srcs/docker-compose.yml build
 
+prisma:
+	@npm install -g prisma
+	@cd ./srcs/requirements/back && \
+	if [ ! -d "prisma" ]; then \
+		prisma init; \
+	fi \
+
+	# Générez les modèles Prisma automatiquement
+	@prisma db pull --schema srcs/requirements/back/prisma/schema.prisma
+	# Générez Prisma Client
+	@npx prisma generate
+
+vue:
+	@printf "Running Vue in ${NAME}...\n"
+	@cd ./srcs/vue && (npm install 18 || true) && npm run dev &
+	@sleep 5
+	@google-chrome "http://localhost:5173/" || firefox "http://localhost:5173/" || true
+
 down:
 	@printf "Stopping configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml down || docker compose -f ./srcs/docker-compose.yml down
+	@docker-compose -f ./srcs/docker-compose.yml down -v || docker compose -f ./srcs/docker-compose.yml down -v
 
 re: down
 	@printf "Rebuild configuration ${NAME}...\n"
@@ -31,5 +47,4 @@ fclean:
 	@docker network prune --force
 	@docker volume prune --force
 
-
-.PHONY	: all build down re clean fclean
+.PHONY	: all build down re clean fclean vue
