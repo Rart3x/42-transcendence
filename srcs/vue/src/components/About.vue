@@ -1,9 +1,4 @@
-<script setup>
-import { RouterLink, RouterView } from "vue-router";
-import { ref } from "vue";
-
-import Header from "@/components/Header.vue";
-</script>
+<script setup></script>
 
 <template>
   <h1 class="item">About us</h1>
@@ -79,7 +74,6 @@ import Header from "@/components/Header.vue";
   </div>
 </template>
 
-<<<<<<< HEAD
 <style scoped>
 .item {
   display: flex;
@@ -106,6 +100,3 @@ import Header from "@/components/Header.vue";
   list-style-type: none;
 }
 </style>
-=======
-<style scoped></style>
->>>>>>> main
