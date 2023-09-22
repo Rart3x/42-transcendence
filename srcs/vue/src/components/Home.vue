@@ -12,7 +12,7 @@ import Header from "@/components/Header.vue";
         <h1>Welcome to PMT</h1>
       </ul>
       <ul class="list_content">
-        <img src="@/components/icons/icon-pmt.png" class="icon" />
+        <img src="@/components/images/icon-pmt.png" class="icon" />
       </ul>
     </ol>
   </div>

@@ -4,7 +4,7 @@ import { RouterLink, RouterView } from "vue-router";
 
 <template>
   <div class="Navbar_container">
-    <img src="@/components/icons/icon-pmt.png" class="icon" />
+    <img src="@/components/images/icon-pmt.png" class="icon" />
     <ol class="Navbar_list">
       <li>
         <router-link to="/" class="Navbar_content"> Home </router-link>
@@ -42,7 +42,7 @@ import { RouterLink, RouterView } from "vue-router";
   align-items: center;
   padding: 1vh;
   margin: 0vh 2vw 0vh 2vw;
-  gap: 10vw;
+  gap: 0vw;
 }
 .Navbar_icon {
   display: flex;
@@ -58,5 +58,11 @@ import { RouterLink, RouterView } from "vue-router";
 .Navbar_content {
   color: #595358;
   padding: 0.9vh 4vw 0.9vh 4vw;
+}
+
+@media (min-width: 1024px) {
+  .Navbar_container {
+    gap: 10vw;
+  }
 }
 </style>
