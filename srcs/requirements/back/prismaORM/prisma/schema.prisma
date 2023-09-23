@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:123@localhost:5432/PMU"
+}
+
+model Admin {
+  adminId      Int            @id @default(autoincrement())
+  ChannelAdmin ChannelAdmin[]
+}
+
+model Channel {
+  channelId    Int            @id @default(autoincrement())
+  ChannelAdmin ChannelAdmin[]
+}
+
+model ChannelAdmin {
+  adminId   Int
+  channelId Int
+  Admin     Admin   @relation(fields: [adminId], references: [adminId], onDelete: NoAction, onUpdate: NoAction)
+  Channel   Channel @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([adminId, channelId])
+}
+
+model Game {
+  gameId Int @id @default(autoincrement())
+}
+
+model User {
+  userId   Int     @id @default(autoincrement())
+  userName String?
+  userPass String?
+}

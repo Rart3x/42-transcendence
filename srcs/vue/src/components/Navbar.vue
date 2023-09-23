@@ -4,7 +4,10 @@ import { RouterLink, RouterView } from "vue-router";
 
 <template>
   <div class="Navbar_container">
-    <img src="@/components/images/icon-pmt.png" class="icon" />
+	
+	<router-link to="/" class="Navbar_content">
+    	<img src="@/components/images/icon-pmt.png" class="icon"/>
+	</router-link>
     <ol class="Navbar_list">
       <li>
         <router-link to="/" class="Navbar_content"> Home </router-link>

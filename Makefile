@@ -10,15 +10,16 @@ build:
 
 prisma:
 	@npm install -g prisma
-	@cd ./srcs/requirements/back && \
+	@cd ./srcs/requirements/back/prismaORM && \
 	if [ ! -d "prisma" ]; then \
 		prisma init; \
 	fi \
 
 	# Générez les modèles Prisma automatiquement
-	@prisma db pull --schema srcs/requirements/back/prisma/schema.prisma
+	@prisma db pull --schema srcs/requirements/back/prismaORM/prisma/schema.prisma
 	# Générez Prisma Client
-	@npx prisma generate
+	@cd ./srcs/requirements/back/prismaORM && \
+	prisma generate
 
 vue:
 	@printf "Running Vue in ${NAME}...\n"
