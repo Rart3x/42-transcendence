@@ -1,9 +1,4 @@
-<script setup>
-import { RouterLink, RouterView } from "vue-router";
-import { ref } from "vue";
-
-import Header from "@/components/Header.vue";
-</script>
+<script setup></script>
 
 <template>
   <body class="body">

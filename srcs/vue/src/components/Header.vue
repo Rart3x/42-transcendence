@@ -19,12 +19,10 @@ import { RouterLink, RouterView } from "vue-router";
           <router-link to="/about" class="Navbar_content"> About </router-link>
         </li>
         <li>
-          <router-link to="/profile" class="Navbar_content">
-            Profile
-          </router-link>
+          <router-link to="/chat" class="Navbar_content"> Chat </router-link>
         </li>
       </ol>
-      <router-link to="/SignIn" class="Navbar_content"> Sign In </router-link>
+      <router-link to="/sign-in" class="Navbar_content"> Sign In </router-link>
     </div>
   </header>
 </template>

@@ -9,7 +9,7 @@ const router = createRouter({
       component: () => import("@/components/Home.vue"),
     },
     {
-      path: "/game",
+      path: "/ame",
       name: "game",
       component: () => import("@/components/Game.vue"),
     },
@@ -19,13 +19,18 @@ const router = createRouter({
       component: () => import("@/components/About.vue"),
     },
     {
+      path: "/chat",
+      name: "chat",
+      component: () => import("@/components/Chat.vue"),
+    },
+    {
       path: "/profile",
       name: "profile",
       component: () => import("@/components/Profile.vue"),
     },
     {
-      path: "/SignIn",
-      name: "SignIn",
+      path: "/sign-in",
+      name: "sign-in",
       component: () => import("@/components/SignIn.vue"),
     },
   ],
