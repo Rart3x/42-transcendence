@@ -1,81 +1,54 @@
 <script setup>
-import { ref } from "vue";
+  import { ref } from "vue";
+  import axios from "axios";
 
-let id = 0;
+  const signInWithIntra = () => {
+    const clientId = "u-s4t2ud-5833d46d67a995441fda6e0c4b881ac422f2c60fef135dab669407aa0f9fcbc4";
+    const clientSecret = "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";
+    const redirectUri = "http://localhost:5173/profile";
 
-const newName = ref("");
-const newPass = ref("");
+    // Step 1: Redirect the user to the 42 intra authorization page
+    window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
 
-const name = ref([]);
-const pass = ref([]);
+    // Step 3: Extract the authorization code from the URL query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
 
-function addUser() {
-  addName();
-  addPass();
-}
+    // Step 4: Exchange the authorization code for an access token
+    const getToken = async () => {
+      try {
+        const response = await axios.post("https://api.intra.42.fr/oauth/token", {
+          grant_type: "authorization_code",
+          client_id: clientId,
+          client_secret: clientSecret,
+          code: code,
+          redirect_uri: redirectUri
+        });
+        const accessToken = response.data.access_token;
 
-function addName() {
-  name.value.push({ id: id++, text: newName.value });
-  newName.value = "";
-}
+        // Step 5: Use the access token to make authenticated requests
+        const userResponse = await axios.get("https://api.intra.42.fr/v2/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        const user = userResponse.data;
 
-function addPass() {
-  pass.value.push({ id: id++, text: newPass.value });
-  newPass.value = "";
-}
+        // Store the user information or perform any other actions
+        console.log(user);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-function removeItem(item) {
-  name.value = name.value.filter((t) => t !== item);
-  pass.value = pass.value.filter((t) => t !== item);
-}
+    getToken();
+  };
 </script>
 
 <template>
   <body class="body">
     <div>
-      <form @submit.prevent="addUser">
-        <ol class="list_container">
-          <li>
-            <ul class="list">
-              <li>
-                <h1>Sign In</h1>
-              </li>
-              <li>
-                <label for="name">Name : </label>
-              </li>
-              <li>
-                <input v-model="newName" required minlength="1" />
-              </li>
-              <li>
-                <label for="name">Password : </label>
-              </li>
-              <li>
-                <input v-model="newPass" required minlength="1" />
-              </li>
-              <li>
-                <button>Log In</button>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <ul class="list">
-              <li>
-                <h1>Sign with 42 api</h1>
-              </li>
-            </ul>
-          </li>
-        </ol>
-      </form>
-      <ul>
-        <li v-for="item in name" :key="item.id">
-          {{ item.text }}
-          <button @click="removeItem(item)">X</button>
-        </li>
-        <li v-for="item in pass" :key="item.id">
-          {{ item.text }}
-          <button @click="removeItem(item)">X</button>
-        </li>
-      </ul>
+      <button @click="signInWithIntra">Sign in with intra</button>
     </div>
   </body>
 </template>
@@ -85,20 +58,5 @@ function removeItem(item) {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.list_container {
-  display: flex;
-  flex-direction: row;
-  gap: 10vw;
-  list-style: none;
-}
-.list {
-  list-style: none;
-}
-@media (min-width: 1024px) {
-  .list_container {
-    gap: 10vw;
-  }
 }
 </style>
