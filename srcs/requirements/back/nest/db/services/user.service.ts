@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/commonm';
+import { Injectable } from '@nestjs/common';
 import { User } from '../interfaces/user.interface'
 
 @Injectable()
@@ -9,6 +9,7 @@ export class UserService {
         this.users.push(user);
     }
     findAll(): User[] {
+        console.log("Ceci est un test");
         return this.users;
     }
 }
