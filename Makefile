@@ -21,9 +21,13 @@ prisma:
 	@cd ./srcs/requirements/back/prismaORM && \
 	prisma generate
 
-vue:
+back:
+	@printf "Running Nest in $(NAME) on localhost:3000...\n"
+	@cd ./srcs/requirements/back/nest/db && npm start
+
+front:
 	@printf "Running Vue in ${NAME}...\n"
-	@cd ./srcs/vue && (npm install 18 || true) && npm run dev &
+	@cd ./srcs/requirements/front && (npm install 18 || true) && npm run dev &
 	@sleep 5
 	@google-chrome "http://localhost:5173/" || firefox "http://localhost:5173/" || true
 
