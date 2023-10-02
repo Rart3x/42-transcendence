@@ -10,20 +10,19 @@ build:
 
 prisma:
 	@npm install -g prisma
-	@cd ./srcs/requirements/back/prismaORM && \
+	@cd ./srcs/requirements/back/nest/db/ && \
 	if [ ! -d "prisma" ]; then \
 		prisma init; \
 	fi \
-
 	# Générez les modèles Prisma automatiquement
-	@prisma db pull --schema srcs/requirements/back/prismaORM/prisma/schema.prisma
+	@prisma db pull --schema srcs/requirements/back/nest/db/prisma/schema.prisma
 	# Générez Prisma Client
-	@cd ./srcs/requirements/back/prismaORM && \
+	@cd ./srcs/requirements/back/nest/db/ && \
 	prisma generate
 
 back:
 	@printf "Running Nest in $(NAME) on localhost:3000...\n"
-	@cd ./srcs/requirements/back/nest/db && npm start
+	@cd ./srcs/requirements/back/nest/db && npm install nest && npm install && @prisma/client && npm start
 
 front:
 	@printf "Running Vue in ${NAME}...\n"
