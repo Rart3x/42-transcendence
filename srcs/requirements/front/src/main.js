@@ -11,7 +11,7 @@ import About from "@/components/About.vue";
 import Profile from "@/components/Profile.vue";
 
 const app = createApp(App);
-
+app.config.ignoredElements = [/ion-\w*/];
 app.config.productionTip = false;
 
 app.use(router);

@@ -1,7 +1,17 @@
-<script setup></script>
+<script setup>
+import HelloWorld from "@/components/HelloWorld.vue";
+
+</script>
 
 <template>
-  <h1>GAME</h1>
+  <div class="game">
+    <HelloWorld/>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.game{
+    margin-left: auto;
+    margin-right: auto;
+}
+</style>
