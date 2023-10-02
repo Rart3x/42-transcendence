@@ -16,12 +16,4 @@ app.config.productionTip = false;
 
 app.use(router);
 
-axios.get('http://localhost:3000')
-  .then(response => {
-    console.log(response.data);
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
-
 app.mount("#app");

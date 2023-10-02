@@ -21,6 +21,9 @@ import { RouterLink, RouterView } from "vue-router";
         <li>
           <router-link to="/chat" class="Navbar_content"> Chat </router-link>
         </li>
+        <li>
+          <router-link to="/user" class="Navbar_content"> Create User </router-link>
+        </li>
       </ol>
       <router-link to="/sign-in" class="Navbar_content"> Sign In </router-link>
     </div>
