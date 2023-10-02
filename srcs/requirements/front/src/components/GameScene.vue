@@ -189,7 +189,6 @@ export default class Game extends Phaser.Scene {
             gameFinishMsg.setText("Game finish")
             this.game.pause();
         }
-
     }
 }
 

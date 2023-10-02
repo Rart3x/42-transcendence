@@ -2,10 +2,6 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
-const clientId = "u-s4t2ud-5833d46d67a995441fda6e0c4b881ac422f2c60fef135dab669407aa0f9fcbc4";
-const clientSecret = "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";
-const redirectUri = "http://localhost:5173/sign-in";
-
 const userInfo = ref(null);
 
 const code = new URL(window.location.href).searchParams.get("code");
@@ -16,10 +12,10 @@ onMounted(async () => {
     try {
       const response = await axios.post("https://api.intra.42.fr/oauth/token", {
         grant_type: "authorization_code",
-        client_id: clientId,
-        client_secret: clientSecret,
+        client_id: import.meta.env.VITE_CLIENT_ID,
+        client_secret: import.meta.env.VITE_CLIENT_SECRET,
         code: code,
-        redirect_uri: redirectUri
+        redirect_uri: import.meta.env.VITE_REDIRECT_URI
       });
       const accessToken = response.data.access_token;
 
@@ -42,7 +38,7 @@ onMounted(async () => {
 
 const signInWithIntra = () => {
   // Step 1: Redirect the user to the 42 intra authorization page
-  window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
+  window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${import.meta.env.VITE_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
 };
 </script>
 
