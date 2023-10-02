@@ -2,7 +2,6 @@
 
 <template>
   <body class="body">
-    <button type="submit"> Mamacita </button>
     <div class="item">
       <ol>
         <ul class="list_content">

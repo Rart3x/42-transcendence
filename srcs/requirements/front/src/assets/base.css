@@ -36,6 +36,21 @@
   --section-gap: 160px;
 }
 
+body::-webkit-scrollbar {
+  width: 0.35vw;
+  height: 0.75vh;
+}
+
+body::-webkit-scrollbar-track {
+  background: #595358;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #a4ac96;
+  border-radius: 0.35vw;
+  border: #595358;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: var(--vt-c-black);
