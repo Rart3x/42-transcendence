@@ -4,7 +4,7 @@ import HelloWorld from "@/components/HelloWorld.vue";
 </script>
 
 <template>
-  <div class="game">
+  <div id="game">
     <HelloWorld/>
   </div>
 </template>
