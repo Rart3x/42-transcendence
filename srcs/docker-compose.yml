@@ -7,3 +7,11 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: admin
+    ports:
+      - "5433:5432"
+
+  dbeaver:
+    build:
+      context: .
+      dockerfile: requirements/dbeaver/Dockerfile
+    command: /bin/bash -c "while :; do sleep 10; done"

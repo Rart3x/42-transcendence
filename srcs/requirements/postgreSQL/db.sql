@@ -1,7 +1,5 @@
 ﻿CREATE DATABASE "PMU";
 
-A faire pour rentrer dans la DB : (\c "PMU";)
-
 CREATE TABLE "User" (
     "userId" serial PRIMARY KEY,
     "userName" text,

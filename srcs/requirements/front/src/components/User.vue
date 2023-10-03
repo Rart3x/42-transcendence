@@ -1,51 +1,57 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
-import { ref } from "vue";
-
 import Header from "@/components/Header.vue";
+import { ref } from "vue";
+import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
-    <div id="userForm">
-        <form @submit.prevent="submitForm">
-            <label for="username">Username :</label>
-            <input type="text" id="username" v-model="userData.username" required>
-        
-            <label for="email">Password :</label>
-            <input type="password" id="password" v-model="userData.password" required>
-        
-            <button type="submit">Envoyer</button>
-        </form>
-    </div>
-  </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        userData: {
-          username: '',
-          password: '',
-        },
-      };
-    },
-    methods: {
-      async submitForm() {
-        try {
-          const response = await axios.post('/api/users', this.userData);
+  <div id="userForm">
+    <form @submit.prevent="submitForm">
+      <label for="username">Username :</label>
+      <input type="text" id="username" v-model="userData.userName" required>
+      <button type="submit">Envoyer</button>
+    </form>
+  </div>
+</template>
 
-        } catch (error) {
-          console.error('Erreur lors de l\'envoi de la requête POST :', error);
-        }
+  
+<script>
+export default {
+  data() {
+    return {
+      userData: {
+        userName: '',
       },
+    };
+  },
+  methods: {
+    async submitForm() {
+      try {
+        const response = await fetch("http://localhost:3000/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userName: this.userData.userName }),
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+        }
+        else {
+          console.error('error: ', response.status);
+        }
+      }
+      catch (error) {
+        console.error('error: sending POST request :', error);
+      }
     },
-  };
-  </script>
+  },
+};
+</script>
 
 <style scoped>
-
 #userForm {
     text-align:center;
 }
-
 </style>

@@ -8,7 +8,10 @@ import {
   Body,
   Put,
   Delete,
+  Req,
 } from '@nestjs/common';
+
+import { Request } from 'express';
 
 @Controller()
 export class AppController {
@@ -18,7 +21,7 @@ export class AppController {
 
   @Post('user')
   async signupUser(
-    @Body() userData: { userName?: string; userPass: string },
+    @Body() userData: any,
   ): Promise<User> {
     return this.userService.createUser(userData);
   }
