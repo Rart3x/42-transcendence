@@ -6,7 +6,12 @@ const logout = () => {
   // Clear userLogin cookie
   Cookies.remove('userLogin');
   // Redirect to sign-in page
-  this.$router.push('/sign-in');
+  window.location.href = '/';
+};
+
+const signInWithIntra = () => {
+  // Redirect the user to the 42 intra authorization page
+  window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${import.meta.env.VITE_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
 };
 </script>
 
@@ -38,7 +43,7 @@ const logout = () => {
           <button @click="logout">Logout</button>
       </div>
       <div v-else>
-        <router-link to="/sign-in" class="Navbar_content"> Sign In </router-link>
+        <button @click="signInWithIntra">Sign in with 42</button>
       </div>
     </div>
   </header>
