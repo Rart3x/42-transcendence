@@ -13,8 +13,9 @@ model Admin {
 }
 
 model Channel {
-  channelId    Int            @id @default(autoincrement())
-  ChannelAdmin ChannelAdmin[]
+  channelId       Int               @id @default(autoincrement())
+  ChannelAdmin    ChannelAdmin[]
+  ChannelMessages ChannelMessages[]
 }
 
 model ChannelAdmin {
@@ -34,4 +35,12 @@ model User {
   userId   Int     @id @default(autoincrement())
   userName String?
   userPass String?
+}
+
+model ChannelMessages {
+  messageId    Int       @id @default(autoincrement())
+  channelId    Int?
+  message_text String?
+  message_date DateTime? @default(now()) @db.Timestamp(6)
+  Channel      Channel?  @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
 }
