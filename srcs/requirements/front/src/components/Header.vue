@@ -1,5 +1,13 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
+import Cookies from 'js-cookie';
+
+const logout = () => {
+  // Clear userLogin cookie
+  Cookies.remove('userLogin');
+  // Redirect to sign-in page
+  this.$router.push('/sign-in');
+};
 </script>
 
 <template>
@@ -25,7 +33,13 @@ import { RouterLink, RouterView } from "vue-router";
           <router-link to="/user" class="Navbar_content"> Create User </router-link>
         </li>
       </ol>
-      <router-link to="/sign-in" class="Navbar_content"> Sign In </router-link>
+      <div v-if="Cookies.get('userLogin')">
+        Logged in as: {{ Cookies.get('userLogin') }}
+          <button @click="logout">Logout</button>
+      </div>
+      <div v-else>
+        <router-link to="/sign-in" class="Navbar_content"> Sign In </router-link>
+      </div>
     </div>
   </header>
 </template>

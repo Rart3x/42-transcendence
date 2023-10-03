@@ -11,6 +11,7 @@
     "18": "^0.0.0",
     "@fortawesome/vue-fontawesome": "^3.0.0-5",
     "axios": "^1.5.1",
+    "js-cookie": "^3.0.5",
     "latest": "^0.2.0",
     "phaser": "^3.60.0",
     "vue": "^3.3.4",

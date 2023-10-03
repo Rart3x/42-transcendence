@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import Cookies from 'js-cookie';
 import axios from "axios";
 
 const userInfo = ref(null);
@@ -29,6 +30,7 @@ onMounted(async () => {
 
       // Step 4: Store the user information in the userInfo object
       userInfo.value = user;
+      Cookies.set('userLogin', user.login, { expires: 1, secure: true, sameSite: 'Strict' });
     } catch (error) {
       console.error(error);
     }
