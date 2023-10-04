@@ -31,9 +31,7 @@ const signInWithIntra = () => {
           <router-link to="/game" class="Navbar_content">Game</router-link>
         </li>
         <li>
-          <router-link to="/leaderboard" class="Navbar_content"
-            >Leaderboard</router-link
-          >
+          <router-link to="/about" class="Navbar_content">About</router-link>
         </li>
         <li>
           <router-link to="/chat" class="Navbar_content">Chat</router-link>

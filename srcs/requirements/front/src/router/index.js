@@ -14,9 +14,9 @@ const router = createRouter({
       component: () => import("@/components/Game.vue"),
     },
     {
-      path: "/leaderboard",
-      name: "leaderboard",
-      component: () => import("@/components/Leaderboard.vue"),
+      path: "/about",
+      name: "about",
+      component: () => import("@/components/About.vue"),
     },
     {
       path: "/chat",
