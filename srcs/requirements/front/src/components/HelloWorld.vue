@@ -1,9 +1,14 @@
 <template>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8297d8b (game is centered and responsive)
 </template>
 
 <script>
 import Phaser from "phaser";
 import GameScene from "@/components/GameScene.vue";
+
 
 
 export default {
@@ -33,6 +38,7 @@ export default {
   },
   methods: {
     createGame(config){
+      console.log(config);
       const game = new Phaser.Game(config);
       this.initialize = true;
     },
