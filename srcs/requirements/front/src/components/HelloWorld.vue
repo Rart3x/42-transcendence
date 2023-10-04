@@ -1,18 +1,14 @@
 <template>
-<<<<<<< HEAD
-=======
-
->>>>>>> 8297d8b (game is centered and responsive)
 </template>
 
-<script>
-import Phaser from "phaser";
-import GameScene from "@/components/GameScene.vue";
+<script lang="ts">
 
+import Phaser from 'phaser'
+import GameScene from '@/components/GameScene.vue'
 
 
 export default {
-  name: "HelloWorld",
+  name: 'HelloWorld',
   data() {
     return {
       game: {
@@ -24,24 +20,20 @@ export default {
         width: 1000,
         height: 800,
         physics: {
-          default: "arcade",
-          arcade: { debug: true },
+          default: 'matter',
+          matter : {debug: true}
         },
-        scene: GameScene,
+        scene: GameScene
       },
-      scale: {
-        mode: Phaser.Scale.CENTER_BOTH,
-        mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
-      },
-      initialize: false,
-    };
+      initialize: false
+    }
   },
   methods: {
-    createGame(config){
+    createGame(config : any){
       console.log(config);
       const game = new Phaser.Game(config);
       this.initialize = true;
-    },
+    }
   },
   mounted() {
     this.createGame(this.game);

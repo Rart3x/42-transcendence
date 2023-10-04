@@ -1,193 +1,305 @@
 <script>
+
 import Phaser from 'phaser';
+import { Bodies } from 'matter-js'
 
 export default class Game extends Phaser.Scene {
+
+    leftSide;
+    rightSide;
+    uppeSide;
+    lowerSide;
     player1;
     player2;
     ball;
-    left_side;
-    right_side;
-    upper_side;
-    lower_side;
-    score_p1;
-    score_p2;
-    score_txt_p1;
-    score_txt_p2;
+    emitter;
+    scorePlayer1 = 0;
+    scorePlayer2 = 0;
+    scorePlayer1Displayed;
+    scorePlayer2Displayed;
     bounce;
-    enhanced_bot_deviation = 0;
-    initial_bot_deviation = 0;
     timerEvent;
+    gameFinishMessage;
+    button;
+    gameRunning = false;
+    initializationDone = false;
+
+    //constants
+    static SCORE_PLAYER1_X = 440;
+    static SCORE_PLAYER2_X = 520;
+    static SCORE_SIZE = 35;
+    static MAP_POINT_Y = 500;
+    static MAP_HEIGHT = 770;
+    static PLAYER_WIDTH = 10;
+    static PLAYER_HEIGHT = 60;
+    static BALL_SCALE = 0.1;
+
+    constructor(){
+        super('game');
+    }
 
     preload(){
         this.load.setPath('src/assets');
         this.load.bitmapFont('atari', 'atari-smooth.png', 'atari-smooth.xml');
-        this.load.audio('theme', 'tvari-seoul-arcade-163807.mp3',);
-        this.load.audio('bounce', 'SwitchClickOldDbx PE1090906.mp3');
-        this.load.image('ball','ball-pink.png');
+        this.load.image('button', 'flixel-button.png', { frameWidth: 80, frameHeight: 20 });
         this.load.image('red', 'red.png');
+        this.load.image('ball','ball-pink.png');
         this.game.scale.pageAlignHorizontally = true;
         this.game.scale.pageAlignVertically = true;
+        this.load.audio('bounce', 'SwitchClickOldDbx PE1090906.mp3');
         this.game.scale.refresh();
     }
 
     create(){
-        //map middle line
+
+        this.setupUI();
+        // this.startGame();
+
+        //deplacements
+        this.input.on('pointermove', function(pointer){
+            if (this.gameRunning){
+                this.player1.body.y = Phaser.Math.Clamp(pointer.worldY, 20, 760);
+                this.player1.y = Phaser.Math.Clamp(pointer.worldY, 40, 760);
+            }
+        }, this);
+
+        //collision ball
+        this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
+            if (this.gameRunning)
+            {
+                let bodies = [bodyA.label, bodyB.label];
+                if (bodies.includes('lower') || bodies.includes('upper') || bodies.includes('player1') || bodies.includes('player2')){
+                    this.bounce.play();
+                }
+                if (bodies.includes('ball') && (bodies.includes('player1') || bodies.includes('player2'))){
+                    this.handleCollisionsPlayerBall(bodyA, bodyB);
+                }
+                else if (bodies.includes('ball') && (bodies.includes('left') || bodies.includes('right'))){
+                    this.handleCollisionsBallWalls(bodyA, bodyB);
+                }
+            }
+        }, this);
+    }
+
+    setupUI(){
+        this.startButton = this.add.text(500, 400, 'START')
+            .setPadding(10)
+            .setOrigin(0.5)
+            .setScale(2, 2)
+            .setStyle({ backgroundColor: '#111' })
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', this.startGame, this)
+            .on('pointerover', () => this.startButton.setStyle({ fill: '#ffff00' }))
+            .on('pointerout', () => this.startButton.setStyle({ fill: '#ffffff' }))
+    }
+
+    setupWorld(){
+        this.matter.world.disableGravity();
+        this.matter.world.setBounds();
+    }
+
+    startGame(){
+        if (this.initializationDone == false)
+        {
+            this.setupMap();
+            this.setupBall();
+            this.setupParticles();
+            this.setupPlayers();
+            this.setupScore();
+            this.setupSound();
+            this.setupCollision();
+            this.setupWorld();
+            this.initializationDone = true;
+        }
+        else{
+            this.scorePlayer1 = 0;
+            this.scorePlayer2 = 0;
+            this.ballSpawn();
+            this.gameFinishMessage.setVisible(false);
+            this.scorePlayer1Displayed.setText("0");
+            this.scorePlayer2Displayed.setText("0");
+            this.ball.setPosition(500, Phaser.Math.Between(20, 760));
+            this.decideRandomBallDirection();
+        }
+        this.gameRunning = true;
+        this.startButton.destroy();
+    }
+
+    setupParticles(){
+        this.emitter = this.add.particles(this.ball.body.x, this.ball.body.y, 'red', {
+            speed: 100,
+            scale: { start: 0.2, end: 0.3 },
+            blendMode: 'ADD',
+        });
+        const deathZoneEmitter = new Phaser.Geom.Rectangle(20, 20, 960, 760);
+        this.emitter.addDeathZone({ type : 'edge', source : deathZoneEmitter});
+        this.emitter.startFollow(this.ball);
+    }
+
+    decideRandomBallDirection(){
+        if (Phaser.Math.Between(0, 1) % 2 == 0){
+            this.ball.setVelocityX(5);
+        }
+        else{
+            this.ball.setVelocityX(-5);
+        }
+    }
+
+    setupBall(){
+        const ballOptions = {
+            inertia: Infinity,
+            restitution: 1,
+            friction: 0,
+            frictionAir: 0,
+            frictionStatic: 0,
+            label: 'ball'
+        }
+        this.ball = this.matter.add.image(500, 400, 'ball');
+        this.ball.scale = 0.1;
+        this.ball.setCircle(10, ballOptions);
+        this.ball.setVelocity(5);
+        this.ball.setPosition(500, Phaser.Math.Between(20, 760));
+        this.decideRandomBallDirection();
+    }
+
+    setupMap(){
+        const point = new Phaser.Math.Vector2(Game.MAP_POINT_Y, 20);
         const graphics = this.add.graphics({ fillStyle: { color: 0xffffffff } });
-        const point = new Phaser.Math.Vector2(500, 20);
-        // this.game.scale.pageAlignHorizontally = true;
-        // this.game.scale.pageAlignVertically = true;
-        // this.game.scale.refresh();
         for (let offset = 20; offset < 800; offset+=20)
         {
             point.y = offset;
             graphics.fillPointShape(point, 10);
         }
-        //map limits
-        this.left_side = this.add.rectangle(20, 400, 10, 770, 0xffffffff);
-        this.right_side = this.add.rectangle(980, 400, 10, 770, 0xffffffff);
-        this.upper_side = this.add.rectangle(500, 10,970, 10, 0xffffffff);
-        this.lower_side = this.add.rectangle(500, 790, 970, 10, 0xffffffff);
-        const music = this.sound.add('theme');
+        this.leftSide = this.add.rectangle(20, 400, 10, 770, 0xffffffff);
+        this.rightSide = this.add.rectangle(980, 400, 10, 770, 0xffffffff);
+        this.upperSide = this.add.rectangle(500, 10,970, 10, 0xffffffff);
+        this.lowerSide = this.add.rectangle(500, 790, 970, 10, 0xffffffff);
+    }
+
+    setupPlayers(){
+        this.player1 = this.add.rectangle(50, 400, 10, 60, 0xffffffff);
+        this.player2 = this.add.rectangle(950, 400, 10, 60, 0xffffffff);
+    }
+
+    setupCollision(){
+        //walls
+        this.matter.add.gameObject(this.lowerSide, { label: 'lower', isStatic: true });
+        this.matter.add.gameObject(this.upperSide, { label: 'upper', isStatic: true });
+        this.matter.add.gameObject(this.leftSide, { label: 'left', isStatic: true });
+        this.matter.add.gameObject(this.rightSide, { label: 'right', isStatic: true });
+        //players
+        this.matter.add.gameObject(this.player1, { label: 'player1', isStatic: true });
+        this.matter.add.gameObject(this.player2, { label: 'player2', isStatic: true });
+    }
+
+    setupScore(){
+        this.gameFinishMessage = this.add.bitmapText(320, 350, 'atari', '', 40);
+        this.gameFinishMessage.setText("Game finish");
+        this.gameFinishMessage.setVisible(false);
+        this.scorePlayer1Displayed = this.add.bitmapText(Game.SCORE_PLAYER1_X, 40, 'atari', '', Game.SCORE_SIZE);
+        this.scorePlayer2Displayed = this.add.bitmapText(Game.SCORE_PLAYER2_X, 40, 'atari', '', Game.SCORE_SIZE);
+        this.scorePlayer1Displayed.setText("0");
+        this.scorePlayer2Displayed.setText("0");
+    }
+
+    setupSound(){
         this.bounce = this.sound.add('bounce');
-        // music.play();
-        this.left_side.name = "left_side";
-        this.right_side.name = "right_side";
-        this.score_txt_p1 = this.add.bitmapText(440, 40, 'atari', '', 35);
-        this.score_txt_p2 = this.add.bitmapText(520, 40, 'atari', '', 35);
-        this.score_txt_p1.setText("0");
-        this.score_txt_p2.setText("0");
-        this.score_p1 = 0;
-        this.score_p2 = 0;
-        this.physics.add.existing(this.left_side, true);
-        this.physics.add.existing(this.right_side, true);
-        this.physics.add.existing(this.upper_side, true);
-        this.physics.add.existing(this.lower_side, true);
-        //defining a deathzone
-        //players are represented by 10x50 rectangle are identify by labels
-        this.player1 = this.add.rectangle(50, 300, 10,50, 0xffffffff);
-        this.player2 = this.add.rectangle(950, 300, 10, 50, 0xffffffff);
-        this.player1.name = "player1";
-        this.player2.name = "player2";
-        //add a physics body to players
-        this.physics.add.existing(this.player1, true);
-        this.physics.add.existing(this.player2, true);
-        this.ball = this.physics.add.sprite(0, 0, 'ball');
-        //set collision between both player and the ball
-        //onHit is a callback to modify the velocity of the ball when hitting a player paddel
-        //velocity = speed and direction vector
-        this.physics.add.collider(this.ball, this.player1, this.onHit, undefined, this);
-        this.physics.add.collider(this.ball, this.player2, this.onHit, undefined, this);
-        this.physics.add.collider(this.ball, this.left_side, this.pointScoreTimer, undefined, this);
-        this.physics.add.collider(this.ball, this.right_side, this.pointScoreTimer, undefined, this);
-        this.physics.add.collider(this.ball, this.upper_side, this.bounceSound, undefined, this);
-        this.physics.add.collider(this.ball, this.lower_side, this.bounceSound, undefined, this);
-        this.physics.add.collider(this.player1, this.upper_side);
-        this.physics.add.collider(this.player2, this.lower_side);
-        this.ball.body.x = this.ball.x;
-        this.ball.body.y = this.ball.y;
-        const emitter = this.add.particles(this.ball.body.x, this.ball.body.y, 'red', {
-            speed: 100,
-            scale: { start: 0.2, end: 0.3 },
-            blendMode: 'ADD',
-        });
-        //deadzone of the particules = walls
-        const zone = new Phaser.Geom.Rectangle(20, 20, 960, 760);
-        emitter.addDeathZone({ type: 'edge', source: zone});
-        this.initialBallState();
-        //set the collision and bouncing with the world
-        this.ball.body.setBounce(1).setCollideWorldBounds(true);
-        this.ball.body.setMaxSpeed(500);
-        emitter.startFollow(this.ball);
-        this.input.on('pointermove', function(pointer){
-            this.player1.body.y = pointer.worldY;
-            this.player1.y = pointer.worldY + 25;
-        }, this);
-        //left,right,up,down
-        this.physics.world.setBoundsCollision(false, false, true, true);
-
     }
 
-    pointScoreTimer(ball, wall){
-        ball.setPosition(500, Phaser.Math.Between(0, 500));
-        ball.setVelocity(0, 0);
-        if (wall.name == "left_side"){
-            this.score_p2++;
+    updateScore(bodyA, bodyB){
+        if (bodyB.label == 'bodyA'){
+            this.ball.setPosition(500, Phaser.Math.Between(20, 760));
         }
         else{
-            this.score_p1++;
+            this.ball.setPosition(500, Phaser.Math.Between(20, 760));
         }
-        var score_stringify = this.score_p1 + "";
-        this.score_txt_p1.setText(score_stringify);
-        score_stringify = this.score_p2 + "";
-        this.score_txt_p2.setText(score_stringify);
-        this.timerEvent = this.time.addEvent({delay: 3000, callback: this.pointScore, callbackScope: this, args: [ball, wall]});
-    }
-
-    pointScore(ball, wall) {
-        const randomPos  = Phaser.Math.Between(120, 150);
-        wall.name == "left_side" ? this.ball.setVelocity(300, randomPos) : this.ball.setVelocity(-300, randomPos);
-        this.enhanced_bot_deviation = 0;
-    };
-
-    bounceSound(){
-        this.bounce.play();
-    }
-
-    initialBallState(){
-        //Spawn the ball at a random position in the middle of the map
-        this.ball.setPosition(500, Phaser.Math.Between(0, 500));
-        this.ball.scale = 0.05;
-        //First ball start randomly to either one of the side
-        //then it will spawn in direction of the player who won last ball
-        if (Phaser.Math.Between(0, 1) % 2 == 0){
-            this.ball.setVelocity(-300, Phaser.Math.Between(120, 150));
-        }
-        else{
-            this.ball.setVelocity(300, Phaser.Math.Between(120, 150));
-        }
-    }
-
-    onHit(ball, player) {
-        var delta = 0;
-        this.bounce.play();
-        //Ball hit top of the paddle
-        if (player.y > ball.y + 5){
-            delta = player.y - ball.y;
-            //If the player make a good play then the game rewards him by adding randomness to the bot's next shot,
-            //in addition of the initial randomness we give to the bot.
-            if (player.name == "player1"){
-                this.enhanced_bot_deviation = delta * Phaser.Math.Between(0.95, 1.05);
-                this.initial_bot_deviation = 5 * Phaser.Math.Between(0.80, 1.20);
-            }
-            ball.body.setVelocityY(-10 * delta);
-        }
-        //Ball hit bot of the paddle
-        else if (player.y < ball.y - 5)
-        {
-            delta = ball.y - player.y;
-            if (player.name == "player1"){
-                this.enhanced_bot_deviation = delta * Phaser.Math.Between(0.95, 1.05);
-                this.initial_bot_deviation = 5 * Phaser.Math.Between(0.80, 1.20);
-            }
-            ball.body.setVelocityY(10 * delta);
-        }
-        //The case when one of the player hit the ball on the middle of the paddle, in this case we add a default randomness to the shot
-        else
-        {
-            let deviation = 30 * Math.random() ;
-            ball.body.setVelocityY(deviation);
-        }
+        this.scorePlayer1Displayed.setText(this.scorePlayer1);
+        this.scorePlayer2Displayed.setText(this.scorePlayer2);
+        this.ballSpawn();
     }
 
     update(time, delta) {
-        this.player2.y = this.ball.y + this.enhanced_bot_deviation + this.initial_bot_deviation;
-        //Because player body start at the middle of the sprite
-        this.player2.body.y = this.player2.y - 25;
-        if (this.score_p2 == 3 || this.score_p1 == 3)
-        {
-            const gameFinishMsg = this.add.bitmapText(320, 450, 'atari', '', 35);
-            gameFinishMsg.setText("Game finish")
-            this.game.pause();
+        if (this.gameRunning && this.ball.x > 500 && this.ball.body.velocity.x > 0){
+            if (this.player2.y > this.ball.y){
+                this.player2.y-=5;
+            }
+            else if (this.player2.y < this.ball.y){
+                this.player2.y+=5;
+            }
+            this.player1.y = Phaser.Math.Clamp(this.player1.y, 45, 755);
+            this.player1.body.y = Phaser.Math.Clamp(this.player1.y, 40, 760);
+            this.player2.y = Phaser.Math.Clamp(this.player2.y, 45, 755);
+            this.player2.body.y = Phaser.Math.Clamp(this.player2.y, 40, 760);
+        }
+    }
+
+    handleCollisionsPlayerBall(bodyA, bodyB){
+        var player;
+        if (bodyB.label == 'player1'){
+            player = this.player1;
+        }
+        else{
+            player = this.player2;
+        }
+        var intersectionDeltaY = 0;
+        if (this.ball.body.velocity.y > 0){
+            if (player.y > this.ball.y){
+                intersectionDeltaY = player.y - this.ball.y;
+                this.ball.setVelocityY(this.ball.body.velocity.y * -1);
+            }
+            else{
+                intersectionDeltaY = this.ball.y - player.y;
+                this.ball.setVelocityY(this.ball.body.velocity.y );
+            }
+        }
+        else{
+            if (player.y > this.ball.y){
+                intersectionDeltaY = player.y - this.ball.y;
+                this.ball.setVelocityY(this.ball.body.velocity.y );
+            }
+            else{
+                intersectionDeltaY = this.ball.y - player.y;
+                this.ball.setVelocityY(this.ball.body.velocity.y * -1);
+            }
+        }
+    }
+
+    restartGame(){
+        this.gameRunning = false;
+        this.setupUI();
+    }
+
+    ballDespawn(){
+        this.ball.setActive(false).setVisible(false);
+        this.emitter.stopFollow(this.ball);
+        this.ball.body.isStatic = true;
+    }
+
+    ballSpawn(){
+        this.ball.body.isStatic = false;
+        this.ball.setActive(true).setVisible(true);
+        this.emitter.startFollow(this.ball);
+    }
+
+    handleCollisionsBallWalls(bodyA, bodyB){
+        if (bodyB.label == 'left'){
+            this.scorePlayer2++;
+            this.scorePlayer2Displayed.setText(this.scorePlayer2);
+        }
+        else{
+            this.scorePlayer1++;
+            this.scorePlayer1Displayed.setText(this.scorePlayer1);
+        }
+        if (this.scorePlayer1 == 1 || this.scorePlayer2 == 1){
+            this.scorePlayer1Displayed.setText(this.scorePlayer1);
+            this.scorePlayer2Displayed.setText(this.scorePlayer2);
+            this.gameFinishMessage.setVisible(true);
+            this.ballDespawn();
+            this.timerEvent = this.time.addEvent({delay: 5000, callback: this.restartGame, callbackScope: this});
+        }
+        else{
+            this.ballDespawn();
+            this.timerEvent = this.time.addEvent({delay: 3000, callback: this.updateScore, callbackScope: this, args : [bodyA, bodyB]});
         }
     }
 }
