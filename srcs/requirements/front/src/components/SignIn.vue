@@ -1,7 +1,7 @@
 <script setup>
 import Cookies from "js-cookie";
 import { ref, onMounted } from "vue";
-import { User } from "@components/User.vue";
+import User from "./User.vue";
 
 const userInfo = ref(null);
 
@@ -49,18 +49,18 @@ onMounted(async () => {
         secure: true,
         sameSite: "Strict",
       });
-
       const userComponent = new User();
-      userComponent.submitForm(user.login);
+      userComponent.submitForm(userInfo.value.login);
     }
     catch (error) {
       console.error(error);
     }
-    console.log(userInfo._rawValue);
     window.location.href = "/Profile";
   }
   else {
     window.location.href = "/";
   }
+
 });
+
 </script>
