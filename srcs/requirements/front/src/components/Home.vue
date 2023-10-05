@@ -1,10 +1,22 @@
-<script setup></script>
+<script setup>
+import Cookies from "js-cookie";
+const logout = () => {
+  // Clear userLogin cookie
+  Cookies.remove("userLogin");
+  // Redirect to sign-in page
+  window.location.href = "/";
+};
+
+const signInWithIntra = () => {
+  // Redirect the user to the 42 intra authorization page
+  window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${
+    import.meta.env.VITE_CLIENT_ID
+  }&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
+};
+</script>
 
 <template>
   <body>
-    <div class="head">
-    <h1>PMT</h1>
-    </div>
     <nav class="Navbar">
     <ul>
       <li style="--i: 5" data-icon="&#xf015">
@@ -27,9 +39,23 @@
   <div>
     <section id="home"> <h1>Home</h1> </section>
     <section id="game"> Game </section>
+    <router-link to="/game"> @</router-link>
     <section id="chat"> Chat </section>
+    <router-link to="/chat"> @</router-link>
     <section id="about"> About </section>
+    <router-link to="/about"> @</router-link>
     <section id="sign"> Sign in  </section>
+    <div v-if="Cookies.get('userLogin')">
+        Logged in as: {{ Cookies.get("userLogin") }}
+        <button @click="logout">Logout</button>
+      </div>
+      <div v-else>
+        <img
+          src="@/components/icons/SignIn.png"
+          @click="signInWithIntra"
+          class="sign"
+        />
+      </div>
   </div>
   </body>
 </template>
@@ -60,7 +86,7 @@ li {
 
 li:hover {
   background-color: #996fae;
-  transform: translateX(-50px);
+  transform: translateX(50px);
 }
 
 li::before {
@@ -123,20 +149,12 @@ li:last-child::after {
 .Navbar{
   display: flex;
   justify-content: left;
-  padding: 10vh 0vw 10vh 3vw;
+  padding: 10vh 1vw 10vh 1vw;
 }
-
-.head{
-  display: flex;
-  justify-content: center;
-  background-color: #fff;
+.sign {
+  width: 128;
+  height: 32px;
+  justify-self: flex-start;
   border-radius: 10px;
-  padding: 2vh 0vw 2vh 0vw;
 }
- @media (max-width: 1024px) {
-  .Navbar{
-    padding: 10vh 0vw 10vh 12vw;
-  }
-}
-
 </style>
