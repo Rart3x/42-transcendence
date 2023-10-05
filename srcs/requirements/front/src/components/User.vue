@@ -1,31 +1,13 @@
-<script setup>
-import Header from "@/components/Header.vue";
-import { ref } from "vue";
-import { RouterLink, RouterView } from "vue-router";
-</script>
-
-<template>
-  <div id="userForm">
-    <form @submit.prevent="submitForm">
-      <label for="username">Username :</label>
-      <input type="text" id="username" v-model="userData.userName" required>
-      <button type="submit">Envoyer</button>
-    </form>
-  </div>
-</template>
-
-  
 <script>
 export default {
+
   data() {
     return {
-      userData: {
-        userName: '',
-      },
+      userName: '',
     };
   },
   methods: {
-    async submitForm() {
+    async submitForm(userName) {
       try {
         const response = await fetch("http://localhost:3000/user", {
           method: "POST",

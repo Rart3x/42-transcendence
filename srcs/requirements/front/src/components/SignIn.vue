@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted } from "vue";
 import Cookies from "js-cookie";
+import { ref, onMounted } from "vue";
+import { User } from "@components/User.vue";
 
 const userInfo = ref(null);
 
@@ -22,9 +23,11 @@ onMounted(async () => {
           redirect_uri: import.meta.env.VITE_REDIRECT_URI,
         }),
       });
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+
       const data = await response.json();
       const accessToken = data.access_token;
 
@@ -33,9 +36,11 @@ onMounted(async () => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+
       if (!userResponse.ok) {
         throw new Error(`HTTP error! status: ${userResponse.status}`);
       }
+      
       const user = await userResponse.json();
 
       userInfo.value = user;
@@ -44,12 +49,17 @@ onMounted(async () => {
         secure: true,
         sameSite: "Strict",
       });
-    } catch (error) {
+
+      const userComponent = new User();
+      userComponent.submitForm(user.login);
+    }
+    catch (error) {
       console.error(error);
     }
     console.log(userInfo._rawValue);
     window.location.href = "/Profile";
-  } else {
+  }
+  else {
     window.location.href = "/";
   }
 });
