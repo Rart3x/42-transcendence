@@ -7,7 +7,9 @@ import { RouterLink, RouterView } from "vue-router";
     <div class="Navbar_container">
       <ol class="Navbar_list">
         <li>
-          <router-link to="/" class="Navbar_content"> PMT </router-link>
+          <router-link to="/" class="Navbar_content">
+            <h3>PMT</h3>
+          </router-link>
         </li>
       </ol>
     </div>
@@ -17,25 +19,21 @@ import { RouterLink, RouterView } from "vue-router";
 <style scoped>
 .Navbar_container {
   border-radius: 10px;
-
   display: flex;
-  justify-content: center;
-  align-items: center;
   padding: 2vh 4vw 2vh 4vw;
-  margin: 1vh 0vw 1vh 0vw;
-  /* background-image: url(); */
-  background-color: #ffffff;
+  margin: 1vh 1vw 1vh 1vw;
+  background-color: #7b5190;
 }
 
 .Navbar_list {
   display: flex;
   list-style-type: none;
   text-align: center;
+  padding: 0vh 40vw 0vh 43.5vw;
 }
 
 .Navbar_content {
-  color: #595358;
-  padding: 0vh 0vw 0vh 0vw;
+  color: #fff;
   text-decoration: none;
   font-size: 20px;
 }

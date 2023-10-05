@@ -16,12 +16,8 @@ const signInWithIntra = () => {
 </script>
 
 <template>
-  <body>
     <nav class="Navbar">
     <ul>
-      <li style="--i: 5" data-icon="&#xf015">
-        <a href="#home"> Home </a>
-      </li>
       <li style="--i: 4" data-icon="&#xf11b">
         <a href="#game"> Game </a>
       </li>
@@ -32,19 +28,31 @@ const signInWithIntra = () => {
         <a href="#about"> About </a>
       </li>
       <li style="--i: 1" data-icon="@">
-        <a href="#sign"> Sign in </a>
+        <a href="#profile"> Profile </a>
       </li>
     </ul>
   </nav>
   <div>
-    <section id="home"> <h1>Home</h1> </section>
-    <section id="game"> Game </section>
-    <router-link to="/game"> @</router-link>
-    <section id="chat"> Chat </section>
-    <router-link to="/chat"> @</router-link>
-    <section id="about"> About </section>
-    <router-link to="/about"> @</router-link>
-    <section id="sign"> Sign in  </section>
+    <h1 id="game" class="title"> GAME </h1>
+    <div class="section">
+     <router-link to="/game">
+      <img class="img" src="@/components/images/pong-wallpaper.jpg" />
+     </router-link>
+    </div>
+    <h1 id="chat" class="title"> CHAT </h1>
+    <div class="section">
+    <router-link to="/chat"> 
+      <img class="img" src="@/components/images/chat-img.jpg" />
+    </router-link>
+    </div>
+    <h1 id="about"  class="title"> ABOUT </h1>
+    <div class="section">
+    <router-link to="/about">
+      <img class="img" src="@/components/images/icon-pmt.png" />
+    </router-link>
+    </div>
+    <h1 id="profile" class="title"> PROFILE </h1>
+    <div class="section">
     <div v-if="Cookies.get('userLogin')">
         Logged in as: {{ Cookies.get("userLogin") }}
         <button @click="logout">Logout</button>
@@ -56,19 +64,41 @@ const signInWithIntra = () => {
           class="sign"
         />
       </div>
+    </div>
   </div>
-  </body>
 </template>
 
 <style scoped>
 @import url(https://fonts.googleapis.com/css?family=Oswald:400,700);
 @import url(https://use.fontawesome.com/releases/v6.4.2/css/all.css);
 
-body{
+
+.section{
   display: flex;
   justify-content: center;
-  flex-direction: column;
+  align-items: center;
+  padding: 0px 0px 300px 0px;
 }
+.title{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 0px 25px 0px;
+
+  &:before,
+  &:after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    margin: 0 1em;
+    box-shadow: 0 1px 0 black;
+  }
+}
+.img{
+  width: 60vw;
+  height: 60vh;
+}
+
 ul {
   position: relative;
   transform: skewY(-15deg);
@@ -147,14 +177,20 @@ li:last-child::after {
 }
 
 .Navbar{
-  display: flex;
   justify-content: left;
-  padding: 10vh 1vw 10vh 1vw;
+  position: fixed;
+  top: 21vh;
+  left: 1vw;
+  opacity: .8;
 }
 .sign {
   width: 128;
   height: 32px;
   justify-self: flex-start;
   border-radius: 10px;
+}
+@media (max-height: 810px)
+{
+
 }
 </style>
