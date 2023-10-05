@@ -1,103 +1,64 @@
 <script setup></script>
 
 <template>
-  <div class="container">
-    <div class="profile_pictures_container">
-      <div class="profile_picture">
-        <img class="image" src="@/components/images/fsanna.jpg"/>
-        <div class="normal">
-          <div class="text">Fsanna</div>
-        </div>
-        <div class="hover">
-          <div class="text">Barman</div>
-        </div>
-      </div>
-      <div class="profile_picture">
-        <img class="image" src="@/components/images/kramjatt.jpg"/>
-        <div class="normal">
-          <div class="text">Kramjatt</div>
-        </div>
-        <div class="hover">
-          <div class="text">Responsable Frigo</div>
-        </div>
-      </div>
-      <div class="profile_picture">
-        <img class="image" src="@/components/images/nicarpen.jpg"/>
-        <div class="normal">
-          <div class="text">Nicarpen</div>
-        </div>
-        <div class="hover">
-          <div class="text">Dev sur Dofus</div>
-        </div>
-      </div>
-      <div class="profile_picture">
-        <img class="image" src="@/components/images/dguillau.jpg"/>
-        <div class="normal">
-          <div class="text">Dguillau</div>
-        </div>
-        <div class="hover">
-          <div class="text">Dev jeu qui sait pas ce qu'il fait</div>
-        </div>
-      </div>
+  <body>
+    <div class="box">
+      <span style="--i:1;"><img src="./images/fsanna.jpg" alt=""></span>
+      <span style="--i:2;"><img src="./images/kramjatt.jpg" alt=""></span>
+      <span style="--i:3;"><img src="./images/nicarpen.jpg" alt=""></span>
+      <span style="--i:4;"><img src="./images/dguillau.jpg" alt=""></span>
     </div>
-  </div>
+  </body>
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 75vh;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url(./images/dguillau.jpg);
+    background-size: cover;
+}
+.box {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    transform-style: preserve-3d;
+    animation: animate 20s linear infinite;
+}
+@keyframes animate {
+    0% {
+        transform: perspective(1000px) rotateY(0deg);
+    }
+    100% {
+        transform: perspective(1000px) rotateY(360deg);
+    }
+}
+.box span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    transform: rotateY(calc(var(--i)* 45deg)) translateZ(400px);
+    -webkit-box-reflect: below 0px linear-gradient(transparent,transparent, #0004);
+}
+.box span img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.profile_pictures_container {
-  display: flex;
-}
-
-.profile_picture {
-  position: relative;
-  width: 20vw;
-}
-
-.profile_picture .image {
-  width: 100%;
-}
-
-.profile_picture .text {
-  color: #fff;
-  font-size: 30px;
-  line-height: 1.5em;
-  text-shadow: 2px 2px 2px #000;
-  text-align: center;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-}
-
-.profile_picture .hover {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
-  transition: .5s ease;
-}
-
-.profile_picture:hover .hover {
-  opacity: 1;
-}
-
-.profile_picture .normal {
-  transition: .5s ease;
-}
-
-.profile_picture:hover .normal {
-  opacity: 0;
-}
-.profile_picture .hover {
-  background-color: rgba(0,0,0,0.5);
-}
 </style>
