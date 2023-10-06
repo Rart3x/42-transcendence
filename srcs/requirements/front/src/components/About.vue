@@ -3,10 +3,10 @@
 <template>
   <body>
     <div class="box">
-      <span style="--i:1;"><img src="./images/fsanna.jpg" alt=""></span>
-      <span style="--i:2;"><img src="./images/kramjatt.jpg" alt=""></span>
-      <span style="--i:3;"><img src="./images/nicarpen.jpg" alt=""></span>
-      <span style="--i:4;"><img src="./images/dguillau.jpg" alt=""></span>
+        <span style="--i:1;"><img src="./images/fsanna.jpg" alt=""></span>
+        <span style="--i:2;"><img src="./images/kramjatt.jpg" alt=""></span>
+        <span style="--i:3;"><img src="./images/nicarpen.jpg" alt=""></span>
+        <span style="--i:4;"><img src="./images/dguillau.jpg" alt=""></span>
     </div>
   </body>
 </template>
@@ -49,7 +49,7 @@ body {
     height: 100%;
     transform-origin: center;
     transform-style: preserve-3d;
-    transform: rotateY(calc(var(--i)* 45deg)) translateZ(400px);
+    transform: rotateY(calc(var(--i)* 90deg)) translateZ(400px);
     -webkit-box-reflect: below 0px linear-gradient(transparent,transparent, #0004);
 }
 .box span img {
