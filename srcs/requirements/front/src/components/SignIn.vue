@@ -1,7 +1,7 @@
 <script setup>
 import Cookies from "js-cookie";
 import { ref, onMounted } from "vue";
-import User from "./User.vue";
+import { insertUser } from './api/ApiCalls';
 
 const userInfo = ref(null);
 
@@ -23,7 +23,7 @@ onMounted(async () => {
           redirect_uri: import.meta.env.VITE_REDIRECT_URI,
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -40,7 +40,7 @@ onMounted(async () => {
       if (!userResponse.ok) {
         throw new Error(`HTTP error! status: ${userResponse.status}`);
       }
-      
+
       const user = await userResponse.json();
 
       userInfo.value = user;
@@ -49,8 +49,7 @@ onMounted(async () => {
         secure: true,
         sameSite: "Strict",
       });
-      const userComponent = new User();
-      userComponent.submitForm(userInfo.value.login);
+      insertUser(userInfo.value.login);
     }
     catch (error) {
       console.error(error);

@@ -23,7 +23,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url(./images/dguillau.jpg);
+    background: url(./images/kramjatt.jpg);
     background-size: cover;
 }
 .box {

@@ -1,5 +1,6 @@
 <script setup>
 import Cookies from "js-cookie";
+import { insertUser } from './api/ApiCalls';
 const logout = () => {
   // Clear userLogin cookie
   Cookies.remove("userLogin");
