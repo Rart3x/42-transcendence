@@ -16,6 +16,6 @@ export async function insertUser(userName) {
     }
   } 
   catch (error) {
-    console.error('Erreur lors de l\'envoi de la requête POST :', error);
+    console.error('error: sending POST request', error);
   }
 }
