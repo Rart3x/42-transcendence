@@ -26,6 +26,12 @@ prisma:
 	@cd ./srcs/requirements/back/ && \
 	prisma generate
 
+studio:
+	@cd ./srcs/requirements/back/prisma && \
+	sudo npx prisma studio &
+	@sleep 5
+	@google-chrome "http://localhost:5555/" || firefox "http://localhost:5555/" || true
+
 back:
 	@printf "Running Nest in $(NAME) on localhost:3000...\n"
 	@cd ./srcs/requirements/back/ && npm install && npm start

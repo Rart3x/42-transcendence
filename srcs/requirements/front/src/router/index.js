@@ -33,11 +33,6 @@ const router = createRouter({
       name: "sign-in",
       component: () => import("@/components/SignIn.vue"),
     },
-    {
-      path: "/user",
-      name: "user",
-      component: () => import("@/components/User.vue"),
-    },
   ],
 });
 
