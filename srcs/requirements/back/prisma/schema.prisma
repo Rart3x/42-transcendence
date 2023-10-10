@@ -34,7 +34,6 @@ model Game {
 model User {
   userId   Int     @id @default(autoincrement())
   userName String?
-  userPass String?
 }
 
 model ChannelMessages {

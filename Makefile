@@ -16,7 +16,10 @@ prisma:
 	@cd ./srcs/requirements/back/ && \
 	if [ ! -d "prisma" ]; then \
 		prisma init; \
-	fi \
+	fi
+	@cd ./srcs/requirements/back/ && \
+	npx prisma migrate dev --name init && \
+	npx prisma migrate dev
 	# Générez les modèles Prisma automatiquement
 	@prisma db pull --schema srcs/requirements/back/prisma/schema.prisma
 	# Générez Prisma Client
