@@ -39,18 +39,30 @@ const signInWithIntra = () => {
      <router-link to="/game">
       <img class="img" src="@/components/images/pong-wallpaper.jpg" />
      </router-link>
+     <div class="information">
+       <p>Simply game, pong.</p>
+       <p>You can click on image to play.</p>
+     </div>
     </div>
     <h1 id="chat" class="title"> CHAT </h1>
     <div class="section">
     <router-link to="/chat"> 
       <img class="img" src="@/components/images/chat-img.jpg" />
     </router-link>
+    <div class="information">
+       <p>Chat with another people.</p>
+       <p>You can click on image to access chat.</p>
+     </div>
     </div>
     <h1 id="about"  class="title"> ABOUT </h1>
     <div class="section">
     <router-link to="/about">
       <img class="img" src="@/components/images/icon-pmt.png" />
     </router-link>
+    <div class="information">
+       <p>About us, like who are programming and design this website.</p>
+       <p>You can click on image to access about page.</p>
+     </div>
     </div>
     <h1 id="profile" class="title"> PROFILE </h1>
     <div class="section">
@@ -72,14 +84,15 @@ const signInWithIntra = () => {
 <style scoped>
 @import url(https://fonts.googleapis.com/css?family=Oswald:400,700);
 @import url(https://use.fontawesome.com/releases/v6.4.2/css/all.css);
-
-
+@import url(https://fonts.googleapis.com/css2?family=Silkscreen&display=swap);
 .section{
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0px 0px 300px 0px;
+  flex-direction: column;
 }
+
 .title{
   display: flex;
   justify-content: center;
@@ -94,12 +107,21 @@ const signInWithIntra = () => {
     margin: 0 1em;
     box-shadow: 0 1px 0 black;
   }
+  font-style: italic;
+  font-family: 'Silkscreen', sans-serif;
 }
 .img{
   width: 60vw;
   height: 60vh;
 }
 
+.information{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: 'Silkscreen', sans-serif;
+}
 ul {
   position: relative;
   transform: skewY(-15deg);
@@ -189,9 +211,5 @@ li:last-child::after {
   height: 32px;
   justify-self: flex-start;
   border-radius: 10px;
-}
-@media (max-height: 810px)
-{
-
 }
 </style>
