@@ -1,12 +1,27 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
-import { ref } from "vue";
+  import { ref } from "vue";
+  import { updateUsername } from './api/ApiCalls';
 
-import Header from "@/components/Header.vue";
+  const userName = ref("");
+  const newUserName = ref("");
 </script>
 
 <template>
-  <h1>PROFILE</h1>
+  <br>
+  <div id="userForm">
+    <form @submit.prevent="updateUsername(userName, newUserName)">
+      <input type="text" id="userName" v-model="userName">
+      <input type="text" id="newUserName" v-model="newUserName">
+      <br>
+      <button type="submit">Send</button>
+    </form>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+
+#userForm {
+  text-align: center;
+}
+
+</style>

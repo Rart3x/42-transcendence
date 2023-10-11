@@ -11,7 +11,6 @@ export class UserController {
   @Post()
   async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
     try {
-      // Datas are not valid if it throw an exception
       await validateOrReject(createUserDTO);
 
       return this.userService.createUser(createUserDTO);
@@ -20,6 +19,20 @@ export class UserController {
       throw new BadRequestException(validationErrors);
     }
   }
+
+  @Post(':userName')
+  async updateUsername(@Body('userName') userName: string, @Body('newUserName') newUserName: string): Promise<User> {
+    
+    const user = await this.userService.getUserByUserName(userName);
+    
+    if (user) {
+      user.userName = newUserName;
+    }
+    else
+      console.warn("error: user not found");
+    return user;
+  }
+
   @Get(':userName')
   async getUserByUserName(@Param('userName') userName: string): Promise<User> {
     
@@ -33,4 +46,6 @@ export class UserController {
 
     return user;
   }
+
+
 }
