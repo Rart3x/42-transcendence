@@ -1,6 +1,6 @@
 import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
-import {  SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
 var cors = require('cors')

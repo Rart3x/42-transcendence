@@ -1,4 +1,4 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post} from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
@@ -19,5 +19,18 @@ export class UserController {
     catch (validationErrors) {
       throw new BadRequestException(validationErrors);
     }
+  }
+  @Get(':userName')
+  async getUserByUserName(@Param('userName') userName: string): Promise<User> {
+    
+    const user = await this.userService.getUserByUserName(userName);
+
+    if (!user) {
+      return this.createUser({ userName: userName });
+    }
+    else
+      console.warn("error: user is already register: ", userName)
+
+    return user;
   }
 }

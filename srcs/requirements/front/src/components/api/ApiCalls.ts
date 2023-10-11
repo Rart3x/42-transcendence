@@ -1,21 +1,21 @@
 export async function insertUser(userName) {
   try {
-    const response = await fetch("http://localhost:3000/user", {
-      method: "POST",
+    const response = await fetch(`http://localhost:3000/user/${userName}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userName: userName }),
     });
 
     if (response.ok) {
       const responseData = await response.json();
-    }
+    } 
     else {
       const errorText = await response.text();
+      console.error('error: while sending GET request', errorText);
     }
   } 
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('error: while sending GET request', error);
   }
 }
