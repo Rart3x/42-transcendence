@@ -15,7 +15,7 @@ model Admin {
 model Channel {
   channelId       Int               @id @default(autoincrement())
   ChannelAdmin    ChannelAdmin[]
-  ChannelMessages ChannelMessages[]
+  Message Message[]
 }
 
 model ChannelAdmin {
@@ -34,9 +34,10 @@ model Game {
 model User {
   userId   Int     @id @default(autoincrement())
   userName String?
+  userPass String?
 }
 
-model ChannelMessages {
+model Message {
   messageId    Int       @id @default(autoincrement())
   channelId    Int?
   message_text String?

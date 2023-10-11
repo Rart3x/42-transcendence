@@ -1,7 +1,7 @@
 import { Admin } from "../admin/admin.interface"
 import { Channel } from "../channel/channel.interface"
 
-interface ChannelAdmin {
+export interface ChannelAdmin {
     adminId: number;
     channelId: number;
     Admin: Admin;

@@ -1,6 +1,6 @@
 import { Channel } from "../channel/channel.interface"
 
-interface ChannelMessages {
+export interface Message {
     messageId: number;
     channelId?: number | null;
     message_text?: string | null;

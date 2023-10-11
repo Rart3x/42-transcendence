@@ -1,9 +1,23 @@
 <script setup>
-import { ref } from "vue";
+  import { ref } from "vue";
+  import { insertMessage } from './api/ApiCalls';
 </script>
 
 <template>
-  <h1>CHAT</h1>
+  <br>
+  <div id="messageForm">
+    <form @submit.prevent="insertMessage(message_text)">
+      <textarea id="message_text"></textarea>
+      <br>
+      <button type="submit">Send</button>
+    </form>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+
+#messageForm {
+  text-align: center;
+}
+
+</style>

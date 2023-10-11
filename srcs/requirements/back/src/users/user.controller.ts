@@ -1,7 +1,7 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post} from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { UserService } from './user.service';
 import { User } from '@prisma/client';
+import { UserService } from './user.service';
 import { validateOrReject } from 'class-validator';
 
 @Controller('user')
@@ -29,7 +29,7 @@ export class UserController {
       return this.createUser({ userName: userName });
     }
     else
-      console.warn("error: user is already register: ", userName)
+      console.warn("error: user is already register:", userName)
 
     return user;
   }
