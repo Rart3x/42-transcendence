@@ -67,7 +67,7 @@ const signInWithIntra = () => {
   justify-content: center;
   align-items: center;
   padding: 1vh 6vw 1vh 6vw;
-  margin: 0vh 1vw 0vh 1vw;
+  margin: 1vh 1vw 1vh 1vw;
 }
 .Navbar_list {
   display: flex;

@@ -25,8 +25,6 @@ back:
 front:
 	@printf "Running Vue in ${NAME}...\n"
 	@cd ./srcs/requirements/front && (npm install 18 || true) && npm run dev &
-	@sleep 5
-	@google-chrome "http://localhost:5173/" || firefox "http://localhost:5173/" || true
 
 #-------------------------------------DB-------------------------------------#
 prisma:
