@@ -24,9 +24,7 @@ back:
 
 front:
 	@printf "Running Vue in ${NAME}...\n"
-	@cd ./srcs/requirements/front && (npm install 18 || true) && npm run dev &
-	@sleep 5
-	@google-chrome "http://localhost:5173/" || firefox "http://localhost:5173/" || true
+	@cd ./srcs/requirements/front && (npm install 18 || true) && npm run dev
 
 #-------------------------------------DB-------------------------------------#
 prisma:
@@ -38,9 +36,7 @@ sql:
 
 studio:
 	@cd ./srcs/requirements/back/prisma && \
-	sudo npx prisma studio &
-	@sleep 5
-	@google-chrome "http://localhost:5555/" || firefox "http://localhost:5555/" || true
+	sudo npx prisma studio
 
 #-------------------------------------CLEANING-------------------------------------#
 clean: down
