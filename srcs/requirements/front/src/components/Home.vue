@@ -1,35 +1,17 @@
 <script setup>
-import Cookies from "js-cookie";
-import { insertUser } from './api/ApiCalls';
-const logout = () => {
-  // Clear userLogin cookie
-  Cookies.remove("userLogin");
-  // Redirect to sign-in page
-  window.location.href = "/";
-};
-
-const signInWithIntra = () => {
-  // Redirect the user to the 42 intra authorization page
-  window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${
-    import.meta.env.VITE_CLIENT_ID
-  }&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
-};
 </script>
 
 <template>
     <nav class="Navbar">
     <ul>
-      <li style="--i: 4" data-icon="&#xf11b">
+      <li style="--i: 3" data-icon="&#xf11b">
         <a href="#game"> Game </a>
       </li>
-      <li style="--i: 3" data-icon="&#xf03a">
+      <li style="--i: 2" data-icon="&#xf03a">
         <a href="#chat"> Chat </a>
       </li>
-      <li style="--i: 2" data-icon="&#xe533">
+      <li style="--i: 1" data-icon="&#xe533">
         <a href="#about"> About </a>
-      </li>
-      <li style="--i: 1" data-icon="@">
-        <a href="#profile"> Profile </a>
       </li>
     </ul>
   </nav>
@@ -64,20 +46,6 @@ const signInWithIntra = () => {
        <p>You can click on image to access about page.</p>
      </div>
     </div>
-    <h1 id="profile" class="title"> PROFILE </h1>
-    <div class="section">
-    <div v-if="Cookies.get('userLogin')">
-        Logged in as: {{ Cookies.get("userLogin") }}
-        <button @click="logout">Logout</button>
-      </div>
-      <div v-else>
-        <img
-          src="@/components/icons/SignIn.png"
-          @click="signInWithIntra"
-          class="sign"
-        />
-      </div>
-    </div>
   </div>
 </template>
 
@@ -111,7 +79,7 @@ const signInWithIntra = () => {
   font-family: 'Silkscreen', sans-serif;
 }
 .img{
-  width: 60vw;
+  width: 50vw;
   height: 60vh;
 }
 
@@ -130,7 +98,8 @@ ul {
 li {
   position: relative;
   list-style: none;
-  width: 200px;
+  width: 10vw;
+  height: 6vh;
   padding: 15px;
   background: #3e3f46;
   z-index: calc(1 * var(--i));
@@ -144,6 +113,7 @@ li:hover {
 
 li::before {
   font-family: "FontAwesome";
+  font-size: 1.8vh;
   color: #999;
   display: flex;
   justify-content: center;
@@ -190,6 +160,7 @@ li a {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: 0.5s;
+  font-size: 1.8vh;
 }
 li:hover a {
   color: #fff;
