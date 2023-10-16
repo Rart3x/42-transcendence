@@ -3,19 +3,19 @@ NAME = transcendence
 #-------------------------------------CLASSICS-------------------------------------#
 all: build
 	@printf "Launch configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml up -d || docker compose -f ./srcs/docker-compose.yml up -d
+	@docker compose -f ./srcs/docker-compose.yml up -d
 
 build:
 	@printf "Building configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml build || docker compose -f ./srcs/docker-compose.yml build
+	@docker compose -f ./srcs/docker-compose.yml build
 
 down:
 	@printf "Stopping configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml down -v || docker compose -f ./srcs/docker-compose.yml down -v
+	@docker compose -f ./srcs/docker-compose.yml down -v
 
 re: down
 	@printf "Rebuild configuration ${NAME}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml up -d --build || docker compose -f ./srcs/docker-compose.yml up -d --build
+	@docker compose -f ./srcs/docker-compose.yml up -d --build
 
 #-------------------------------------FRONT/BACK-------------------------------------#
 back:
@@ -36,7 +36,7 @@ sql:
 
 studio:
 	@cd ./srcs/requirements/back/prisma && \
-	sudo npx prisma studio
+	npx prisma studio
 
 #-------------------------------------CLEANING-------------------------------------#
 clean: down
