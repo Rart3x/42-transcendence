@@ -2,14 +2,16 @@
 import Cookies from "js-cookie";
 import { ref, onMounted } from "vue";
 import { insertUser } from './api/ApiCalls';
+import { useRouter } from "vue-router";
 
 const userInfo = ref(null);
 
 const code = new URL(window.location.href).searchParams.get("code");
 
 onMounted(async () => {
-  if (code || Cookies.get("userLogin")) {
-    try {
+  const router = useRouter();
+  try {
+    if (code || Cookies.get("userLogin")) {
       const response = await fetch("https://api.intra.42.fr/oauth/token", {
         method: "POST",
         headers: {
@@ -50,16 +52,19 @@ onMounted(async () => {
         sameSite: "Strict",
       });
       insertUser(userInfo.value.login);
+      console.log(userInfo.value);
+      window.location.href = "/Profile";
     }
-    catch (error) {
-      console.error(error);
+    else {
+      router.push('/');
     }
-    window.location.href = "/Profile";
   }
-  else {
-    window.location.href = "/";
+  catch (error) {
+    router.push('/');
   }
 
 });
 
 </script>
+
+<template></template>
