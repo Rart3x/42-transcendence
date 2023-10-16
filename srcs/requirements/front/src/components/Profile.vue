@@ -1,18 +1,27 @@
 <script setup>
   import { ref } from "vue";
   import { updateUsername } from './api/ApiCalls';
+  import Cookies from "js-cookie";
 
-  const userName = ref("");
   const newUserName = ref("");
+  let userName = Cookies.get("userLogin");
+
+  const handleSubmit = async () => {
+    const userName = Cookies.get("userLogin");
+    await updateUsername(userName, newUserName.value);
+    Cookies.remove("userLogin");
+    Cookies.set("userLogin", newUserName.value);
+    window.location.href = "/Profile";
+  }
 </script>
 
 <template>
-  <br>
   <div id="userForm">
-    <form @submit.prevent="updateUsername(userName, newUserName)">
-      <input type="text" id="userName" v-model="userName">
-      <input type="text" id="newUserName" v-model="newUserName">
+    <form @submit.prevent="handleSubmit">
+      <label for="newUserName">New username:</label>
       <br>
+      
+      <input type="text" id="newUserName" v-model="newUserName" :placeholder="userName">
       <button type="submit">Send</button>
     </form>
   </div>
