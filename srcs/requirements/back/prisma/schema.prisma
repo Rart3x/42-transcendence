@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = "postgresql://kramjatt:123@localhost:5432/PMU"
+  url = "postgresql://admin:admin@localhost:5432/PMU"
 }
 
 model Admin {
@@ -40,7 +40,7 @@ model User {
 model Message {
   messageId    Int       @id @default(autoincrement())
   channelId    Int?
-  message_text String?
+  message_text String
   message_date DateTime? @default(now()) @db.Timestamp(6)
   Channel      Channel?  @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
 }

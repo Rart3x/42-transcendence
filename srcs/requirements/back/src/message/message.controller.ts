@@ -21,4 +21,14 @@ export class MessageController {
       throw new BadRequestException(validationErrors);
     }
   }
+
+  @Get()
+  async getMessage(): Promise<{ message_text: string; message_date: Date }[]> {
+    try{
+      return await this.messageService.getMessage();
+    }
+    catch (validationErrors) {
+      throw new BadRequestException(validationErrors);
+    }
+  }
 }

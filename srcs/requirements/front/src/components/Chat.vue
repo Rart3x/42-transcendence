@@ -1,75 +1,124 @@
 <script setup>
-import { insertMessage } from "./api/ApiCalls";
-import { ref } from "vue";
+import { getMessage, insertMessage } from "./api/ApiCalls";
+import { ref, onMounted } from "vue";
 
-let id = 0;
+const message_text = ref("");
+const messages = ref([]);
 
-const newTodo = ref("");
-const todos = ref([{ id: id++, text: "Welcome." }]);
+onMounted(async () => {
+  await loadMessages();
+});
 
-function addTodo() {
-  todos.value.push({ id: id++, text: newTodo.value });
-  newTodo.value = "";
-}
+const formatMessageDate = (dateString) => {
+  const options = { hour: 'numeric', minute: 'numeric' };
+  return new Date(dateString).toLocaleString('en-US', options);
+};
+
+const loadMessages = async () => {
+  try {
+    const response = await getMessage();
+    if (response && response.length > 0) {
+      messages.value = response;
+    }
+  } 
+  catch (error) {
+    console.error("error: fetching messages:", error);
+  }
+};
+
+const sendMessage = async () => {
+  try {
+    await insertMessage(message_text.value);
+    const newMessage = await getMessage();
+    if (newMessage) {
+      messages.value.push(newMessage);
+    }
+    message_text.value = "";
+  } 
+  catch (error) {
+    console.error("error: sending message:", error);
+  }
+};
 </script>
 
 <template>
-  <body>
-    <div class="chat-container">
-      <div class="chat-box">
-        <span class="scroll-start-at-top"></span>
-        <div id="scroll-container">
-          <ul class="chat-list">
-            <li v-for="todo in todos" :key="todo.id">
-              {{ todo.text }}
-            </li>
-          </ul>
-        </div>
+  <div class="chat-container">
+    <div class="chat-box">
+      <div class="chat-header">Chat</div>
+      <div class="chat-messages">
+        <ul>
+          <li v-for="message in messages" :key="message.id">
+            <div class="message">
+              <div class="message-text">{{ message.message_text }}</div>
+              <div class="message-date">{{ formatMessageDate(message.message_date) }}</div>
+            </div>
+          </li>
+        </ul>
       </div>
-      <form @submit.prevent="addTodo">
-        <input class="chat-msg" v-model="newTodo" minlength="1" />
-        <button type="submit" class="chat-button">Send</button>
-      </form>
     </div>
-  </body>
+    <form @submit.prevent="sendMessage">
+      <input id="message_text" class="chat-input" v-model="message_text" placeholder="Type your message..." />
+      <button type="submit" class="chat-button">Send</button>
+    </form>
+  </div>
 </template>
 
 <style scoped>
-body {
-  min-width: 90vw;
-  min-height: 91.9vh;
-}
 .chat-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
-  flex: 1 1 0%;
+  align-items: center;
+  margin: 20px;
 }
+
 .chat-box {
-  width: 75vw;
-  height: 80vh;
-  overflow: auto;
-  display: flex;
-  flex-direction: column-reverse;
-  background-color: #fff;
+  width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px #ccc;
+  padding: 10px;
 }
 
-.scroll-start-at-top {
-  flex: 1 1 0%;
-}
-.chat-list {
-  background-color: #fff;
-  color: black;
-  list-style: none;
+.chat-header {
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
-.chat-msg {
-  width: 70.1vw;
-  min-height: 30px;
+.chat-messages {
+  max-height: 400px;
+  overflow-y: auto;
 }
+
+.chat-input {
+  width: 100%;
+  padding: 5px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
 .chat-button {
-  min-height: 30px;
-  width: 5vw;
+  width: 100%;
+  margin-top: 10px;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.message {
+  margin: 10px 0;
+}
+
+.message-text {
+  font-weight: bold;
+}
+
+.message-date {
+  font-size: 12px;
+  color: #888;
 }
 </style>
