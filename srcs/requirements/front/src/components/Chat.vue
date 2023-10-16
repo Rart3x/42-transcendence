@@ -1,14 +1,33 @@
 <script setup>
-import { ref } from "vue";
 import { insertMessage } from "./api/ApiCalls";
+import { ref } from "vue";
+
+let id = 0;
+
+const newTodo = ref("");
+const todos = ref([{ id: id++, text: "Welcome." }]);
+
+function addTodo() {
+  todos.value.push({ id: id++, text: newTodo.value });
+  newTodo.value = "";
+}
 </script>
 
 <template>
   <body>
     <div class="chat-container">
-      <canvas class="chat-box"></canvas>
-      <form @submit.prevent="insertMessage(message_text)">
-        <input class="chat-msg" />
+      <div class="chat-box">
+        <span class="scroll-start-at-top"></span>
+        <div id="scroll-container">
+          <ul class="chat-list">
+            <li v-for="todo in todos" :key="todo.id">
+              {{ todo.text }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <form @submit.prevent="addTodo">
+        <input class="chat-msg" v-model="newTodo" minlength="1" />
         <button type="submit" class="chat-button">Send</button>
       </form>
     </div>
@@ -25,11 +44,24 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  flex: 1 1 0%;
 }
 .chat-box {
-  background-color: #fff;
   width: 75vw;
-  min-height: 80vh;
+  height: 80vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  background-color: #fff;
+}
+
+.scroll-start-at-top {
+  flex: 1 1 0%;
+}
+.chat-list {
+  background-color: #fff;
+  color: black;
+  list-style: none;
 }
 
 .chat-msg {

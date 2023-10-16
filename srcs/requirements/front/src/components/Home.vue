@@ -7,7 +7,7 @@
       <li style="--i: 3" data-icon="&#xf11b">
         <a href="#game"> Game </a>
       </li>
-      <li style="--i: 2" data-icon="&#xf03a">
+      <li style="--i: 2" data-icon="&#xf086">
         <a href="#chat"> Chat </a>
       </li>
       <li style="--i: 1" data-icon="&#xe533">
