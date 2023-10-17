@@ -7,7 +7,7 @@ import Phaser from 'phaser'
 import GameScene from '@/components/GameScene.vue'
 
 export default {
-  name: 'HelloWorld',
+  name: 'GameConfig',
   data() {
     return {
       game: {

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import HelloWorld from "@/components/HelloWorld.vue";
+import GameConfig from "@/components/GameConfig.vue";
 </script>
 
 <template>
   <div id="game">
-    <HelloWorld/>
+    <GameConfig/>
   </div>
 </template>
 
