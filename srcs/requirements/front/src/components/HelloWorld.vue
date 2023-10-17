@@ -15,6 +15,7 @@ export default {
         scale: {
           parent: "game",
           autoCenter: Phaser.Scale.CENTER_BOTH,
+          mode: Phaser.Scale.FIT,
         },
         width: 1000,
         height: 800,
@@ -24,12 +25,11 @@ export default {
         },
         scene: GameScene
       },
-      initialize: false
+      initialize: true
     }
   },
   methods: {
     createGame(config : any){
-      console.log(config);
       const game = new Phaser.Game(config);
       this.initialize = true;
     }

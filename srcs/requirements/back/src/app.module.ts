@@ -4,9 +4,10 @@ import { Module } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { UserController } from './users/user.controller';
 import { UserService } from './users/user.service';
+import { EventsModule } from './events/events.module';
 
 @Module({
-  imports: [],
+  imports: [EventsModule],
   controllers: [MessageController, UserController],
   providers: [MessageService, UserService, PrismaService],
 })

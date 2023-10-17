@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import HelloWorld from "@/components/HelloWorld.vue";
 </script>
 
@@ -9,8 +9,4 @@ import HelloWorld from "@/components/HelloWorld.vue";
 </template>
 
 <style scoped>
-.game{
-    margin-left: auto;
-    margin-right: auto;
-}
 </style>
