@@ -12,9 +12,9 @@ import { map } from 'rxjs/operators';
 import { Server } from 'ws';
 import { io, Socket } from 'socket.io-client';
 import { serialize } from 'v8';
-import rectWrapper from '../../../front/src/elements/rectWrapper';
+import rectWrapper from '../elements/rectWrapper';
 import * as Matter from 'matter-js';
-import Player from '../../../front/src/elements/player';
+import Player from '../elements/player';
 import '@geckos.io/snapshot-interpolation';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
