@@ -7,11 +7,6 @@ services:
       POSTGRES_USER: kramjatt
       POSTGRES_PASSWORD: 123
       POSTGRES_DB: PMU
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     restart: always
-
-volumes:
-  postgres_data:
