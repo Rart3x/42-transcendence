@@ -217,7 +217,7 @@ export class EventsGateway {
 		//by web socket all the game objects which we serialized and also information about
 		//which slot he occupies inside the game (left or right), all with emit function.
 		clientsId.push(client.id);
-
+		
 		const scorePoint = (pair : Matter.Pairs) => {
 			Matter.Body.setPosition(ball, {x: 999999, y: 999999});
 			if (pair.bodyA.name == LEFT_WALL){

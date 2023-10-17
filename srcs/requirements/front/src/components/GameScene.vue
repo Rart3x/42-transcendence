@@ -1,13 +1,15 @@
 <script lang="ts">
 
+import '@geckos.io/snapshot-interpolation';
 import { io } from 'socket.io-client';
 import Phaser from 'phaser';
 import rectWrapper from '../elements/rectWrapper';
 import * as Matter from 'matter-js';
 import Player from '../elements/player';
-const socket = io('http://localhost:3000');
-import '@geckos.io/snapshot-interpolation';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
+import { insertWaiter } from './api/ApiCalls'
+
+const socket = io('http://localhost:3000');
 
 const SI = new SnapshotInterpolation();
 
@@ -61,6 +63,7 @@ export default class Game extends Phaser.Scene {
 			choiceButton2.destroy();
 			graphics.visible = false;
 			socket.emit('playerReady', { multiplayer : this.multiGameMode, bot : this.botGameMode });
+			insertWaiter(socket.id);
 		}, this)
 
 		choiceButton2 = this.add.bitmapText(450, 400, 'atari', '', 40)

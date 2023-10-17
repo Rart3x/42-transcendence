@@ -44,6 +44,7 @@ const sendMessage = async () => {
 <template>
   <div class="chat-container">
     <div class="chat-box">
+      <!-- <span class="scroll-start-at-top"></span> -->
       <div class="chat-header">Chat</div>
       <div class="chat-messages">
         <ul>
@@ -77,6 +78,13 @@ const sendMessage = async () => {
   border-radius: 5px;
   box-shadow: 0px 0px 5px #ccc;
   padding: 10px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.scroll-start-at-top {
+  flex: 1 1 0%;
 }
 
 .chat-header {
