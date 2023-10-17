@@ -20,6 +20,29 @@ export async function insertUser(userName) {
   }
 }
 
+export async function insertWaiter(waiterSocket : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/waiter`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ waiterSocket: waiterSocket }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+    } 
+    else {
+      const errorText = await response.text();
+      console.error('error: sending POST request: ', errorText);
+    }
+  } 
+  catch (error) {
+    console.error('error: sending POST request: ', error);
+  }
+}
+
 export async function insertMessage(message_text) {
   try {
     const response = await fetch("http://localhost:3000/message", {
