@@ -1,8 +1,8 @@
-import { Waiter } from "../waiters/waiter.interface"
+import { QueueList } from "../queueList/queueList.interface"
 
 export interface User {
     userId: number;
     userName: string | null;
     image: string | null;
-    Waiters: Waiter[];
+    QueueList: QueueList[];
 }

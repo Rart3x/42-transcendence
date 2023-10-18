@@ -45,6 +45,6 @@ model User {
   image    String?
 }
 
-model Waiter {
-  waiterSocket String @id
+model QueueList {
+  clientSocket String @id
 }

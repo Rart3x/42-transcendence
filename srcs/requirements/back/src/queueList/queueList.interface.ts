@@ -1,8 +1,8 @@
 import { User } from '../users/user.interface';
 
-export interface Waiter {
-    waiterId: number;
+export interface QueueList {
+    queueId: number;
     userId: number;
-    waiterSocket: string;
+    clientSocket: string;
     User: User;
 }

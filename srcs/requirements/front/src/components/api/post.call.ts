@@ -21,14 +21,14 @@ export async function insertUser(userName: string, image: string) {
   }
 }
 
-export async function insertWaiter(waiterSocket : string) {
+export async function insertIntoQueueList(clientSocket : string) {
     try {
-      const response = await fetch(`http://localhost:3000/waiter`, {
+      const response = await fetch(`http://localhost:3000/queuelist`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ waiterSocket: waiterSocket }),
+        body: JSON.stringify({ clientSocket: clientSocket }),
       });
   
       if (response.ok) {

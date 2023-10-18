@@ -20,9 +20,9 @@ export async function getMessage() {
     }
 }
 
-export async function getClientFromWaitlist(){
+export async function getClientFromQueueList(){
   try {
-    const response = await fetch("http://localhost:3000/waiter", {
+    const response = await fetch("http://localhost:3000/queuelist", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
