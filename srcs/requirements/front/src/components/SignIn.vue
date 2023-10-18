@@ -1,10 +1,11 @@
 <script setup>
 import Cookies from "js-cookie";
-import { ref, onMounted } from "vue";
-import { insertUser } from './api/get.call';
+import { ref, onMounted, onUnmounted } from "vue";
+import { insertUser } from './api/post.call.ts';
 import { useRouter } from "vue-router";
 
 const userInfo = ref(null);
+const imageSrc = ref(null);
 
 const code = new URL(window.location.href).searchParams.get("code");
 
@@ -45,14 +46,36 @@ onMounted(async () => {
 
       const user = await userResponse.json();
 
+      // // Convert the image URL to bytes
       userInfo.value = user;
+      console.log(userInfo.value);
+      // const imageResponse = await fetch(userInfo.value.image.link);
+      // if (!imageResponse.ok) {
+      //   throw new Error(`HTTP error! status: ${imageResponse.status}`);
+      // }
+      // const imageBlob = await imageResponse.blob();
+      // const imageBytes = await new Response(imageBlob).arrayBuffer();
+
+      // // Convert the bytes to base64 string
+      // const base64Image= btoa(new Uint8Array(imageBytes).reduce(function (data, byte) {
+      //   return data + String.fromCharCode(byte);
+      // }, ''));
+
       Cookies.set("userLogin", user.login, {
         expires: 1,
         secure: true,
         sameSite: "Strict",
       });
-      insertUser(userInfo.value.login);
-      console.log(userInfo.value);
+      insertUser(userInfo.value.login, userInfo.value.image.link);
+
+      // Change string to bytes and recreate image
+      // const binaryImage = atob(base64Image);
+      // const reversedImageBytes = new Uint8Array(binaryImage.length);
+
+      // for (let i = 0; i < binaryImage.length; i++) {
+      //   reversedImageBytes[i] = binaryImage.charCodeAt(i);
+      // }
+      // imageSrc.value = URL.createObjectURL(new Blob([reversedImageBytes], { type: 'image/jpeg' }));
       window.location.href = "/Profile";
     }
     else {
@@ -60,11 +83,20 @@ onMounted(async () => {
     }
   }
   catch (error) {
+    console.log(error);
     router.push('/');
   }
 
 });
 
+onUnmounted(() => {
+  if (imageSrc.value) {
+    URL.revokeObjectURL(imageSrc.value);
+  }
+});
+
 </script>
 
-<template></template>
+<template>
+  <!-- <img :src="imageSrc" /> -->
+</template>
