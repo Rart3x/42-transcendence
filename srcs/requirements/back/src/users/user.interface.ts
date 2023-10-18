@@ -5,4 +5,5 @@ export interface User {
     userName: string | null;
     image: string | null;
     Waiters: Waiter[];
+    friendsID:  number[];
 }

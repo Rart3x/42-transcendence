@@ -1,9 +1,8 @@
 import { EventsModule } from './events/events.module';
+import { Module } from '@nestjs/common';
 
 import { MessageController } from './message/message.controller';
 import { MessageService } from './message/message.service';
-
-import { Module } from '@nestjs/common';
 
 import { PrismaService } from './prisma.service';
 
@@ -16,6 +15,6 @@ import { WaiterService } from './waiters/waiter.service';
 @Module({
   imports: [EventsModule],
   controllers: [MessageController, UserController, WaiterController],
-  providers: [MessageService, UserService, PrismaService, WaiterService],
+  providers: [MessageService, PrismaService, UserService, WaiterService],
 })
 export class AppModule {}

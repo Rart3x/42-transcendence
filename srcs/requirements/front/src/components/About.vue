@@ -33,6 +33,7 @@ body {
     transform-style: preserve-3d;
     animation: animate 20s linear infinite;
 }
+
 @keyframes animate {
     0% {
         transform: perspective(1000px) rotateY(0deg);

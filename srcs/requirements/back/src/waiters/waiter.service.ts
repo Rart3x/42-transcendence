@@ -11,6 +11,9 @@ export class WaiterService {
         data,
     });
   }
+
+  async getTotalWaiters(): Promise<number> {
+    const totalWaiters = await this.prisma.waiter.count();
+    return totalWaiters;
+  }
 }
-
-

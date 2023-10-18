@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { CreateWaiterDTO } from './dto/create-waiter.dto';
 import { Waiter } from '@prisma/client';
 import { WaiterService } from './waiter.service';
 import { Prisma } from '@prisma/client';
@@ -8,7 +9,13 @@ export class WaiterController {
   constructor(private readonly waiterService: WaiterService) {}
 
   @Post()
-  async createWaiter(@Body() data: Prisma.WaiterCreateInput): Promise<Waiter> {
-      return this.waiterService.createWaiter(data);
+  async createWaiter(@Body() createWaiterDTO : CreateWaiterDTO): Promise<Waiter> {
+      return this.waiterService.createWaiter(createWaiterDTO);
+  }
+
+  @Get('/sum')
+  async sumWaiters(): Promise<number> {
+    const sum = await this.waiterService.getTotalWaiters();
+    return sum;
   }
 }

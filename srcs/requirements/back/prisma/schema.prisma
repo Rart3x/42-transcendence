@@ -9,18 +9,21 @@ datasource db {
 
 model Admin {
   adminId      Int            @id @default(autoincrement())
+  
   ChannelAdmin ChannelAdmin[]
 }
 
 model Channel {
-  channelId       Int               @id @default(autoincrement())
-  ChannelAdmin    ChannelAdmin[]
-  Message Message[]
+  channelId     Int               @id @default(autoincrement())
+  
+  ChannelAdmin  ChannelAdmin[]
+  Message       Message[]
 }
 
 model ChannelAdmin {
   adminId   Int
   channelId Int
+  
   Admin     Admin   @relation(fields: [adminId], references: [adminId], onDelete: NoAction, onUpdate: NoAction)
   Channel   Channel @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
 
@@ -36,13 +39,16 @@ model Message {
   channelId    Int?
   message_text String
   message_date DateTime? @default(now()) @db.Timestamp(6)
+  
   Channel      Channel?  @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model User {
-  userId   Int     @id @default(autoincrement())
-  userName String?
-  image    Bytes?
+  userId      Int     @id @default(autoincrement())
+  userName    String?
+  image       Bytes?
+  friendsId    Int[]
+
 }
 
 model Waiter {
