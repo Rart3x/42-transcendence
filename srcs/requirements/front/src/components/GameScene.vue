@@ -7,7 +7,7 @@ import rectWrapper from '../elements/rectWrapper';
 import * as Matter from 'matter-js';
 import Player from '../elements/player';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-import { insertWaiter } from './api/ApiCalls'
+import { insertWaiter } from './api/post.call'
 
 const socket = io('http://localhost:3000');
 

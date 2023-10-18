@@ -1,7 +1,7 @@
 <script setup>
 import Cookies from "js-cookie";
 import { ref, onMounted } from "vue";
-import { insertUser } from './api/ApiCalls';
+import { insertUser } from './api/get.call';
 import { useRouter } from "vue-router";
 
 const userInfo = ref(null);
