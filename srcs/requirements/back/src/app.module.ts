@@ -9,12 +9,12 @@ import { PrismaService } from './prisma.service';
 import { UserController } from './users/user.controller';
 import { UserService } from './users/user.service';
 
-import { WaiterController } from './waiters/waiter.controller';
-import { WaiterService } from './waiters/waiter.service';
+import { QueueListController } from './queueList/queueList.controller';
+import { QueueListService } from './queueList/queueList.service';
 
 @Module({
   imports: [EventsModule],
-  controllers: [MessageController, UserController, WaiterController],
-  providers: [MessageService, PrismaService, UserService, WaiterService],
+  controllers: [MessageController, UserController, QueueListController],
+  providers: [MessageService, UserService, PrismaService, QueueListService],
 })
 export class AppModule {}

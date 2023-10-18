@@ -1,21 +1,42 @@
-export async function insertWaiter(waiterSocket : string) {
+export async function insertUser(userName: string, image: string) {
   try {
-    const response = await fetch(`http://localhost:3000/waiter`, {
+    const response = await fetch(`http://localhost:3000/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ waiterSocket: waiterSocket }),
+      body: JSON.stringify({ userName: userName, image: image }),
     });
 
     if (response.ok) {
       const responseData = await response.json();
-    } 
-    else {
+    } else {
       const errorText = await response.text();
       console.error('error: sending POST request: ', errorText);
     }
-  } 
+  } catch (error) {
+    console.error('error: sending POST request: ', error);
+  }
+}
+
+export async function insertIntoQueueList(clientSocket : string) {
+    try {
+      const response = await fetch(`http://localhost:3000/queuelist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ clientSocket: clientSocket }),
+      });
+  
+      if (response.ok) {
+        const responseData = await response.json();
+      } 
+      else {
+        const errorText = await response.text();
+        console.error('error: sending POST request: ', errorText);
+      }
+    } 
   catch (error) {
     console.error('error: sending POST request: ', error);
   }

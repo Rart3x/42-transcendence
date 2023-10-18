@@ -7,7 +7,8 @@ import rectWrapper from '../elements/rectWrapper';
 import * as Matter from 'matter-js';
 import Player from '../elements/player';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-import { insertWaiter } from './api/post.call'
+import { insertIntoQueueList } from './api/post.call';
+import { getClientFromQueueList } from './api/get.call';
 
 const socket = io('http://localhost:3000');
 
@@ -17,13 +18,12 @@ export default class Game extends Phaser.Scene {
 	mainPlayer !: Player;
 	secondPlayer !: Player;
 	ball : Matter.Image;
-	scoreMainPlayer : number;
-	scoreSecondPlayer : number;
-	scoreMainPlayerDisplayed : any;
-	scoreSecondPlayerDisplayed : any;
-	bounce : any;
+	scoreMainPlayer : number = 0;
+	scoreSecondPlayer : number = 0;
+	scoreMainPlayerDisplayed !: Phaser.GameObjects.BitmapText;
+	scoreSecondPlayerDisplayed !: Phaser.GameObjects.BitmapText;
+	bounce !: Phaser.Sound.BaseSound;
 	startButton !: Phaser.GameObjects.BitmapText;
-
 	gameRunning : boolean = false;
 	multiGameMode : boolean = false;
 	botGameMode : boolean = false;
@@ -39,7 +39,6 @@ export default class Game extends Phaser.Scene {
 		//Particles sprite
 		this.load.image('red', 'red.png');
 		this.load.image('bg','modern-futuristic-sci-fi-background.jpg');
-		//Button sprite
 	}
 
 	chooseGameMode(){
@@ -65,7 +64,8 @@ export default class Game extends Phaser.Scene {
 			choiceButton2.destroy();
 			graphics.visible = false;
 			socket.emit('playerReady', { multiplayer : this.multiGameMode, bot : this.botGameMode });
-			insertWaiter(socket.id);
+      insertIntoQueueList(socket.id);
+      getClientFromQueueList();
 		}, this)
 
 		choiceButton2 = this.add.bitmapText(450, 400, 'atari', '', 40)
@@ -94,7 +94,7 @@ export default class Game extends Phaser.Scene {
 	}
 
 	setupUI(){
-		let startButtonCanvas : any;
+		let startButtonCanvas : Phaser.GameObjects.Graphics;
 
 		const graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
 
@@ -254,7 +254,7 @@ export default class Game extends Phaser.Scene {
 			}, 5000);
 		});
 
-		this.input.on('pointermove', function(pointer : any){
+		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
 			socket.emit('playerMovement', { x: pointer.x, y : pointer.y })
 			if (this.mainPlayer){
 				this.mainPlayer.gameObject.y = Phaser.Math.Clamp(pointer.y, 65, 735);
@@ -263,7 +263,7 @@ export default class Game extends Phaser.Scene {
 		}, this);
 
 		//Ball collision
-		this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
+		this.matter.world.on('collisionstart', (event : Phaser.Physics.Matter.Events.CollisionStartEvent, bodyA : MatterJS.BodyType, bodyB : MatterJS.BodyType) => {
 			let bodies = [bodyA.label, bodyB.label];
 			if (bodies.includes('lower') || bodies.includes('upper') || bodies.includes('player1') || bodies.includes('player2')){
 				this.bounce.play();
@@ -290,7 +290,7 @@ export default class Game extends Phaser.Scene {
 		this.scene.remove();
 	}
 
-	handleCollisionsPlayerBall(bodyA : any, bodyB : any){
+	handleCollisionsPlayerBall(bodyA : MatterJS.BodyType, bodyB : MatterJS.BodyType){
 		var player : Player;
 		if (bodyB.label == 'player1'){
 			if (this.mainPlayer.gameObject.label == "player1"){

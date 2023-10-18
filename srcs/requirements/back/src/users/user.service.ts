@@ -22,6 +22,16 @@ export class UserService {
   }  
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    // const imageResponse = await fetch(data.image);
+    // const imageBlob = await imageResponse.blob();
+    // const imageBytes = await new Response(imageBlob).arrayBuffer();
+
+    // // Convert the bytes to base64 string
+    // const base64Image= btoa(new Uint8Array(imageBytes).reduce(function (data, byte) {
+    //   return data + String.fromCharCode(byte);
+    // }, ''));
+
+    // data.image = base64Image;
     return this.prisma.user.create({
       data,
     });

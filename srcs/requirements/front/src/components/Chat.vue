@@ -1,18 +1,20 @@
 <script setup>
-import { getMessage} from "./api/get.call";
+import { getMessage } from "./api/get.call";
 import { insertMessage } from "./api/post.call";
 import { ref, onMounted } from "vue";
+import { nextTick } from "vue";
 
 const message_text = ref("");
 const messages = ref([]);
 
 onMounted(async () => {
   await loadMessages();
+  scrollToBottom();
 });
 
 const formatMessageDate = (dateString) => {
-  const options = { hour: 'numeric', minute: 'numeric' };
-  return new Date(dateString).toLocaleString('en-US', options);
+  const options = { hour: "numeric", minute: "numeric" };
+  return new Date(dateString).toLocaleString("en-US", options);
 };
 
 const loadMessages = async () => {
@@ -21,22 +23,31 @@ const loadMessages = async () => {
     if (response && response.length > 0) {
       messages.value = response;
     }
-  } 
-  catch (error) {
+  } catch (error) {
     console.error("error: fetching messages:", error);
+  }
+};
+
+const scrollToBottom = () => {
+  const container = document.querySelector(".chat-messages");
+  if (container) {
+    container.scrollTop = container.scrollHeight;
   }
 };
 
 const sendMessage = async () => {
   try {
     await insertMessage(message_text.value);
-    const newMessage = await getMessage();
-    if (newMessage) {
-      messages.value.push(newMessage);
-    }
+
+    await nextTick();
+
+    messages.value = await getMessage();
+
+    await nextTick();
+    scrollToBottom();
+
     message_text.value = "";
-  } 
-  catch (error) {
+  } catch (error) {
     console.error("error: sending message:", error);
   }
 };
@@ -45,22 +56,30 @@ const sendMessage = async () => {
 <template>
   <div class="chat-container">
     <div class="chat-box">
-      <!-- <span class="scroll-start-at-top"></span> -->
-      <div class="chat-header">Chat</div>
-      <div class="chat-messages">
+      <div class="chat-messages" ref="messageContainer">
         <ul>
           <li v-for="message in messages" :key="message.id">
             <div class="message">
               <div class="message-text">{{ message.message_text }}</div>
-              <div class="message-date">{{ formatMessageDate(message.message_date) }}</div>
+              <div class="message-date">
+                {{ formatMessageDate(message.message_date) }}
+              </div>
             </div>
           </li>
         </ul>
       </div>
+      <div class="chat-header">Chat</div>
     </div>
     <form @submit.prevent="sendMessage">
-      <input id="message_text" class="chat-input" v-model="message_text" placeholder="Type your message..." />
-      <button type="submit" class="chat-button">Send</button>
+      <input
+        id="message_text"
+        class="chat-input"
+        v-model="message_text"
+        placeholder="Type your message..."
+      />
+      <button type="submit" class="chat-button" @click="reloadWindow">
+        Send
+      </button>
     </form>
   </div>
 </template>
@@ -79,13 +98,8 @@ const sendMessage = async () => {
   border-radius: 5px;
   box-shadow: 0px 0px 5px #ccc;
   padding: 10px;
-  overflow: auto;
   display: flex;
   flex-direction: column-reverse;
-}
-
-.scroll-start-at-top {
-  flex: 1 1 0%;
 }
 
 .chat-header {
@@ -110,7 +124,7 @@ const sendMessage = async () => {
 .chat-button {
   width: 100%;
   margin-top: 10px;
-  background-color: #007BFF;
+  background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -119,7 +133,7 @@ const sendMessage = async () => {
 }
 
 .message {
-  margin: 10px 0;
+  margin: 10px;
 }
 
 .message-text {

@@ -47,10 +47,20 @@ model User {
   userId      Int     @id @default(autoincrement())
   userName    String?
   image       Bytes?
-  friendsId    Int[]
-
+  friendsId   Int[]
+  socket      String?
+  roomId      Int?
+  room        GameRoom? @relation(fields: [roomId], references: [roomId])
+  queueId     Int?
+  queue       QueueList? @relation(fields: [queueId], references: [queueId])
 }
 
-model Waiter {
-  waiterSocket String @id
+model QueueList {
+  queueId Int      @id @default(autoincrement())
+  users   User[]
+}
+
+model GameRoom{
+  roomId Int       @id @default(autoincrement())
+  players User[]
 }
