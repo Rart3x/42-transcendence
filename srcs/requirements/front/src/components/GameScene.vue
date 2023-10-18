@@ -7,7 +7,7 @@ import rectWrapper from '../elements/rectWrapper';
 import * as Matter from 'matter-js';
 import Player from '../elements/player';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-import { insertWaiter } from './api/ApiCalls'
+import { insertWaiter, getClientFromWaitlist } from './api/ApiCalls'
 
 const socket = io('http://localhost:3000');
 
@@ -64,6 +64,7 @@ export default class Game extends Phaser.Scene {
 			graphics.visible = false;
 			socket.emit('playerReady', { multiplayer : this.multiGameMode, bot : this.botGameMode });
 			insertWaiter(socket.id);
+            getClientFromWaitlist();
 		}, this)
 
 		choiceButton2 = this.add.bitmapText(450, 400, 'atari', '', 40)

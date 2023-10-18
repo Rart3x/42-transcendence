@@ -1,7 +1,8 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
 import { Waiter } from '@prisma/client';
 import { WaiterService } from './waiter.service';
 import { Prisma } from '@prisma/client';
+import { warn } from 'console';
 
 @Controller('waiter')
 export class WaiterController {
@@ -10,5 +11,10 @@ export class WaiterController {
   @Post()
   async createWaiter(@Body() data: Prisma.WaiterCreateInput): Promise<Waiter> {
       return this.waiterService.createWaiter(data);
+  }
+
+  @Get()
+  async getFirstWaiter(): Promise<Waiter>{
+    return this.waiterService.getFirstWaiter();
   }
 }

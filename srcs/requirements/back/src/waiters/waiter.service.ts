@@ -11,6 +11,9 @@ export class WaiterService {
         data,
     });
   }
-}
 
+  async getFirstWaiter(): Promise<Waiter>{
+      return this.prisma.waiter.findFirst();
+  }
+}
 
