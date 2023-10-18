@@ -1,7 +1,7 @@
 <script setup>
   import Cookies from "js-cookie";
   import { ref } from "vue";
-  // import { getUserFriend } from "./api/get.call";
+  import { getUserFriends } from "./api/get.call";
   import { updateUsername } from './api/post.call';
 
   const newUserName = ref("");

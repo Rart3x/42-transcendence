@@ -11,9 +11,15 @@ export class QueueListController {
   async insertClientIntoQueueList(@Body() data: Prisma.QueueListCreateInput): Promise<QueueList> {
       return this.QueueListService.insertClientIntoQueueList(data);
   }
+
   @Get()
   async getFirstClientFromQueueList(): Promise<QueueList>{
     return this.QueueListService.getFirstClientFromQueueList();
+  }
+
+  @Get('/sum')
+  async sumQueueList(): Promise<number>{
+    return this.QueueListService.sumQueueList();
   }
 }
 

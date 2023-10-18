@@ -12,13 +12,16 @@ export class QueueListService {
     });
   }
 
-
   async getFirstClientFromQueueList(): Promise<QueueList> {
     const firstClient = await this.prisma.queueList.findFirst();
     if (!firstClient) {
       throw new Error('No clients in the queue list');
     }
     return firstClient;
+  }
+
+  async sumQueueList(): Promise<number> {
+    return this.prisma.queueList.count();
   }
 
 }
