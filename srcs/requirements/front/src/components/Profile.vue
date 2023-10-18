@@ -2,9 +2,11 @@
   import Cookies from "js-cookie";
   import { ref } from "vue";
   import { getUserFriends } from "./api/get.call";
-  import { updateUsername } from './api/post.call';
+  import { addFriend, updateUsername } from './api/post.call';
 
   const newUserName = ref("");
+  const friendName = ref("");
+
   let userName = Cookies.get("userLogin");
 
   const handleSubmit = async () => {
@@ -14,6 +16,7 @@
     Cookies.set("userLogin", newUserName.value);
     window.location.href = "/Profile";
   }
+
 </script>
 
 <template>
@@ -27,6 +30,16 @@
   </div>
   <br>
   <dl class="container">
+    <dt>
+      <div id="addFriend">
+        <form @submit.prevent="addFriend('kramjatt', friendName)">
+        <label for="friendName">friendName:</label>
+        <br>
+        <input type="text" id="friendName" v-model="friendName">
+        <button type="submit">Send</button>
+      </form>
+      </div>
+    </dt>
     <dt>A</dt>
       <dd>Mekouyanski</dd>
     <dt>B</dt>
@@ -85,4 +98,39 @@
   border-bottom: 1px solid #ccc;
 }
 
+#addFriend {
+  background-color: #7b5190; /* Couleur de fond du formulaire */
+  border: 1px solid #ddd; /* Bordure du formulaire */
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+#addFriend form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+#addFriend label {
+  width: 100%;
+  font-weight: bold;
+}
+
+#addFriend input[type="text"] {
+  width: 70%;
+  padding: 5px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+#addFriend button[type="submit"] {
+  background-color: #007BFF; /* Couleur de fond du bouton */
+  color: #fff; /* Couleur du texte du bouton */
+  padding: 8px 16px; /* Espacement intérieur */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 </style>

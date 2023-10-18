@@ -6,26 +6,59 @@ import { User, Prisma } from '@prisma/client';
 export class UserService {
   constructor (private prisma: PrismaService) {}
 
-  async user(
-      userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-    ): Promise<User | null> {
-      return this.prisma.user.findUnique({
-        where: userWhereUniqueInput,
-      });
-  }
-
-  async updateUserName(userId: number, newUserName: string): Promise<User> {
-    return this.prisma.user.update({
-      where: { userId: userId },
-      data: { userName: newUserName },
+  async addFriend(userName: string, friendName: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { userName: userName },
     });
-  }  
+
+    if (!user) {
+      throw new Error("error: user not found");
+    }
+  
+    const friend = await this.prisma.user.findFirst({
+      where: { userName: friendName },
+    });
+  
+    if (!friend) {
+      throw new Error("error: friend not found");
+    }
+  
+    return this.prisma.user.update({
+      where: { userId: user.userId },
+      data: { friendsId: { push: friend.userId } },
+    }); 
+  }
 
   async  setSocket(userId: number, socket: string): Promise<User> {
     return this.prisma.user.update({
       where : { userId: userId },
       data : { socket: socket }
     });
+  }
+
+  async getFriendUserNames(userId : number) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { userId: userId },
+      });
+  
+      if (!user) {
+        throw new Error("error: user not found");
+      }
+  
+      const friendUserNames = await this.prisma.user.findMany({
+        where: {
+          userId: { in: user.friendsId },
+        },
+        select: {
+          userName: true,
+        },
+      });
+      return friendUserNames.map((friend) => friend.userName);
+    }
+    catch (error) {
+      console.error(error);
+    }
   }
 
   async getUserByUserName(userName: string) {
@@ -50,4 +83,18 @@ export class UserService {
       data,
     });
   }
+
+  async user(
+    userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {
+      return this.prisma.user.findUnique({
+        where: userWhereUniqueInput,
+    });
+  }
+
+  async updateUserName(userId: number, newUserName: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId: userId },
+      data: { userName: newUserName },
+    });
+  }  
 }
