@@ -14,7 +14,8 @@ export class UserController {
       await validateOrReject(createUserDTO);
 
       return this.userService.createUser(createUserDTO);
-    } catch (validationErrors) {
+    }
+    catch (validationErrors) {
       throw new BadRequestException(validationErrors);
     }
   }
@@ -32,6 +33,16 @@ export class UserController {
     return user;
   }
 
+  @Post(':userName/friend')
+  async addFriendToUser(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User> {
+    const user = await this.userService.addFriend(userName, friendName);
+  
+    if (!user) {
+      console.warn("error: user not found");
+    }
+    return user;
+  }
+
   @Get(':userName')
   async getUserByUserName(@Param('userName') userName: string): Promise<User> {
     
@@ -44,5 +55,10 @@ export class UserController {
       console.warn("error: user is already register:", userName)
 
     return user;
+  }
+
+  @Get(':userId')
+  async getFriendUserNames(@Param('userId') userId: number): Promise<string[]> {
+    return this.userService.getFriendUserNames(userId);
   }
 }
