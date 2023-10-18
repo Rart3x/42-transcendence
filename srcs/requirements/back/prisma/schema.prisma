@@ -43,8 +43,20 @@ model User {
   userId   Int     @id @default(autoincrement())
   userName String?
   image    String?
+  socketId String
+  roomId   Int?
+  room     GameRoom? @relation(fields: [roomId], references: [roomId])
+  queueId  Int?
+  queue    QueueList? @relation(fields: [queueId], references: [queueId])
 }
 
 model QueueList {
-  clientSocket String @id
+  queueId Int      @id @default(autoincrement())
+  users   User[]
 }
+
+model GameRoom{
+  roomId Int       @id @default(autoincrement())
+  players User[]
+}
+
