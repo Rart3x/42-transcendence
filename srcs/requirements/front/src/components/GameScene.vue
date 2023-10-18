@@ -7,10 +7,13 @@ import rectWrapper from '../elements/rectWrapper';
 import * as Matter from 'matter-js';
 import Player from '../elements/player';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-import { insertIntoQueueList } from './api/post.call';
+import { insertIntoQueueList, setClientSocket, updateUsername } from './api/post.call';
 import { getClientFromQueueList } from './api/get.call';
+import Cookies from "js-cookie";
 
 const socket = io('http://localhost:3000');
+
+
 
 const SI = new SnapshotInterpolation();
 
@@ -58,21 +61,25 @@ export default class Game extends Phaser.Scene {
 		choiceButton1.setInteractive({ useHandCursor: true })
 
 		choiceButton1.on('pointerdown', () => {
+    console.log(socket.id);
 			this.multiGameMode = true;
 			this.botGameMode = false;
 			choiceButton1.destroy();
 			choiceButton2.destroy();
 			graphics.visible = false;
 			socket.emit('playerReady', { multiplayer : this.multiGameMode, bot : this.botGameMode });
-      insertIntoQueueList(socket.id);
-      getClientFromQueueList();
-		}, this)
+//      insertIntoQueueList(socket.id);
+//      getClientFromQueueList();
+    }, this)
 
 		choiceButton2 = this.add.bitmapText(450, 400, 'atari', '', 40)
 		choiceButton2.setText("BOT").setTint(0xdb2e94ff);
 		choiceButton2.setInteractive({ useHandCursor: true })
 
-		choiceButton2.on('pointerdown', () => {
+		choiceButton2.on('pointerdown', async () => {
+      const userName = Cookies.get("userLogin");
+      setClientSocket(userName, socket.id)
+      //console.log(`client username is ${userName} and socket is ${socket.id}`);
 			this.multiGameMode = false;
 			this.botGameMode = true;
 			choiceButton1.destroy();

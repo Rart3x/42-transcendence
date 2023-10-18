@@ -44,9 +44,9 @@ model Message {
 }
 
 model User {
-  userId      Int     @id @default(autoincrement())
-  userName    String?
-  image       Bytes?
+  userId      Int     @id @default(autoincrement()) @unique
+  userName    String? @unique
+  image       String?
   friendsId   Int[]
   socket      String?
   roomId      Int?
@@ -63,4 +63,7 @@ model QueueList {
 model GameRoom{
   roomId Int       @id @default(autoincrement())
   players User[]
+  started Boolean  @default(false)
 }
+
+

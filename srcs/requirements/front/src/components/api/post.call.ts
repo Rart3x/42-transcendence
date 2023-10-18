@@ -5,7 +5,7 @@ export async function insertUser(userName: string, image: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userName: userName, image: image }),
+      body: JSON.stringify({ userName: userName, image: image, socket: "" }),
     });
 
     if (response.ok) {
@@ -67,6 +67,7 @@ export async function insertMessage(message_text : string) {
 
 export async function updateUsername(userName : string, newUserName : string) {
   try {
+    console.log(`updateUsername ${userName} ${newUserName}`);
     const response = await fetch(`http://localhost:3000/user/${userName}`, {
       method: "POST",
       headers: {
@@ -86,3 +87,26 @@ export async function updateUsername(userName : string, newUserName : string) {
     console.error('error: sending POST request', error);
   }
 }
+
+export async function setClientSocket(userName : string, socket : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/${socket}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: userName, socket: socket }),
+    });
+    if (response.ok) {
+        const responseData = await response.json();
+      return responseData;
+    }
+    else {
+      const errorText = await response.text();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+

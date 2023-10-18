@@ -27,10 +27,24 @@ export class UserController {
     if (user) {
       await this.userService.updateUserName(user.userId, newUserName); 
     }
-    else
+    else{
       console.warn("error: user not found");
+    }
     return user;
   }
+
+  @Post(':socket')
+  async setSocket(@Body('userName') userName: string, @Body('socket') socket: string): Promise<User> {
+    const user = await this.userService.getUserByUserName(userName);
+
+    try {
+      console.log(`Calling setSocket with userId: ${user.userId} and socket: ${socket}`);
+      return await this.userService.setSocket(user.userId, socket);
+    } catch (error) {
+      console.warn('Error in setSocket:', error);
+    }
+    return user
+}
 
   @Get(':userName')
   async getUserByUserName(@Param('userName') userName: string): Promise<User> {
@@ -40,9 +54,10 @@ export class UserController {
     if (!user) {
       return this.createUser({ userName: userName });
     }
-    else
+    else{
       console.warn("error: user is already register:", userName)
-
+    }
     return user;
   }
 }
+

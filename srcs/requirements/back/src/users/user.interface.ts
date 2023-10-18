@@ -10,6 +10,6 @@ export interface User {
     room: GameRoom | null;
     queue: QueueList | null;
     queueId : number | null;
-    socketID : string | null; 
+    socket : string | null; 
 }
 
