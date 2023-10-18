@@ -1,5 +1,6 @@
 <script setup>
-import { getMessage, insertMessage } from "./api/ApiCalls";
+import { getMessage} from "./api/get.call";
+import { insertMessage } from "./api/post.call";
 import { ref, onMounted } from "vue";
 
 const message_text = ref("");

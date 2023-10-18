@@ -7,7 +7,11 @@ import rectWrapper from '../elements/rectWrapper';
 import * as Matter from 'matter-js';
 import Player from '../elements/player';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
+<<<<<<< HEAD
 import { insertWaiter, getClientFromWaitlist } from './api/ApiCalls'
+=======
+import { insertWaiter } from './api/post.call'
+>>>>>>> 21e6fe95ab4ef746d866e9bd2bf9943066139f90
 
 const socket = io('http://localhost:3000');
 

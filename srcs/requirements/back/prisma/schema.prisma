@@ -42,7 +42,7 @@ model Message {
 model User {
   userId   Int     @id @default(autoincrement())
   userName String?
-  image    Bytes?
+  image    String?
 }
 
 model Waiter {

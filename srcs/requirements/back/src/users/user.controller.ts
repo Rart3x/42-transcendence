@@ -14,8 +14,7 @@ export class UserController {
       await validateOrReject(createUserDTO);
 
       return this.userService.createUser(createUserDTO);
-    }
-    catch (validationErrors) {
+    } catch (validationErrors) {
       throw new BadRequestException(validationErrors);
     }
   }
@@ -46,6 +45,4 @@ export class UserController {
 
     return user;
   }
-
-
 }
