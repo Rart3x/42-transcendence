@@ -19,26 +19,28 @@ const signInWithIntra = () => {
 
 <template>
   <header>
-    <div class="Navbar_container">
-      <ol class="Navbar_list">
+    <div class="Navbar-container">
+      <ol class="Navbar-list">
         <li>
-          <router-link to="/" class="Navbar_content">Home</router-link>
+          <router-link to="/" class="Navbar-content">Home</router-link>
         </li>
         <li>
-          <router-link to="/game" class="Navbar_content">Game</router-link>
+          <router-link to="/game" class="Navbar-content">Game</router-link>
         </li>
         <li>
-          <router-link to="/about" class="Navbar_content">About</router-link>
+          <router-link to="/about" class="Navbar-content">About</router-link>
         </li>
         <li>
-          <router-link to="/chat" class="Navbar_content">Chat</router-link>
+          <router-link to="/chat" class="Navbar-content">Chat</router-link>
         </li>
       </ol>
-      <div v-if="Cookies.get('userLogin')">
-        Logged in as: {{ Cookies.get("userLogin") }}
+      <div v-if="Cookies.get('userLogin')" class="profile">
+        <router-link to="/profile" class="Navbar-profile">
+          Logged in as: {{ Cookies.get("userLogin") }}
+        </router-link>
         <button @click="logout">Logout</button>
       </div>
-      <div v-else>
+      <div v-else class="profile">
         <img
           src="@/components/icons/SignIn.png"
           @click="signInWithIntra"
@@ -58,7 +60,7 @@ const signInWithIntra = () => {
   justify-self: flex-start;
   border-radius: 10px;
 }
-.Navbar_container {
+.Navbar-container {
   border-radius: 10px;
   border-color: #313628;
   background-color: #7b5190;
@@ -69,15 +71,25 @@ const signInWithIntra = () => {
   padding: 1vh 6vw 1vh 6vw;
   margin: 1vh 1vw 1vh 1vw;
 }
-.Navbar_list {
+.Navbar-list {
   display: flex;
   list-style-type: none;
-  text-align: center;
 }
 
-.Navbar_content {
+.Navbar-content {
   color: #fff;
   padding: 0vh 0.5vw 0vh 0vw;
+  font-family: "Silkscreen", sans-serif;
+  text-decoration: none;
+}
+
+.profile {
+  display: flex;
+  gap: 5px;
+}
+.Navbar-profile {
+  font-size: 12px;
+  color: #fff;
   font-family: "Silkscreen", sans-serif;
   text-decoration: none;
 }
@@ -86,7 +98,7 @@ const signInWithIntra = () => {
   .Navbar_container {
     gap: 5vw;
   }
-  .Navbar_content {
+  .Navbar-content {
     padding: 1vh 4vw 1vh 4vw;
   }
 }

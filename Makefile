@@ -4,6 +4,8 @@ NAME = transcendence
 all: build
 	@printf "Launch configuration ${NAME}...\n"
 	@docker compose -f ./srcs/docker-compose.yml up -d
+	@make prisma
+	@make back
 
 build:
 	@printf "Building configuration ${NAME}...\n"
