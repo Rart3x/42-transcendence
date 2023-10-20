@@ -1,8 +1,8 @@
 <script setup>
-import Cookies from "js-cookie";
 import { ref, onMounted, onUnmounted } from "vue";
 import { insertUser } from './api/post.call.ts';
 import { useRouter } from "vue-router";
+import Cookies from "js-cookie";
 
 const userInfo = ref(null);
 const imageSrc = ref(null);
@@ -12,7 +12,7 @@ const code = new URL(window.location.href).searchParams.get("code");
 onMounted(async () => {
   const router = useRouter();
   try {
-    if (code || Cookies.get("userLogin")) {
+    if (code || Cookies.get("_authToken")) {
       const response = await fetch("https://api.intra.42.fr/oauth/token", {
         method: "POST",
         headers: {
@@ -45,29 +45,15 @@ onMounted(async () => {
       }
 
       const user = await userResponse.json();
-
-      // // Convert the image URL to bytes
       userInfo.value = user;
-      console.log(userInfo.value);
-      // const imageResponse = await fetch(userInfo.value.image.link);
-      // if (!imageResponse.ok) {
-      //   throw new Error(`HTTP error! status: ${imageResponse.status}`);
-      // }
-      // const imageBlob = await imageResponse.blob();
-      // const imageBytes = await new Response(imageBlob).arrayBuffer();
 
-      // // Convert the bytes to base64 string
-      // const base64Image= btoa(new Uint8Array(imageBytes).reduce(function (data, byte) {
-      //   return data + String.fromCharCode(byte);
-      // }, ''));
-
-      Cookies.set("userLogin", user.login, {
+      Cookies.set("_authToken", code, {
         expires: 1,
         secure: true,
         sameSite: "Strict",
       });
-      insertUser(userInfo.value.login, userInfo.value.image.link);
 
+      await insertUser(userInfo.value.login, userInfo.value.image.link, code);
       // Change string to bytes and recreate image
       // const binaryImage = atob(base64Image);
       // const reversedImageBytes = new Uint8Array(binaryImage.length);

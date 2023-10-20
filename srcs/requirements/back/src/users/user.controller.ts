@@ -20,7 +20,7 @@ export class UserController {
     }
   }
 
-  @Post(':userName')
+  @Post('userName/:userName')
   async updateUsername(@Body('userName') userName: string, @Body('newUserName') newUserName: string): Promise<User> {
     
     const user = await this.userService.getUserByUserName(userName);
@@ -34,7 +34,7 @@ export class UserController {
     return user;
   }
 
-  @Post('socket')
+  @Post('socket/:socket')
   async setSocket(@Body('userName') userName: string, @Body('socket') socket: string): Promise<User> {
     const user = await this.userService.getUserByUserName(userName);
 
@@ -46,7 +46,7 @@ export class UserController {
     }
     return user
 }
-  @Post(':userName/friend')
+  @Post(':friend/friend')
   async addFriendToUser(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User> {
     const user = await this.userService.addFriend(userName, friendName);
   
@@ -56,7 +56,7 @@ export class UserController {
     return user;
   }
 
-  @Get(':userName')
+  @Get('userName/:userName')
   async getUserByUserName(@Param('userName') userName: string): Promise<User> {
     
     const user = await this.userService.getUserByUserName(userName);
@@ -70,7 +70,15 @@ export class UserController {
     return user;
   }
 
-  @Get(':userId')
+  @Get('cookie/:cookie')
+  async getUserByCookie(@Param('cookie') cookie: string): Promise<User> {
+    
+    const user = await this.userService.getUserByCookie(cookie);
+    
+    return user;
+  }
+
+  @Get('userId/:userId')
   async getFriendUserNames(@Param('userId') userId: number): Promise<string[]> {
     return this.userService.getFriendUserNames(userId);
   }

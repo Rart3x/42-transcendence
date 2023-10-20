@@ -62,13 +62,29 @@ export class UserService {
   }
 
   async getUserByUserName(userName: string) {
-    return this.prisma.user.findFirst({
+    return await this.prisma.user.findFirst({
       where: { userName: userName },
     });
   }
 
- async createUser(data: Prisma.UserCreateInput): Promise<User> {
+  async getUserByCookie(cookie: string) {
+  
+    const user = await this.prisma.user.findFirst({
+      where: { cookie: cookie },
+    });
+
+    return user;
+  }
+
+  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+
     console.log("createUser: ", data);
+    
+    if (await this.getUserByUserName(data.userName) != null) {
+      return ;
+    }
+
+    // Fetch the image from the URL
     const imageResponse = await fetch(data.image);
     const imageBlob = await imageResponse.blob();
     const imageBytes = await new Response(imageBlob).arrayBuffer();
@@ -78,6 +94,11 @@ export class UserService {
       return data + String.fromCharCode(byte);
     }, ''));
 
+    // Modify the data object to include the cookie
+    const modifiedData = {
+      ...data,
+      image: base64Image,
+    };
     data.image = base64Image;
     return this.prisma.user.create({
       data,

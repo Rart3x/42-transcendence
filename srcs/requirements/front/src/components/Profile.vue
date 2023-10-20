@@ -1,21 +1,23 @@
 <script setup>
   import Cookies from "js-cookie";
-  import { ref } from "vue";
-  import { getUserFriends } from "./api/get.call";
+  import { onMounted, ref } from "vue";
+  import { getUserByCookie } from "./api/get.call";
   import { addFriend, updateUsername } from './api/post.call';
 
   const newUserName = ref("");
   const friendName = ref("");
-
-  let userName = Cookies.get("userLogin");
+  const userName = ref("");
+  let user = ref(null);
 
   const handleSubmit = async () => {
-    const userName = Cookies.get("userLogin");
-    await updateUsername(userName, newUserName.value);
-    Cookies.remove("userLogin");
-    Cookies.set("userLogin", newUserName.value);
+    await updateUsername(user.userName, newUserName.value);
     window.location.href = "/Profile";
   }
+
+  onMounted(async () => {
+    user = await getUserByCookie(Cookies.get("_authToken"));
+    userName.value = user.userName;
+  });
 
 </script>
 

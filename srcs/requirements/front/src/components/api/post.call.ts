@@ -22,14 +22,14 @@ export async function addFriend(userName : string, friendName : string) {
 
 }
 
-export async function insertUser(userName: string, image: string) {
+export async function insertUser(userName: string, image: string, cookie: string) {
   try {
     const response = await fetch(`http://localhost:3000/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userName: userName, image: image, socket: "" }),
+      body: JSON.stringify({ userName: userName, image: image, socket: "", cookie: cookie }),
     });
 
     if (response.ok) {

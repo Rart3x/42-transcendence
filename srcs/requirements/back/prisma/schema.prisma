@@ -53,6 +53,7 @@ model User {
   room        GameRoom? @relation(fields: [roomId], references: [roomId])
   queueId     Int?
   queue       QueueList? @relation(fields: [queueId], references: [queueId])
+  cookie      String? @unique
 }
 
 model QueueList {

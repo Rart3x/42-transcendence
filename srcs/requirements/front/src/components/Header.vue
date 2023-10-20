@@ -1,10 +1,15 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
+import { onMounted, ref } from "vue";
 import Cookies from "js-cookie";
+import { getUserByCookie } from "./api/get.call.ts";
+
+const userName = ref("");
+let user = ref(null);
 
 const logout = () => {
   // Clear userLogin cookie
-  Cookies.remove("userLogin");
+  Cookies.remove("_authToken");
   // Redirect to sign-in page
   window.location.href = "/";
 };
@@ -15,6 +20,14 @@ const signInWithIntra = () => {
     import.meta.env.VITE_CLIENT_ID
   }&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
 };
+
+onMounted(async () => {
+    if (Cookies.get("_authToken") == undefined)
+      return;
+    user = await getUserByCookie(Cookies.get("_authToken"));
+    userName.value = user.userName;
+  });
+
 </script>
 
 <template>
@@ -34,9 +47,9 @@ const signInWithIntra = () => {
           <router-link to="/chat" class="Navbar-content">Chat</router-link>
         </li>
       </ol>
-      <div v-if="Cookies.get('userLogin')" class="profile">
+      <div v-if="userName" class="profile">
         <router-link to="/profile" class="Navbar-profile">
-          Logged in as: {{ Cookies.get("userLogin") }}
+          Logged in as: {{ userName }}
         </router-link>
         <button @click="logout">Logout</button>
       </div>

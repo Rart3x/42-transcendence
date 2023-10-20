@@ -11,5 +11,6 @@ export interface User {
     queue: QueueList | null;
     queueId : number | null;
     socket : string | null; 
+    cookie: string | null;
+    QueueList: QueueList[];
 }
-
