@@ -1,6 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
 import { User, Prisma } from '@prisma/client';
+import * as https from 'https';
+import * as fs from 'fs';
+import * as path from 'path';
+
+async function downloadImage (url, filename) {
+  if (!fs.existsSync(path.join(__dirname, '../images')))
+    fs.mkdirSync(path.join(__dirname, '../images'));
+
+  return new Promise((resolve, reject) => {
+    https.get(url, (response) => {
+      const fileStream = fs.createWriteStream(path.join(__dirname, '../images', filename));
+      response.pipe(fileStream);
+      fileStream.on('finish', () => {
+        fileStream.close(resolve);
+      });
+      fileStream.on('error', reject);
+    }).on('error', reject);
+  });
+}
 
 @Injectable()
 export class UserService {
@@ -84,22 +103,11 @@ export class UserService {
       return ;
     }
 
-    // Fetch the image from the URL
-    const imageResponse = await fetch(data.image);
-    const imageBlob = await imageResponse.blob();
-    const imageBytes = await new Response(imageBlob).arrayBuffer();
+    // Download the profile picture in a folder and save the path in the database
+    const imagePath = `${data.userName}.jpg`;
+    await downloadImage(data.image, imagePath);
+    data.image = imagePath;
 
-    // Convert the bytes to base64 string
-    const base64Image= btoa(new Uint8Array(imageBytes).reduce(function (data, byte) {
-      return data + String.fromCharCode(byte);
-    }, ''));
-
-    // Modify the data object to include the cookie
-    const modifiedData = {
-      ...data,
-      image: base64Image,
-    };
-    data.image = base64Image;
     return this.prisma.user.create({
       data,
     });

@@ -54,14 +54,6 @@ onMounted(async () => {
       });
 
       await insertUser(userInfo.value.login, userInfo.value.image.link, code);
-      // Change string to bytes and recreate image
-      // const binaryImage = atob(base64Image);
-      // const reversedImageBytes = new Uint8Array(binaryImage.length);
-
-      // for (let i = 0; i < binaryImage.length; i++) {
-      //   reversedImageBytes[i] = binaryImage.charCodeAt(i);
-      // }
-      // imageSrc.value = URL.createObjectURL(new Blob([reversedImageBytes], { type: 'image/jpeg' }));
       window.location.href = "/Profile";
     }
     else {
