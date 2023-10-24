@@ -1,4 +1,16 @@
 <script setup>
+import { ref } from 'vue';
+
+const gifVisible = ref(false);
+
+const playGif = () => {
+  gifVisible.value = true;
+};
+
+const stopGif = () => {
+  gifVisible.value = false;
+};
+
 </script>
 
 <template>
@@ -19,7 +31,22 @@
     <h1 id="game" class="title"> GAME </h1>
     <div class="section">
      <router-link to="/game">
-      <img class="img" src="@/components/images/pong-wallpaper.jpg" />
+      <div v-if="gifVisible">
+    <img
+      src="https://i.imgur.com/qt4yZVL.gif"
+      @mouseover="playGif"
+      @mouseleave="stopGif"
+      class="img"
+    />
+    </div>
+    <div v-else>
+    <img
+      src="@/components/images/pong-wallpaper.jpg"
+      @mouseover="playGif"
+      @mouseleave="stopGif"
+      class="img"
+    />
+    </div>
      </router-link>
      <div class="information">
        <p>Simply game, pong.</p>
@@ -79,8 +106,10 @@
   font-family: 'Silkscreen', sans-serif;
 }
 .img{
-  width: 50vw;
-  height: 60vh;
+  max-width: 50vw;
+  max-height: 60vh;
+  width: auto;
+  height: auto;
 }
 
 .information{
