@@ -2,17 +2,31 @@
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
   import { getUserByCookie } from "./api/get.call";
-  import { addFriend, updateUsername } from './api/post.call';
+  import { addFriend, updateUsername, updateImage } from './api/post.call';
 
   const newUserName = ref("");
   const friendName = ref("");
   const userName = ref("");
   let imageSrc = ref(null);
   let user = ref(null);
+  let selectedFile = ref(null);
 
   const handleSubmit = async () => {
     await updateUsername(user.userName, newUserName.value);
     window.location.href = "/Profile";
+  }
+
+  const uploadImage = async () => {
+    if (!selectedFile.value) {
+      alert('Please select an image file.');
+      return;
+    }
+    await updateImage(user.userName, selectedFile.value);
+    window.location.href = "/Profile";
+  }
+
+  const handleFileChange = (event) => {
+    selectedFile.value = event.target.files[0];
   }
 
   onMounted(async () => {
@@ -36,9 +50,9 @@
       <input type="text" id="newUserName" v-model="newUserName" :placeholder="userName">
       <button type="submit">Send</button>
     </form>
-  </div>
-  <div id="userImage">
-    <img :src="imageSrc" alt="user image" height="400" width="400">
+    <input type="file" id="userImage" name="userImage" 
+    accept="image/png, image/jpeg, image/jpg" @change="handleFileChange">
+    <button @click="uploadImage">Upload</button>
   </div>
   <br>
   <dl class="container">
@@ -86,6 +100,13 @@
 <style scoped>
 #userForm {
   text-align: center;
+}
+
+.custom-dropzone {
+  border-style: dashed;
+  border-width: 3px;
+  padding: 20px;
+  color:rgb(114, 114, 114)
 }
 
 .container {

@@ -138,4 +138,11 @@ export class UserService {
       data: { cookie: cookie },
     });
   }
+
+  async updateImage(userName: string, imageFile: Express.Multer.File): Promise<User> {
+    const imagePath = path.join(__dirname, '../../../front/src/assets/userImages', `${userName}.jpg`);
+    fs.writeFileSync(imagePath, imageFile.buffer);
+
+    return ;
+  }
 }

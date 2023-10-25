@@ -1,8 +1,9 @@
-import { BadRequestException, Body, Controller, Get, Param, Post} from '@nestjs/common';
+import { BadRequestException, Body, Controller, UploadedFile, Get, Param, Post, UseInterceptors} from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { User } from '@prisma/client';
 import { UserService } from './user.service';
 import { validateOrReject } from 'class-validator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 export class UserController {
@@ -20,7 +21,7 @@ export class UserController {
     }
   }
 
-  @Post('updateUsername/:updateUsername')
+  @Post('updateUsername/:userName')
   async updateUsername(@Body('userName') userName: string, @Body('newUserName') newUserName: string): Promise<User> {
     
     const user = await this.userService.getUserByUserName(userName);
@@ -34,6 +35,18 @@ export class UserController {
     }
     return user;
   }
+
+  @Post('updateImage/:userName')
+  @UseInterceptors(FileInterceptor('image'))
+  async updateImage(@Param('userName') userName: string, @UploadedFile() image): Promise<User> {
+    
+    const user = await this.userService.updateImage(userName, image);
+    if (!user) {
+      console.warn("error: user not found");
+    }
+    return user;
+  }
+
 
   @Post('socket/:socket')
   async setSocket(@Body('userName') userName: string, @Body('socket') socket: string): Promise<User> {
