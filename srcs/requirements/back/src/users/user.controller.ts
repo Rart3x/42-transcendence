@@ -20,11 +20,12 @@ export class UserController {
     }
   }
 
-  @Post('userName/:userName')
+  @Post('updateUsername/:updateUsername')
   async updateUsername(@Body('userName') userName: string, @Body('newUserName') newUserName: string): Promise<User> {
     
     const user = await this.userService.getUserByUserName(userName);
-    
+    // console.log(user);
+
     if (user) {
       await this.userService.updateUserName(user.userId, newUserName); 
     }
@@ -47,7 +48,7 @@ export class UserController {
     return user
   }
 
-  @Post(':friend/friend')
+  @Post('friend/:friend')
   async addFriendToUser(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User> {
     const user = await this.userService.addFriend(userName, friendName);
   

@@ -46,6 +46,7 @@ model Message {
 model User {
   userId      Int     @id @default(autoincrement()) @unique
   userName    String? @unique
+  displayName String? @unique
   image       String?
   friendsId   Int[]
   socket      String?

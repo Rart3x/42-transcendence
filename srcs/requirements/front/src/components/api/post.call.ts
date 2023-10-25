@@ -91,8 +91,7 @@ export async function insertMessage(message_text : string) {
 
 export async function updateUsername(userName : string, newUserName : string) {
   try {
-    console.log(`updateUsername ${userName} ${newUserName}`);
-    const response = await fetch(`http://localhost:3000/user/${userName}`, {
+    const response = await fetch(`http://localhost:3000/user/updateUsername/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -100,7 +99,7 @@ export async function updateUsername(userName : string, newUserName : string) {
       body: JSON.stringify({ userName: userName, newUserName: newUserName }),
     });
     if (response.ok) {
-        const responseData = await response.json();
+      const responseData = await response.json();
       return responseData;
     }
     else {

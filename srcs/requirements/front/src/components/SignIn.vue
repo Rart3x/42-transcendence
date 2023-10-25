@@ -5,7 +5,6 @@ import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 
 const userInfo = ref(null);
-const imageSrc = ref(null);
 
 const code = new URL(window.location.href).searchParams.get("code");
 
@@ -65,12 +64,6 @@ onMounted(async () => {
     router.push('/');
   }
 
-});
-
-onUnmounted(() => {
-  if (imageSrc.value) {
-    URL.revokeObjectURL(imageSrc.value);
-  }
 });
 
 </script>

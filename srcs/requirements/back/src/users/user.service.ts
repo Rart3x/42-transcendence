@@ -111,6 +111,7 @@ export class UserService {
     const imagePath = `${data.userName}.jpg`;
     await downloadImage(data.image, imagePath);
     data.image = imagePath;
+    data.displayName = data.userName;
 
     return this.prisma.user.create({
       data,
@@ -127,7 +128,7 @@ export class UserService {
   async updateUserName(userId: number, newUserName: string): Promise<User> {
     return this.prisma.user.update({
       where: { userId: userId },
-      data: { userName: newUserName },
+      data: { displayName: newUserName },
     });
   }
 

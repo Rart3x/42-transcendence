@@ -25,7 +25,7 @@ onMounted(async () => {
     if (Cookies.get("_authToken") == undefined)
       return;
     user = await getUserByCookie(Cookies.get("_authToken"));
-    userName.value = user.userName;
+    userName.value = user.displayName;
   });
 
 </script>

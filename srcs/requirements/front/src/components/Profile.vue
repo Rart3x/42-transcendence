@@ -3,7 +3,6 @@
   import { onMounted, ref } from "vue";
   import { getUserByCookie } from "./api/get.call";
   import { addFriend, updateUsername } from './api/post.call';
-  import * as path from "path";
 
   const newUserName = ref("");
   const friendName = ref("");
@@ -18,11 +17,13 @@
 
   onMounted(async () => {
     user = await getUserByCookie(Cookies.get("_authToken"));
-    userName.value = user.userName;
-    // console log current path
-    // imageSrc = await fetch(await "../assets/userImages/" + user.image);
-
-    // console.log(imageSrc);
+    if (!user)
+      window.location.href = "/";
+    userName.value = user.displayName;
+    let imagePath = "../assets/userImages/" + user.image;
+    import(/* @vite-ignore */imagePath).then((image) => {
+      imageSrc.value = image.default;
+    });
   });
 
 </script>
@@ -37,7 +38,7 @@
     </form>
   </div>
   <div id="userImage">
-    <img :src="imageSrc" alt="user image" height="300" width="300">
+    <img :src="imageSrc" alt="user image" height="400" width="400">
   </div>
   <br>
   <dl class="container">
