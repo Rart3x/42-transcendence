@@ -6,12 +6,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 async function downloadImage (url, filename) {
-  if (!fs.existsSync(path.join(__dirname, '../images')))
-    fs.mkdirSync(path.join(__dirname, '../images'));
+  if (!fs.existsSync(path.join(__dirname, '../../../front/src/assets/userImages')))
+    fs.mkdirSync(path.join(__dirname, '../../../front/src/assets/userImages'));
 
   return new Promise((resolve, reject) => {
     https.get(url, (response) => {
-      const fileStream = fs.createWriteStream(path.join(__dirname, '../images', filename));
+      const fileStream = fs.createWriteStream(path.join(__dirname, '../../../front/src/assets/userImages', filename));
       response.pipe(fileStream);
       fileStream.on('finish', () => {
         fileStream.close(resolve);
@@ -97,9 +97,13 @@ export class UserService {
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
 
-    console.log("createUser: ", data);
+    // console.log("createUser: ", data);
+
+    const user = await this.getUserByUserName(data.userName);
     
-    if (await this.getUserByUserName(data.userName) != null) {
+    if (user != null) {
+      // console.log(user);
+      await this.updateCookie(user.userId, data.cookie);
       return ;
     }
 
@@ -125,5 +129,12 @@ export class UserService {
       where: { userId: userId },
       data: { userName: newUserName },
     });
-  }  
+  }
+
+  async updateCookie(userId: number, cookie: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId: userId },
+      data: { cookie: cookie },
+    });
+  }
 }

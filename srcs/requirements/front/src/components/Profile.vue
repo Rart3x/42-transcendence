@@ -3,10 +3,12 @@
   import { onMounted, ref } from "vue";
   import { getUserByCookie } from "./api/get.call";
   import { addFriend, updateUsername } from './api/post.call';
+  import * as path from "path";
 
   const newUserName = ref("");
   const friendName = ref("");
   const userName = ref("");
+  let imageSrc = ref(null);
   let user = ref(null);
 
   const handleSubmit = async () => {
@@ -17,6 +19,10 @@
   onMounted(async () => {
     user = await getUserByCookie(Cookies.get("_authToken"));
     userName.value = user.userName;
+    // console log current path
+    // imageSrc = await fetch(await "../assets/userImages/" + user.image);
+
+    // console.log(imageSrc);
   });
 
 </script>
@@ -29,6 +35,9 @@
       <input type="text" id="newUserName" v-model="newUserName" :placeholder="userName">
       <button type="submit">Send</button>
     </form>
+  </div>
+  <div id="userImage">
+    <img :src="imageSrc" alt="user image" height="300" width="300">
   </div>
   <br>
   <dl class="container">

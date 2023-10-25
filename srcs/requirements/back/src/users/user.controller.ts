@@ -45,12 +45,27 @@ export class UserController {
       console.warn('Error in setSocket:', error);
     }
     return user
-}
+  }
+
   @Post(':friend/friend')
   async addFriendToUser(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User> {
     const user = await this.userService.addFriend(userName, friendName);
   
     if (!user) {
+      console.warn("error: user not found");
+    }
+    return user;
+  }
+
+  @Post('updateCookie/:cookie')
+  async updateCookie(@Body('userName') userName: string, @Body('cookie') cookie: string): Promise<User> {
+    
+    const user = await this.userService.getUserByUserName(userName);
+    
+    if (user) {
+      await this.userService.updateCookie(user.userId, cookie); 
+    }
+    else{
       console.warn("error: user not found");
     }
     return user;

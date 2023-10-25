@@ -75,6 +75,4 @@ onUnmounted(() => {
 
 </script>
 
-<template>
-  <!-- <img :src="imageSrc" /> -->
-</template>
+<template></template>
