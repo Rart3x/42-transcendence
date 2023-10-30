@@ -101,9 +101,9 @@ export class UserController {
 
   @Get('cookie/:cookie')
   async getUserByCookie(@Param('cookie') cookie: string): Promise<User> {
-    
+
     const user = await this.userService.getUserByCookie(cookie);
-    
+
     return user;
   }
 

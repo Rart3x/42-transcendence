@@ -24,6 +24,7 @@ const signInWithIntra = () => {
 onMounted(async () => {
     if (Cookies.get("_authToken") == undefined)
       return;
+    console.log(Cookies.get("_authToken"));
     user = await getUserByCookie(Cookies.get("_authToken"));
     userName.value = user.displayName;
   });

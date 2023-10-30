@@ -45,8 +45,7 @@ const stopGif = () => {
       src="@/components/images/pong-wallpaper.jpg"
       @mouseover="playGif"
       @mouseleave="stopGif"
-      class="img"
-    />
+      class="img"/>
     </div>
      </router-link>
      <div class="information">

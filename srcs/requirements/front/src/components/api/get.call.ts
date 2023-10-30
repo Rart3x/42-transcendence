@@ -1,5 +1,5 @@
 /* ----- USER ----- */
-export async function getUserByCookie(cookie : string) {
+export async function getUserByCookie(cookie) {
   try {
     const response = await fetch(`http://localhost:3000/user/cookie/${cookie}`, {
       method: "GET",
@@ -7,26 +7,31 @@ export async function getUserByCookie(cookie : string) {
         "Content-Type": "application/json",
       },
     });
+
     if (response.ok) {
-      const responseData = await response.json();
+      const text = await response.text();
+      if (!text) {
+        return null;
+      }
+
+      const responseData = JSON.parse(text);
       return responseData;
     }
-  } 
-  catch (error) {
-    console.error('error: sending GET request', error);
   }
+  catch (error) {
+    console.error('Error: sending GET request', error);
+  }
+  return null;
 }
 
 export async function getUserByUserId(userId : number) {
   try {
-    console.log(userId);
     const response = await fetch(`http://localhost:3000/user/userId/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-
     if (response.ok) {
       const responseData = await response.json();
       return responseData;
