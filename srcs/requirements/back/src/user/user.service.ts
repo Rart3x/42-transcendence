@@ -28,6 +28,9 @@ export class UserService {
   async addFriend(userName: string, friendName: string) {
     const user = await this.prisma.user.findFirst({
       where: { userName: userName },
+      include: {
+        friends: true // Inclure les amis de l'utilisateur
+      }
     });
 
     if (!user) {
@@ -39,13 +42,20 @@ export class UserService {
     });
   
     if (!friend) {
-      throw new Error("error: friend not found");
+      throw Error("error: friend not found");
     }
-  
-    return this.prisma.user.update({
+
+    // Mettez à jour l'entrée de l'utilisateur actuel pour ajouter l'ami au tableau friends.
+    const updatedUser = await this.prisma.user.update({
       where: { userId: user.userId },
-      data: { friendsId: { push: friend.userId } },
-    }); 
+      data: {
+        friends: {
+          connect: { friendId: user.userId } // Connectez l'ami
+        }
+      }
+    });
+
+    return updatedUser; // Vous pouvez retourner l'utilisateur mis à jour si nécessaire.
   }
 
   async  setSocket(userId: number, socket: string): Promise<User> {
@@ -55,30 +65,30 @@ export class UserService {
     });
   }
 
-  async getFriendUserNames(userId : number) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { userId: userId },
-      });
+  // async getFriendUserNames(userId : number) {
+  //   try {
+  //     const user = await this.prisma.user.findUnique({
+  //       where: { userId: userId },
+  //     });
   
-      if (!user) {
-        throw new Error("error: user not found");
-      }
+  //     if (!user) {
+  //       throw new Error("error: user not found");
+  //     }
   
-      const friendUserNames = await this.prisma.user.findMany({
-        where: {
-          userId: { in: user.friendsId },
-        },
-        select: {
-          userName: true,
-        },
-      });
-      return friendUserNames.map((friend) => friend.userName);
-    }
-    catch (error) {
-      console.error(error);
-    }
-  }
+  //     const friendUserNames = await this.prisma.user.findMany({
+  //       where: {
+  //         userId: { in: user.friendsId },
+  //       },
+  //       select: {
+  //         userName: true,
+  //       },
+  //     });
+  //     return friendUserNames.map((friend) => friend.userName);
+  //   }
+  //   catch (error) {
+  //     console.error(error);
+  //   }
+  // }
 
   async getUserByUserName(userName: string) {
     return await this.prisma.user.findFirst({
@@ -95,28 +105,42 @@ export class UserService {
     return user;
   }
 
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
-
-    // console.log("createUser: ", data);
-
+  async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
     const user = await this.getUserByUserName(data.userName);
     
     if (user != null) {
-      // console.log(user);
       await this.updateCookie(user.userId, data.cookie);
-      return ;
+      return user;
     }
-
+  
     // Download the profile picture in a folder and save the path in the database
     const imagePath = `${data.userName}.jpg`;
     await downloadImage(data.image, imagePath);
     data.image = imagePath;
     data.displayName = data.userName;
-
+  
+    const createUserInput: Prisma.UserCreateInput = {
+      ...data,
+    };
+  
+    // If a friend's name is provided, create a Friend record during user creation
+    if (friendName) {
+      createUserInput.friends = {
+        create: [{
+          friend: {
+            create: {
+              userName: friendName,
+            },
+          },
+        }],
+      };
+    }
+  
     return this.prisma.user.create({
-      data,
+      data: createUserInput,
     });
   }
+  
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {

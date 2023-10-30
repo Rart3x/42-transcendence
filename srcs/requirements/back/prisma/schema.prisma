@@ -4,68 +4,86 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = "postgresql://kramjatt:123@localhost:5432/PMU"
+  url      = "postgresql://kramjatt:123@localhost:5432/PMU"
 }
 
 model Admin {
   adminId      Int            @id @default(autoincrement())
-  
   ChannelAdmin ChannelAdmin[]
 }
 
 model Channel {
-  channelId     Int               @id @default(autoincrement())
+  channelId    Int            @id @default(autoincrement())
+  ChannelAdmin ChannelAdmin[]
   
-  ChannelAdmin  ChannelAdmin[]
-  Message       Message[]
+  Message      Message[]
 }
 
 model ChannelAdmin {
-  adminId   Int
-  channelId Int
+  adminId       Int
+  channelId     Int
   
-  Admin     Admin   @relation(fields: [adminId], references: [adminId], onDelete: NoAction, onUpdate: NoAction)
-  Channel   Channel @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
+  Admin         Admin   @relation(fields: [adminId], references: [adminId], onDelete: NoAction, onUpdate: NoAction)
+  Channel       Channel @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([adminId, channelId])
 }
 
+model Friend {
+  friendId     Int     @id @default(autoincrement())
+  friendList   User[]
+}
+
 model Game {
-  gameId Int @id @default(autoincrement())
+  gameId       Int     @id @default(autoincrement())
+}
+
+model GameRoom {
+  roomId       Int     @id @default(autoincrement())
+  started      Boolean @default(false)
+  users        User[]
 }
 
 model Message {
   messageId    Int       @id @default(autoincrement())
   channelId    Int?
+  
   message_text String
   message_date DateTime? @default(now()) @db.Timestamp(6)
   
   Channel      Channel?  @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model User {
-  userId      Int     @id @default(autoincrement()) @unique
-  userName    String? @unique
-  displayName String? @unique
-  image       String?
-  friendsId   Int[]
-  socket      String?
-  roomId      Int?
-  room        GameRoom? @relation(fields: [roomId], references: [roomId])
-  queueId     Int?
-  queue       QueueList? @relation(fields: [queueId], references: [queueId])
-  cookie      String? @unique
-}
-
 model QueueList {
-  queueId Int      @id @default(autoincrement())
+  queueId Int            @id @default(autoincrement())
   users   User[]
 }
 
-model GameRoom{
-  roomId Int       @id @default(autoincrement())
-  players User[]
-  started Boolean  @default(false)
+model Stat {
+  statId      Int        @id @default(autoincrement())
+  gamePlayed  Int
+  gameWon     Int
+  users       User[]
 }
 
+model User {
+  userId      Int        @id @unique @default(autoincrement())
+  userName    String?    @unique
 
+  friendId    Int?
+  friends     Friend?    @relation(fields: [friendId], references: [friendId])
+  
+  roomId      Int?
+  room        GameRoom?  @relation(fields: [roomId], references: [roomId])
+  
+  queueId     Int?
+  queue       QueueList? @relation(fields: [queueId], references: [queueId])
+
+  statId      Int?
+  stat        Stat?      @relation(fields: [statId], references: [statId])
+  
+  displayName String?    @unique
+  image       String?
+  socket      String?
+  cookie      String?    @unique
+}

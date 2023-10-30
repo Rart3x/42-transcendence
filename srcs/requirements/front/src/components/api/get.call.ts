@@ -11,8 +11,25 @@ export async function getUserByCookie(cookie : string) {
       const responseData = await response.json();
       return responseData;
     }
-    else {
-      const errorText = await response.text();
+  } 
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
+export async function getUserByUserId(userId : number) {
+  try {
+    console.log(userId);
+    const response = await fetch(`http://localhost:3000/user/userId/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
     }
   } 
   catch (error) {
@@ -32,9 +49,6 @@ export async function getClientFromQueueList(){
       const responseData = await response.json();
       return responseData;
     }
-    else {
-      const errorText = await response.text();
-    }
   } 
   catch (error) {
     console.error('error: sending GET request', error);
@@ -53,9 +67,6 @@ export async function getMessage() {
     if (response.ok) {
       const responseData = await response.json();
       return responseData;
-    }
-    else {
-      const errorText = await response.text();
     }
   } 
   catch (error) {
@@ -77,9 +88,6 @@ export async function getUserFriends(userId : number) {
       const responseData = await response.json();
       return responseData;
     }
-    else {
-      const errorText = await response.text();
-    }
   } 
   catch (error) {
     console.error('error: sending GET request', error);
@@ -99,9 +107,6 @@ export async function sumQueueList(){
       const responseData = await response.json();
       return responseData;
     }
-    else {
-      const errorText = await response.text();
-    }
   } 
   catch (error) {
     console.error('error: sending GET request', error);
@@ -120,9 +125,6 @@ export async function getFriendUserNames(userId : number) {
     if (response.ok) {
       const responseData = await response.json();
       return responseData;
-    }
-    else {
-      const errorText = await response.text();
     }
   } 
   catch (error) {

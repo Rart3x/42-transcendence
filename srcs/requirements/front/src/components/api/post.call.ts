@@ -1,6 +1,6 @@
 export async function addFriend(userName : string, friendName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/${userName}/friend`, {
+    const response = await fetch(`http://localhost:3000/user/friend/${friendName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

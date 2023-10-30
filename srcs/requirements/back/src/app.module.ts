@@ -6,8 +6,8 @@ import { MessageService } from './message/message.service';
 
 import { PrismaService } from './prisma.service';
 
-import { UserController } from './users/user.controller';
-import { UserService } from './users/user.service';
+import { UserController } from './user/user.controller';
+import { UserService } from './user/user.service';
 
 import { QueueListController } from './queueList/queueList.controller';
 import { QueueListService } from './queueList/queueList.service';

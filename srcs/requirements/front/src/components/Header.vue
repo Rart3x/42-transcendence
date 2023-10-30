@@ -31,37 +31,38 @@ onMounted(async () => {
 </script>
 
 <template>
-  <header>
-    <div class="Navbar-container">
-      <ol class="Navbar-list">
-        <li>
-          <router-link to="/" class="Navbar-content">Home</router-link>
-        </li>
-        <li>
-          <router-link to="/game" class="Navbar-content">Game</router-link>
-        </li>
-        <li>
-          <router-link to="/about" class="Navbar-content">About</router-link>
-        </li>
-        <li>
-          <router-link to="/chat" class="Navbar-content">Chat</router-link>
-        </li>
-      </ol>
-      <div v-if="userName" class="profile">
-        <router-link to="/profile" class="Navbar-profile">
-          Logged in as: {{ userName }}
-        </router-link>
-        <button @click="logout">Logout</button>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
+    <header>
+      <div class="Navbar-container">
+        <ol class="Navbar-list">
+          <li>
+            <router-link to="/" class="Navbar-content">Home</router-link>
+          </li>
+          <li>
+            <router-link to="/game" class="Navbar-content">Game</router-link>
+          </li>
+          <li>
+            <router-link to="/about" class="Navbar-content">About</router-link>
+          </li>
+          <li>
+            <router-link to="/chat" class="Navbar-content">Chat</router-link>
+          </li>
+        </ol>
+        <div v-if="userName" class="profile">
+          <router-link to="/profile" class="Navbar-profile">
+            Logged in as: {{ userName }}
+          </router-link>
+          <button @click="logout">Logout</button>
+        </div>
+        <div v-else class="profile">
+          <img
+            src="@/components/icons/SignIn.png"
+            @click="signInWithIntra"
+            class="sign"
+          />
+        </div>
       </div>
-      <div v-else class="profile">
-        <img
-          src="@/components/icons/SignIn.png"
-          @click="signInWithIntra"
-          class="sign"
-        />
-      </div>
-    </div>
-  </header>
+    </header>
 </template>
 
 <style scoped>

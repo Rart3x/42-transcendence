@@ -14,6 +14,7 @@ const stopGif = () => {
 </script>
 
 <template>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
     <nav class="Navbar">
     <ul>
       <li style="--i: 3" data-icon="&#xf11b">

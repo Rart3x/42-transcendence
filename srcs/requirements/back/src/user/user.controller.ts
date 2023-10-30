@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, UploadedFile, Get, Param, Post, UseInterceptors} from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { User } from '@prisma/client';
+import { Friend, User } from '@prisma/client';
+import { FriendService } from '../friend/friend.service'
 import { UserService } from './user.service';
 import { validateOrReject } from 'class-validator';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -8,6 +9,17 @@ import { FileInterceptor } from '@nestjs/platform-express';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+
+  // @Post()
+  // async createFriend(): Promise<Friend> {
+  //   return this.prisma.friend.create({
+  //     data: {
+  //       // Connectez l'ami à l'utilisateur actuel
+  //       friendList: { connect: { userId: user.userId } },
+  //     },
+  //   });
+  // }
 
   @Post()
   async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
@@ -25,7 +37,6 @@ export class UserController {
   async updateUsername(@Body('userName') userName: string, @Body('newUserName') newUserName: string): Promise<User> {
     
     const user = await this.userService.getUserByUserName(userName);
-    // console.log(user);
 
     if (user) {
       await this.userService.updateUserName(user.userId, newUserName); 
@@ -47,7 +58,6 @@ export class UserController {
     return user;
   }
 
-
   @Post('socket/:socket')
   async setSocket(@Body('userName') userName: string, @Body('socket') socket: string): Promise<User> {
     const user = await this.userService.getUserByUserName(userName);
@@ -59,16 +69,6 @@ export class UserController {
       console.warn('Error in setSocket:', error);
     }
     return user
-  }
-
-  @Post('friend/:friend')
-  async addFriendToUser(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User> {
-    const user = await this.userService.addFriend(userName, friendName);
-  
-    if (!user) {
-      console.warn("error: user not found");
-    }
-    return user;
   }
 
   @Post('updateCookie/:cookie')
@@ -107,8 +107,8 @@ export class UserController {
     return user;
   }
 
-  @Get('userId/:userId')
-  async getFriendUserNames(@Param('userId') userId: number): Promise<string[]> {
-    return this.userService.getFriendUserNames(userId);
-  }
+  // @Get('userId/:userId')
+  // async getFriendUserNames(@Param('userId') userId: number): Promise<string[]> {
+  //   return this.userService.getFriendUserNames(userId);
+  // }
 }

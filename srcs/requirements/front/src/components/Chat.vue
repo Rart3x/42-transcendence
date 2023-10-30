@@ -54,34 +54,35 @@ const sendMessage = async () => {
 </script>
 
 <template>
-  <div class="chat-container">
-    <div class="chat-box">
-      <div class="chat-messages" ref="messageContainer">
-        <ul>
-          <li v-for="message in messages" :key="message.id">
-            <div class="message">
-              <div class="message-text">{{ message.message_text }}</div>
-              <div class="message-date">
-                {{ formatMessageDate(message.message_date) }}
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
+    <div class="chat-container">
+      <div class="chat-box">
+        <div class="chat-messages" ref="messageContainer">
+          <ul>
+            <li v-for="message in messages" :key="message.id">
+              <div class="message">
+                <div class="message-text">{{ message.message_text }}</div>
+                <div class="message-date">
+                  {{ formatMessageDate(message.message_date) }}
+                </div>
               </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="chat-header">Chat</div>
       </div>
-      <div class="chat-header">Chat</div>
+      <form @submit.prevent="sendMessage">
+        <input
+          id="message_text"
+          class="chat-input"
+          v-model="message_text"
+          placeholder="Type your message..."
+        />
+        <button type="submit" class="chat-button" @click="reloadWindow">
+          Send
+        </button>
+      </form>
     </div>
-    <form @submit.prevent="sendMessage">
-      <input
-        id="message_text"
-        class="chat-input"
-        v-model="message_text"
-        placeholder="Type your message..."
-      />
-      <button type="submit" class="chat-button" @click="reloadWindow">
-        Send
-      </button>
-    </form>
-  </div>
 </template>
 
 <style scoped>

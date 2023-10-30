@@ -28,6 +28,9 @@ front:
 	@printf "Running Vue in ${NAME}...\n"
 	@cd ./srcs/requirements/front && (npm install 18 || true) && npm run dev
 
+tailwind:
+	@cd ./srcs/requirements/front && npx tailwindcss -i ./src/templates/input.css -o ./src/templates/input.css --watch
+
 #-------------------------------------DB-------------------------------------#
 prisma:
 	@cd ./srcs/requirements/back/ && \
