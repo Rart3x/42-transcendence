@@ -87,7 +87,7 @@ onMounted(async () => {
       </a>
     </div>
     <div class="navbar-end">
-      <div class="dropdown">
+      <div class="dropdown dropdown-end">
         <label tabindex="0" class="btn btn-ghost btn-circle">
           <div class="avatar">
             <div class="w-24 mask mask-squircle">
