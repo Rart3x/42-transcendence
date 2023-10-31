@@ -2,10 +2,8 @@
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
   import { getUserByCookie, getUserByUserId } from "./api/get.call";
-  import { addFriend, updateUsername, updateImage } from './api/post.call';
+  import { addFriend } from './api/post.call';
 
-  const friendName = ref("");
-  const newUserName = ref("");
   const userName = ref("");
 
   let imageSrc = ref(null);
@@ -14,11 +12,6 @@
 
   const handleFileChange = (event) => {
     selectedFile.value = event.target.files[0];
-  }
-
-  const handleSubmit = async () => {
-    await updateUsername(user.userName, newUserName.value);
-    window.location.href = "/Profile";
   }
 
   onMounted(async () => {
@@ -32,19 +25,10 @@
     });
   });
 
-  const uploadImage = async () => {
-    if (!selectedFile.value) {
-      alert('Please select an image file.');
-      return;
-    }
-    await updateImage(user.userName, selectedFile.value);
-    window.location.href = "/Profile";
-  }
-
 </script>
 
 <template>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
   <!--Stats-->
   <div class="stats shadow">
     <div class="stat">
@@ -73,20 +57,6 @@
       <div class="stat-value">0%</div><!-- Calcul victoire, une fois le calcul fait, rouge si -50, jaune -70 sinon vert%-->
     </div>
   </div>
-  <div class="form-control w-full max-w-xs">
-    <form @submit.prevent="handleSubmit">
-      <label>New username : </label>
-      <input type="text" id="newUserName" v-model="newUserName" :placeholder="userName">
-      <button class="btn">Send</button>
-    </form>
-  </div>
-  <br>
-  <div class="form-control w-full max-w-xs">
-    <label>Upload image : </label>
-    <input type="file" class="file-input file-input-bordered w-full max-w-xs" />
-    <button class="btn" @click="uploadImage">Upload</button>
-  </div>
-
 
   <!-- <div id="addFriend">
     <form @submit.prevent="addFriend(userName, friendName)">
