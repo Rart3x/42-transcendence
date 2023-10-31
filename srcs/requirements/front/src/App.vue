@@ -13,8 +13,7 @@ onMounted(async () => {
 
 <template>
   <body>
-    <!-- <Header v-if="user" /> -->
-    <Header />
+    <Header v-if="user" />
     <router-view></router-view>
   </body>
 </template>
