@@ -86,4 +86,5 @@ model User {
   image       String?
   socket      String?
   cookie      String?    @unique
+  A2F         Boolean    @default(false)
 }

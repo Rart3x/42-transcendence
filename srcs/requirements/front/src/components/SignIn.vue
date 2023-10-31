@@ -1,10 +1,12 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted } from "vue";
 import { insertUser } from './api/post.call.ts';
+import { getUserByCookie, getUserByUsername } from './api/get.call.ts';
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 
 const userInfo = ref(null);
+let user = null;
 
 const code = new URL(window.location.href).searchParams.get("code");
 
@@ -43,8 +45,17 @@ onMounted(async () => {
         throw new Error(`HTTP error! status: ${userResponse.status}`);
       }
 
-      const user = await userResponse.json();
+      user = await userResponse.json();
       userInfo.value = user;
+
+      user = await getUserByUsername(userInfo.value.login);
+
+      if (user && user.A2F) {
+        console.log("A2F");
+        return ;
+      }
+      
+      await insertUser(userInfo.value.login, userInfo.value.image.link, code);
 
       Cookies.set("_authToken", code, {
         expires: 1,
@@ -52,8 +63,8 @@ onMounted(async () => {
         sameSite: "Strict",
       });
 
-      await insertUser(userInfo.value.login, userInfo.value.image.link, code);
-      window.location.href = "/Profile";
+      if (user.A2F == false)
+        window.location.href = "/Profile";
     }
     else {
       router.push('/');
@@ -68,4 +79,8 @@ onMounted(async () => {
 
 </script>
 
-<template></template>
+<template>
+  <div v-if="user">
+    <p>Logged in as {{ userInfo.login }}</p>
+  </div>
+</template>
