@@ -15,19 +15,12 @@ const logout = () => {
   window.location.href = "/";
 };
 
-const signInWithIntra = () => {
-  // Redirect the user to the 42 intra authorization page
-  window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${
-    import.meta.env.VITE_CLIENT_ID
-  }&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
-};
-
 onMounted(async () => {
-  if (Cookies.get("_authToken") == undefined) return;
-  console.log(Cookies.get("_authToken"));
-  user = await getUserByCookie(Cookies.get("_authToken"));
-  userName.value = user.displayName;
-  let imagePath = "../assets/userImages/" + user.image;
+  if (Cookies.get("_authToken") == undefined)
+    return;
+  user.value = await getUserByCookie(Cookies.get("_authToken"));
+  userName.value = user.value.displayName;
+  let imagePath = "../assets/userImages/" + user.value.image;
   import(/* @vite-ignore */ imagePath).then((image) => {
     imageSrc.value = image.default;
   });
