@@ -1,6 +1,4 @@
 <script setup>
-  import { ref } from 'vue';
-
   const signInWithIntra = () => {
     window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${
       import.meta.env.VITE_CLIENT_ID
@@ -11,14 +9,20 @@
 
 <template>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
-  <div class="hero min-h-screen" style="background-image: url(https://daisyui.com/images/stock/photo-1507358522600-9f71e620c44e.jpg);">
+  <div class="hero min-h-screen the-background-image">
   <div class="hero-overlay bg-opacity-60"></div>
   <div class="hero-content text-center text-neutral-content">
     <div class="max-w-md">
-      <img src="@/components/icons/SignIn.png" @click="signInWithIntra" class="sign"/>
+      <button class="btn btn-glass" @click="signInWithIntra"> Sign in with 42 </button>
     </div>
   </div>
 </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.the-background-image {
+  width: 100vw;
+  height: 100vh;
+  background-image: url('./images/kramjatt.jpg');
+}
+</style>
