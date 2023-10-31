@@ -85,18 +85,9 @@ export class UserController {
     return user;
   }
 
-  @Get('userName/:userName')
+  @Get('getUsername/:userName')
   async getUserByUserName(@Param('userName') userName: string): Promise<User> {
-    
-    const user = await this.userService.getUserByUserName(userName);
-
-    if (!user) {
-      return this.createUser({ userName: userName });
-    }
-    else{
-      console.warn("error: user is already register:", userName)
-    }
-    return user;
+    return await this.userService.getUserByUserName(userName);
   }
 
   @Get('cookie/:cookie')

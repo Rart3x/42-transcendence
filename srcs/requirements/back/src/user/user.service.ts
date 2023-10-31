@@ -109,8 +109,8 @@ export class UserService {
     const user = await this.getUserByUserName(data.userName);
     
     if (user != null) {
-      await this.updateCookie(user.userId, data.cookie);
-      return user;
+      // console.log(user);
+      return await this.updateCookie(user.userId, data.cookie);
     }
   
     // Download the profile picture in a folder and save the path in the database
