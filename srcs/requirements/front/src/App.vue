@@ -1,9 +1,19 @@
 <script setup>
 import Header from "@/components/Header.vue";
+import Cookies from "js-cookie";
+import { onMounted, ref } from "vue";
+import { getUserByCookie, getUserByUserId } from "./components/api/get.call";
+
+let user = ref(null);
+
+onMounted(async () => {
+  user = await getUserByCookie(Cookies.get("_authToken"));
+});
 </script>
 
 <template>
   <body>
+    <!-- <Header v-if="user" /> -->
     <Header />
     <router-view></router-view>
   </body>
