@@ -1,10 +1,11 @@
 <script setup>
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
-  import { getUserByCookie, getUserByUserId } from "./api/get.call";
+  import { getUserByCookie } from "./api/get.call";
   import { addFriend } from './api/post.call';
 
   const isChecked = ref(false);
+  const friendName = ref("");
   const userName = ref("");
 
   let imageSrc = ref(null);

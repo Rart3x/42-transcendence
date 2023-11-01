@@ -1,30 +1,44 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
-import { onMounted, ref } from "vue";
-import Cookies from "js-cookie";
-import { getUserByCookie } from "./api/get.call.ts";
+  import { RouterLink, RouterView } from "vue-router";
+  import { onMounted, ref } from "vue";
+  import Cookies from "js-cookie";
+  import { getUserByCookie } from "./api/get.call.ts";
 
-const userName = ref("");
-let user = ref(null);
-let imageSrc = ref(null);
+  const userName = ref("");
+  let user = ref(null);
+  let imageSrc = ref(null);
 
-const logout = () => {
-  // Clear userLogin cookie
-  Cookies.remove("_authToken");
-  // Redirect to sign-in page
-  window.location.href = "/";
-};
+  const logout = () => {
+    // Clear userLogin cookie
+    Cookies.remove("_authToken");
+    // Redirect to sign-in page
+    window.location.href = "/";
+  };
 
-onMounted(async () => {
-  if (Cookies.get("_authToken") == undefined)
-    return;
-  user.value = await getUserByCookie(Cookies.get("_authToken"));
-  userName.value = user.value.displayName;
-  let imagePath = "../assets/userImages/" + user.value.image;
-  import(/* @vite-ignore */ imagePath).then((image) => {
-    imageSrc.value = image.default;
+  onMounted(async () => {
+    if (Cookies.get("_authToken") == undefined)
+      return;
+    user.value = await getUserByCookie(Cookies.get("_authToken"));
+    userName.value = user.value.displayName;
+    let imagePath = "../assets/userImages/" + user.value.image;
+    import(/* @vite-ignore */ imagePath).then((image) => {
+      imageSrc.value = image.default;
+    });
   });
-});
+
+  const dropdownOpen = ref(false);
+  const picDropdownOpen = ref(false);
+
+  const toggleDropdown = () => {
+    dropdownOpen.value = !dropdownOpen.value;
+  };
+
+  const picToggleDropdown = () => {
+    picDropdownOpen.value = !picDropdownOpen.value;
+  };
+
+  
+
 </script>
 
 <template>
@@ -35,7 +49,7 @@ onMounted(async () => {
   />
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <div class="dropdown">
+      <div class="dropdown" @click="picToggleDropdown">
         <label tabindex="0" class="btn btn-ghost btn-circle">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -52,10 +66,7 @@ onMounted(async () => {
             />
           </svg>
         </label>
-        <ul
-          tabindex="0"
-          class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-        >
+        <ul v-if="picDropdownOpen" tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
           <li>
             <a>
               <router-link to="/"> Home </router-link>
@@ -81,7 +92,7 @@ onMounted(async () => {
     </div>
     <div class="navbar-end">
       <div class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-circle">
+        <label tabindex="0" class="btn btn-ghost btn-circle" @click="toggleDropdown">
           <div class="avatar">
             <div class="w-24 mask mask-squircle">
               <img :src="imageSrc" />
@@ -89,6 +100,7 @@ onMounted(async () => {
           </div>
         </label>
         <ul
+          v-if="dropdownOpen"
           tabindex="0"
           class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
         >

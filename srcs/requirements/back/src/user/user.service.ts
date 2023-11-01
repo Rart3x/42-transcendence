@@ -25,37 +25,32 @@ async function downloadImage (url, filename) {
 export class UserService {
   constructor (private prisma: PrismaService) {}
 
-  async addFriend(userName: string, friendName: string) {
-    const user = await this.prisma.user.findFirst({
-      where: { userName: userName },
-      include: {
-        friends: true // Inclure les amis de l'utilisateur
-      }
-    });
-
-    if (!user) {
-      throw new Error("error: user not found");
-    }
+  async addFriend(params: { where: { userName: string }; data: { friends?: { create?: { /* Données pour créer un nouvel ami */ } } } }): Promise<User | null> {
+    const { where, data } = params;
   
-    const friend = await this.prisma.user.findFirst({
-      where: { userName: friendName },
-    });
-  
-    if (!friend) {
-      throw Error("error: friend not found");
-    }
-
-    // Mettez à jour l'entrée de l'utilisateur actuel pour ajouter l'ami au tableau friends.
-    const updatedUser = await this.prisma.user.update({
-      where: { userId: user.userId },
-      data: {
-        friends: {
-          connect: { friendId: user.userId } // Connectez l'ami
+    try {
+      const updatedUser = await this.prisma.user.update({
+        where: { userName: where.userName },
+        data: {
+          friends: {
+            create: data.friends.create
+          }
+        },
+        include: {
+          friends: {
+            include: {
+              friendList: true
+            }
+          }
         }
-      }
-    });
-
-    return updatedUser; // Vous pouvez retourner l'utilisateur mis à jour si nécessaire.
+      });
+  
+      return updatedUser;
+    }
+    catch (error) {
+      console.error(error);
+      return null;
+    }
   }
 
   async  setSocket(userId: number, socket: string): Promise<User> {
@@ -93,6 +88,7 @@ export class UserService {
   async getUserByUserName(userName: string) {
     return await this.prisma.user.findFirst({
       where: { userName: userName },
+      include: { friends: { include: { friendList: true } } },
     });
   }
 
@@ -140,7 +136,6 @@ export class UserService {
       data: createUserInput,
     });
   }
-  
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {

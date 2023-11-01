@@ -23,15 +23,15 @@ model ChannelAdmin {
   adminId       Int
   channelId     Int
   
-  Admin         Admin   @relation(fields: [adminId], references: [adminId], onDelete: NoAction, onUpdate: NoAction)
-  Channel       Channel @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
+  Admin         Admin   @relation(fields: [adminId], references: [adminId], onDelete: Cascade, onUpdate: Cascade)
+  Channel       Channel @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([adminId, channelId])
 }
 
 model Friend {
   friendId     Int     @id @default(autoincrement())
-  friendList   User[]
+  friendList   User[]  @relation("FriendToUser")
 }
 
 model Game {
@@ -51,7 +51,7 @@ model Message {
   message_text String
   message_date DateTime? @default(now()) @db.Timestamp(6)
   
-  Channel      Channel?  @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
+  Channel      Channel?  @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model QueueList {
@@ -71,16 +71,16 @@ model User {
   userName    String?    @unique
 
   friendId    Int?
-  friends     Friend?    @relation(fields: [friendId], references: [friendId])
+  friends     Friend?    @relation("FriendToUser", fields: [friendId], references: [friendId], onDelete: Cascade, onUpdate: Cascade)
   
   roomId      Int?
-  room        GameRoom?  @relation(fields: [roomId], references: [roomId])
+  room        GameRoom?  @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
   
   queueId     Int?
-  queue       QueueList? @relation(fields: [queueId], references: [queueId])
+  queue       QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
 
   statId      Int?
-  stat        Stat?      @relation(fields: [statId], references: [statId])
+  stat        Stat?      @relation(fields: [statId], references: [statId], onDelete: Cascade, onUpdate: Cascade)
   
   displayName String?    @unique
   image       String?
