@@ -76,10 +76,13 @@ model User {
   statId      Int?
   stat        Stat?      @relation(fields: [statId], references: [statId], onDelete: Cascade, onUpdate: Cascade)
   
-  A2F         Boolean    @default(false)
-  cookie      String?    @unique
   displayName String?    @unique
   image       String     @default("default_pic.jpg")
   isChecked   Boolean    @default(false)
   socket      String?
+  cookie      String?    @unique
+
+  A2F         Boolean    @default(false)
+  A2FSecret   String?
+  A2FUrl      String?
 }

@@ -5,6 +5,7 @@ import { User } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { UserService } from './user.service';
 import { validateOrReject } from 'class-validator';
+import { authenticator } from 'otplib';
 
 @Controller('user')
 export class UserController {
@@ -93,6 +94,16 @@ export class UserController {
     return user;
   }
 
+  @Post('updateA2F/:userName')
+  async updateA2F(@Body('userName') userName: string, @Body('A2F') A2F: boolean): Promise<User> {
+    
+    const user = await this.userService.updateA2F(userName, A2F);
+    if (!user) {
+      console.warn("error: user not found");
+    }
+    return user;
+  }
+
   @Post('socket/:socket')
   async setSocket(@Body('userName') userName: string, @Body('socket') socket: string): Promise<User> {
     const user = await this.userService.getUserByUserName(userName);
@@ -131,6 +142,16 @@ export class UserController {
     const user = await this.userService.getUserByCookie(cookie);
 
     return user;
+  }
+
+  @Get('checkA2F/:userName')
+  async checkA2F(@Body('userName') userName: string, @Body('token') token: string): Promise<boolean> {
+    const user = await this.userService.getUserByUserName(userName);
+    console.log(`Calling checkA2F with userId: ${user.userId} and token: ${token}`);
+    if (!user) {
+      console.warn("error: user not found");
+    }
+    return authenticator.check(token, user.A2FSecret);
   }
 
   // @Get('userId/:userId')

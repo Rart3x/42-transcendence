@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
 import { User, Prisma } from '@prisma/client';
+import { authenticator } from 'otplib';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -144,5 +145,21 @@ export class UserService {
     fs.writeFileSync(imagePath, imageFile.buffer);
 
     return ;
+  }
+
+  async updateA2F(userName: string, A2F: boolean): Promise<User> {
+    if (!A2F) {
+      return this.prisma.user.update({
+        where: { userName: userName },
+        data: { A2FSecret: null, A2F: false },
+      });
+    }
+    authenticator.resetOptions();
+    const secret = authenticator.generateSecret();
+    const otpAuthUrl = authenticator.keyuri(userName, 'PMU', secret);
+    return this.prisma.user.update({
+      where: { userName: userName },
+      data: { A2FUrl: otpAuthUrl, A2F: true, A2FSecret: secret },
+    });
   }
 }

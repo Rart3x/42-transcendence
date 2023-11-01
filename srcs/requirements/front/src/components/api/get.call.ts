@@ -176,3 +176,27 @@ export async function getFriendUserNames(userId : number) {
     console.error('error: sending GET request', error);
   }
 }
+
+export async function checkA2F(userName : string, token : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/checkA2F/${userName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: userName, token: token }),
+    });
+    if (response.ok) {
+      console.log(response.json());
+      const responseData = await response.json();
+      console.log(responseData);
+      return responseData;
+    }
+    else {
+      const errorText = await response.text();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}

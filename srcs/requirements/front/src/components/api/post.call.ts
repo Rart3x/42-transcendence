@@ -88,6 +88,28 @@ export async function updateUsername(userName : string, newUserName : string) {
   }
 }
 
+export async function updateA2F(userName : string, A2F : boolean) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/updateA2F/${userName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: userName, A2F: A2F }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+    else {
+      const errorText = await response.text();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
 export async function updateImage(userName : string, image : string) {
   try {
     const formData = new FormData();
