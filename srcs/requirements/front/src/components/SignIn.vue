@@ -32,6 +32,8 @@ onMounted(async () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      console.log("response ok");
+
       const data = await response.json();
       const accessToken = data.access_token;
 
@@ -44,6 +46,8 @@ onMounted(async () => {
       if (!userResponse.ok) {
         throw new Error(`HTTP error! status: ${userResponse.status}`);
       }
+
+      console.log("userResponse ok");
 
       user = await userResponse.json();
       userInfo.value = user;
@@ -63,8 +67,7 @@ onMounted(async () => {
         sameSite: "Strict",
       });
 
-      if (user.A2F == false)
-        window.location.href = "/Profile";
+      window.location.href = "/settings";
     }
     else {
       router.push('/');
@@ -79,8 +82,4 @@ onMounted(async () => {
 
 </script>
 
-<template>
-  <div v-if="user">
-    <p>Logged in as {{ userInfo.login }}</p>
-  </div>
-</template>
+<template></template>
