@@ -107,13 +107,13 @@
               </div>
             </div>
           </td>
-          <td> <button class="btn">{{ userName }} </button> </td>
+          <td> <button class="btn no-animation"> {{ userName }} </button></td>
           <td>
             <div v-if="isChecked" class="profile">
               <button class="btn btn-error">Delete Friend</button>
             </div>
             <div v-else class="profile">
-              <button class="btn btn-info">Select Profile</button>
+              <button class="btn btn-info">Visit Profile</button>
             </div>
           </td>
           <td>

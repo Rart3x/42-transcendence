@@ -83,7 +83,7 @@ model User {
   stat        Stat?      @relation(fields: [statId], references: [statId], onDelete: Cascade, onUpdate: Cascade)
   
   displayName String?    @unique
-  image       String?
+  image       String     @default("../../front/src/assets/userImages/default_pic.jpg")
   socket      String?
   cookie      String?    @unique
   A2F         Boolean    @default(false)

@@ -9,9 +9,7 @@
   let imageSrc = ref(null);
 
   const logout = () => {
-    // Clear userLogin cookie
     Cookies.remove("_authToken");
-    // Redirect to sign-in page
     window.location.href = "/";
   };
 
@@ -36,8 +34,6 @@
   const picToggleDropdown = () => {
     picDropdownOpen.value = !picDropdownOpen.value;
   };
-
-  
 
 </script>
 
@@ -99,11 +95,7 @@
             </div>
           </div>
         </label>
-        <ul
-          v-if="dropdownOpen"
-          tabindex="0"
-          class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-        >
+        <ul v-if="dropdownOpen" tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
           <li>
             <a>
               <router-link to="/profile"> Profile </router-link>
