@@ -25,70 +25,58 @@ async function downloadImage (url, filename) {
 export class UserService {
   constructor (private prisma: PrismaService) {}
 
-  async addFriend(params: { where: { userName: string }; data: { friends?: { create?: { /* Données pour créer un nouvel ami */ } } } }): Promise<User | null> {
-    const { where, data } = params;
-  
-    try {
-      const updatedUser = await this.prisma.user.update({
-        where: { userName: where.userName },
-        data: {
-          friends: {
-            create: data.friends.create
-          }
-        },
-        include: {
-          friends: {
-            include: {
-              friendList: true
-            }
-          }
-        }
+  async addFriend(user: User, friend: User): Promise<User> {
+    if (user.userId === friend.userId) {
+      throw new Error("error: cannot add yourself in friends");
+    }
+
+    if (!user.friends.includes(friend.userId)) {
+      user.friends.push(friend.userId);
+      return this.prisma.user.update({
+        where: { userId: user.userId },
+        data: { friends: user.friends },
       });
+    }
+    return user;
+  }
+
+  async getAllFriends(userId: number): Promise<User[]> {
+    const user = await this.prisma.user.findUnique({
+      where: { userId: userId },
+    });
   
-      return updatedUser;
+    if (!user) {
+      throw new Error("User not found");
     }
-    catch (error) {
-      console.error(error);
-      return null;
+  
+    const friendIds = user.friends;
+    if (friendIds.length === 0) {
+      return [];
     }
+  
+    const friends = await this.prisma.user.findMany({
+      where: {
+        userId: {
+          in: friendIds,
+        },
+      },
+    });
+  
+    return friends;
+  }
+
+  async removeFriend(user: User, friend: User): Promise<User> {
+    user.friends = user.friends.filter((id) => id !== friend.userId);
+    return this.prisma.user.update({
+      where: { userId: user.userId },
+      data: { friends: user.friends },
+    });
   }
 
   async  setSocket(userId: number, socket: string): Promise<User> {
     return this.prisma.user.update({
       where : { userId: userId },
       data : { socket: socket }
-    });
-  }
-
-  // async getFriendUserNames(userId : number) {
-  //   try {
-  //     const user = await this.prisma.user.findUnique({
-  //       where: { userId: userId },
-  //     });
-  
-  //     if (!user) {
-  //       throw new Error("error: user not found");
-  //     }
-  
-  //     const friendUserNames = await this.prisma.user.findMany({
-  //       where: {
-  //         userId: { in: user.friendsId },
-  //       },
-  //       select: {
-  //         userName: true,
-  //       },
-  //     });
-  //     return friendUserNames.map((friend) => friend.userName);
-  //   }
-  //   catch (error) {
-  //     console.error(error);
-  //   }
-  // }
-
-  async getUserByUserName(userName: string) {
-    return await this.prisma.user.findFirst({
-      where: { userName: userName },
-      include: { friends: { include: { friendList: true } } },
     });
   }
 
@@ -99,6 +87,12 @@ export class UserService {
     });
 
     return user;
+  }
+
+  async getUserByUserName(userName: string) {
+    return await this.prisma.user.findFirst({
+      where: { userName: userName },
+    });
   }
 
   async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
@@ -118,19 +112,6 @@ export class UserService {
     const createUserInput: Prisma.UserCreateInput = {
       ...data,
     };
-  
-    // If a friend's name is provided, create a Friend record during user creation
-    if (friendName) {
-      createUserInput.friends = {
-        create: [{
-          friend: {
-            create: {
-              userName: friendName,
-            },
-          },
-        }],
-      };
-    }
   
     return this.prisma.user.create({
       data: createUserInput,

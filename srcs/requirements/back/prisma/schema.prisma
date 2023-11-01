@@ -29,11 +29,6 @@ model ChannelAdmin {
   @@id([adminId, channelId])
 }
 
-model Friend {
-  friendId     Int     @id @default(autoincrement())
-  friendList   User[]  @relation("FriendToUser")
-}
-
 model Game {
   gameId       Int     @id @default(autoincrement())
 }
@@ -69,9 +64,8 @@ model Stat {
 model User {
   userId      Int        @id @unique @default(autoincrement())
   userName    String?    @unique
-
-  friendId    Int?
-  friends     Friend?    @relation("FriendToUser", fields: [friendId], references: [friendId], onDelete: Cascade, onUpdate: Cascade)
+  
+  friends     Int[]      @default([])
   
   roomId      Int?
   room        GameRoom?  @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
@@ -82,9 +76,10 @@ model User {
   statId      Int?
   stat        Stat?      @relation(fields: [statId], references: [statId], onDelete: Cascade, onUpdate: Cascade)
   
-  displayName String?    @unique
-  image       String     @default("../../front/src/assets/userImages/default_pic.jpg")
-  socket      String?
-  cookie      String?    @unique
   A2F         Boolean    @default(false)
+  cookie      String?    @unique
+  displayName String?    @unique
+  image       String     @default("default_pic.jpg")
+  isChecked   Boolean    @default(false)
+  socket      String?
 }

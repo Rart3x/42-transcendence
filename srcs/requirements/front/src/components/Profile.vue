@@ -1,38 +1,30 @@
 <script setup>
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
-  import { getUserByCookie } from "./api/get.call";
-  import { addFriend } from './api/post.call';
+  import { getAllFriends, getUserByCookie } from "./api/get.call";
+  import { addFriend, removeFriend } from './api/post.call';
 
   const isChecked = ref(false);
   const friendName = ref("");
   const userName = ref("");
 
-  let imageSrc = ref(null);
-  let selectedFile = ref(null);
+  let friends = ref([]);
   let user = ref(null);
-
-  const closePopup = () => {
-    isPopupActive.value = false;
-  };
-
-  const showPopup = () => {
-    isPopupActive.value = true;
-  };
-
-  const handleFileChange = (event) => {
-    selectedFile.value = event.target.files[0];
-  }
 
   onMounted(async () => {
     user = await getUserByCookie(Cookies.get("_authToken"));
     if (!user)
       window.location.href = "/";
     userName.value = user.displayName;
-    let imagePath = "../assets/userImages/" + user.image;
-    import(/* @vite-ignore */imagePath).then((image) => {
-      imageSrc.value = image.default;
-    });
+
+    friends = await getAllFriends(userName.value);
+
+    for (user of friends.value) {
+      const imagePath = `../assets/userImages/${user.image}`;
+      import(/* @vite-ignore */ imagePath).then((image) => {
+        user.image = image.default;
+      });
+    }
   });
 
 </script>
@@ -80,7 +72,7 @@
     </div>
   </div>
 
-  <!--Friends List (faire boucle de generation du tableau avec requetes recuperant tout les user de la FriendList)-->
+  <!--Friends List -->
   <div class="overflow-x-auto">
     <table class="table">
       <thead>
@@ -94,33 +86,35 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th>
-            <label>
-              <input type="checkbox" class="checkbox" v-model="isChecked"/>
-            </label>
-          </th>
-          <td>
-            <div class="flex items-center space-x-3">
-              <div class="rounded-image">
-                <img :src="imageSrc" alt="User Image" />
-              </div>
+      <tr v-for="(user, index) in friends" :key="index">
+        <th>
+          <label>
+            <input type="checkbox" class="checkbox" v-model="user.isChecked" />
+          </label>
+        </th>
+        <td>
+          <div class="flex items-center space-x-3">
+            <div class="rounded-image">
+              <img :src="user.image" alt="User Image" />
             </div>
-          </td>
-          <td> <button class="btn no-animation"> {{ userName }} </button></td>
-          <td>
-            <div v-if="isChecked" class="profile">
-              <button class="btn btn-error">Delete Friend</button>
-            </div>
-            <div v-else class="profile">
-              <button class="btn btn-info">Visit Profile</button>
-            </div>
-          </td>
-          <td>
-            <button class="btn btn-primary">Invite in Game</button>
-          </td>
-        </tr>
-      </tbody>
+          </div>
+        </td>
+        <td>
+          <button class="btn no-animation">{{ user.userName }}</button>
+        </td>
+        <td>
+          <div v-if="user.isChecked" class="profile">
+            <button class="btn btn-error" @click="removeFriend(userName, user.userName)">Delete Friend</button>
+          </div>
+          <div v-else class="profile">
+            <button class="btn btn-info">Visit Profile</button>
+          </div>
+        </td>
+        <td>
+          <button class="btn btn-primary">Invite in Game</button>
+        </td>
+      </tr>
+    </tbody>
     </table>
   </div>
 </template>

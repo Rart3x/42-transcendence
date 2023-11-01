@@ -1,8 +1,7 @@
-import { BadRequestException, Body, Controller, UploadedFile, Get, Param, Post, UseInterceptors} from '@nestjs/common';
+import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors} from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Friend, User } from '@prisma/client';
-import { FriendService } from '../friend/friend.service';
+import { User } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { UserService } from './user.service';
 import { validateOrReject } from 'class-validator';
@@ -12,49 +11,50 @@ export class UserController {
   constructor(private readonly userService: UserService, private readonly prisma: PrismaService) {}
 
   @Post('friend/:userName')
-  async createFriend(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User> | null {
+  async createFriend(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User | null> {
+    
     const user = await this.userService.getUserByUserName(userName);
     const friend = await this.userService.getUserByUserName(friendName);
-
-    if (!friend) {
-      console.warn("error: friend not found");
+  
+    if (!user || !friend) {
+      console.warn("error: user or friend not found");
       return null;
     }
 
-    let newFriend;
-
-    if (!user.friends) {
-      newFriend = await this.prisma.friend.create({
-        data: {
-          friendId: user.userId,
-        }
-      });
+    try {
+      const updatedUser = await this.userService.addFriend(user, friend);
+      return updatedUser;
     }
-   
-    await this.prisma.user.update({
-      where: { userName: userName },
-      data: {
-        friends: {
-          connect: { friendId: newFriend.friendId }
-        }
-      }
-    });
-   
-    const updatedUser = await this.prisma.user.findUnique({
-      where: { userName: userName },
-      include: {
-        friends: {
-          include: {
-            friendList: true
-          }
-        }
-      }
-    });+
-    updatedUser.friends.friendList.push(friend);
-    console.log(updatedUser.friends.friendList[0]);
-   
+    catch (error){
+      return error;
+    }
+  }
+
+  @Delete('friend/:userName')
+  async deleteFriend(@Param('userName') userName: string, @Body('friendName') friendName: string): Promise<User> {
+    const user = await this.userService.getUserByUserName(userName);
+    const friend = await this.userService.getUserByUserName(friendName);
+
+    if (!user || !friend) {
+      console.warn("error: user or friend not found");
+      return null;
+    }
+  
+    const updatedUser = this.userService.removeFriend(user, friend);
     return updatedUser;
   }
+
+  @Get('friends/:userName')
+  async getAllFriends(@Param('userName') userName: string): Promise<User[]> {
+  const user = await this.userService.getUserByUserName(userName);
+
+  if (!user) {
+    console.warn("error: user not found");
+    return null;
+  }
+
+  return this.userService.getAllFriends(user.userId);
+}
 
   @Post()
   async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {

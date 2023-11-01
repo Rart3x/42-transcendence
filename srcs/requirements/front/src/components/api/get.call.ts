@@ -1,4 +1,29 @@
 /* ----- USER ----- */
+export async function getAllFriends(username : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/friends/${username}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const text = await response.text();
+      if (!text) {
+        return null;
+      }
+
+      const responseData = JSON.parse(text);
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('Error: sending GET request', error);
+  }
+  return null;
+}
+
 export async function getUserByCookie(cookie : string) {
   try {
     const response = await fetch(`http://localhost:3000/user/cookie/${cookie}`, {
