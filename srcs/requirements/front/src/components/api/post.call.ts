@@ -1,6 +1,6 @@
 export async function addFriend(userName : string, friendName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/friend/${friendName}`, {
+    const response = await fetch(`http://localhost:3000/user/friend/add/${friendName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +22,7 @@ export async function addFriend(userName : string, friendName : string) {
 
 export async function removeFriend(userName: string, friendName: string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/friend/${friendName}`, {
+    const response = await fetch(`http://localhost:3000/user/friend/delete/${friendName}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

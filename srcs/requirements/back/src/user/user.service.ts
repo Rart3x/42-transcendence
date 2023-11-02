@@ -30,14 +30,9 @@ export class UserService {
     const user = await this.getUserByUserName(userName);
     const friend = await this.getUserByUserName(friendName);
 
-    console.log(user.userName);
-    console.log(friend.userName);    
-
-    if (!user || !friend) {
+    if (!user || !friend)
       throw new Error("error: user or friend not found");
-    }
 
-    // Ajouter l'ami dans la liste d'amis de l'utilisateur
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
@@ -47,7 +42,6 @@ export class UserService {
       }
     });
 
-    // Ajouter l'utilisateur de la requête dans la liste d'amis de l'ami
     await this.prisma.user.update({
       where: { userId: friend.userId },
       data: {
@@ -56,42 +50,51 @@ export class UserService {
         }
       }
     });
-
     return user;
   }
 
   async getAllFriends(userId: number): Promise<User[]> {
-    const user = await this.prisma.user.findUnique({
-      where: { userId: userId },
-      include: {
-        friends: true,
+    const friends = await this.prisma.user.findMany({
+      where: {
+        friendOf: {
+          some: {
+            userId: userId,
+          },
+        },
       },
     });
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    return user.friends;
+    return friends;
   }
 
-  // async removeFriend(user: User, friend: User): Promise<User> {
-  //   // Supprimez l'ami de la liste d'amis de l'utilisateur
-  //   user.friends = user.friends.filter((friendUser) => friendUser.userId !== friend.userId);
+  async removeFriend(userName: string, friendName: string): Promise<User> {
+    const user = await this.getUserByUserName(userName);
+    const friend = await this.getUserByUserName(friendName);
 
-  //   // Mettez à jour l'utilisateur dans la base de données
-  //   return this.prisma.user.update({
-  //     where: { userId: user.userId },
-  //     data: {
-  //       friends: {
-  //         set: user.friends,
-  //       },
-  //     },
-  //     include: {
-  //       friends: true,
-  //     },
-  //   });
-  // }
+    if (!user || !friend) {
+      throw new Error("error: user or friend not found");
+    }
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        friends: {
+          disconnect: { userId: friend.userId }
+        }
+      }
+    });
+
+    await this.prisma.user.update({
+      where: { userId: friend.userId },
+      data: {
+        friendOf: {
+          disconnect: { userId: user.userId }
+        }
+      }
+    });
+
+    return user;
+  }
 
   async  setSocket(userId: number, socket: string): Promise<User> {
     return this.prisma.user.update({

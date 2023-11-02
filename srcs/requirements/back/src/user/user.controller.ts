@@ -11,35 +11,35 @@ import { authenticator } from 'otplib';
 export class UserController {
   constructor(private readonly userService: UserService, private readonly prisma: PrismaService) {}
 
-  @Post('friend/:userName')
+  @Post('friend/add/:userName')
   async createFriend(@Param('userName') userName: string, @Param('friendName') friendName: string): Promise<User | null> {
     try {
-      const user = await this.userService.addFriend(userName, friendName);
+      await this.userService.addFriend(userName, friendName);
       const friend = await this.userService.addFriend(friendName, userName);
 
       return friend;
     }
     catch (error) {
-      console.error("Error adding friend:", error);
+      console.error("error adding friend:", error);
       return null;
     }
   }
 
-  // @Delete('friend/:userName')
-  // async deleteFriend(@Param('userName') userName: string, @Body('friendName') friendName: string): Promise<User> {
-  //   const user = await this.userService.getUserByUserName(userName);
-  //   const friend = await this.userService.getUserByUserName(friendName);
-
-  //   if (!user || !friend) {
-  //     console.warn("error: user or friend not found");
-  //     return null;
-  //   }
+  @Delete('friend/delete/:userName')
+  async deleteFriend(@Param('userName') userName: string, @Body('friendName') friendName: string): Promise<User | null> {
+    const user = await this.userService.getUserByUserName(userName);
+    const friend = await this.userService.getUserByUserName(friendName);
   
-  //   const updatedUser = this.userService.removeFriend(user, friend);
-  //   return updatedUser;
-  // }
+    if (!user || !friend) {
+      console.warn("error: user or friend not found");
+      return null;
+    }
+  
+    const updatedUser = this.userService.removeFriend(user.userName, friend.userName);
+    return updatedUser;
+  }
 
-  @Get('friends/:userName')
+  @Get(':username/friends')
   async getAllFriends(@Param('userName') userName: string): Promise<User[]> {
   const user = await this.userService.getUserByUserName(userName);
 
@@ -47,7 +47,6 @@ export class UserController {
     console.warn("error: user not found");
     return null;
   }
-
   return this.userService.getAllFriends(user.userId);
 }
 

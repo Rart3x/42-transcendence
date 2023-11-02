@@ -1,7 +1,7 @@
 /* ----- USER ----- */
 export async function getAllFriends(username : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/friends/${username}`, {
+    const response = await fetch(`http://localhost:3000/user/${username}/friends`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

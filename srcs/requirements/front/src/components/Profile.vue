@@ -15,12 +15,10 @@
 
   const addFriendFromDB = async (userName, friendName) => {
     const response = await addFriend(userName, friendName);
-    if (response) {
+    if (response.ok)
       addFriendSuccess = true;
-    }
-    else {
+    else
       addFriendSuccess = false;
-    }
   };
 
   const removeFriendFromDB = async (userName, friendName) => {
@@ -98,7 +96,6 @@
     <div v-if="addFriendSuccess" class="toast toast-start">
       <div class="alert alert-success">
         <span>Friend added successfully.</span>
-        addFriendSuccess = false;
       </div>
     </div>
     <!-- Affiche le message en cas d'échec -->
@@ -107,16 +104,14 @@
         <span>Failed to add friend.</span>
       </div>
     </div> -->
+    <div class="addingFriend">
+      <form @submit.prevent="addFriendFromDB(userName, friendName)">
+        <button class="btn btn-primary">Add Friend</button>
+        <input type="text" id="friendName" v-model="friendName" class="input input-bordered w-full max-w-xs" />
+      </form>
+    </div>
     <table class="table">
       <thead>
-        <tr>
-          <th>
-            <form @submit.prevent="addFriendFromDB(userName, friendName)">
-              <button class="btn btn-primary">Add Friend</button>
-              <input type="text" id="friendName" v-model="friendName" class="input input-bordered w-full max-w-xs" />
-            </form>
-          </th>
-        </tr>
       </thead>
       <tbody>
       <tr v-for="(user, index) in friends" :key="index">
@@ -153,6 +148,10 @@
 </template>
 
 <style>
+.addingFriend {
+  text-align: center;
+}
+
 .rounded-image {
   width: 150px;
   height: 150px;
