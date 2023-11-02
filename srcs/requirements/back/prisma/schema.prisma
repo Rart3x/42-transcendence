@@ -51,7 +51,7 @@ model User {
   userId      Int        @id @unique @default(autoincrement())
   userName    String?    @unique
 
-  channels  Channel[]    @relation("ChannelUser")
+  channels    Channel[]  @relation("ChannelUser")
   
   friends     User[]     @relation("Friendship")
   friendOf    User[]     @relation("Friendship")
