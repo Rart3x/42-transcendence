@@ -54,9 +54,8 @@ onMounted(async () => {
         }),
       });
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
       const data = await response.json();
       const accessToken = data.access_token;
@@ -67,9 +66,8 @@ onMounted(async () => {
         },
       });
 
-      if (!userResponse.ok) {
+      if (!userResponse.ok)
         throw new Error(`HTTP error! status: ${userResponse.status}`);
-      }
 
       user.value = await userResponse.json();
       userInfo.value = user.value;
@@ -94,15 +92,13 @@ onMounted(async () => {
 
       window.location.href = "/settings";
     }
-    else {
+    else
       router.push('/');
-    }
   }
   catch (error) {
     console.log(error);
     router.push('/');
   }
-
 });
 
 </script>

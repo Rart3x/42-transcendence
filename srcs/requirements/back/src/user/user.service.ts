@@ -74,7 +74,7 @@ export class UserService {
     if (!user || !friend)
       throw new Error("error: user or friend not found");
 
-    // Supprimer la relation d'amitié des deux côtés
+    // delete friend from user.friends
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
@@ -84,6 +84,7 @@ export class UserService {
       },
     });
 
+    // delete friend from friend.frienOf
     await this.prisma.user.update({
       where: { userId: friend.userId },
       data: {
@@ -93,7 +94,7 @@ export class UserService {
       },
     });
 
-    // Supprimer également la relation d'amitié du côté de `friend`
+    // delete friend from user.friendOf
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
@@ -102,7 +103,8 @@ export class UserService {
         },
       },
     });
-
+  
+    //delete friend from friend.friends
     await this.prisma.user.update({
       where: { userId: friend.userId },
       data: {
@@ -139,10 +141,8 @@ export class UserService {
   async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
     const user = await this.getUserByUserName(data.userName);
     
-    if (user != null) {
-      // console.log(user);
+    if (user != null)
       return await this.updateCookie(user.userId, data.cookie);
-    }
   
     // Download the profile picture in a folder and save the path in the database
     const imagePath = `${data.userName}.jpg`;

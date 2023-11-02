@@ -146,9 +146,4 @@ export class UserController {
     }
     return authenticator.check(token, user.A2FSecret);
   }
-
-  // @Get('userId/:userId')
-  // async getFriendUserNames(@Param('userId') userId: number): Promise<string[]> {
-  //   return this.userService.getFriendUserNames(userId);
-  // }
 }
