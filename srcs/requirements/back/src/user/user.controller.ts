@@ -26,7 +26,7 @@ export class UserController {
   }
 
   @Delete('friend/delete/:userName')
-  async deleteFriend(@Param('userName') userName: string, @Body('friendName') friendName: string): Promise<User | null> {
+  async deleteFriend(@Param('userName') userName: string, @Param('friendName') friendName: string): Promise<User | null> {
     const user = await this.userService.getUserByUserName(userName);
     const friend = await this.userService.getUserByUserName(friendName);
   

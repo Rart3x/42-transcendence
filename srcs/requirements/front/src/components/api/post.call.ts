@@ -30,9 +30,8 @@ export async function removeFriend(userName: string, friendName: string) {
       body: JSON.stringify({ userName: userName, friendName: friendName }),
     });
 
-    if (response.ok) {
+    if (response.ok)
       return true;
-    }
     else {
       console.error("error: unable to delete friend");
       return false;

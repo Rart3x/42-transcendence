@@ -23,8 +23,7 @@
 
   const removeFriendFromDB = async (userName, friendName) => {
     const response = await removeFriend(userName, friendName);
-    console.log(response);
-    if (response) {
+    if (response.ok) {
       removeFriendSuccess = true;
     }
     else {
@@ -131,12 +130,12 @@
           <button class="btn no-animation">{{ user.userName }}</button>
         </td>
         <td>
-          <div v-if="user.isChecked" class="profile">
+          <!-- <div v-if="user.isChecked" class="profile"> -->
             <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Friend</button>
-          </div>
-          <div v-else class="profile">
+          <!-- </div> -->
+          <!-- <div v-else class="profile">
             <button class="btn btn-info">Visit Profile</button>
-          </div>
+          </div> -->
         </td>
         <td>
           <button class="btn btn-primary">Invite in Game</button>

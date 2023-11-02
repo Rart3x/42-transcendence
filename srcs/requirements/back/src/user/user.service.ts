@@ -71,28 +71,46 @@ export class UserService {
     const user = await this.getUserByUserName(userName);
     const friend = await this.getUserByUserName(friendName);
 
-    if (!user || !friend) {
+    if (!user || !friend)
       throw new Error("error: user or friend not found");
-    }
 
+    // Supprimer la relation d'amitié des deux côtés
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
         friends: {
-          disconnect: { userId: friend.userId }
-        }
-      }
+          disconnect: { userId: friend.userId },
+        },
+      },
     });
 
     await this.prisma.user.update({
       where: { userId: friend.userId },
       data: {
         friendOf: {
-          disconnect: { userId: user.userId }
-        }
-      }
+          disconnect: { userId: user.userId },
+        },
+      },
     });
 
+    // Supprimer également la relation d'amitié du côté de `friend`
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        friendOf: {
+          disconnect: { userId: friend.userId },
+        },
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { userId: friend.userId },
+      data: {
+        friends: {
+          disconnect: { userId: user.userId },
+        },
+      },
+    });
     return user;
   }
 
