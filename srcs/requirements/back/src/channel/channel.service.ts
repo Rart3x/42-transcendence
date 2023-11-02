@@ -6,29 +6,6 @@ import { PrismaService } from '../prisma.service'
 @Injectable()
 export class ChannelService {
   constructor (private prisma: PrismaService, private userService: UserService) {}
-
-  async isUserAdminOfChannel(channel: Channel, user: User): Promise<Boolean> {
-    const channelUser = await this.prisma.channel.findFirst({
-      where: { channelAdmin: user.userId },
-    });
-    if(!channelUser)
-      return false;
-    return true;
-  }
-
-  async isUserMemberOfChannel(channel: Channel, user: User): Promise<Boolean> {
-    const channelUser = await this.prisma.channel.findFirst({
-      where: { channelId: channel.channelId },
-      select: {
-        channelUsers: {
-          where: { userId: user.userId } 
-        }
-      },
-    });
-    if(!channelUser)
-      return false;
-    return true;
-  }
   
   async createChannel(channelName: string, userName: string, invitedUserName: string): Promise<Channel> {
     const user = await this.userService.getUserByUserName(userName);
@@ -81,5 +58,28 @@ export class ChannelService {
     if (!channel)
       console.error("error: channel not found");
     return channel;
+  }
+
+  async isUserAdminOfChannel(channel: Channel, user: User): Promise<Boolean> {
+    const channelUser = await this.prisma.channel.findFirst({
+      where: { channelAdmin: user.userId },
+    });
+    if(!channelUser)
+      return false;
+    return true;
+  }
+
+  async isUserMemberOfChannel(channel: Channel, user: User): Promise<Boolean> {
+    const channelUser = await this.prisma.channel.findFirst({
+      where: { channelId: channel.channelId },
+      select: {
+        channelUsers: {
+          where: { userId: user.userId } 
+        }
+      },
+    });
+    if(!channelUser)
+      return false;
+    return true;
   }
 }

@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors} from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { User } from '@prisma/client';
+import { Channel, User } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { UserService } from './user.service';
 import { validateOrReject } from 'class-validator';
@@ -11,6 +11,19 @@ import { authenticator } from 'otplib';
 export class UserController {
   constructor(private readonly userService: UserService, private readonly prisma: PrismaService) {}
 
+/*-----------------------------------------------CHANNELS-----------------------------------------------*/
+  @Get(':userName/channels')
+  async getAllChannels(@Param('userName') userName: string): Promise<Channel[]> | null {
+    const user = await this.userService.getUserByUserName(userName);
+    
+    if (!user) {
+      console.warn("error: user not found");
+      return null;
+    }
+    return this.userService.getAllChannels(user.userName);
+  }
+
+/*-----------------------------------------------FRIENDS-----------------------------------------------*/
   @Post('friend/add/:userName')
   async createFriend(@Param('userName') userName: string, @Param('friendName') friendName: string): Promise<User | null> {
     try {
@@ -39,7 +52,7 @@ export class UserController {
     return updatedUser;
   }
 
-  @Get(':username/friends')
+  @Get(':userName/friends')
   async getAllFriends(@Param('userName') userName: string): Promise<User[]> {
   const user = await this.userService.getUserByUserName(userName);
 
@@ -50,6 +63,7 @@ export class UserController {
   return this.userService.getAllFriends(user.userId);
 }
 
+/*-----------------------------------------------USERS-----------------------------------------------*/
   @Post()
   async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
     try {
@@ -76,17 +90,25 @@ export class UserController {
     return user;
   }
 
-  @Post('updateImage/:userName')
-  @UseInterceptors(FileInterceptor('image'))
-  async updateImage(@Param('userName') userName: string, @UploadedFile() image): Promise<User> {
-    
-    const user = await this.userService.updateImage(userName, image);
+/*-----------------------------------------------UTILS-----------------------------------------------*/
+  @Get('checkA2F/:userName')
+  async checkA2F(@Body('userName') userName: string, @Body('token') token: string): Promise<boolean> {
+    const user = await this.userService.getUserByUserName(userName);
+    console.log(`Calling checkA2F with userId: ${user.userId} and token: ${token}`);
     if (!user) {
       console.warn("error: user not found");
     }
-    return user;
+    return authenticator.check(token, user.A2FSecret);
   }
 
+  @Get('cookie/:cookie')
+  async getUserByCookie(@Param('cookie') cookie: string): Promise<User> {
+
+    const user = await this.userService.getUserByCookie(cookie);
+
+    return user;
+  }
+  
   @Post('updateA2F/:userName')
   async updateA2F(@Body('userName') userName: string, @Body('A2F') A2F: boolean): Promise<User> {
     
@@ -124,26 +146,14 @@ export class UserController {
     return user;
   }
 
-  @Get('getUsername/:userName')
-  async getUserByUserName(@Param('userName') userName: string): Promise<User> {
-    return await this.userService.getUserByUserName(userName);
-  }
-
-  @Get('cookie/:cookie')
-  async getUserByCookie(@Param('cookie') cookie: string): Promise<User> {
-
-    const user = await this.userService.getUserByCookie(cookie);
-
-    return user;
-  }
-
-  @Get('checkA2F/:userName')
-  async checkA2F(@Body('userName') userName: string, @Body('token') token: string): Promise<boolean> {
-    const user = await this.userService.getUserByUserName(userName);
-    console.log(`Calling checkA2F with userId: ${user.userId} and token: ${token}`);
+  @Post('updateImage/:userName')
+  @UseInterceptors(FileInterceptor('image'))
+  async updateImage(@Param('userName') userName: string, @UploadedFile() image): Promise<User> {
+    
+    const user = await this.userService.updateImage(userName, image);
     if (!user) {
       console.warn("error: user not found");
     }
-    return authenticator.check(token, user.A2FSecret);
+    return user;
   }
 }

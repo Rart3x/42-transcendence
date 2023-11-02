@@ -1,13 +1,14 @@
 <script setup>
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
-  import { getAllFriends, getUserByCookie } from "./api/get.call";
+  import { getAllChannels, getAllFriends, getUserByCookie } from "./api/get.call";
   import { addFriend, createChannel, removeFriend } from './api/post.call';
 
   const friendName = ref("");
   const showModalChannel = ref(false);
   const userName = ref("");
 
+  let channels = ref([]);
   let friends = ref([]);
   let user = ref(null);
 
@@ -41,6 +42,9 @@
     userName.value = user.displayName;
 
     friends = await getAllFriends(user.userName);
+    channels = await getAllChannels(user.userName);
+
+    console.log(channels);
 
     for (user of friends.value) {
       const imagePath = `../assets/userImages/${user.image}`;
@@ -84,11 +88,11 @@
 
   <!--Friends List -->
   <div class="overflow-x-auto">
-    <div v-if="addFriendSuccess" class="toast toast-start">
+    <!-- <div v-if="addFriendSuccess" class="toast toast-start">
       <div class="alert alert-success">
         <span>Friend added successfully.</span>
       </div>
-    </div>
+    </div> -->
     <!-- Affiche le message en cas d'échec -->
     <!-- <div v-else class="toast toast-start">
       <div class="alert alert-error">
@@ -100,6 +104,12 @@
         <button class="btn btn-primary">Add Friend</button>
         <input type="text" id="friendName" v-model="friendName" class="input input-bordered w-full max-w-xs" />
       </form>
+    </div>
+    <div class="showChannels">
+      <label tabindex="0" class="btn m-1">Channels</label>
+      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+        <li v-for="(channel, index) in channels" :key="index"><a>{{ channel.channelName }}</a></li> <!-- @click="redirection vers les channels" -->
+      </ul>
     </div>
     <table class="table">
       <thead>
