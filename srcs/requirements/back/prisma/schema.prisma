@@ -65,8 +65,9 @@ model User {
   userId      Int        @id @unique @default(autoincrement())
   userName    String?    @unique
   
-  friends     Int[]      @default([])
-  
+  friends     User[]     @relation("Friendship")
+  friendOf    User[]     @relation("Friendship")
+
   roomId      Int?
   room        GameRoom?  @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
   

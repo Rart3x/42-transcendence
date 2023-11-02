@@ -103,7 +103,7 @@
           </li>
           <li>
             <a>
-              <router-link to="/settings"> Setting </router-link>
+              <router-link to="/settings"> Settings </router-link>
             </a>
           </li>
           <li>

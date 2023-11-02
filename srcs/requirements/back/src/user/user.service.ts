@@ -1,7 +1,7 @@
+import { authenticator } from 'otplib';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
 import { User, Prisma } from '@prisma/client';
-import { authenticator } from 'otplib';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -26,53 +26,72 @@ async function downloadImage (url, filename) {
 export class UserService {
   constructor (private prisma: PrismaService) {}
 
-  async addFriend(user: User, friend: User): Promise<User> {
-    if (user.userId === friend.userId) {
-      throw new Error("error: cannot add yourself in friends");
+  async addFriend(userName: string, friendName: string): Promise<User> {
+    const user = await this.getUserByUserName(userName);
+    const friend = await this.getUserByUserName(friendName);
+
+    console.log(user.userName);
+    console.log(friend.userName);    
+
+    if (!user || !friend) {
+      throw new Error("error: user or friend not found");
     }
 
-    if (!user.friends.includes(friend.userId)) {
-      user.friends.push(friend.userId);
-      return this.prisma.user.update({
-        where: { userId: user.userId },
-        data: { friends: user.friends },
-      });
-    }
+    // Ajouter l'ami dans la liste d'amis de l'utilisateur
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        friends: {
+          connect: { userId: friend.userId }
+        }
+      }
+    });
+
+    // Ajouter l'utilisateur de la requête dans la liste d'amis de l'ami
+    await this.prisma.user.update({
+      where: { userId: friend.userId },
+      data: {
+        friendOf: {
+          connect: { userId: user.userId }
+        }
+      }
+    });
+
     return user;
   }
 
   async getAllFriends(userId: number): Promise<User[]> {
     const user = await this.prisma.user.findUnique({
       where: { userId: userId },
+      include: {
+        friends: true,
+      },
     });
-  
+
     if (!user) {
       throw new Error("User not found");
     }
-  
-    const friendIds = user.friends;
-    if (friendIds.length === 0) {
-      return [];
-    }
-  
-    const friends = await this.prisma.user.findMany({
-      where: {
-        userId: {
-          in: friendIds,
-        },
-      },
-    });
-  
-    return friends;
+
+    return user.friends;
   }
 
-  async removeFriend(user: User, friend: User): Promise<User> {
-    user.friends = user.friends.filter((id) => id !== friend.userId);
-    return this.prisma.user.update({
-      where: { userId: user.userId },
-      data: { friends: user.friends },
-    });
-  }
+  // async removeFriend(user: User, friend: User): Promise<User> {
+  //   // Supprimez l'ami de la liste d'amis de l'utilisateur
+  //   user.friends = user.friends.filter((friendUser) => friendUser.userId !== friend.userId);
+
+  //   // Mettez à jour l'utilisateur dans la base de données
+  //   return this.prisma.user.update({
+  //     where: { userId: user.userId },
+  //     data: {
+  //       friends: {
+  //         set: user.friends,
+  //       },
+  //     },
+  //     include: {
+  //       friends: true,
+  //     },
+  //   });
+  // }
 
   async  setSocket(userId: number, socket: string): Promise<User> {
     return this.prisma.user.update({

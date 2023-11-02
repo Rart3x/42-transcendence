@@ -12,38 +12,32 @@ export class UserController {
   constructor(private readonly userService: UserService, private readonly prisma: PrismaService) {}
 
   @Post('friend/:userName')
-  async createFriend(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User | null> {
-    
-    const user = await this.userService.getUserByUserName(userName);
-    const friend = await this.userService.getUserByUserName(friendName);
-  
-    if (!user || !friend) {
-      console.warn("error: user or friend not found");
-      return null;
-    }
-
+  async createFriend(@Param('userName') userName: string, @Param('friendName') friendName: string): Promise<User | null> {
     try {
-      const updatedUser = await this.userService.addFriend(user, friend);
-      return updatedUser;
-    }
-    catch (error){
-      return error;
-    }
-  }
+      const user = await this.userService.addFriend(userName, friendName);
+      const friend = await this.userService.addFriend(friendName, userName);
 
-  @Delete('friend/:userName')
-  async deleteFriend(@Param('userName') userName: string, @Body('friendName') friendName: string): Promise<User> {
-    const user = await this.userService.getUserByUserName(userName);
-    const friend = await this.userService.getUserByUserName(friendName);
-
-    if (!user || !friend) {
-      console.warn("error: user or friend not found");
+      return friend;
+    }
+    catch (error) {
+      console.error("Error adding friend:", error);
       return null;
     }
-  
-    const updatedUser = this.userService.removeFriend(user, friend);
-    return updatedUser;
   }
+
+  // @Delete('friend/:userName')
+  // async deleteFriend(@Param('userName') userName: string, @Body('friendName') friendName: string): Promise<User> {
+  //   const user = await this.userService.getUserByUserName(userName);
+  //   const friend = await this.userService.getUserByUserName(friendName);
+
+  //   if (!user || !friend) {
+  //     console.warn("error: user or friend not found");
+  //     return null;
+  //   }
+  
+  //   const updatedUser = this.userService.removeFriend(user, friend);
+  //   return updatedUser;
+  // }
 
   @Get('friends/:userName')
   async getAllFriends(@Param('userName') userName: string): Promise<User[]> {
