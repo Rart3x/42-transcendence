@@ -168,7 +168,7 @@ import {
 			const clients = await this.QueueListService.getAllClients();
 			const nbClients = clients.length;
 	
-			const gameRoom = this.GameRoomService.createGameRoom(1, 2);
+			// const gameRoom = this.GameRoomService.createGameRoom(1, 2);
 		}
 	
 		sendGameObjets(client : any){

@@ -1,7 +1,7 @@
+import { EventsModule } from './events/events.module';
 import { Module } from '@nestjs/common';
-
-import { ChannelController } from './channel/channel.controller';
-import { ChannelService } from './channel/channel.service';
+import { UserModule } from './user/user.module';
+import { MessageModule } from './message/message.module';
 
 import { MessageController } from './message/message.controller';
 import { MessageService } from './message/message.service';
@@ -14,14 +14,9 @@ import { UserService } from './user/user.service';
 import { QueueListController } from './queueList/queueList.controller';
 import { QueueListService } from './queueList/queueList.service';
 
-import { EventsGateway } from './events/events.gateway';
-import { QueueListModule } from './queueList/queueList.module';
-import { EventsModule } from './events/events.module';
-
 @Module({
-  imports: [EventsModule],
+  imports: [EventsModule, UserModule, MessageModule],
   controllers: [],
   providers: [],
 })
-
 export class AppModule {}
