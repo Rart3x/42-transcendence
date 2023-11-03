@@ -17,18 +17,29 @@
         window.location.href = "/settings";
     }
 
-    const uploadImage = async () => {
+    const onFileChange = (event) => {
+        selectedFile.value = event.target.files[0];
+    }
 
+    const uploadImage = async () => {
         if (!selectedFile.value) {
             alert('error: please select a file');
             return;
         }
-        await updateImage(user.userName, selectedFile.value);
-        window.location.href = "/settings";
+        // Check for file size
+        const fileSizeInBytes = selectedFile.value.size;
+        const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+        const sizeLimit = 1; // Limit in MB
+
+        if (fileSizeInMB > sizeLimit) {
+            alert(`error: file size should not exceed ${sizeLimit}MB`);
+            return;
+        }
+        await updateImage(user.value.userName, selectedFile.value);
     }
 
+
     const changeA2F = async () => {
-        console.log(user.value.userName);
         user.value.A2F = !user.value.A2F;
         user.value = await updateA2F(user.value.userName, user.value.A2F);
         dataURL = ref(null);
@@ -60,7 +71,7 @@
     <div class="divider"></div> 
     <div class="form-control w-full max-w-xs">
         <label>Please select your new profile image : </label>
-        <input type="file" class="file-input file-input-bordered w-full max-w-xs" />
+        <input type="file" class="file-input file-input-bordered w-full max-w-xs" @change="onFileChange" />
         <button class="btn" @click="uploadImage">Upload</button>
     </div>
     <div class="divider"></div> 

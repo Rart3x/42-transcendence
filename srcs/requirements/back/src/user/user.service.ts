@@ -5,6 +5,7 @@ import { Channel, User, Prisma } from '@prisma/client';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as path from 'path';
+import { get } from 'http';
 
 async function downloadImage (url, filename) {
   if (!fs.existsSync(path.join(__dirname, '../../../front/src/assets/userImages')))
@@ -210,7 +211,7 @@ export class UserService {
     const imagePath = path.join(__dirname, '../../../front/src/assets/userImages', `${userName}.jpg`);
     fs.writeFileSync(imagePath, imageFile.buffer);
 
-    return ;
+    return await this.getUserByUserName(userName);
   }
 
 }

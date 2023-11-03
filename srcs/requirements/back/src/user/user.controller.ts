@@ -153,7 +153,6 @@ export class UserController {
   @Post('updateImage/:userName')
   @UseInterceptors(FileInterceptor('image'))
   async updateImage(@Param('userName') userName: string, @UploadedFile() image): Promise<User> {
-    
     const user = await this.userService.updateImage(userName, image);
     if (!user) {
       console.warn("error: user not found");

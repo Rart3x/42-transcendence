@@ -212,6 +212,8 @@ export async function updateImage(userName : string, image : string) {
     formData.append("userName", userName);
     formData.append("image", image);
 
+    console.log("formData: ", formData);
+    console.log("userName: ", userName);
     const response = await fetch(`http://localhost:3000/user/updateImage/${userName}`, {
       method: "POST",
       body: formData,
