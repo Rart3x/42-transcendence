@@ -98,7 +98,7 @@
         <ul v-if="dropdownOpen" tabindex="1" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
           <li>
             <a>
-              <router-link to="/profile"> Profile </router-link>
+              <router-link to="/profile/"> Profile </router-link>
             </a>
           </li>
           <li>

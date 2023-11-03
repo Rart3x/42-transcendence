@@ -30,6 +30,7 @@ export async function addFriend(userName : string, friendName : string) {
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({ userName: userName, friendName: friendName }),
     });
 
     if (response.ok) {

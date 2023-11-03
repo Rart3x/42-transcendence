@@ -25,7 +25,7 @@ export class UserController {
 
 /*-----------------------------------------------FRIENDS-----------------------------------------------*/
   @Post('friend/add/:userName')
-  async createFriend(@Param('userName') userName: string, @Param('friendName') friendName: string): Promise<User | null> {
+  async createFriend(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User | null> {
     try {
       await this.userService.addFriend(userName, friendName);
       const friend = await this.userService.addFriend(friendName, userName);
@@ -39,7 +39,7 @@ export class UserController {
   }
 
   @Delete('friend/delete/:userName')
-  async deleteFriend(@Param('userName') userName: string, @Param('friendName') friendName: string): Promise<User | null> {
+  async deleteFriend(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User | null> {
     const user = await this.userService.getUserByUserName(userName);
     const friend = await this.userService.getUserByUserName(friendName);
   
