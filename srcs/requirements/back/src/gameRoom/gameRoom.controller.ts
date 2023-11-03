@@ -9,7 +9,6 @@ export class GameRoomController {
 
   @Post()
   async insertClientIntoGameRoom(@Body() data: Prisma.GameRoomCreateInput): Promise<GameRoom> {
-      return this.gameRoomService.insertClientIntoGameRoom(data);
+      return this.gameRoomService.createGameRoom(0, 1);
   }
 }
-

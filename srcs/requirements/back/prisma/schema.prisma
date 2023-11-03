@@ -33,12 +33,6 @@ model Game {
   gameId       Int     @id @default(autoincrement())
 }
 
-model GameRoom {
-  roomId       Int     @id @default(autoincrement())
-  started      Boolean @default(false)
-  users        User[]
-}
-
 model Message {
   messageId    Int       @id @default(autoincrement())
   channelId    Int?
@@ -61,6 +55,19 @@ model Stat {
   users       User[]
 }
 
+model GameRoom {
+  id              Int     @id @default(autoincrement())
+  gameRoomUsers   GameRoomUser[]
+}
+
+model GameRoomUser {
+ gameRoomId Int
+ userId    Int @unique
+ GameRoom  GameRoom @relation(fields: [gameRoomId], references: [id])
+ User      User    @relation(fields: [userId], references: [userId])
+}
+
+
 model User {
   userId      Int        @id @unique @default(autoincrement())
   userName    String?    @unique
@@ -68,8 +75,7 @@ model User {
   friends     User[]     @relation("Friendship")
   friendOf    User[]     @relation("Friendship")
 
-  roomId      Int?
-  room        GameRoom?  @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  gameRoomUser GameRoomUser?
   
   queueId     Int?
   queue       QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)

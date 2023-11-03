@@ -6,10 +6,16 @@ import { GameRoom, Prisma } from '@prisma/client';
 export class GameRoomService {
   constructor (private prisma: PrismaService) {}
 
-  async insertClientIntoGameRoom(data: Prisma.GameRoomCreateInput): Promise<GameRoom> {
-    return this.prisma.gameRoom.create({
-        data,
+  async createGameRoom(userId1: number, userId2: number): Promise<GameRoom> {
+    return await this.prisma.gameRoom.create({
+      data: {
+        gameRoomUsers: {
+          create: [
+            { userId: userId1 },
+            { userId: userId2 },
+          ],
+        },
+      },
     });
   }
 }
-
