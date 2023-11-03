@@ -1,25 +1,36 @@
 /* ----- USER ----- */
-export async function getAllFriends(username : string) {
+export async function getAllChannels(userName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/${username}/friends`, {
+    const response = await fetch(`http://localhost:3000/user/${userName}/channels`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-
     if (response.ok) {
-      const text = await response.text();
-      if (!text) {
-        return null;
-      }
-
-      const responseData = JSON.parse(text);
-      return responseData;
+      return await response.json();
     }
   }
   catch (error) {
-    console.error('Error: sending GET request', error);
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
+export async function getAllFriends(userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/friends`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
   }
   return null;
 }
@@ -44,7 +55,7 @@ export async function getUserByCookie(cookie : string) {
     }
   }
   catch (error) {
-    console.error('Error: sending GET request', error);
+    console.error('error: sending GET request', error);
   }
   return null;
 }
@@ -179,17 +190,15 @@ export async function getFriendUserNames(userId : number) {
 
 export async function checkA2F(userName : string, token : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/checkA2F/${userName}`, {
-      method: "POST",
+    const response = await fetch(`http://localhost:3000/user/checkA2F/${userName}?token=${token}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userName: userName, token: token }),
     });
+
     if (response.ok) {
-      console.log(response.json());
       const responseData = await response.json();
-      console.log(responseData);
       return responseData;
     }
     else {
@@ -200,3 +209,4 @@ export async function checkA2F(userName : string, token : string) {
     console.error('error: sending POST request', error);
   }
 }
+

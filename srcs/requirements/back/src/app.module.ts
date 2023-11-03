@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
 
+import { ChannelController } from './channel/channel.controller';
+import { ChannelService } from './channel/channel.service';
+
 import { MessageController } from './message/message.controller';
 import { MessageService } from './message/message.service';
 

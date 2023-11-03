@@ -1,10 +1,11 @@
 import { authenticator } from 'otplib';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
-import { User, Prisma } from '@prisma/client';
+import { Channel, User, Prisma } from '@prisma/client';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as path from 'path';
+import { get } from 'http';
 
 async function downloadImage (url, filename) {
   if (!fs.existsSync(path.join(__dirname, '../../../front/src/assets/userImages')))
@@ -25,7 +26,18 @@ async function downloadImage (url, filename) {
 @Injectable()
 export class UserService {
   constructor (private prisma: PrismaService) {}
+/*-----------------------------------------------CHANNELS-----------------------------------------------*/
+  async getAllChannels(userName: string): Promise<Channel[]> {
+    const user = await this.getUserByUserName(userName);
+    const channels = await this.prisma.channel.findMany({
+      where: {
+        channelAdmin: user.userId,
+      },
+    });
+    return channels;
+  }
 
+/*-----------------------------------------------FRIENDS-----------------------------------------------*/
   async addFriend(userName: string, friendName: string): Promise<User> {
     const user = await this.getUserByUserName(userName);
     const friend = await this.getUserByUserName(friendName);
@@ -63,7 +75,6 @@ export class UserService {
         },
       },
     });
-
     return friends;
   }
 
@@ -74,7 +85,7 @@ export class UserService {
     if (!user || !friend)
       throw new Error("error: user or friend not found");
 
-    // Supprimer la relation d'amitié des deux côtés
+    // delete friend from user.friends
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
@@ -84,6 +95,7 @@ export class UserService {
       },
     });
 
+    // delete friend from friend.frienOf
     await this.prisma.user.update({
       where: { userId: friend.userId },
       data: {
@@ -93,7 +105,7 @@ export class UserService {
       },
     });
 
-    // Supprimer également la relation d'amitié du côté de `friend`
+    // delete friend from user.friendOf
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
@@ -103,6 +115,7 @@ export class UserService {
       },
     });
 
+    //delete friend from friend.friends
     await this.prisma.user.update({
       where: { userId: friend.userId },
       data: {
@@ -113,16 +126,30 @@ export class UserService {
     });
     return user;
   }
+/*-----------------------------------------------USERS-----------------------------------------------*/
+  async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
+    const user = await this.getUserByUserName(data.userName);
+    
+    if (user != null)
+      return await this.updateCookie(user.userId, data.cookie);
 
-  async  setSocket(userId: number, socket: string): Promise<User> {
-    return this.prisma.user.update({
-      where : { userId: userId },
-      data : { socket: socket }
+    // Download the profile picture in a folder and save the path in the database
+    const imagePath = `${data.userName}.jpg`;
+    await downloadImage(data.image, imagePath);
+    data.image = imagePath;
+    data.displayName = data.userName;
+
+    const createUserInput: Prisma.UserCreateInput = {
+      ...data,
+    };
+
+    return this.prisma.user.create({
+      data: createUserInput,
     });
   }
 
   async getUserByCookie(cookie: string) {
-  
+    
     const user = await this.prisma.user.findFirst({
       where: { cookie: cookie },
     });
@@ -133,29 +160,6 @@ export class UserService {
   async getUserByUserName(userName: string) {
     return await this.prisma.user.findFirst({
       where: { userName: userName },
-    });
-  }
-
-  async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
-    const user = await this.getUserByUserName(data.userName);
-    
-    if (user != null) {
-      // console.log(user);
-      return await this.updateCookie(user.userId, data.cookie);
-    }
-  
-    // Download the profile picture in a folder and save the path in the database
-    const imagePath = `${data.userName}.jpg`;
-    await downloadImage(data.image, imagePath);
-    data.image = imagePath;
-    data.displayName = data.userName;
-  
-    const createUserInput: Prisma.UserCreateInput = {
-      ...data,
-    };
-  
-    return this.prisma.user.create({
-      data: createUserInput,
     });
   }
 
@@ -172,19 +176,12 @@ export class UserService {
       data: { displayName: newUserName },
     });
   }
-
-  async updateCookie(userId: number, cookie: string): Promise<User> {
+/*-----------------------------------------------UTILS-----------------------------------------------*/
+  async  setSocket(userId: number, socket: string): Promise<User> {
     return this.prisma.user.update({
-      where: { userId: userId },
-      data: { cookie: cookie },
+      where : { userId: userId },
+      data : { socket: socket }
     });
-  }
-
-  async updateImage(userName: string, imageFile: Express.Multer.File): Promise<User> {
-    const imagePath = path.join(__dirname, '../../../front/src/assets/userImages', `${userName}.jpg`);
-    fs.writeFileSync(imagePath, imageFile.buffer);
-
-    return ;
   }
 
   async updateA2F(userName: string, A2F: boolean): Promise<User> {
@@ -202,4 +199,19 @@ export class UserService {
       data: { A2FUrl: otpAuthUrl, A2F: true, A2FSecret: secret },
     });
   }
+
+  async updateCookie(userId: number, cookie: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId: userId },
+      data: { cookie: cookie },
+    });
+  }
+
+  async updateImage(userName: string, imageFile: Express.Multer.File): Promise<User> {
+    const imagePath = path.join(__dirname, '../../../front/src/assets/userImages', `${userName}.jpg`);
+    fs.writeFileSync(imagePath, imageFile.buffer);
+
+    return await this.getUserByUserName(userName);
+  }
+
 }
