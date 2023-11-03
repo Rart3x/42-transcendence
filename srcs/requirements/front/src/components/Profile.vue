@@ -1,12 +1,14 @@
 <script setup>
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
-  import { getAllFriends, getUserByCookie } from "./api/get.call";
-  import { addFriend, removeFriend } from './api/post.call';
+  import { getAllChannels, getAllFriends, getUserByCookie } from "./api/get.call";
+  import { addFriend, createChannel, removeFriend } from './api/post.call';
 
   const friendName = ref("");
+  const showModalChannel = ref(false);
   const userName = ref("");
 
+  let channels = ref([]);
   let friends = ref([]);
   let user = ref(null);
 
@@ -23,12 +25,14 @@
 
   const removeFriendFromDB = async (userName, friendName) => {
     const response = await removeFriend(userName, friendName);
-    if (response.ok) {
+    if (response.ok)
       removeFriendSuccess = true;
-    }
-    else {
+    else
       removeFriendSuccess = false;
-    }
+  };
+
+  const sendMessageFromFront = () => {
+    console.log("sendMessageFromFront");    
   };
 
   onMounted(async () => {
@@ -37,7 +41,10 @@
       window.location.href = "/";
     userName.value = user.displayName;
 
-    friends = await getAllFriends(userName.value);
+    friends = await getAllFriends(user.userName);
+    channels = await getAllChannels(user.userName);
+
+    console.log(channels);
 
     for (user of friends.value) {
       const imagePath = `../assets/userImages/${user.image}`;
@@ -54,17 +61,6 @@
   
   <!--Stats-->
   <div class="stats shadow">
-    <div class="stat">
-      <div class="stat-figure text-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-      </div>
-        <label class="btn btn-info btn-circle swap swap-rotate">
-          <input type="checkbox"/>
-          <svg class="swap-off fill-current" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z"/></svg>
-          <svg class="swap-on fill-current" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><polygon points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"/></svg>
-        </label>
-    </div>
-
     <div class="stat">
       <div class="stat-figure text-primary">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
@@ -92,11 +88,11 @@
 
   <!--Friends List -->
   <div class="overflow-x-auto">
-    <div v-if="addFriendSuccess" class="toast toast-start">
+    <!-- <div v-if="addFriendSuccess" class="toast toast-start">
       <div class="alert alert-success">
         <span>Friend added successfully.</span>
       </div>
-    </div>
+    </div> -->
     <!-- Affiche le message en cas d'échec -->
     <!-- <div v-else class="toast toast-start">
       <div class="alert alert-error">
@@ -109,41 +105,60 @@
         <input type="text" id="friendName" v-model="friendName" class="input input-bordered w-full max-w-xs" />
       </form>
     </div>
+    <div class="showChannels">
+      <label tabindex="0" class="btn m-1">Channels</label>
+      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+        <li v-for="(channel, index) in channels" :key="index"><a>{{ channel.channelName }}</a></li> <!-- @click="redirection vers les channels" -->
+      </ul>
+    </div>
     <table class="table">
       <thead>
       </thead>
       <tbody>
-      <tr v-for="(user, index) in friends" :key="index">
-        <th>
-          <label>
-            <input type="checkbox" class="checkbox" v-model="user.isChecked" />
-          </label>
-        </th>
-        <td>
-          <div class="flex items-center space-x-3">
-            <div class="rounded-image">
-              <img :src="user.image" alt="User Image" />
+        <br><tr></tr>
+        <tr v-for="(user, index) in friends" :key="index"> <!--style="background-color: blue;"-->
+          <th>
+            <label>
+              <input type="checkbox" class="checkbox" v-model="user.isChecked" />
+            </label>
+          </th>
+          <td>
+            <div class="flex items-center space-x-3">
+              <div class="rounded-image">
+                <img :src="user.image" alt="User Image" />
+              </div>
             </div>
-          </div>
+          </td>
+          <td>
+            <button class="btn no-animation">{{ user.userName }}</button>
+          </td>
+          <td>
+            <div v-if="user.isChecked" class="profile">
+              <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Friend</button>
+            </div>
+            <div v-else class="profile">
+              <button class="btn" @click="sendMessageFromFront">Visit Profile</button>
+            </div>
+          </td>
+        <td>
+          <button class="btn">Invite in Game</button>
         </td>
         <td>
-          <button class="btn no-animation">{{ user.userName }}</button>
-        </td>
-        <td>
-          <!-- <div v-if="user.isChecked" class="profile"> -->
-            <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Friend</button>
-          <!-- </div> -->
-          <!-- <div v-else class="profile">
-            <button class="btn btn-info">Visit Profile</button>
-          </div> -->
-        </td>
-        <td>
-          <button class="btn btn-primary">Invite in Game</button>
+          <button class="btn" onclick="modalChannel.showModal()">Invite in Channel</button>
+          <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle">
+            <div class="modal-box w-11/12 max-w-5xl">
+              <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannel(channelName, userName, user.userName)">
+                <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
+                <button class="btn">Send Invitation</button>
+              </form>
+            </div>
+          </dialog>
         </td>
       </tr>
     </tbody>
     </table>
   </div>
+
 </template>
 
 <style>
@@ -151,6 +166,9 @@
   text-align: center;
 }
 
+.dialogModalChannel { 
+  text-align:center;
+}
 .rounded-image {
   width: 150px;
   height: 150px;
