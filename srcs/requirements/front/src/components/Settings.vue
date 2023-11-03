@@ -10,6 +10,7 @@
     let newUserName = ref("");
     let userName = ref("");
     let dataURL = ref(null);
+    let A2FEnabled = ref(false);
 
     const handleSubmit = async () => {
         await updateUsername(user.userName, newUserName.value);
@@ -33,6 +34,7 @@
         dataURL = ref(null);
         if (user.value.A2F)
             dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);
+        A2FEnabled.value = user.value.A2F;
     }
 
     onMounted(async () => {
@@ -40,7 +42,9 @@
         if (!user.value)
             window.location.href = "/";
         userName.value = user.value.displayName;
-        console.log(user.value.A2F);
+        if (user.value.A2F)
+            dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);
+        A2FEnabled.value = user.value.A2F;
     });
 
 </script>
@@ -62,7 +66,7 @@
     <div class="divider"></div> 
     <div class="form-control">
         <label>2FA : </label>
-        <button v-if="user && user.value && user.value.A2F" class="btn" @click="changeA2F">Disable</button>
+        <button v-if="A2FEnabled" class="btn" @click="changeA2F">Disable</button>
         <button v-else class="btn" @click="changeA2F">Enable</button>
         <img v-if="dataURL" :src="dataURL" class="qrcode" />
     </div>
@@ -77,6 +81,7 @@ body {
 .qrcode {
     width: 40vw;
     height: 40vw;
+    margin: 0 auto;
 }
 
 </style>
