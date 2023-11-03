@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors} from '@nestjs/common';
+import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors, Query} from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Channel, User } from '@prisma/client';
@@ -90,11 +90,15 @@ export class UserController {
     return user;
   }
 
+  @Get('getUsername/:userName')
+  async getUserByUserName(@Param('userName') userName: string): Promise<User> {
+    return await this.userService.getUserByUserName(userName);
+  }
+
 /*-----------------------------------------------UTILS-----------------------------------------------*/
   @Get('checkA2F/:userName')
-  async checkA2F(@Body('userName') userName: string, @Body('token') token: string): Promise<boolean> {
+  async checkA2F(@Param('userName') userName: string, @Query('token') token: string): Promise<boolean> {
     const user = await this.userService.getUserByUserName(userName);
-    console.log(`Calling checkA2F with userId: ${user.userId} and token: ${token}`);
     if (!user) {
       console.warn("error: user not found");
     }

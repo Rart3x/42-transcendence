@@ -13,11 +13,8 @@ let userToken = ref(null);
 const code = new URL(window.location.href).searchParams.get("code");
 
 const verifyToken = async () => {
-  console.log(userToken.value);
   try {
-    console.log(user.value);
-    const isValid = checkA2F(user.value.userName, userToken.value);
-    console.log(isValid);
+    const isValid = await checkA2F(user.value.userName, userToken.value);
 
     if (isValid) {
       await insertUser(userInfo.value.login, userInfo.value.image.link, code);
@@ -27,8 +24,7 @@ const verifyToken = async () => {
         secure: true,
         sameSite: "Strict",
       });
-
-      // window.location.href = "/settings";
+      window.location.href = "/settings";
     }
   }
   catch (error) {
@@ -75,10 +71,7 @@ onMounted(async () => {
       user.value = await getUserByUsername(userInfo.value.login);
 
       if (user.value && user.value.A2F) {
-        console.log("A2F");
-
         userA2F.value = true;
-
         return ;
       }
       
