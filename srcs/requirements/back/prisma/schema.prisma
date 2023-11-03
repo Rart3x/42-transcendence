@@ -11,7 +11,7 @@ model Channel {
   channelId    Int            @id @default(autoincrement())
   channelName  String         @unique
   channelAdmin Int
-  channelMessage Message[]
+  channelMessages Message[]
   channelUsers User[]         @relation("ChannelUser")
 }
 
@@ -21,12 +21,12 @@ model Game {
 
 model Message {
   messageId    Int       @id @default(autoincrement())
-  channelId    Int?
+  channelId    Int
   
-  message_text String
+  message_text String?   @default("")
   message_date DateTime? @default(now()) @db.Timestamp(6)
   
-  Channel      Channel?  @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
+  Channel      Channel  @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model QueueList {

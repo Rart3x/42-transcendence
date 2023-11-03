@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
-import { Message, Prisma } from '@prisma/client';
+import { Channel, Message, User, Prisma } from '@prisma/client';
 
 @Injectable()
 export class MessageService {
   constructor(private prisma: PrismaService) {}
 
-  async insertMessage(data: Prisma.MessageCreateInput): Promise<Message | null> {
-    return this.prisma.message.create({
+  async createMessage(channel: Channel,): Promise<void> {
+    await this.prisma.message.create({
       data: {
-        message_text: String(data.message_text),
-      }
+        channelId: channel.channelId,
+      },
     });
   }
 

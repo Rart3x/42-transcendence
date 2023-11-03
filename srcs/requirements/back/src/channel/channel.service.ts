@@ -1,27 +1,32 @@
 import { Injectable } from '@nestjs/common';
-import { Channel, User, Prisma } from '@prisma/client';
-import { UserService } from '../user/user.service';
+import { Channel, Message, User, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service'
+import { MessageService } from '../message/message.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class ChannelService {
-  constructor (private prisma: PrismaService, private userService: UserService) {}
+  constructor (private prisma: PrismaService, private messageService: MessageService, private userService: UserService) {}
   
   async createChannel(channelName: string, userName: string, invitedUserName: string): Promise<Channel> {
     const user = await this.userService.getUserByUserName(userName);
     const invitedUser = await this.userService.getUserByUserName(invitedUserName);
   
-    if (!user || !invitedUser)
+    if (!user || !invitedUser) {
       console.error("error: user or invited user not found");
+      return null;
+    }
   
     const existingChannel = await this.getChannelByChannelName(channelName);
   
     if (existingChannel) {
-      if (await this.isUserAdminOfChannel(existingChannel, user))
+      if (await this.isUserAdminOfChannel(existingChannel, user)) {
         console.error("error: user is already admin of this channel");
+        return null;
+      }
   
-      if (await this.isUserMemberOfChannel(existingChannel, invitedUser)){
-        console.error("error: invited user is already member of this channel");
+      if (await this.isUserMemberOfChannel(existingChannel, invitedUser)) {
+        console.error("error: invited user is already a member of this channel");
         return null;
       }
   
@@ -33,6 +38,9 @@ export class ChannelService {
           },
         },
       });
+  
+      await this.messageService.createMessage(existingChannel);
+  
       return existingChannel;
     }
   
@@ -48,7 +56,37 @@ export class ChannelService {
         },
       },
     });
+  
+    await this.messageService.createMessage(channel);
+  
     return channel;
+  }
+  
+
+  async getAllMessagesFromChannel(channelName: string): Promise<Message[]> {
+    const channel = await this.getChannelByChannelName(channelName);
+
+    if (!channel)
+      console.error("error: channel not found");
+
+    const messages = await this.prisma.channel.findUnique({
+      where: { channelId: channel.channelId },
+    }).channelMessages();
+
+    return messages;
+  }
+
+  async getAllUsersFromChannel(channelName: string): Promise<User[]> {
+    const channel = await this.getChannelByChannelName(channelName);
+
+    if (!channel)
+      console.error("error: channel not found");
+
+    const users = await this.prisma.channel.findUnique({
+      where: { channelId: channel.channelId },
+    }).channelUsers();
+
+    return users;
   }
 
   async getChannelByChannelName(channelName: string): Promise<Channel> {

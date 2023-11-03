@@ -9,16 +9,6 @@ import { validateOrReject } from 'class-validator';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  @Post()
-  async insertMessage(@Body() insertMessageDTO: InsertMessageDTO): Promise<Message> {
-    try {
-      return this.messageService.insertMessage(insertMessageDTO);
-    }
-    catch (validationErrors) {
-      throw new BadRequestException(validationErrors);
-    }
-  }
-
   @Get()
   async getMessage(): Promise<{ message_text: string; message_date: Date }[]> {
     try{

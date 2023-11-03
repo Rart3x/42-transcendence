@@ -5,7 +5,7 @@
   import { addFriend, createChannel, removeFriend } from './api/post.call';
 
   const friendName = ref("");
-  const showModalChannel = ref(false);
+//   const showModalChannel = ref(false);
   const userName = ref("");
 
   let channels = ref([]);

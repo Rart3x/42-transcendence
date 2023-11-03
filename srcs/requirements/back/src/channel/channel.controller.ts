@@ -1,5 +1,5 @@
 import { Body, Delete, Controller, Get, Param, Post } from '@nestjs/common';
-import { Channel } from '@prisma/client';
+import { Channel, Message, User } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { ChannelService } from './channel.service';
 
@@ -13,8 +13,27 @@ export class ChannelController {
       return this.channelService.createChannel(channelName, userName, invitedUserName);
     }
     catch (error) {
-      console.error("error: creating channel");
       return null;
     }    
 	}
+
+  @Get(':channelName/users')
+  async getAllUsersFromChannel(@Param('channelName') channelName: string): Promise<User[]> {
+    try {
+      return this.channelService.getAllUsersFromChannel(channelName);
+    }
+    catch (error) {
+      return null;
+    }    
+  }
+
+  @Get(':channelName/messages')
+  async getAllMessagesFromChannel(@Param('channelName') channelName: string): Promise<Message[]> {
+    try {
+      return this.channelService.getAllMessagesFromChannel(channelName);
+    }
+    catch (error) {
+      return null;
+    }    
+  }
 }
