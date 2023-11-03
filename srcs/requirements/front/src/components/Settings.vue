@@ -64,7 +64,7 @@
     <div class="form-control w-full max-w-xs">
         <form @submit.prevent="handleSubmit">
             <label>Please select your new username :</label><br />
-            <input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs" />
+            <input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs" maxlength="20" pattern="^[A-Za-z0-9_\-]+$" />
             <button class="btn">Send</button>
         </form>
     </div>
