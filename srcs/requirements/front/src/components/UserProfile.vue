@@ -36,21 +36,21 @@
   };
 
   onMounted(async () => {
-    user = await getUserByCookie(Cookies.get("_authToken"));
-    if (!user)
-      window.location.href = "/";
-    userName.value = user.displayName;
+  user.value = await getUserByCookie(Cookies.get("_authToken"));
+  if (!user.value)
+    window.location.href = "/";
+  userName.value = user.value.displayName;
 
-    friends = await getAllFriends(user.userName);
-    channels = await getAllChannels(user.userName);
+  friends.value.splice(0, friends.value.length, ...(await getAllFriends(user.value.userName)));
+  channels.value.splice(0, channels.value.length, ...(await getAllChannels(user.value.userName)));
 
-    for (user of friends.value) {
-      const imagePath = `../assets/userImages/${user.image}`;
-      import(/* @vite-ignore */ imagePath).then((image) => {
-        user.image = image.default;
-      });
-    }
-  });
+  for (user of friends.value) {
+    const imagePath = `../assets/userImages/${user.image}`;
+    import(/* @vite-ignore */ imagePath).then((image) => {
+      user.image = image.default;
+    });
+  }
+});
 
 </script>
 

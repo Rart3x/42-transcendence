@@ -13,6 +13,7 @@ model Channel {
   channelAdmin Int
   channelMessages Message[]
   channelUsers User[]         @relation("ChannelUser")
+  isPrivate    Boolean        @default(false)
 }
 
 model Game {
@@ -23,7 +24,7 @@ model Message {
   messageId    Int       @id @default(autoincrement())
   channelId    Int
   
-  message_text String?   @default("")
+  message_text String?
   message_date DateTime? @default(now()) @db.Timestamp(6)
   
   Channel      Channel  @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)

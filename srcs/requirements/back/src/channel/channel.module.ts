@@ -8,10 +8,10 @@ import { PrismaModule } from '../prisma.module';
 import { UserService } from '../user/user.service';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [ChannelController],
-    providers: [ChannelService, MessageService, UserService],
-    exports: [ChannelService]
+  imports: [PrismaModule],
+  controllers: [ChannelController],
+  providers: [ChannelService, MessageService, UserService],
+  exports: [ChannelService]
 })
 
 export class ChannelModule {}

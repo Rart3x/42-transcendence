@@ -1,42 +1,45 @@
 <script setup>
-	import Cookies from "js-cookie";
-	import { getUserByCookie, getAllMessagesFromChannel, getAllUsersFromChannel } from './api/get.call';
-	import { onMounted, ref } from 'vue'; 
-	import { useRoute } from 'vue-router';
+import Cookies from "js-cookie";
+import { getAllMessagesFromChannel, getAllUsersFromChannel, getUserByCookie } from './api/get.call';
+import { onMounted, ref } from 'vue'; 
+import { useRoute } from 'vue-router';
 
-	let messages = ref([]);
-	let user = ref(null);
-	let users = ref([]);
+let messages = ref([]);
+let user = ref(null);
+let users = ref([]);
 
-	const route = useRoute();
+let isDropdownVisible = ref(false);
 
-	onMounted(async () => {
-		user = await getUserByCookie(Cookies.get("_authToken"));
-		if (!user) {
-			window.location.href = "/";
-		}
+const route = useRoute();
 
-		users = await getAllUsersFromChannel(route.params.channelName);
-		messages = await getAllMessagesFromChannel(route.params.channelName);
+onMounted(async () => {
+	user.value = await getUserByCookie(Cookies.get("_authToken"));
 
-		console.log(users);
-		console.log(messages);
-	});
+	if (!user.value)
+	window.location.href = "/";	
+
+	//Splice is used to replace the array with the new one
+	users.value.splice(0, users.value.length, ...(await getAllUsersFromChannel(route.params.channelName)));
+	//That is why request appear instantly now
+	messages.value = await getAllMessagesFromChannel(route.params.channelName);
+});
+
 </script>
 
-
 <template>
-  <div>
-    <div class="navbar bg-base-100">
-      <a class="btn btn-ghost normal-case text-xl">{{ $route.params.channelName }}</a>
-    </div>
-    <div class="flex">
-      <ul class="menu bg-base-200 w-56 rounded-box">
-        <li v-for="(user, index) in users" :key="index">
-          <a> {{ user.userName }} </a>
-        </li>
-      </ul>
-    </div>
-  </div>
-
+	<div>
+		<div class="navbar bg-base-100">
+			<button class="btn btn-ghost normal-case text-xl"> {{ $route.params.channelName }} </button>
+			<ul>
+				<li>test</li>
+			</ul>
+			<div>
+				<ul>
+					<li v-for="(user, index) in users" :key="index">
+						<router-link :to="'/profile/' + user.userName">{{ user.userName }}</router-link>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
 </template>
