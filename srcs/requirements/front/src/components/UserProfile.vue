@@ -44,6 +44,10 @@
     //   removeFriendSuccess = false;
   };
 
+  const openChannelModal = () => {
+    modalChannel.value = true;
+  };
+
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
     
@@ -58,7 +62,6 @@
       let imagePath = "../assets/userImages/" + friend.image;
       await import(/* @vite-ignore */ imagePath).then((image) => {
         friendsData[index].imageSrc = image.default;
-        console.log(image.default);
       });
     });
 
@@ -161,8 +164,8 @@
               </td>
             <td> <button class="btn">Invite in a Game</button> </td>
             <td>
-              <button class="btn" onclick="modalChannel.showModal()">Invite in Channel</button>
-              <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle">
+              <button class="btn" @click="openChannelModal">Invite in Channel</button>
+              <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
                 <div class="modal-box w-11/12 max-w-5xl">
                   <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannel(channelName, userName, user.userName)">
                     <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
@@ -245,20 +248,6 @@
 
   .dialogModalChannel { 
     text-align:center;
-  }
-
-  .rounded-image {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    overflow: hidden;
-  }
-
-  .rounded-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
   }
 
   .underStat {
