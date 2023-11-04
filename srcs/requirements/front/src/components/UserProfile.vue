@@ -27,6 +27,7 @@
       addFriendSuccess = true;
     else
       addFriendSuccess = false;
+    // friendName.value = "";
   };
 
   const removeFriendFromDB = async (userName, friendName) => {
@@ -35,6 +36,7 @@
       removeFriendSuccess = true;
     else
       removeFriendSuccess = false;
+    // friendName.value = "";
   };
 
   const removeChannelFromDB = async (channelName) => {
@@ -43,6 +45,7 @@
     //   removeFriendSuccess = true;
     // else
     //   removeFriendSuccess = false;
+    // channelName.value = "";
   };
 
   const openChannelModal = (userName) => {
@@ -137,11 +140,6 @@
           <caption>Friends</caption>
           <tbody>
             <tr v-for="(user, index) in friends" :key="index">
-              <th>
-                <label>
-                  <input type="checkbox" class="checkbox" v-model="user.isChecked" />
-                </label>
-              </th>
               <td>
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
@@ -187,11 +185,6 @@
           <caption>Channels</caption>
           <tbody>
             <tr v-for="(channel, index) in channels" :key="index">
-              <th>
-                <label>
-                  <input type="checkbox" class="checkbox" v-model="channel.isChecked" />
-                </label>
-              </th>
               <td>
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
@@ -221,6 +214,7 @@
           </tbody>
         </table>
       </div>
+      <!--Ajouter un recommended channel et un recommendend friends-->
     </div>
   </div>
 </template>

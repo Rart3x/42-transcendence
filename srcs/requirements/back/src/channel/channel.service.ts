@@ -3,6 +3,7 @@ import { Channel, Message, User, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service'
 import { MessageService } from '../message/message.service';
 import { UserService } from '../user/user.service';
+import { async } from 'rxjs';
 
 @Injectable()
 export class ChannelService {
@@ -30,16 +31,19 @@ export class ChannelService {
         return null;
       }
   
+      const message = await this.messageService.createMessage(existingChannel);
+
       await this.prisma.channel.update({
         where: { channelId: existingChannel.channelId },
         data: {
           channelUsers: {
             connect: { userId: invitedUser.userId },
           },
+          channelMessages: {
+            connect: { messageId: message.messageId },
+          },
         },
       });
-  
-      await this.messageService.createMessage(existingChannel);
   
       return existingChannel;
     }
@@ -136,5 +140,28 @@ export class ChannelService {
     if (channelUsers && channelUsers.channelUsers.length > 0)
       return true;
     return false;
+  }
+
+  async removeFriendFromChannel(channelName: string, friendName: string): Promise<Channel> {
+    try {
+      const channel = await this.getChannelByChannelName(channelName);
+      const friend = await this.userService.getUserByUserName(friendName);
+  
+      if (!channel || !friend)
+        console.error("error: channel or friend not found");
+  
+      await this.prisma.channel.update({
+        where: { channelId: channel.channelId },
+        data: {
+          channelUsers: {
+            disconnect: { userId: friend.userId },
+          },
+        },
+      });
+      return channel;
+    }
+    catch (error) {
+      return null;
+    }
   }
 }

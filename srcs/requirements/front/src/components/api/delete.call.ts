@@ -22,6 +22,29 @@ export async function removeFriend(userName: string, friendName: string) {
 	}
 }
 
+export async function removeFriendFromChannel(channelName: string, friendName: string) {
+	try {
+		const response = await fetch(`http://localhost:3000/channel/${channelName}/delete/${friendName}`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ channelName: channelName, friendName: friendName }),
+		});
+
+		if (response.ok)
+			return true;
+		else {
+			console.error("error: unable to delete friend");
+			return false;
+		}
+	}
+	catch (error) {
+		console.error("error: sending DELETE request", error);
+		return false;
+	}
+}
+
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
 export async function removeChannel(channelName : string) { 
 	try { 

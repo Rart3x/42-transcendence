@@ -45,6 +45,52 @@ export async function addFriend(userName : string, friendName : string) {
     console.error('error: sending POST request', error);
   }
 }
+/*-----------------------------------------------MESSAGES-----------------------------------------------*/
+export async function insertMessage(message_text : string) {
+  try {
+    const response = await fetch("http://localhost:3000/message", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message_text: message_text }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+    else {
+      const errorText = await response.text();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
+export async function insertMessageToChannel(channelName : string, message_text : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/message/${channelName}/post/message`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ channelName: channelName, message_text: message_text }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+    else {
+      const errorText = await response.text();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
 
 /*-----------------------------------------------USERS-----------------------------------------------*/
 export async function insertUser(userName: string, image: string, cookie: string) {
@@ -78,30 +124,6 @@ export async function updateUsername(userName : string, newUserName : string) {
       },
       body: JSON.stringify({ userName: userName, newUserName: newUserName }),
     });
-    if (response.ok) {
-      const responseData = await response.json();
-      return responseData;
-    }
-    else {
-      const errorText = await response.text();
-    }
-  } 
-  catch (error) {
-    console.error('error: sending POST request', error);
-  }
-}
-
-/*-----------------------------------------------MESSAGES-----------------------------------------------*/
-export async function insertMessage(message_text : string) {
-  try {
-    const response = await fetch("http://localhost:3000/message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message_text: message_text }),
-    });
-
     if (response.ok) {
       const responseData = await response.json();
       return responseData;

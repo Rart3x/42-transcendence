@@ -15,6 +15,23 @@ export async function getAllChannels(userName : string) {
   }
   return null;
 }
+
+export async function getChannelByChannelName(channelName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/get/${channelName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
 /*-----------------------------------------------FRIEND-----------------------------------------------*/
 export async function getAllFriends(userName : string) {
   try {

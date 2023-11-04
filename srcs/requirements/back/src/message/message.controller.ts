@@ -18,4 +18,16 @@ export class MessageController {
       throw new BadRequestException(validationErrors);
     }
   }
+
+  @Post(':channelName/post/message')
+  async insertMessageToChannel(@Body('channelName') channelName: string, @Body() message_text : string): Promise<Message> {
+    console.log(message_text);
+    console.log(channelName);
+    try {
+      return await this.messageService.insertMessageToChannel(channelName, message_text);
+    }
+    catch (validationErrors) {
+      throw new BadRequestException(validationErrors);
+    }
+  }
 }
