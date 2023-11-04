@@ -1,8 +1,9 @@
 <script setup>
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
+  import { removeChannel, removeFriend } from "./api/delete.call";
   import { getAllChannels, getAllFriends, getUserByCookie } from "./api/get.call";
-  import { addFriend, createChannel, removeFriend } from './api/post.call';
+  import { addFriend, createChannel } from './api/post.call';
 
   const friendName = ref("");
   const modalChannel = ref(false);
@@ -33,6 +34,14 @@
       removeFriendSuccess = true;
     else
       removeFriendSuccess = false;
+  };
+
+  const removeChannelFromDB = async (channelName) => {
+    const response = await removeChannel(channelName);
+    // if (response.ok)
+    //   removeFriendSuccess = true;
+    // else
+    //   removeFriendSuccess = false;
   };
 
   onMounted(async () => {
@@ -170,7 +179,7 @@
       <!--ChannelList-->
       <div class="requestTable table-border">
         <table class="table">
-          <caption>Channel</caption>
+          <caption>Channels</caption>
           <tbody>
             <tr v-for="(channel, index) in channels" :key="index">
               <th>
@@ -194,7 +203,7 @@
               </td>
               <td>
                 <!-- <div v-if="user.isChecked" class="profile"> -->
-                  <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Channel</button>
+                  <button class="btn btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
                 <!-- </div>
                 <div v-else class="profile">
                   <button class="btn" @click="sendMessageFromFront">Visit Profile</button>
@@ -213,7 +222,7 @@
 
 <style>
   .requestTable {
-    max-height: 33vh;
+    max-height: 34vh;
     overflow-x: auto;
   }
 

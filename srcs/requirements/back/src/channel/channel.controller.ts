@@ -7,16 +7,6 @@ import { ChannelService } from './channel.service';
 export class ChannelController {
   constructor(private readonly channelService: ChannelService, private readonly prisma: PrismaService) {}
 
-  @Post(':channelName')
-  async createChannel(@Body('channelName') channelName: string, @Body('userName') userName: string, @Body('invitedUserName') invitedUserName: string): Promise<Channel> {
-    try {
-      return this.channelService.createChannel(channelName, userName, invitedUserName);
-    }
-    catch (error) {
-      return null;
-    }    
-	}
-
   @Get(':channelName/users')
   async getAllUsersFromChannel(@Param('channelName') channelName: string): Promise<User[]> {
     try {
@@ -36,4 +26,25 @@ export class ChannelController {
       return null;
     }    
   }
+
+  @Post(':channelName')
+  async createChannel(@Body('channelName') channelName: string, @Body('userName') userName: string, @Body('invitedUserName') invitedUserName: string): Promise<Channel> {
+    try {
+      return this.channelService.createChannel(channelName, userName, invitedUserName);
+    }
+    catch (error) {
+      return null;
+    }    
+	}
+
+  @Delete('delete/:channelName')
+  async deleteChannel(@Body('channelName') channelName: string): Promise<Channel> {
+    try {
+      return this.channelService.deleteChannel(channelName);
+    }
+    catch (error) {
+      return null;
+    }    
+  }
+
 }

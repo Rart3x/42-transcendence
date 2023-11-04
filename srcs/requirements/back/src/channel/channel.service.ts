@@ -62,6 +62,23 @@ export class ChannelService {
     return channel;
   }
   
+  async deleteChannel(channelName: string): Promise<Channel | null> {
+    try {
+      const channel = await this.getChannelByChannelName(channelName);
+  
+      if (!channel)
+        console.error("error: channel not found");
+  
+      await this.prisma.channel.delete({
+        where: { channelId: channel.channelId },
+      });
+
+      return channel;
+    }
+    catch (error) {
+      return null;
+    }
+  }
 
   async getAllMessagesFromChannel(channelName: string): Promise<Message[]> {
     const channel = await this.getChannelByChannelName(channelName);
