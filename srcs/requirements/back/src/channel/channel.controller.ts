@@ -46,5 +46,4 @@ export class ChannelController {
       return null;
     }    
   }
-
 }
