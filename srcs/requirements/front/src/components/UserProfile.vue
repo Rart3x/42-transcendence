@@ -13,7 +13,8 @@
   let friends = ref([]);
 
   let adminImage = ref(null);
-  let imageAdminPath;
+  let channelName = ref("");
+  let currentUserName = ref(null);
 
   let user = ref(null);
 
@@ -44,8 +45,9 @@
     //   removeFriendSuccess = false;
   };
 
-  const openChannelModal = () => {
+  const openChannelModal = (userName) => {
     modalChannel.value = true;
+    currentUserName = userName;
   };
 
   onMounted(async () => {
@@ -162,20 +164,20 @@
                   <button class="btn" @click="sendMessageFromFront">Visit Profile</button>
                 </div> -->
               </td>
-            <td> <button class="btn">Invite in a Game</button> </td>
-            <td>
-              <button class="btn" @click="openChannelModal">Invite in Channel</button>
-              <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
-                <div class="modal-box w-11/12 max-w-5xl">
-                  <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannel(channelName, userName, user.userName)">
-                    <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
-                    <button class="btn">Send Invitation</button>
-                  </form>
-                </div>
-              </dialog>
-            </td>
-          </tr>
-        </tbody>
+              <td> <button class="btn">Invite in a Game</button> </td>
+              <td>
+                <button class="btn" @click="openChannelModal(user.userName)">Invite in Channel</button>
+                <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
+                  <div class="modal-box w-11/12 max-w-5xl">
+                    <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannel(channelName, userName, currentUserName)">
+                      <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
+                      <button class="btn">Send Invitation</button>
+                    </form>
+                  </div>
+                </dialog>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
       <br><br>

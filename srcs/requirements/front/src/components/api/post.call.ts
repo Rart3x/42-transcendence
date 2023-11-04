@@ -6,7 +6,7 @@ export async function createChannel(channelName : string, userName : string, inv
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ channelName: channelName, userName: userName, invitedUserName: invitedUserName }), // Ensuite, définir le corps
+      body: JSON.stringify({ channelName: channelName, userName: userName, invitedUserName: invitedUserName }),
     });
 
     if (response.ok) {

@@ -20,11 +20,11 @@ export class ChannelService {
     const existingChannel = await this.getChannelByChannelName(channelName);
   
     if (existingChannel) {
-      if (await this.isUserAdminOfChannel(existingChannel, user)) {
-        console.error("error: user is already admin of this channel");
+      if (await !this.isUserAdminOfChannel(existingChannel, user)) {
+        console.error("error: user is not admin of this channel");
         return null;
       }
-  
+
       if (await this.isUserMemberOfChannel(existingChannel, invitedUser)) {
         console.error("error: invited user is already a member of this channel");
         return null;
@@ -125,16 +125,16 @@ export class ChannelService {
   }
 
   async isUserMemberOfChannel(channel: Channel, user: User): Promise<Boolean> {
-    const channelUser = await this.prisma.channel.findFirst({
+    const channelUsers = await this.prisma.channel.findFirst({
       where: { channelId: channel.channelId },
       select: {
         channelUsers: {
-          where: { userId: user.userId } 
+          where: { userId: user.userId }
         }
       },
     });
-    if(!channelUser)
-      return false;
-    return true;
+    if (channelUsers && channelUsers.channelUsers.length > 0)
+      return true;
+    return false;
   }
 }
