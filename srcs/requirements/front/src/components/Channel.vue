@@ -1,45 +1,63 @@
 <script setup>
-import Cookies from "js-cookie";
-import { getAllMessagesFromChannel, getAllUsersFromChannel, getUserByCookie } from './api/get.call';
-import { onMounted, ref } from 'vue'; 
-import { useRoute } from 'vue-router';
+	import Cookies from "js-cookie";
+	import { getAllMessagesFromChannel, getAllUsersFromChannel, getUserByCookie } from './api/get.call';
+	import { computed, onMounted, ref } from 'vue'; 
+	import { useRoute } from 'vue-router';
 
-let messages = ref([]);
-let user = ref(null);
-let users = ref([]);
+	let messages = ref([]);
+	let actualUser = ref(null);
+	let users = ref([]);
 
-let isDropdownVisible = ref(false);
+	const route = useRoute();
 
-const route = useRoute();
+	onMounted(async () => {
+		actualUser.value = await getUserByCookie(Cookies.get("_authToken"));
 
-onMounted(async () => {
-	user.value = await getUserByCookie(Cookies.get("_authToken"));
+		if (!actualUser.value)
+		window.location.href = "/";	
 
-	if (!user.value)
-	window.location.href = "/";	
+		users.value.splice(0, users.value.length, ...(await getAllUsersFromChannel(route.params.channelName)));
+		messages.value = await getAllMessagesFromChannel(route.params.channelName);
+	});
 
-	//Splice is used to replace the array with the new one
-	users.value.splice(0, users.value.length, ...(await getAllUsersFromChannel(route.params.channelName)));
-	//That is why request appear instantly now
-	messages.value = await getAllMessagesFromChannel(route.params.channelName);
-});
+	const filteredUsers = computed(() => {
+  	return users.value.filter(user => actualUser.value.userName !== user.userName);
+	});
 
 </script>
 
 <template>
-	<div>
-		<div class="navbar bg-base-100">
-			<button class="btn btn-ghost normal-case text-xl"> {{ $route.params.channelName }} </button>
-			<ul>
-				<li>test</li>
-			</ul>
-			<div>
-				<ul>
-					<li v-for="(user, index) in users" :key="index">
-						<router-link :to="'/profile/' + user.userName">{{ user.userName }}</router-link>
-					</li>
-				</ul>
-			</div>
+	<link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
+  <div class="navbar bg-base-100">
+    <button class="btn btn-ghost normal-case text-xl">{{ $route.params.channelName }}</button>
+  </div>
+	<div class="overflow-x-auto">
+		<div class="grid-container">
+			<table class="table table-zebra">
+				<tbody v-for="user in filteredUsers" :key="user.userName">
+					<tr class="dark-row">
+						<td>
+							<router-link :to="'/profile/' + user.userName"> {{ user.userName }} </router-link>
+						</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 </template>
+
+<style scoped>
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: 10vh;
+}
+
+tbody tr:hover {
+  background-color: #efefef;
+}
+
+.dark-row:hover {
+  background-color: #364e6e;
+}
+</style>
