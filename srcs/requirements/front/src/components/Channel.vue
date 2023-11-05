@@ -65,29 +65,31 @@
 	</div>
   <div class="grid-container">
     <div class="overflow-x-auto">
-      <table class="table table-zebra">
-        <tbody v-for="user in filteredUsers" :key="user.userName">
-          <tr class="dark-row">
-            <td>
-              <label tabindex="0" class="btn btn-ghost btn-circle">
-                <div class="avatar">
-                  <div class="w-24 mask mask-squircle">
-                    <img :src="user.imageSrc" />
-                  </div>
-                </div>
-              </label>
-            </td>
-            <td>
-              <router-link :to="'/profile/' + user.userName">
-                <button class="btn no-animation">{{ user.userName }}</button>
-              </router-link>
-            </td>
-            <td v-if="channel.channelAdmin == actualUser.userId">
-              <button class="btn btn-error" @click="removeFriendFromChannel($route.params.channelName, user.userName)">Kick</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+			<div class="friend-list">
+				<table class="table table-zebra">
+					<tbody v-for="user in filteredUsers" :key="user.userName">
+						<tr class="dark-row">
+							<td>
+								<label tabindex="0" class="btn btn-ghost btn-circle">
+									<div class="avatar">
+										<div class="w-24 mask mask-squircle">
+											<img :src="user.imageSrc" />
+										</div>
+									</div>
+								</label>
+							</td>
+							<td>
+								<router-link :to="'/profile/' + user.userName">
+									<button class="btn no-animation">{{ user.userName }}</button>
+								</router-link>
+							</td>
+							<td v-if="channel.channelAdmin == actualUser.userId">
+								<button class="btn btn-error" @click="removeFriendFromChannel($route.params.channelName, user.userName)">Kick</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
     </div>
     <!-- Center Chat on mid Grid -->
     <!-- Penser a ajouter lhoraire denvoi et aussi le focus de la navabar en bas de la box-->
@@ -145,6 +147,21 @@
   .chat-messages::-webkit-scrollbar-track {
     background: #ddd;
   }
+
+	.friend-list {
+    max-height: 55vh;
+    overflow-x: auto;
+  }
+  .friend-list::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+  .friend-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  .friend-list::-webkit-scrollbar-track {
+    background: #ddd;
+  }
+
 	.dark-row:hover {
 		background-color: #364e6e;
 	}
