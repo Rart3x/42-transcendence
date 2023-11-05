@@ -35,6 +35,13 @@
 
 		channel.value = await getChannelByChannelName(route.params.channelName);
 
+		if (actualUser.value.image) {
+			let userImagePath = "../assets/userImages/" + actualUser.value.image;
+			await import(/* @vite-ignore */ userImagePath).then((userImage) => {
+				actualUser.value.image = userImage.default;
+			});
+		}
+
 		let usersData = await getAllUsersFromChannel(route.params.channelName);
 		for (let user of usersData) {
 			let imagePath = "../assets/userImages/" + user.image;
