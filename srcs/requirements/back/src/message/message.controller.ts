@@ -20,7 +20,7 @@ export class MessageController {
   }
 
   @Post(':channelName/post/message')
-  async insertMessageToChannel(@Body('channelName') channelName: string, @Body() message_text : string): Promise<Message> {
+  async insertMessageToChannel(@Body('channelName') channelName: string, @Body('message_text') message_text : string): Promise<Message> {
     console.log(message_text);
     console.log(channelName);
     try {

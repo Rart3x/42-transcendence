@@ -85,9 +85,9 @@
 			</table>
 		</div>
 	</div>
-	<!--Chat Facebook, a voir un peu apres-->
+	<!-- Chat Facebook, a voir un peu apres
 
-	<!-- <div class="chat-box">
+	<div class="chat-box">
     <div class="chat-header">
       <h2>Chat Box</h2>
       <button @click="closeChat">X</button>
