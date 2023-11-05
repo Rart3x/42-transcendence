@@ -85,16 +85,23 @@ export class ChannelService {
   }
 
   async getAllMessagesFromChannel(channelName: string): Promise<Message[]> {
-    const channel = await this.getChannelByChannelName(channelName);
-
-    if (!channel)
+    const messages = await this.prisma.channel.findFirst({
+      where: { channelName: channelName },
+      include: {
+        channelMessages: {
+          include: {
+            sender: true,
+            Channel: true,
+          },
+        },
+      },
+    });
+  
+    if (!messages) {
       console.error("error: channel not found");
-
-    const messages = await this.prisma.channel.findUnique({
-      where: { channelId: channel.channelId },
-    }).channelMessages();
-
-    return messages;
+      return [];
+    }
+    return messages.channelMessages;
   }
 
   async getAllUsersFromChannel(channelName: string): Promise<User[]> {

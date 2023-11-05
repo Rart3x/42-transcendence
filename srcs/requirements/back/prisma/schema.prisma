@@ -33,13 +33,15 @@ model GameRoomUser {
 }
 
 model Message {
-  messageId    Int       @id @default(autoincrement())
-  channelId    Int
-  
+  messageId Int    @id @default(autoincrement())
+  channelId Int
+  userId    Int?
+
   message_text String?
   message_date DateTime? @default(now()) @db.Timestamp(6)
-  
-  Channel      Channel  @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
+
+  Channel   Channel @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
+  sender    User?  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model QueueList {
@@ -64,6 +66,8 @@ model User {
   friendOf    User[]     @relation("Friendship")
 
   gameRoomUser GameRoomUser?
+
+  messages    Message[]
 
   queueId     Int?
   queue       QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)

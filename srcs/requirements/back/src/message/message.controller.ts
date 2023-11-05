@@ -1,9 +1,8 @@
 import { BadRequestException, Body, Controller, Get, Param, Post} from '@nestjs/common';
 import { InsertMessageDTO } from './dto/insert-message.dto';
-import { Message } from '@prisma/client';
+import { Message, User } from '@prisma/client';
 import { MessageService } from './message.service';
 import { Prisma } from '@prisma/client';
-import { validateOrReject } from 'class-validator';
 
 @Controller('message')
 export class MessageController {
@@ -20,11 +19,9 @@ export class MessageController {
   }
 
   @Post(':channelName/post/message')
-  async insertMessageToChannel(@Body('channelName') channelName: string, @Body('message_text') message_text : string): Promise<Message> {
-    console.log(message_text);
-    console.log(channelName);
+  async insertMessageToChannel(@Body('channelName') channelName: string, @Body('message_text') message_text : string, @Body('user') user : User): Promise<Message> {
     try {
-      return await this.messageService.insertMessageToChannel(channelName, message_text);
+      return await this.messageService.insertMessageToChannel(channelName, message_text, user);
     }
     catch (validationErrors) {
       throw new BadRequestException(validationErrors);

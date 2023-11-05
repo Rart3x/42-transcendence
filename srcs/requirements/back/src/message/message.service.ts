@@ -27,27 +27,35 @@ export class MessageService {
     }));
   }
 
-  async insertMessageToChannel(channelName: string, message_text : string): Promise<Message> {
-    console.log(message_text  )
+  async insertMessageToChannel(channelName: string, message_text: string, user: User): Promise<Message> {
     const channel = await this.prisma.channel.findUnique({
       where: {
-        channelName: channelName
-      }
-    });
-    const message = await this.createMessage(channel);
-    return await this.prisma.message.update({
-      where: {
-        messageId: message.messageId
+        channelName: channelName,
       },
+    });
+  
+    const message = await this.createMessage(channel);
+  
+    return await this.prisma.message.update({
+      where: { messageId: message.messageId },
       data: {
         message_text: message_text,
+        sender: {
+          connect: {
+            userId: user.userId,
+          },
+        },
         message_date: new Date(),
         Channel: {
           connect: {
-            channelId: channel.channelId
-          }
+            channelId: channel.channelId,
+          },
         },
-      }
+      },
+      include: {
+        sender: true,
+        Channel: true,
+      },
     });
   }
 }

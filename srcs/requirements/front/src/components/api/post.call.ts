@@ -1,3 +1,5 @@
+import { User } from '../../../../back/node_modules/@prisma/client';
+
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
 export async function createChannel(channelName : string, userName : string, invitedUserName : string) {
   try {
@@ -69,14 +71,14 @@ export async function insertMessage(message_text : string) {
   }
 }
 
-export async function insertMessageToChannel(channelName : string, message_text : string) {
+export async function insertMessageToChannel(channelName : string, message_text : string, user : User) {
   try {
     const response = await fetch(`http://localhost:3000/message/${channelName}/post/message`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ channelName: channelName, message_text: message_text }),
+      body: JSON.stringify({ channelName: channelName, message_text: message_text, user: user}),
     });
 
     if (response.ok) {
