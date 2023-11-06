@@ -23,6 +23,10 @@
         window.location.href = "/settings";
     }
 
+    const onFileChange = (event) => {
+        selectedFile.value = event.target.files[0];
+    }
+
     const uploadImage = async () => {
         if (!selectedFile.value) {
             alert('Please select a file');
