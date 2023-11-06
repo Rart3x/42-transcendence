@@ -13,31 +13,41 @@
     let A2FEnabled = ref(false);
 
     const handleSubmit = async () => {
+        // Validate new username
+        if (!newUserName.value || newUserName.value.length > 20 || newUserName.value.length < 3 || !/^[A-Za-z0-9_\-]+$/.test(newUserName.value)) {
+            alert('Invalid username');
+            return;
+        }
+
         await updateUsername(user.userName, newUserName.value);
         window.location.href = "/settings";
     }
 
-    const onFileChange = (event) => {
-        selectedFile.value = event.target.files[0];
-    }
-
     const uploadImage = async () => {
         if (!selectedFile.value) {
-            alert('error: please select a file');
+            alert('Please select a file');
             return;
         }
-        // Check for file size
+
+        // Validate file type
+        const allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedFileTypes.includes(selectedFile.value.type)) {
+            alert('Invalid file type');
+            return;
+        }
+
+        // Check file size
         const fileSizeInBytes = selectedFile.value.size;
         const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
         const sizeLimit = 1; // Limit in MB
 
         if (fileSizeInMB > sizeLimit) {
-            alert(`error: file size should not exceed ${sizeLimit}MB`);
+            alert(`File size should not exceed ${sizeLimit}MB`);
             return;
         }
+
         await updateImage(user.value.userName, selectedFile.value);
     }
-
 
     const changeA2F = async () => {
         user.value.A2F = !user.value.A2F;
