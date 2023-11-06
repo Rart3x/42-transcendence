@@ -61,7 +61,6 @@
 			}
 		}
 		users.value.splice(0, users.value.length, ...usersData);
-
 	});
 
 </script>
@@ -105,12 +104,12 @@
 				<div v-for="(message, index) in messages" :key="index" class="message">
 					<div class="message-row">
 						<div v-if="message.userId !== actualUser.userId">
-							<p>{{ message.sender.userName }}</p>
+							<!-- <p>{{ message.sender.userName }}</p> -->
 							<div class="chat chat-start">
 								<label tabindex="0" class="btn btn-ghost btn-circle">
 								<div class="avatar">
 										<div class="w-24 mask mask-squircle">
-											<img :src="message.sender.image" />
+											<!-- <img :src="message.sender.image" /> -->
 										</div>
 									</div>
 								</label>

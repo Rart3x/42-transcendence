@@ -3,10 +3,11 @@
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { getAllChannels, getAllFriends, getUserByCookie } from "./api/get.call";
-  import { addFriend, createChannel } from './api/post.call';
+  import { addFriend, createChannel, setPassword, unsetPassword } from './api/post.call';
 
   const friendName = ref("");
   const modalChannel = ref(false);
+  const modalManageChannel = ref(false);
   const userName = ref("");
 
   let channels = ref([]);
@@ -21,6 +22,9 @@
   let addFriendSuccess = false;
   let removeFriendSuccess = false;
 
+  let passwordCheckBox = false;
+  let password = ref("");
+
   const addFriendFromDB = async (userName, friendName) => {
     const response = await addFriend(userName, friendName);
     if (response.ok)
@@ -28,6 +32,32 @@
     else
       addFriendSuccess = false;
     // friendName.value = "";
+  };
+
+  const createChannelInDB = async (channelName, userName, currentUserName) => {
+    const response = await createChannel(channelName, userName, currentUserName);
+    modalChannel.value = false;
+    // if (response.ok)
+    //   addFriendSuccess = true;
+    // else
+    //   addFriendSuccess = false;
+    // friendName.value = "";
+  };
+
+  const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
+    if (passwordCheckBox)
+      setPassword(channelName, password);
+    else
+      unsetPassword(channelName, password);
+    modalManageChannel.value = false;
+  };
+
+  const setPasswordInDB = async (password) => {
+    setPassword(password);
+  };
+
+  const unsetPasswordInDB = async (password) => {
+    unsetPassword(password);
   };
 
   const removeFriendFromDB = async (userName, friendName) => {
@@ -51,6 +81,10 @@
   const openChannelModal = (userName) => {
     modalChannel.value = true;
     currentUserName = userName;
+  };
+
+  const openManageChannelModal = () => {
+    modalManageChannel.value = true;
   };
 
   onMounted(async () => {
@@ -167,7 +201,7 @@
                 <button class="btn" @click="openChannelModal(user.userName)">Invite in Channel</button>
                 <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
                   <div class="modal-box w-11/12 max-w-5xl">
-                    <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannel(channelName, userName, currentUserName)">
+                    <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannelInDB(channelName, userName, currentUserName)">
                       <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
                       <button class="btn">Send Invitation</button>
                     </form>
@@ -208,7 +242,17 @@
                 </div> -->
               </td>
               <td>
-              <button class="btn">Manage Channel</button>
+                <button class="btn" @click="openManageChannelModal(user.userName)">Manage Channel</button>
+                <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalManageChannel">
+                  <div class="modal-box w-11/12 max-w-5xl">
+                    <form class="dialogModalChannel" @submit.prevent="togglePasswordInput(channel.channelName, password, passwordCheckBox)">
+                      <label>Set password</label><br><br>
+                      <input type="checkbox" class="checkbox" v-model="passwordCheckBox"><br><br>
+                      <input v-if="passwordCheckBox.value" type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
+                      <button class="btn" >Apply changes</button>
+                    </form>
+                  </div>
+                </dialog>
               </td>
             </tr>
           </tbody>

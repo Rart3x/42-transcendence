@@ -13,7 +13,7 @@ model Channel {
   channelAdmin Int
   channelMessages Message[]
   channelUsers User[]         @relation("ChannelUser")
-  isPrivate    Boolean        @default(false)
+  channelPassword String?     @default("")
 }
 
 model Game {

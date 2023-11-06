@@ -47,6 +47,26 @@ export class ChannelController {
     }    
 	}
 
+  @Post(':channelName/set/password')
+  async setPassword(@Body('channelName') channelName: string, @Body('password') password: string ): Promise<Channel> {
+    try {
+      return this.channelService.setPassword(channelName, password);
+    }
+    catch (error) {
+      return null;
+    }    
+	}
+
+  @Post(':channelName/unset/password')
+  async unsetPassword(@Body('channelName') channelName: string): Promise<Channel> {
+    try {
+      return this.channelService.unsetPassword(channelName);
+    }
+    catch (error) {
+      return null;
+    }    
+	}
+
   @Delete('delete/:channelName')
   async deleteChannel(@Body('channelName') channelName: string): Promise<Channel> {
     try {

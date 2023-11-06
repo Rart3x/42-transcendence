@@ -46,7 +46,6 @@
     });
     const allUsers = await getAllUsers();
     users.value = allUsers;
-    console.log("users: ", users.value)
   });
 
   const dropdownOpen = ref(false);
@@ -71,7 +70,7 @@
   <div class="navbar bg-base-100">
     <div class="navbar-start">
       <router-link to="/" class="btn btn-ghost normal-case text-xl">
-         <a class="Navbar-content">PMT</a>
+        PMT
       </router-link>
       <div class="dropdown" @click="picToggleDropdown">
         <label tabindex="0" class="btn btn-ghost btn-circle">

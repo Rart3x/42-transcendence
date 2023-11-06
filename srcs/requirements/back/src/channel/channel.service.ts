@@ -85,6 +85,8 @@ export class ChannelService {
   }
 
   async getAllMessagesFromChannel(channelName: string): Promise<Message[]> {
+    
+    console.log("channelName: ", channelName);
     const messages = await this.prisma.channel.findFirst({
       where: { channelName: channelName },
       include: {
@@ -96,7 +98,7 @@ export class ChannelService {
         },
       },
     });
-  
+    
     if (!messages) {
       console.error("error: channel not found");
       return [];
@@ -163,6 +165,46 @@ export class ChannelService {
           channelUsers: {
             disconnect: { userId: friend.userId },
           },
+        },
+      });
+      return channel;
+    }
+    catch (error) {
+      return null;
+    }
+  }
+
+  async setPassword(channelName: string, password: string): Promise<Channel> {
+    try {
+      const channel = await this.getChannelByChannelName(channelName);
+  
+      if (!channel)
+        console.error("error: channel not found");
+  
+      await this.prisma.channel.update({
+        where: { channelId: channel.channelId },
+        data: {
+          channelPassword: password,
+        },
+      });
+      return channel;
+    }
+    catch (error) {
+      return null;
+    }
+  }
+
+  async unsetPassword(channelName: string): Promise<Channel> {
+    try {
+      const channel = await this.getChannelByChannelName(channelName);
+  
+      if (!channel)
+        console.error("error: channel not found");
+  
+      await this.prisma.channel.update({
+        where: { channelId: channel.channelId },
+        data: {
+          channelPassword: "",
         },
       });
       return channel;
