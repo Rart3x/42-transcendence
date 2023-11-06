@@ -6,6 +6,7 @@ import * as https from 'https';
 import * as fs from 'fs';
 import * as path from 'path';
 import { get } from 'http';
+import { PartialUserDTO } from './dto/partial-user.dto';
 
 async function downloadImage (url, filename) {
   if (!fs.existsSync(path.join(__dirname, '../../../front/src/assets/userImages')))
@@ -174,6 +175,16 @@ export class UserService {
     return this.prisma.user.update({
       where: { userId: userId },
       data: { displayName: newUserName },
+    });
+  }
+  
+  async getAllUsers(): Promise<PartialUserDTO[]> {
+    return await this.prisma.user.findMany({
+      select: {
+        userName: true,
+        displayName: true,
+        image: true,
+      },
     });
   }
 /*-----------------------------------------------UTILS-----------------------------------------------*/

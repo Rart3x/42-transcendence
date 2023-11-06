@@ -1,5 +1,6 @@
 import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors, Query} from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
+import { PartialUserDTO } from './dto/partial-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Channel, User } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
@@ -93,6 +94,11 @@ export class UserController {
   @Get('getUsername/:userName')
   async getUserByUserName(@Param('userName') userName: string): Promise<User> {
     return await this.userService.getUserByUserName(userName);
+  }
+
+  @Get('getAllUsers/')
+  async getAllUsers(): Promise<PartialUserDTO[]> {
+    return await this.userService.getAllUsers();
   }
 
 /*-----------------------------------------------UTILS-----------------------------------------------*/
