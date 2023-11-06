@@ -19,7 +19,7 @@
             return;
         }
 
-        await updateUsername(user.userName, newUserName.value);
+        await updateUsername(user.value.userName, newUserName.value);
         window.location.href = "/settings";
     }
 
