@@ -165,6 +165,25 @@ export async function getUserByUsername(username : string) {
   catch (error) {}
 }
 
+export async function getAllUsers() {
+  try {
+    const response = await fetch("http://localhost:3000/user/getAllUsers/", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  } 
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
 /*-----------------------------------------------MESSAGE-----------------------------------------------*/
 export async function getAllMessagesFromChannel(channelName : string) {
   try {

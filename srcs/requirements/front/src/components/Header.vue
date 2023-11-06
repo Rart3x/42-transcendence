@@ -1,12 +1,34 @@
 <script setup>
   import { RouterLink, RouterView } from "vue-router";
-  import { onMounted, ref } from "vue";
+  import { onMounted, ref, unref } from "vue";
   import Cookies from "js-cookie";
-  import { getUserByCookie } from "./api/get.call.ts";
+  import { getUserByCookie, getAllUsers } from "./api/get.call.ts";
+  import { computed } from "vue";
 
   const userName = ref("");
   let user = ref(null);
   let imageSrc = ref(null);
+  let users = ref([]);
+  let searchInput = ref("");
+
+  const filteredUsers = computed(() => {
+    if (!users.value) {
+      return [];
+    }
+    try {
+      const searchInputValue = unref(searchInput);
+      if (!searchInputValue || !users.value) {
+        return [];
+      }
+      return users.value.filter(user =>
+        user.userName && user.userName.includes(searchInputValue) ||
+        user.displayName && user.displayName.includes(searchInputValue)
+      );
+    } catch (error) {
+      console.error("Error filtering users:", error);
+      return [];
+    }
+  });
 
   const logout = () => {
     Cookies.remove("_authToken");
@@ -22,6 +44,9 @@
     import(/* @vite-ignore */ imagePath).then((image) => {
       imageSrc.value = image.default;
     });
+    const allUsers = await getAllUsers();
+    users.value = allUsers;
+    console.log("users: ", users.value)
   });
 
   const dropdownOpen = ref(false);
@@ -45,6 +70,9 @@
   />
   <div class="navbar bg-base-100">
     <div class="navbar-start">
+      <router-link to="/" class="btn btn-ghost normal-case text-xl">
+         <a class="Navbar-content">PMT</a>
+      </router-link>
       <div class="dropdown" @click="picToggleDropdown">
         <label tabindex="0" class="btn btn-ghost btn-circle">
           <svg
@@ -64,27 +92,26 @@
         </label>
         <ul v-if="picDropdownOpen" tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
           <li>
-            <a>
-              <router-link to="/"> Home </router-link>
-            </a>
+            <router-link to="/"> Home </router-link>
           </li>
           <li>
-            <a>
-              <router-link to="/game"> Game </router-link>
-            </a>
+            <router-link to="/game"> Game </router-link>
           </li>
           <li>
-            <a>
-              <router-link to="/about"> About </router-link>
-            </a>
+            <router-link to="/about"> About </router-link>
           </li>
         </ul>
       </div>
     </div>
     <div class="navbar-center">
-      <a class="btn btn-ghost normal-case text-xl">
-        <router-link to="/" class="Navbar-content">PMT</router-link>
-      </a>
+      <div class="dropdown">
+        <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" v-model="searchInput"/>
+        <div v-show="searchInput" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+          <router-link v-for="user in filteredUsers" :key="user.id" :to="'/profile/' + user.userName" class="dropdown-item" >
+            {{ user.userName }}
+          </router-link>
+        </div>
+      </div>
     </div>
     <div class="navbar-end">
       <div class="dropdown dropdown-end">
@@ -97,14 +124,10 @@
         </label>
         <ul v-if="dropdownOpen" tabindex="1" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
           <li>
-            <a>
-              <router-link to="/profile"> Profile </router-link>
-            </a>
+            <router-link to="/profile"> Profile </router-link>
           </li>
           <li>
-            <a>
               <router-link to="/settings"> Settings </router-link>
-            </a>
           </li>
           <li>
             <button @click="logout">Logout</button>

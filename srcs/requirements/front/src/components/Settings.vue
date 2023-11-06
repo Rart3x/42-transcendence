@@ -107,6 +107,8 @@ body {
     width: 40vw;
     height: 40vw;
     margin: 0 auto;
+    max-width: 30vh;
+    max-height: 30vh;
 }
 
 </style>
