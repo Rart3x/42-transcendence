@@ -66,6 +66,38 @@ export class UserService {
     return user;
   }
 
+  async isFriend(userName: string, friendName: string): Promise<boolean> {
+    const user = await this.getUserByUserName(userName);
+    const friend = await this.getUserByUserName(friendName);
+
+    if (!user || !friend)
+      throw new Error("error: user or friend not found");
+
+    const friendOf = await this.prisma.user.findMany({
+      where: {
+        userId: user.userId,
+        friendOf: {
+          some: {
+            userId: friend.userId,
+          },
+        },
+      },
+    });
+
+    const friends = await this.prisma.user.findMany({
+      where: {
+        userId: user.userId,
+        friends: {
+          some: {
+            userId: friend.userId,
+          },
+        },
+      },
+    });
+
+    return friendOf.length > 0 && friends.length > 0;
+  }
+
   async getAllFriends(userId: number): Promise<User[]> {
     const friends = await this.prisma.user.findMany({
       where: {

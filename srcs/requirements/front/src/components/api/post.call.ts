@@ -141,6 +141,29 @@ export async function insertMessageToChannel(channelName : string, message_text 
 }
 
 /*-----------------------------------------------USERS-----------------------------------------------*/
+export async function banUserFromChannel(channelName : string, userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/ban/${userName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ channelName: channelName, userName: userName }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+    }
+    else {
+      const errorText = await response.text();
+      console.error('error: sending POST request: ', errorText);
+    }
+  } 
+  catch (error) {
+    console.error('error: sending POST request: ', error);
+  }
+}
+
 export async function insertUser(userName: string, image: string, cookie: string) {
   try {
     const response = await fetch(`http://localhost:3000/user`, {

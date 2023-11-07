@@ -1,11 +1,17 @@
 import { Body, Delete, Controller, Get, Param, Post } from '@nestjs/common';
 import { Channel, Message, User } from '@prisma/client';
-import { PrismaService } from '../prisma.service';
 import { ChannelService } from './channel.service';
+import { UserService } from '../user/user.service';
+import { PrismaService } from '../prisma.service';
 
 @Controller('channel')
 export class ChannelController {
-  constructor(private readonly channelService: ChannelService, private readonly prisma: PrismaService) {}
+  constructor(private readonly channelService: ChannelService, private readonly prisma: PrismaService, private readonly userService: UserService) {}
+
+  @Post(':channelName/ban/:userName')
+  async banUserFromChannel(@Body('channelName') channelName: string, @Body('userName') userName: string): Promise<User> {
+    return await this.channelService.banUserFromChannel(channelName, userName);
+  }
 
   @Get(':channelName/messages')
   async getAllMessagesFromChannel(@Param('channelName') channelName: string): Promise<Message[]> {

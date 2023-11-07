@@ -33,6 +33,23 @@ export async function getChannelByChannelName(channelName : string) {
   return null;
 }
 /*-----------------------------------------------FRIEND-----------------------------------------------*/
+export async function isFriend(userName : string, friendName : string){
+  try {
+    const response = await fetch(`http://localhost:3000/user/isFriend/${userName}/${friendName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
 export async function getAllFriends(userName : string) {
   try {
     const response = await fetch(`http://localhost:3000/user/${userName}/friends`, {
@@ -280,4 +297,3 @@ export async function checkA2F(userName : string, token : string) {
     console.error('error: sending POST request', error);
   }
 }
-

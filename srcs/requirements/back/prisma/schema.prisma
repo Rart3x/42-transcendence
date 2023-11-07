@@ -12,7 +12,8 @@ model Channel {
   channelName  String         @unique
   channelAdmin Int
   channelMessages Message[]
-  channelUsers User[]         @relation("ChannelUser")
+  channelUsers    User[]         @relation("ChannelUser")
+  channelUsersBan User[]      @relation("ChannelUserBan")
   channelPassword String?     @default("")
 }
 
@@ -61,6 +62,7 @@ model User {
   userName    String?    @unique
 
   channels    Channel[]  @relation("ChannelUser")
+  channelsBan Channel[]  @relation("ChannelUserBan")
   
   friends     User[]     @relation("Friendship")
   friendOf    User[]     @relation("Friendship")

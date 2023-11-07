@@ -3,12 +3,41 @@ import { Channel, Message, User, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service'
 import { MessageService } from '../message/message.service';
 import { UserService } from '../user/user.service';
-import { async } from 'rxjs';
 
 @Injectable()
 export class ChannelService {
   constructor (private prisma: PrismaService, private messageService: MessageService, private userService: UserService) {}
   
+  async banUserFromChannel(channelName: string, userName: string): Promise<User> {
+    const channel = await this.getChannelByChannelName(channelName);
+    const user = await this.userService.getUserByUserName(userName);
+  
+    if (!channel || !user)
+      console.error("error: channel or user not found");
+  
+    await this.prisma.channel.update({
+      where: { channelId: channel.channelId },
+      data: {
+        channelUsers: {
+          disconnect: { userId: user.userId },
+        },
+        channelUsersBan: {
+          connect: { userId: user.userId },
+        },
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        channelsBan: {
+          connect: { channelId: channel.channelId },
+        },
+      },
+    });
+    return user;
+  }
+
   async createChannel(channelName: string, userName: string, invitedUserName: string): Promise<Channel> {
     const user = await this.userService.getUserByUserName(userName);
     const invitedUser = await this.userService.getUserByUserName(invitedUserName);

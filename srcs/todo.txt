@@ -1,0 +1,27 @@
+image on users profile
+
+add  button on users profile
+
+manage channel only visible for admin 
+
+voir avec dams pour mettre le jeu onclick sur invite in a game
+
+recuperer les stats de game et les ajouter dans each profile
+
+faire quelque chose pour lhorrible background de toutes les pages (cc Front Dev)
+
+finir les privates messages (hors channel)
+
+buttons de block on profile, on channel, on userProfile.vue
+
+ajouter le status de each amis dans profile (connected or not)
+
+join/quit channel on userProfile.vue and channel
+
+password protection booleans for channels 
+
+hidden messages from blocked persons
+
+ban mute when admin
+
+admin and owners are differents 

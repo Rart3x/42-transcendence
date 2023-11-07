@@ -1,14 +1,30 @@
 <script setup>
+  import Cookies from "js-cookie";
   import { onMounted, ref } from 'vue';
-  import { getUserByUsername } from './api/get.call';
+  import { isFriend, getUserByCookie, getUserByUsername } from './api/get.call';
+  import { addFriend } from './api/post.call';
   import { useRoute } from 'vue-router';
 
   let actualUser = ref(null);
+  let user = ref(null);
+
+  let addFriendSuccess = false;
 
   const route = useRoute();
 
+  const addFriendFromDB = async (userName, friendName) => {
+    const response = await addFriend(userName, friendName);
+    if (response.ok)
+      addFriendSuccess = true;
+    else
+      addFriendSuccess = false;
+    // friendName.value = "";
+  };
+
   onMounted(async () => {
+    user.value = await getUserByCookie(Cookies.get("_authToken"));
     actualUser.value = await getUserByUsername(route.params.userName);
+  
     let imagePath = "../assets/userImages/" + actualUser.value.image;
     await import(/* @vite-ignore */ imagePath).then((image) => {
       actualUser.value.image = image.default;
@@ -53,6 +69,10 @@
       <div class="stat-value">0%</div>
     </div>
   </div>
+  <br>
+  <!-- <div class="addFriend" v-if="isFriend(user.value.userName, $route.params.userName)">
+    <button class="btn" @click="addFriendFromDB(user.value.userName, $route.params.userName)">Add {{ $route.params.userName }}</button>
+  </div> -->
 </template>
 
 <style>

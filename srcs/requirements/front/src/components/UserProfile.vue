@@ -160,7 +160,6 @@
           <span>Failed to add friend.</span>
         </div>
       </div> -->
-      <br>
       <div class="underStat">
         <form @submit.prevent="addFriendFromDB(userName, friendName)">
           <button class="btn btn-primary">Add Friend</button>
@@ -212,7 +211,7 @@
           </tbody>
         </table>
       </div>
-      <br><br>
+      <br>
       <!--ChannelList-->
       <div class="requestTable table-border">
         <table class="table">
@@ -294,5 +293,4 @@
     display: center;
     text-align: center;
   }
-
 </style>

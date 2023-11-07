@@ -2,7 +2,7 @@
 	import Cookies from "js-cookie";
 	import { removeFriendFromChannel } from './api/delete.call';
 	import { getAllMessagesFromChannel, getAllUsersFromChannel, getChannelByChannelName, getUserByCookie } from './api/get.call';
-	import { insertMessageToChannel } from './api/post.call';
+	import { banUserFromChannel, insertMessageToChannel} from './api/post.call';
 	import { computed, onMounted, ref } from 'vue'; 
 	import { useRoute } from 'vue-router';
 
@@ -90,6 +90,8 @@
 								</router-link>
 							</td>
 							<td v-if="channel.channelAdmin == actualUser.userId">
+								<button class="btn btn-warning" @click="banUserFromChannel($route.params.channelName, user.userName)">Ban</button>
+								<!-- <button class="btn btn-warning" @click="muteFriendFromChannel($route.params.channelName, user.userName)">Mute</button> -->
 								<button class="btn btn-error" @click="removeFriendFromChannel($route.params.channelName, user.userName)">Kick</button>
 							</td>
 						</tr>
@@ -173,7 +175,7 @@
 	}
 	.grid-container {
 		display: grid;
-		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr;
 		height: 10vh;
 	}
 	tbody tr:hover {

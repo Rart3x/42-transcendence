@@ -53,6 +53,11 @@ export class UserController {
     return updatedUser;
   }
 
+  @Get('isFriend/:userName/:friendName')
+  async isFriend(@Param('userName') userName: string, @Param('friendName') friendName: string): Promise<boolean> {
+    return await this.userService.isFriend(userName, friendName);
+  }
+
   @Get(':userName/friends')
   async getAllFriends(@Param('userName') userName: string): Promise<User[]> {
   const user = await this.userService.getUserByUserName(userName);
