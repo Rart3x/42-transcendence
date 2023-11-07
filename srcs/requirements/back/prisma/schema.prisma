@@ -14,7 +14,7 @@ model Channel {
   channelMessages Message[]
   channelUsers    User[]         @relation("ChannelUser")
   channelUsersBan User[]      @relation("ChannelUserBan")
-  channelPassword String?     @default("")
+  channelPassword String?
 }
 
 model Game {

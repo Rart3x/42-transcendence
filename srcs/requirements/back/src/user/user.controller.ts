@@ -15,7 +15,7 @@ export class UserController {
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
   @Get(':userName/channels')
   async getAllChannels(@Param('userName') userName: string): Promise<Channel[]> | null {
-    const user = await this.userService.getUserByUserName(userName);
+    const user = await this.userService.getUserByName(userName);
     
     if (!user) {
       console.warn("error: user not found");
@@ -26,31 +26,15 @@ export class UserController {
 
 /*-----------------------------------------------FRIENDS-----------------------------------------------*/
   @Post('friend/add/:userName')
-  async createFriend(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User | null> {
-    try {
-      await this.userService.addFriend(userName, friendName);
-      const friend = await this.userService.addFriend(friendName, userName);
-
-      return friend;
-    }
-    catch (error) {
-      console.error("error adding friend:", error);
-      return null;
-    }
+  async createFriend(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.addFriend(userName, friendName);
+    return { success: result };
   }
 
   @Delete('friend/delete/:userName')
-  async deleteFriend(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<User | null> {
-    const user = await this.userService.getUserByUserName(userName);
-    const friend = await this.userService.getUserByUserName(friendName);
-  
-    if (!user || !friend) {
-      console.warn("error: user or friend not found");
-      return null;
-    }
-  
-    const updatedUser = this.userService.removeFriend(user.userName, friend.userName);
-    return updatedUser;
+  async deleteFriend(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.removeFriend(userName, friendName);
+    return { success: result };
   }
 
   @Get('isFriend/:userName/:friendName')
@@ -60,7 +44,7 @@ export class UserController {
 
   @Get(':userName/friends')
   async getAllFriends(@Param('userName') userName: string): Promise<User[]> {
-  const user = await this.userService.getUserByUserName(userName);
+  const user = await this.userService.getUserByName(userName);
 
   if (!user) {
     console.warn("error: user not found");
@@ -85,7 +69,7 @@ export class UserController {
   @Post('updateUsername/:userName')
   async updateUsername(@Body('userName') userName: string, @Body('newUserName') newUserName: string): Promise<User> {
     
-    const user = await this.userService.getUserByUserName(userName);
+    const user = await this.userService.getUserByName(userName);
 
     if (user) {
       await this.userService.updateUserName(user.userId, newUserName); 
@@ -97,8 +81,8 @@ export class UserController {
   }
 
   @Get('getUsername/:userName')
-  async getUserByUserName(@Param('userName') userName: string): Promise<User> {
-    return await this.userService.getUserByUserName(userName);
+  async getUserByName(@Param('userName') userName: string): Promise<User> {
+    return await this.userService.getUserByName(userName);
   }
 
   @Get('getAllUsers/')
@@ -109,7 +93,7 @@ export class UserController {
 /*-----------------------------------------------UTILS-----------------------------------------------*/
   @Get('checkA2F/:userName')
   async checkA2F(@Param('userName') userName: string, @Query('token') token: string): Promise<boolean> {
-    const user = await this.userService.getUserByUserName(userName);
+    const user = await this.userService.getUserByName(userName);
     if (!user) {
       console.warn("error: user not found");
     }
@@ -136,7 +120,7 @@ export class UserController {
 
   @Post('socket/:socket')
   async setSocket(@Body('userName') userName: string, @Body('socket') socket: string): Promise<User> {
-    const user = await this.userService.getUserByUserName(userName);
+    const user = await this.userService.getUserByName(userName);
 
     try {
       console.log(`Calling setSocket with userId: ${user.userId} and socket: ${socket}`);
@@ -150,7 +134,7 @@ export class UserController {
   @Post('updateCookie/:cookie')
   async updateCookie(@Body('userName') userName: string, @Body('cookie') cookie: string): Promise<User> {
     
-    const user = await this.userService.getUserByUserName(userName);
+    const user = await this.userService.getUserByName(userName);
     
     if (user) {
       await this.userService.updateCookie(user.userId, cookie); 

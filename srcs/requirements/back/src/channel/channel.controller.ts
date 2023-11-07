@@ -14,9 +14,9 @@ export class ChannelController {
   }
 
   @Get(':channelName/messages')
-  async getAllMessagesFromChannel(@Param('channelName') channelName: string): Promise<Message[]> {
+  async getMessagesFromChannel(@Param('channelName') channelName: string): Promise<Message[]> {
     try {
-      return this.channelService.getAllMessagesFromChannel(channelName);
+      return this.channelService.getMessagesFromChannel(channelName);
     }
     catch (error) {
       return null;
@@ -24,9 +24,9 @@ export class ChannelController {
   }
 
   @Get(':channelName/users')
-  async getAllUsersFromChannel(@Param('channelName') channelName: string): Promise<User[]> {
+  async getUsersFromChannel(@Param('channelName') channelName: string): Promise<User[]> {
     try {
-      return this.channelService.getAllUsersFromChannel(channelName);
+      return this.channelService.getUsersFromChannel(channelName);
     }
     catch (error) {
       return null;
@@ -34,9 +34,9 @@ export class ChannelController {
   }
 
   @Get('get/:channelName')
-  async getChannelByChannelName(@Param('channelName') channelName: string): Promise<Channel> {
+  async getChannelByName(@Param('channelName') channelName: string): Promise<Channel> {
     try {
-      return this.channelService.getChannelByChannelName(channelName);
+      return this.channelService.getChannelByName(channelName);
     }
     catch (error) {
       return null;
@@ -44,13 +44,9 @@ export class ChannelController {
   }
 
   @Post(':channelName')
-  async createChannel(@Body('channelName') channelName: string, @Body('userName') userName: string, @Body('invitedUserName') invitedUserName: string): Promise<Channel> {
-    try {
-      return this.channelService.createChannel(channelName, userName, invitedUserName);
-    }
-    catch (error) {
-      return null;
-    }    
+  async createChannel(@Body('channelName') channelName: string, @Body('userName') userName: string, @Body('invitedUserName') invitedUserName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.createChannel(channelName, userName, invitedUserName);
+    return { success: result };
 	}
 
   @Post(':channelName/set/password')
@@ -74,22 +70,14 @@ export class ChannelController {
 	}
 
   @Delete('delete/:channelName')
-  async deleteChannel(@Body('channelName') channelName: string): Promise<Channel> {
-    try {
-      return this.channelService.deleteChannel(channelName);
-    }
-    catch (error) {
-      return null;
-    }    
+  async deleteChannel(@Body('channelName') channelName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.deleteChannel(channelName);
+    return { success: result };
   }
 
   @Delete(':channelName/delete/:friendName')
-  async removeFriendFromChannel(@Body('channelName') channelName: string, @Body('friendName') friendName: string): Promise<Channel> {
-    try {
-      return this.channelService.removeFriendFromChannel(channelName, friendName);
-    }
-    catch (error) {
-      return null;
-    }    
+  async removeUserFromChannel(@Body('channelName') channelName: string, @Body('friendName') friendName: string): Promise<{ success: boolean }> {
+    const response = await this.channelService.removeUserFromChannel(channelName, friendName);
+    return { success: response };
   }
 }

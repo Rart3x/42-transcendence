@@ -9,8 +9,8 @@ export class ChannelService {
   constructor (private prisma: PrismaService, private messageService: MessageService, private userService: UserService) {}
   
   async banUserFromChannel(channelName: string, userName: string): Promise<User> {
-    const channel = await this.getChannelByChannelName(channelName);
-    const user = await this.userService.getUserByUserName(userName);
+    const channel = await this.getChannelByName(channelName);
+    const user = await this.userService.getUserByName(userName);
   
     if (!channel || !user)
       console.error("error: channel or user not found");
@@ -38,16 +38,14 @@ export class ChannelService {
     return user;
   }
 
-  async createChannel(channelName: string, userName: string, invitedUserName: string): Promise<Channel> {
-    const user = await this.userService.getUserByUserName(userName);
-    const invitedUser = await this.userService.getUserByUserName(invitedUserName);
+  async createChannel(channelName: string, userName: string, invitedUserName: string): Promise<boolean> {
+    const user = await this.userService.getUserByName(userName);
+    const invitedUser = await this.userService.getUserByName(invitedUserName);
   
-    if (!user || !invitedUser) {
-      console.error("error: user or invited user not found");
-      return null;
-    }
+    if (!user || !invitedUser)
+      return false;
   
-    const existingChannel = await this.getChannelByChannelName(channelName);
+    const existingChannel = await this.getChannelByName(channelName);
   
     if (existingChannel) {
       if (await !this.isUserAdminOfChannel(existingChannel, user)) {
@@ -74,7 +72,7 @@ export class ChannelService {
         },
       });
   
-      return existingChannel;
+      return true;
     }
   
     const channel = await this.prisma.channel.create({
@@ -92,30 +90,27 @@ export class ChannelService {
   
     await this.messageService.createMessage(channel);
   
-    return channel;
+    return true;
   }
   
-  async deleteChannel(channelName: string): Promise<Channel | null> {
-    try {
-      const channel = await this.getChannelByChannelName(channelName);
-  
-      if (!channel)
-        console.error("error: channel not found");
-  
-      await this.prisma.channel.delete({
-        where: { channelId: channel.channelId },
-      });
+  async deleteChannel(channelName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
 
-      return channel;
-    }
-    catch (error) {
-      return null;
-    }
+    if (!channel)
+      return false;
+
+    await this.prisma.channel.delete({
+      where: { channelId: channel.channelId },
+    });
+
+    return true;
+  }
+  catch (error) {
+    return false;
   }
 
-  async getAllMessagesFromChannel(channelName: string): Promise<Message[]> {
+  async getMessagesFromChannel(channelName: string): Promise<Message[]> {
     
-    console.log("channelName: ", channelName);
     const messages = await this.prisma.channel.findFirst({
       where: { channelName: channelName },
       include: {
@@ -135,8 +130,8 @@ export class ChannelService {
     return messages.channelMessages;
   }
 
-  async getAllUsersFromChannel(channelName: string): Promise<User[]> {
-    const channel = await this.getChannelByChannelName(channelName);
+  async getUsersFromChannel(channelName: string): Promise<User[]> {
+    const channel = await this.getChannelByName(channelName);
 
     if (!channel)
       console.error("error: channel not found");
@@ -148,7 +143,7 @@ export class ChannelService {
     return users;
   }
 
-  async getChannelByChannelName(channelName: string): Promise<Channel> {
+  async getChannelByName(channelName: string): Promise<Channel> {
     const channel = await this.prisma.channel.findUnique({
       where: { channelName: channelName },
     });
@@ -180,32 +175,27 @@ export class ChannelService {
     return false;
   }
 
-  async removeFriendFromChannel(channelName: string, friendName: string): Promise<Channel> {
-    try {
-      const channel = await this.getChannelByChannelName(channelName);
-      const friend = await this.userService.getUserByUserName(friendName);
-  
-      if (!channel || !friend)
-        console.error("error: channel or friend not found");
-  
-      await this.prisma.channel.update({
-        where: { channelId: channel.channelId },
-        data: {
-          channelUsers: {
-            disconnect: { userId: friend.userId },
-          },
+  async removeUserFromChannel(channelName: string, friendName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const friend = await this.userService.getUserByName(friendName);
+
+    if (!channel || !friend)
+      return false;
+
+    await this.prisma.channel.update({
+      where: { channelId: channel.channelId },
+      data: {
+        channelUsers: {
+          disconnect: { userId: friend.userId },
         },
-      });
-      return channel;
-    }
-    catch (error) {
-      return null;
-    }
+      },
+    });
+    return true;
   }
 
   async setPassword(channelName: string, password: string): Promise<Channel> {
     try {
-      const channel = await this.getChannelByChannelName(channelName);
+      const channel = await this.getChannelByName(channelName);
   
       if (!channel)
         console.error("error: channel not found");
@@ -225,7 +215,7 @@ export class ChannelService {
 
   async unsetPassword(channelName: string): Promise<Channel> {
     try {
-      const channel = await this.getChannelByChannelName(channelName);
+      const channel = await this.getChannelByName(channelName);
   
       if (!channel)
         console.error("error: channel not found");

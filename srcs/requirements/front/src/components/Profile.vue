@@ -1,7 +1,7 @@
 <script setup>
   import Cookies from "js-cookie";
   import { onMounted, ref } from 'vue';
-  import { isFriend, getUserByCookie, getUserByUsername } from './api/get.call';
+  import { isFriend, getUserByCookie, getUserByName } from './api/get.call';
   import { addFriend } from './api/post.call';
   import { useRoute } from 'vue-router';
 
@@ -23,7 +23,7 @@
 
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
-    actualUser.value = await getUserByUsername(route.params.userName);
+    actualUser.value = await getUserByName(route.params.userName);
   
     let imagePath = "../assets/userImages/" + actualUser.value.image;
     await import(/* @vite-ignore */ imagePath).then((image) => {

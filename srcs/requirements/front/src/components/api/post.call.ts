@@ -15,9 +15,6 @@ export async function createChannel(channelName : string, userName : string, inv
       const responseData = await response.json();
       return responseData;
     }
-    else {
-      const errorText = await response.text();
-    }
   }
   catch (error) {
     console.error('error: sending POST request', error);
@@ -80,13 +77,9 @@ export async function addFriend(userName : string, friendName : string) {
       },
       body: JSON.stringify({ userName: userName, friendName: friendName }),
     });
-
-    if (response.ok) {
+    if (response.ok){
       const responseData = await response.json();
       return responseData;
-    }
-    else {
-      const errorText = await response.text();
     }
   } 
   catch (error) {
@@ -283,8 +276,6 @@ export async function updateImage(userName : string, image : string) {
     formData.append("userName", userName);
     formData.append("image", image);
 
-    console.log("formData: ", formData);
-    console.log("userName: ", userName);
     const response = await fetch(`http://localhost:3000/user/updateImage/${userName}`, {
       method: "POST",
       body: formData,

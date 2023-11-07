@@ -16,7 +16,7 @@ export async function getAllChannels(userName : string) {
   return null;
 }
 
-export async function getChannelByChannelName(channelName : string) {
+export async function getChannelByName(channelName : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/get/${channelName}`, {
       method: "GET",
@@ -107,7 +107,7 @@ export async function getUserFriends(userId : number) {
 }
 
 /*-----------------------------------------------USER-----------------------------------------------*/
-export async function getAllUsersFromChannel(channelName : string) {
+export async function getUsersFromChannel(channelName : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/users`, {
       method: "GET",
@@ -167,7 +167,7 @@ export async function getUserByUserId(userId : number) {
   }
 }
 
-export async function getUserByUsername(username : string) {
+export async function getUserByName(username : string) {
   try {
     const response = await fetch(`http://localhost:3000/user/getUsername/${username}`, {
       method: "GET",
@@ -202,7 +202,7 @@ export async function getAllUsers() {
 }
 
 /*-----------------------------------------------MESSAGE-----------------------------------------------*/
-export async function getAllMessagesFromChannel(channelName : string) {
+export async function getMessagesFromChannel(channelName : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/messages`, {
       method: "GET",

@@ -29,7 +29,7 @@ export class UserService {
   constructor (private prisma: PrismaService) {}
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
   async getAllChannels(userName: string): Promise<Channel[]> {
-    const user = await this.getUserByUserName(userName);
+    const user = await this.getUserByName(userName);
     const channels = await this.prisma.channel.findMany({
       where: {
         channelAdmin: user.userId,
@@ -39,12 +39,12 @@ export class UserService {
   }
 
 /*-----------------------------------------------FRIENDS-----------------------------------------------*/
-  async addFriend(userName: string, friendName: string): Promise<User> {
-    const user = await this.getUserByUserName(userName);
-    const friend = await this.getUserByUserName(friendName);
+  async addFriend(userName: string, friendName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const friend = await this.getUserByName(friendName);
 
     if (!user || !friend)
-      throw new Error("error: user or friend not found");
+      return (false);
 
     await this.prisma.user.update({
       where: { userId: user.userId },
@@ -63,12 +63,12 @@ export class UserService {
         }
       }
     });
-    return user;
+    return true;
   }
 
   async isFriend(userName: string, friendName: string): Promise<boolean> {
-    const user = await this.getUserByUserName(userName);
-    const friend = await this.getUserByUserName(friendName);
+    const user = await this.getUserByName(userName);
+    const friend = await this.getUserByName(friendName);
 
     if (!user || !friend)
       throw new Error("error: user or friend not found");
@@ -111,14 +111,13 @@ export class UserService {
     return friends;
   }
 
-  async removeFriend(userName: string, friendName: string): Promise<User> {
-    const user = await this.getUserByUserName(userName);
-    const friend = await this.getUserByUserName(friendName);
+  async removeFriend(userName: string, friendName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const friend = await this.getUserByName(friendName);
 
     if (!user || !friend)
-      throw new Error("error: user or friend not found");
+      return false;
 
-    // delete friend from user.friends
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
@@ -128,7 +127,6 @@ export class UserService {
       },
     });
 
-    // delete friend from friend.frienOf
     await this.prisma.user.update({
       where: { userId: friend.userId },
       data: {
@@ -138,7 +136,6 @@ export class UserService {
       },
     });
 
-    // delete friend from user.friendOf
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
@@ -148,7 +145,6 @@ export class UserService {
       },
     });
 
-    //delete friend from friend.friends
     await this.prisma.user.update({
       where: { userId: friend.userId },
       data: {
@@ -157,11 +153,11 @@ export class UserService {
         },
       },
     });
-    return user;
+    return true;
   }
 /*-----------------------------------------------USERS-----------------------------------------------*/
   async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
-    const user = await this.getUserByUserName(data.userName);
+    const user = await this.getUserByName(data.userName);
     
     if (user != null)
       return await this.updateCookie(user.userId, data.cookie);
@@ -190,7 +186,7 @@ export class UserService {
     return user;
   }
 
-  async getUserByUserName(userName: string) {
+  async getUserByName(userName: string) {
     return await this.prisma.user.findFirst({
       where: { userName: userName },
     });
@@ -254,7 +250,7 @@ export class UserService {
     const imagePath = path.join(__dirname, '../../../front/src/assets/userImages', `${userName}.jpg`);
     fs.writeFileSync(imagePath, imageFile.buffer);
 
-    return await this.getUserByUserName(userName);
+    return await this.getUserByName(userName);
   }
 
 }

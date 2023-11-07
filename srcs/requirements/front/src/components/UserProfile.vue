@@ -5,43 +5,64 @@
   import { getAllChannels, getAllFriends, getUserByCookie } from "./api/get.call";
   import { addFriend, createChannel, setPassword, unsetPassword } from './api/post.call';
 
+  let adminImage = ref(null);
+  let currentUserName = ref(null);
+
+  let channelName = ref("");
   const friendName = ref("");
+  const userName = ref("");
+
   const modalChannel = ref(false);
   const modalManageChannel = ref(false);
-  const userName = ref("");
 
   let channels = ref([]);
   let friends = ref([]);
-
-  let adminImage = ref(null);
-  let channelName = ref("");
-  let currentUserName = ref(null);
-
   let user = ref(null);
 
-  let addFriendSuccess = false;
-  let removeFriendSuccess = false;
+  let addChannelSuccess = ref(false);
+  let addFriendSuccess = ref(false);
+  let removeChannelSuccess = ref(false);
+  let removeFriendSuccess = ref(false);
+
+  let addChannelFailed = ref(false);
+  let addFriendFailed = ref(false);
+  let removeChannelFailed = ref(false);
+  let removeFriendFailed = ref(false);
 
   let passwordCheckBox = false;
   let password = ref("");
 
   const addFriendFromDB = async (userName, friendName) => {
     const response = await addFriend(userName, friendName);
-    if (response.ok)
-      addFriendSuccess = true;
-    else
-      addFriendSuccess = false;
-    // friendName.value = "";
+
+    if (response && response.success) {
+      addFriendSuccess.value = true;
+      setTimeout(() => {
+        addFriendSuccess.value = false;
+      }, 3000);
+    } else {
+      addFriendFailed.value = true;
+      setTimeout(() => {
+        addFriendFailed.value = false;
+      }, 3000);
+    }
   };
 
   const createChannelInDB = async (channelName, userName, currentUserName) => {
     const response = await createChannel(channelName, userName, currentUserName);
     modalChannel.value = false;
-    // if (response.ok)
-    //   addFriendSuccess = true;
-    // else
-    //   addFriendSuccess = false;
-    // friendName.value = "";
+
+    if (response && response.success) {
+      addChannelSuccess.value = true;
+      setTimeout(() => {
+        addChannelSuccess.value = false;
+      }, 3000);
+    } else {
+      addChannelFailed.value = true;
+      setTimeout(() => {
+        addChannelFailed.value = false;
+      }, 3000);
+    }
   };
 
   const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
@@ -52,30 +73,39 @@
     modalManageChannel.value = false;
   };
 
-  const setPasswordInDB = async (password) => {
-    setPassword(password);
-  };
-
-  const unsetPasswordInDB = async (password) => {
-    unsetPassword(password);
-  };
+  const setPasswordInDB = async (password) => { setPassword(password); };
+  const unsetPasswordInDB = async (password) => { unsetPassword(password); };
 
   const removeFriendFromDB = async (userName, friendName) => {
     const response = await removeFriend(userName, friendName);
-    if (response.ok)
-      removeFriendSuccess = true;
-    else
-      removeFriendSuccess = false;
-    // friendName.value = "";
+    
+    if (response && response.success) {
+      removeFriendSuccess.value = true;
+      setTimeout(() => {
+        removeFriendSuccess.value = false;
+      }, 3000);
+    } else {
+      removeFriendFailed.value = true;
+      setTimeout(() => {
+        removeFriendFailed.value = false;
+      }, 3000);
+    }
   };
 
   const removeChannelFromDB = async (channelName) => {
     const response = await removeChannel(channelName);
-    // if (response.ok)
-    //   removeFriendSuccess = true;
-    // else
-    //   removeFriendSuccess = false;
-    // channelName.value = "";
+    
+    if (response && response.success) {
+      removeChannelSuccess.value = true;
+      setTimeout(() => {
+        removeChannelSuccess.value = false;
+      }, 3000);
+    } else {
+      removeChannelFailed.value = true;
+      setTimeout(() => {
+        removeChannelFailed.value = false;
+      }, 3000);
+    }
   };
 
   const openChannelModal = (userName) => {
@@ -83,9 +113,7 @@
     currentUserName = userName;
   };
 
-  const openManageChannelModal = () => {
-    modalManageChannel.value = true;
-  };
+  const openManageChannelModal = () => { modalManageChannel.value = true; };
 
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
@@ -149,17 +177,6 @@
 
   <div class="overflow-x-auto">
     <div class="grid-container">
-      <!-- <div v-if="addFriendSuccess" class="toast toast-start">
-        <div class="alert alert-success">
-          <span>Friend added successfully.</span>
-        </div>
-      </div> -->
-      <!-- Affiche le message en cas d'échec -->
-      <!-- <div v-else class="toast toast-start">
-        <div class="alert alert-error">
-          <span>Failed to add friend.</span>
-        </div>
-      </div> -->
       <div class="underStat">
         <form @submit.prevent="addFriendFromDB(userName, friendName)">
           <button class="btn btn-primary">Add Friend</button>
@@ -260,6 +277,55 @@
       <!--Ajouter un recommended channel et un recommendend friends-->
     </div>
   </div>
+  <!--Alerts-->
+  <div v-if="addFriendSuccess" class="toast toast-start">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span>Friend added successfully.</span>
+    </div>
+  </div>
+  <div v-if="addFriendFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to add friend.</span>
+    </div>
+  </div>
+
+  <div v-if="removeFriendSuccess" class="toast toast-start">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span>Friend deleted successfully.</span>
+    </div>
+  </div>
+  <div v-if="removeFriendFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to delete Friend</span>
+    </div>
+  </div>
+
+  <div v-if="addChannelSuccess" class="toast toast-start">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span>Channel created successfully.</span>
+    </div>
+  </div>
+  <div v-if="addChannelFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to create Channel</span>
+    </div>
+  </div>
+
+  <div v-if="removeChannelSuccess" class="toast toast-start">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span>Channel deleted successfully.</span>
+    </div>
+  </div>
+  <div v-if="removeChannelFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to delete Channel</span>
+    </div>
+  </div>
+
 </template>
 
 <style>

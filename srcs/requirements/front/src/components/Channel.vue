@@ -1,7 +1,7 @@
 <script setup>
 	import Cookies from "js-cookie";
-	import { removeFriendFromChannel } from './api/delete.call';
-	import { getAllMessagesFromChannel, getAllUsersFromChannel, getChannelByChannelName, getUserByCookie } from './api/get.call';
+	import { removeUserFromChannel } from './api/delete.call';
+	import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie } from './api/get.call';
 	import { banUserFromChannel, insertMessageToChannel} from './api/post.call';
 	import { computed, onMounted, ref } from 'vue'; 
 	import { useRoute } from 'vue-router';
@@ -15,6 +15,26 @@
 
 	const route = useRoute();
 
+	let kickSucess = ref(false);
+
+	let kickFailed = ref(false);
+
+	const removeUserFromChannelInDB = async (channelName, userName) => {
+		const response = await removeUserFromChannel(channelName, userName);
+    
+		if (response && response.success) {
+      kickSucess.value = true;
+      setTimeout(() => {
+        kickSucess.value = false;
+      }, 3000);
+    } else {
+      kickFailed.value = true;
+      setTimeout(() => {
+        kickFailed.value = false;
+      }, 3000);
+    }
+	};
+
 	const filteredUsers = computed(() => {
   	return users.value.filter(user => actualUser.value.userName !== user.userName);
 	});
@@ -22,7 +42,7 @@
 	const sendMessage = async () => {
 		if (message_text.value) {
 			await insertMessageToChannel(route.params.channelName, message_text.value, actualUser.value);
-			messages.value = await getAllMessagesFromChannel(route.params.channelName);
+			messages.value = await getMessagesFromChannel(route.params.channelName);
 			message_text.value = '';
 		}
 	};
@@ -33,7 +53,7 @@
 		if (!actualUser.value)
 			window.location.href = "/";
 
-		channel.value = await getChannelByChannelName(route.params.channelName);
+		channel.value = await getChannelByName(route.params.channelName);
 
 		if (actualUser.value.image) {
 			let userImagePath = "../assets/userImages/" + actualUser.value.image;
@@ -42,7 +62,7 @@
 			});
 		}
 
-		let usersData = await getAllUsersFromChannel(route.params.channelName);
+		let usersData = await getUsersFromChannel(route.params.channelName);
 		for (let user of usersData) {
 			let imagePath = "../assets/userImages/" + user.image;
 			await import(/* @vite-ignore */ imagePath).then((image) => {
@@ -50,7 +70,7 @@
 			});
 		}
 
-		messages.value = await getAllMessagesFromChannel(route.params.channelName);
+		messages.value = await getMessagesFromChannel(route.params.channelName);
 
 		for (let message of messages.value) {
 			if (message.sender) {
@@ -92,7 +112,7 @@
 							<td v-if="channel.channelAdmin == actualUser.userId">
 								<button class="btn btn-warning" @click="banUserFromChannel($route.params.channelName, user.userName)">Ban</button>
 								<!-- <button class="btn btn-warning" @click="muteFriendFromChannel($route.params.channelName, user.userName)">Mute</button> -->
-								<button class="btn btn-error" @click="removeFriendFromChannel($route.params.channelName, user.userName)">Kick</button>
+								<button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
 							</td>
 						</tr>
 					</tbody>
@@ -138,7 +158,19 @@
 				<button class="btn btn-primary" @click="sendMessage">Send</button>
 			</div>
 		</div>		
-	</div>		
+	</div>	
+  <!--Alerts-->
+	<div v-if="kickSucess" class="toast toast-start">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span>User has been kicked successfully</span>
+    </div>
+  </div>
+  <div v-if="kickFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to kick User</span>
+    </div>
+  </div>
 </template>
 
 <style scoped>
