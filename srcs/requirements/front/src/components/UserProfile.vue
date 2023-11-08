@@ -144,7 +144,6 @@
 </script>
 
 <template>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
   <!--Stats-->
   <div class="stats shadow">
     <!--Username-->
@@ -199,7 +198,7 @@
               <td>
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
-                    <div class="w-24 mask mask-squircle">
+                    <div class="w-20 mask mask-squircle">
                       <img :src="user.imageSrc" />
                     </div>
                   </div>
@@ -249,7 +248,7 @@
               <td>
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
-                    <div class="w-24 mask mask-squircle">
+                    <div class="w-20 mask mask-squircle">
                       <img :src="adminImage" />
                     </div>
                   </div>
@@ -339,6 +338,9 @@
 </template>
 
 <style>
+.stats{
+  border-radius: unset;
+}
   body{
     min-height: 82.2vh;
   }

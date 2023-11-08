@@ -1,7 +1,6 @@
 <script setup></script>
 
 <template>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
     <body>
         <div class="box">
             <span style="--i:1;"><img src="./images/fsanna.jpg" alt=""></span>

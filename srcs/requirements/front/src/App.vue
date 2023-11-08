@@ -3,6 +3,7 @@ import Header from "@/components/Header.vue";
 import Cookies from "js-cookie";
 import { onMounted, ref } from "vue";
 import { getUserByCookie } from "./components/api/get.call";
+import "./assets/main.css"
 
 let user = ref(null);
 

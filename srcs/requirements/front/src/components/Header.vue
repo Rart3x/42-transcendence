@@ -61,11 +61,7 @@
 </script>
 
 <template>
-  <link
-    href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css"
-    rel="stylesheet"
-    type="text/css"
-  />
+
   <div class="navbar bg-base-100">
     <div class="navbar-start">
       <div class="dropdown" @click="picToggleDropdown">
@@ -101,7 +97,7 @@
       <div class="dropdown dropdown-end">
         <label tabindex="0" class="btn btn-ghost btn-circle" @click="toggleDropdown">
           <div class="avatar">
-            <div class="w-24 mask mask-squircle">
+            <div class="w- mask mask-squircle">
               <img :src="imageSrc" />
             </div>
           </div>
@@ -126,13 +122,4 @@
 </template>
 
 <style scoped>
-.navbar-end {
-  width: 50%;
-  justify-content: flex-end;
-}
-
-.dropdown-content {
-  z-index: 1;
-}
-
 </style>
