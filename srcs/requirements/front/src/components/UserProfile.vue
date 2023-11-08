@@ -46,6 +46,7 @@
         addFriendFailed.value = false;
       }, 3000);
     }
+    friends.value = await getAllFriends(userName);
   };
 
   const createChannelInDB = async (channelName, userName, currentUserName) => {
@@ -63,6 +64,7 @@
         addChannelFailed.value = false;
       }, 3000);
     }
+    channels.value = await getAllChannels(userName);
   };
 
   const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
@@ -90,6 +92,7 @@
         removeFriendFailed.value = false;
       }, 3000);
     }
+    friends.value = await getAllFriends(userName);
   };
 
   const removeChannelFromDB = async (channelName) => {
@@ -106,6 +109,7 @@
         removeChannelFailed.value = false;
       }, 3000);
     }
+    channels.value = await getAllChannels(userName);
   };
 
   const openChannelModal = (userName) => {

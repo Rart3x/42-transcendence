@@ -1,108 +1,110 @@
 <script setup>
-import Cookies from "js-cookie";
-import { removeUserFromChannel } from "./api/delete.call";
-import {
-  getMessagesFromChannel,
-  getUsersFromChannel,
-  getChannelByName,
-  getUserByCookie,
-} from "./api/get.call";
-import { banUserFromChannel, insertMessageToChannel } from "./api/post.call";
-import { computed, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
-import { nextTick } from "vue";
+  import Cookies from "js-cookie";
+  import { removeUserFromChannel } from "./api/delete.call";
+  import {
+    getMessagesFromChannel,
+    getUsersFromChannel,
+    getChannelByName,
+    getUserByCookie,
+  } from "./api/get.call";
 
-let actualUser = ref(null);
-let channel = ref(null);
-let messages = ref([]);
-let users = ref([]);
+  import { banUserFromChannel, insertMessageToChannel } from "./api/post.call";
+  import { computed, onMounted, ref } from "vue";
+  import { useRoute } from "vue-router";
+  import { nextTick } from "vue";
 
-let message_text = ref("");
+  let actualUser = ref(null);
+  let channel = ref(null);
+  let messages = ref([]);
+  let users = ref([]);
 
-const route = useRoute();
+  let message_text = ref("");
 
-let kickSucess = ref(false);
+  const route = useRoute();
 
-let kickFailed = ref(false);
+  let kickSucess = ref(false);
 
-const removeUserFromChannelInDB = async (channelName, userName) => {
-  const response = await removeUserFromChannel(channelName, userName);
+  let kickFailed = ref(false);
 
-  if (response && response.success) {
-    kickSucess.value = true;
-    setTimeout(() => {
-      kickSucess.value = false;
-    }, 3000);
-  } else {
-    kickFailed.value = true;
-    setTimeout(() => {
-      kickFailed.value = false;
-    }, 3000);
-  }
-};
+  const removeUserFromChannelInDB = async (channelName, userName) => {
+    const response = await removeUserFromChannel(channelName, userName);
 
-const filteredUsers = computed(() => {
-  return users.value.filter(
-    (user) => actualUser.value.userName !== user.userName
-  );
-});
+    if (response && response.success) {
+      kickSucess.value = true;
+      setTimeout(() => {
+        kickSucess.value = false;
+      }, 3000);
+    } else {
+      kickFailed.value = true;
+      setTimeout(() => {
+        kickFailed.value = false;
+      }, 3000);
+    }
+    users.value = await getUsersFromChannel(route.params.channelName);
+  };
 
-const sendMessage = async () => {
-  if (message_text.value) {
-    await insertMessageToChannel(
-      route.params.channelName,
-      message_text.value,
-      actualUser.value
+  const filteredUsers = computed(() => {
+    return users.value.filter(
+      (user) => actualUser.value.userName !== user.userName
     );
-    messages.value = await getMessagesFromChannel(route.params.channelName);
-    await nextTick();
-    scrollToBottom();
-    message_text.value = "";
-  }
-};
+  });
 
-const scrollToBottom = () => {
-  const container = document.querySelector(".chat-messages");
-  if (container) {
-    container.scrollTop = container.scrollHeight;
-  }
-};
+  const sendMessage = async () => {
+    if (message_text.value) {
+      await insertMessageToChannel(
+        route.params.channelName,
+        message_text.value,
+        actualUser.value
+      );
+      messages.value = await getMessagesFromChannel(route.params.channelName);
+      await nextTick();
+      scrollToBottom();
+      message_text.value = "";
+    }
+  };
 
-onMounted(async () => {
-  actualUser.value = await getUserByCookie(Cookies.get("_authToken"));
+  const scrollToBottom = () => {
+    const container = document.querySelector(".chat-messages");
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  };
 
-  if (!actualUser.value) window.location.href = "/";
+  onMounted(async () => {
+    actualUser.value = await getUserByCookie(Cookies.get("_authToken"));
 
-  channel.value = await getChannelByName(route.params.channelName);
+    if (!actualUser.value) window.location.href = "/";
 
-  if (actualUser.value.image) {
-    let userImagePath = "../assets/userImages/" + actualUser.value.image;
-    await import(/* @vite-ignore */ userImagePath).then((userImage) => {
-      actualUser.value.image = userImage.default;
-    });
-  }
+    channel.value = await getChannelByName(route.params.channelName);
 
-  let usersData = await getUsersFromChannel(route.params.channelName);
-  for (let user of usersData) {
-    let imagePath = "../assets/userImages/" + user.image;
-    await import(/* @vite-ignore */ imagePath).then((image) => {
-      user.imageSrc = image.default;
-    });
-  }
-
-  messages.value = await getMessagesFromChannel(route.params.channelName);
-
-  scrollToBottom();
-  for (let message of messages.value) {
-    if (message.sender) {
-      let imagePath = "../assets/userImages/" + message.sender.image;
-      await import(/* @vite-ignore */ imagePath).then((image) => {
-        message.sender.image = image.default;
+    if (actualUser.value.image) {
+      let userImagePath = "../assets/userImages/" + actualUser.value.image;
+      await import(/* @vite-ignore */ userImagePath).then((userImage) => {
+        actualUser.value.image = userImage.default;
       });
     }
-  }
-  users.value.splice(0, users.value.length, ...usersData);
-});
+
+    let usersData = await getUsersFromChannel(route.params.channelName);
+    for (let user of usersData) {
+      let imagePath = "../assets/userImages/" + user.image;
+      await import(/* @vite-ignore */ imagePath).then((image) => {
+        user.imageSrc = image.default;
+      });
+    }
+
+    messages.value = await getMessagesFromChannel(route.params.channelName);
+
+    scrollToBottom();
+    for (let message of messages.value) {
+      if (message.sender) {
+        let imagePath = "../assets/userImages/" + message.sender.image;
+        await import(/* @vite-ignore */ imagePath).then((image) => {
+          message.sender.image = image.default;
+        });
+      }
+    }
+    users.value.splice(0, users.value.length, ...usersData);
+  });
 </script>
 
 <template>
