@@ -1,5 +1,4 @@
-<script setup lang="ts">
-import GameConfig from "@/components/GameConfig.vue";
+<script setup>
 </script>
 
 <template>
@@ -9,10 +8,9 @@ import GameConfig from "@/components/GameConfig.vue";
     type="text/css"
   />
   <body>
-    <div id="game">
-      <GameConfig />
-    </div>
   </body>
 </template>
 
-<style scoped></style>
+<style scoped>
+
+</style>

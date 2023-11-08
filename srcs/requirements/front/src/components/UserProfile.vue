@@ -83,7 +83,7 @@
     
     if (response && response.success) {
       removeFriendSuccess.value = true;
-      setTimeout(() => {  
+      setTimeout(() => {
         removeFriendSuccess.value = false;
       }, 3000);
     } else {
@@ -178,7 +178,7 @@
       <div class="stat-value">0%</div>
     </div>
   </div>
-
+ <body>
   <div class="overflow-x-auto">
     <div class="grid-container">
       <div class="underStat">
@@ -227,9 +227,6 @@
                     </form>
                   </div>
                 </dialog>
-              </td>
-              <td>
-                <button class="btn" @click="sendMessage">Send Message</button>
               </td>
             </tr>
           </tbody>
@@ -332,10 +329,15 @@
       <span>Failed to delete Channel</span>
     </div>
   </div>
-
+  </body>
 </template>
 
 <style>
+
+  body{
+    min-height: 82.2vh;
+  }
+
   .requestTable {
     max-height: 34vh;
     overflow-x: auto;

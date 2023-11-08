@@ -43,6 +43,11 @@ const router = createRouter({
       name: "sign-in",
       component: () => import("@/components/SignIn.vue"),
     },
+    {
+      path: "/history",
+      name: "history",
+      component: () => import("@/components/History.vue"),
+    },
   ],
 });
 

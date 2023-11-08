@@ -68,9 +68,6 @@
   />
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <router-link to="/" class="btn btn-ghost normal-case text-xl">
-        PMT
-      </router-link>
       <div class="dropdown" @click="picToggleDropdown">
         <label tabindex="0" class="btn btn-ghost btn-circle">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,6 +109,9 @@
         <ul v-if="dropdownOpen" tabindex="1" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
           <li>
             <router-link to="/profile"> Profile </router-link>
+          </li>
+          <li>
+            <router-link to="/history"> History </router-link>
           </li>
           <li>
               <router-link to="/settings"> Settings </router-link>
