@@ -65,9 +65,8 @@
 
   const scrollToBottom = () => {
     const container = document.querySelector(".chat-messages");
-    if (container) {
+    if (container)
       container.scrollTop = container.scrollHeight;
-    }
   };
 
   onMounted(async () => {
@@ -109,9 +108,7 @@
 
 <template>
   <div class="navbar bg-base-100">
-    <button class="btn btn-ghost normal-case text-xl">
-      {{ $route.params.channelName }}
-    </button>
+    <button class="btn btn-ghost normal-case text-xl">{{ $route.params.channelName }}</button>
   </div>
   <div class="grid-container">
     <div class="overflow-x-auto">
@@ -135,7 +132,7 @@
               </td>
               <td v-if="channel.channelAdmin == actualUser.userId">
                 <button class="btn btn-warning" @click="banUserFromChannel($route.params.channelName, user.userName)">Ban</button>
-                <!-- <button class="btn btn-warning" @click="muteFriendFromChannel($route.params.channelName, user.userName)">Mute</button> -->
+                <button class="btn btn-warning" >Mute</button> <!--@click="muteFriendFromChannel($route.params.channelName, user.userName)-->
                 <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName,user.userName)">Kick</button> 
               </td>
             </tr>
@@ -150,7 +147,6 @@
         <div v-for="(message, index) in messages" :key="index" class="message">
           <div class="message-row">
             <div v-if="message.userId !== actualUser.userId">
-              <!-- <p>{{ message.sender.userName }}</p> -->
               <div class="chat chat-start">
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">

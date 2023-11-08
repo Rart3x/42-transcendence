@@ -14,6 +14,7 @@
 
   const modalChannel = ref(false);
   const modalManageChannel = ref(false);
+  const modalMessage = ref(false);
 
   let channels = ref([]);
   let friends = ref([]);
@@ -118,6 +119,7 @@
   };
 
   const openManageChannelModal = () => { modalManageChannel.value = true; };
+  const openMessageModal = () => { modalMessage.value = true; };
 
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
@@ -209,12 +211,7 @@
                 </router-link>
               </td>
               <td>
-                <!-- <div v-if="user.isChecked" class="profile"> -->
-                  <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Friend</button>
-                <!-- </div>
-                <div v-else class="profile">
-                  <button class="btn" @click="sendMessageFromFront">Visit Profile</button>
-                </div> -->
+                <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Friend</button>
               </td>
               <td> <button class="btn">Invite in a Game</button> </td>
               <td>
@@ -224,6 +221,16 @@
                     <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannelInDB(channelName, userName, currentUserName)">
                       <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
                       <button class="btn">Send Invitation</button>
+                    </form>
+                  </div>
+                </dialog>
+              </td>
+              <td>
+                <button class="btn" @click="openMessageModal(user.userName)">Send Message</button>
+                <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalMessage">
+                  <div class="modal-box w-11/12 max-w-5xl">
+                    <form class ="dialogModalMessage" method="dialog" @submit.prevent="createMessageInDB(MessageName, userName, currentUserName)">
+                      <button class="btn">BITE</button>
                     </form>
                   </div>
                 </dialog>
@@ -278,7 +285,6 @@
           </tbody>
         </table>
       </div>
-      <!--Ajouter un recommended channel et un recommendend friends-->
     </div>
   </div>
   <!--Alerts-->
@@ -333,7 +339,6 @@
 </template>
 
 <style>
-
   body{
     min-height: 82.2vh;
   }
