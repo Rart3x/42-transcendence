@@ -134,26 +134,9 @@
                 </router-link>
               </td>
               <td v-if="channel.channelAdmin == actualUser.userId">
-                <button
-                  class="btn btn-warning"
-                  @click="
-                    banUserFromChannel($route.params.channelName, user.userName)
-                  "
-                >
-                  Ban
-                </button>
+                <button class="btn btn-warning" @click="banUserFromChannel($route.params.channelName, user.userName)">Ban</button>
                 <!-- <button class="btn btn-warning" @click="muteFriendFromChannel($route.params.channelName, user.userName)">Mute</button> -->
-                <button
-                  class="btn btn-error"
-                  @click="
-                    removeUserFromChannelInDB(
-                      $route.params.channelName,
-                      user.userName
-                    )
-                  "
-                >
-                  Kick
-                </button>
+                <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName,user.userName)">Kick</button> 
               </td>
             </tr>
           </tbody>
@@ -176,7 +159,7 @@
                     </div>
                   </div>
                 </label>
-                <div class="chat-bubble">{{ message.message_text }}</div>
+                <div class="chat-bubble" v-if="messages.message_text">{{ message.message_text }}</div>
               </div>
             </div>
             <div v-if="message.userId === actualUser.userId">
@@ -195,14 +178,7 @@
         </div>
       </div>
       <div class="chat-input">
-        <input
-          type="text"
-          class="input input-bordered w-full max-w-xs"
-          id="message_text"
-          @keyup.enter="sendMessage(message_text)"
-          placeholder="Send Message"
-          v-model="message_text"
-        />
+        <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
         <button class="btn btn-primary" @click="sendMessage">Send</button>
       </div>
     </div>
@@ -210,18 +186,8 @@
   <!--Alerts-->
   <div v-if="kickSucess" class="toast toast-start">
     <div class="alert alert-success">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="stroke-current shrink-0 h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>User has been kicked successfully</span>
     </div>

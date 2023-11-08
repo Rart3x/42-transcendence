@@ -1,9 +1,9 @@
 <script setup>
-  import { RouterLink, RouterView } from "vue-router";
-  import { onMounted, ref, unref } from "vue";
   import Cookies from "js-cookie";
-  import { getUserByCookie, getAllUsers } from "./api/get.call.ts";
   import { computed } from "vue";
+  import { onMounted, ref, unref } from "vue";
+  import { RouterLink, RouterView } from "vue-router";
+  import { getUserByCookie, getAllUsers } from "./api/get.call.ts";
 
   const userName = ref("");
   let user = ref(null);
@@ -12,19 +12,18 @@
   let searchInput = ref("");
 
   const filteredUsers = computed(() => {
-    if (!users.value) {
+    if (!users.value)
       return [];
-    }
     try {
       const searchInputValue = unref(searchInput);
-      if (!searchInputValue || !users.value) {
+      if (!searchInputValue || !users.value)
         return [];
-      }
       return users.value.filter(user =>
         user.userName && user.userName.includes(searchInputValue) ||
         user.displayName && user.displayName.includes(searchInputValue)
       );
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Error filtering users:", error);
       return [];
     }
@@ -74,19 +73,8 @@
       </router-link>
       <div class="dropdown" @click="picToggleDropdown">
         <label tabindex="0" class="btn btn-ghost btn-circle">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h7"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
           </svg>
         </label>
         <ul v-if="picDropdownOpen" tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">

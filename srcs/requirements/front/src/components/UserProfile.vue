@@ -83,7 +83,7 @@
     
     if (response && response.success) {
       removeFriendSuccess.value = true;
-      setTimeout(() => {
+      setTimeout(() => {  
         removeFriendSuccess.value = false;
       }, 3000);
     } else {
@@ -227,6 +227,9 @@
                     </form>
                   </div>
                 </dialog>
+              </td>
+              <td>
+                <button class="btn" @click="sendMessage">Send Message</button>
               </td>
             </tr>
           </tbody>
