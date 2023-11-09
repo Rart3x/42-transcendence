@@ -1,14 +1,8 @@
 <script setup>
   import Cookies from "js-cookie";
   import { removeUserFromChannel } from "./api/delete.call";
-  import {
-    getMessagesFromChannel,
-    getUsersFromChannel,
-    getChannelByName,
-    getUserByCookie,
-  } from "./api/get.call";
-
-  import { banUserFromChannel, insertMessageToChannel } from "./api/post.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie, isUserBanInChannel, isUserMuteInChannel } from "./api/get.call";
+  import { banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
   import { computed, onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
   import { nextTick } from "vue";
@@ -22,17 +16,60 @@
 
   const route = useRoute();
 
-  let kickSucess = ref(false);
+  let banSuccess = ref(false);
+  let kickSuccess = ref(false);
+  let muteSuccess = ref(false);
 
+  let banFailed = ref(false);
   let kickFailed = ref(false);
+  let muteFailed = ref(false);
+
+  const banUserFromChannelInDB = async (channelName, userName) => {
+    const response = await banUserFromChannel(channelName, userName);
+
+    if (response && response.success) {
+      banSuccess.value = true;
+      setTimeout(() => {
+        banSuccess.value = false;
+      }, 3000);
+    } else {
+      banFailed.value = true;
+      setTimeout(() => {
+        banFailed.value = false;
+      }, 3000);
+    }
+    users.value = await getUsersFromChannel(route.params.channelName);
+  };
+
+  const isUserMuteInChannelInDB = async () => {
+    const response = await isUserMuteInChannel(route.params.channelName, actualUser.value.userName);
+    return response.success;
+  };
+
+  const muteUserFromChannelInDB = async (channelName, userName) => {
+    const response = await muteUserFromChannel(channelName, userName);
+
+    if (response && response.success) {
+      muteSuccess.value = true;
+      setTimeout(() => {
+        muteSuccess.value = false;
+      }, 3000);
+    } else {
+      muteFailed.value = true;
+      setTimeout(() => {
+        muteFailed.value = false;
+      }, 3000);
+    }
+    users.value = await getUsersFromChannel(route.params.channelName);
+  };
 
   const removeUserFromChannelInDB = async (channelName, userName) => {
     const response = await removeUserFromChannel(channelName, userName);
 
     if (response && response.success) {
-      kickSucess.value = true;
+      kickSuccess.value = true;
       setTimeout(() => {
-        kickSucess.value = false;
+        kickSuccess.value = false;
       }, 3000);
     } else {
       kickFailed.value = true;
@@ -131,8 +168,8 @@
                 </router-link>
               </td>
               <td v-if="channel.channelAdmin == actualUser.userId">
-                <button class="btn btn-warning" @click="banUserFromChannel($route.params.channelName, user.userName)">Ban</button>
-                <button class="btn btn-warning" >Mute</button> <!--@click="muteFriendFromChannel($route.params.channelName, user.userName)-->
+                <button class="btn btn-warning" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
+                <button class="btn btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
                 <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName,user.userName)">Kick</button> 
               </td>
             </tr>
@@ -173,14 +210,17 @@
           </div>
         </div>
       </div>
-      <div class="chat-input">
+      <div class="chat-input" v-if="!isUserMuteInChannelInDB()">
         <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
         <button class="btn btn-primary" @click="sendMessage">Send</button>
+      </div>
+      <div class="chat-input" v-else>
+        <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="You are muted" v-model="message_text" disabled/>
       </div>
     </div>
   </div>
   <!--Alerts-->
-  <div v-if="kickSucess" class="toast toast-start">
+  <div v-if="kickSuccess" class="toast toast-start">
     <div class="alert alert-success">
       <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -191,6 +231,34 @@
   <div v-if="kickFailed" class="toast toast-start">
     <div class="alert alert-error">
       <span>Failed to kick User</span>
+    </div>
+  </div>
+
+  <div v-if="muteSuccess" class="toast toast-start">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>User has been muted successfully</span>
+    </div>
+  </div>
+  <div v-if="muteFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to mute User</span>
+    </div>
+  </div>
+
+  <div v-if="banSuccess" class="toast toast-start">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>User has been banned successfully</span>
+    </div>
+  </div>
+  <div v-if="banFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to ban User</span>
     </div>
   </div>
 </template>
@@ -209,7 +277,6 @@
 .chat-messages::-webkit-scrollbar-track {
   background: #ddd;
 }
-
 .friend-list {
   max-height: 55vh;
   overflow-x: auto;
@@ -223,7 +290,6 @@
 .friend-list::-webkit-scrollbar-track {
   background: #ddd;
 }
-
 .dark-row:hover {
   background-color: #364e6e;
 }

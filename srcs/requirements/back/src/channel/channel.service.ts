@@ -8,12 +8,12 @@ import { UserService } from '../user/user.service';
 export class ChannelService {
   constructor (private prisma: PrismaService, private messageService: MessageService, private userService: UserService) {}
   
-  async banUserFromChannel(channelName: string, userName: string): Promise<User> {
+  async banUserFromChannel(channelName: string, userName: string): Promise<boolean> {
     const channel = await this.getChannelByName(channelName);
     const user = await this.userService.getUserByName(userName);
   
     if (!channel || !user)
-      console.error("error: channel or user not found");
+      return false;
   
     await this.prisma.channel.update({
       where: { channelId: channel.channelId },
@@ -35,7 +35,7 @@ export class ChannelService {
         },
       },
     });
-    return user;
+    return true;
   }
 
   async createChannel(channelName: string, userName: string, invitedUserName: string): Promise<boolean> {
@@ -124,7 +124,6 @@ export class ChannelService {
     });
     
     if (!messages) {
-      console.error("error: channel not found");
       return [];
     }
     return messages.channelMessages;
@@ -161,6 +160,46 @@ export class ChannelService {
     return true;
   }
 
+  async isUserBanInChannel(channelName: string, userName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const user = await this.userService.getUserByName(userName);
+
+    if (!channel || !user)
+      return false;
+
+    const channelUsers = await this.prisma.channel.findFirst({
+      where: { channelId: channel.channelId },
+      select: {
+        channelUsersBan: {
+          where: { userId: user.userId }
+        }
+      },
+    });
+    if (channelUsers && channelUsers.channelUsersBan.length > 0)
+      return true;
+    return false;
+  }
+
+  async isUserMuteInChannel(channelName: string, userName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const user = await this.userService.getUserByName(userName);
+
+    if (!channel || !user)
+      return false;
+
+    const channelUsers = await this.prisma.channel.findFirst({
+      where: { channelId: channel.channelId },
+      select: {
+        channelUsersMute: {
+          where: { userId: user.userId }
+        }
+      },
+    });
+    if (channelUsers && channelUsers.channelUsersMute.length > 0)
+      return true;
+    return false;
+  }
+
   async isUserMemberOfChannel(channel: Channel, user: User): Promise<Boolean> {
     const channelUsers = await this.prisma.channel.findFirst({
       where: { channelId: channel.channelId },
@@ -175,6 +214,33 @@ export class ChannelService {
     return false;
   }
 
+  async muteUserFromChannel(channelName: string, userName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const user = await this.userService.getUserByName(userName);
+  
+    if (!channel || !user)
+      return false;
+  
+    await this.prisma.channel.update({
+      where: { channelId: channel.channelId },
+      data: {
+        channelUsersMute: {
+          connect: { userId: user.userId },
+        },
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        channelsMute: {
+          connect: { channelId: channel.channelId },
+        },
+      },
+    });
+    return true;
+  }
+
   async removeUserFromChannel(channelName: string, friendName: string): Promise<boolean> {
     const channel = await this.getChannelByName(channelName);
     const friend = await this.userService.getUserByName(friendName);
@@ -186,6 +252,9 @@ export class ChannelService {
       where: { channelId: channel.channelId },
       data: {
         channelUsers: {
+          disconnect: { userId: friend.userId },
+        },
+        channelUsersMute: {
           disconnect: { userId: friend.userId },
         },
       },

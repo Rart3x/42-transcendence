@@ -18,7 +18,6 @@ export class UserController {
     const user = await this.userService.getUserByName(userName);
     
     if (!user) {
-      console.warn("error: user not found");
       return null;
     }
     return this.userService.getAllChannels(user.userName);

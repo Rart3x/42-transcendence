@@ -143,17 +143,13 @@ export async function banUserFromChannel(channelName : string, userName : string
       },
       body: JSON.stringify({ channelName: channelName, userName: userName }),
     });
-
     if (response.ok) {
       const responseData = await response.json();
+      return responseData;
     }
-    else {
-      const errorText = await response.text();
-      console.error('error: sending POST request: ', errorText);
-    }
-  } 
+  }
   catch (error) {
-    console.error('error: sending POST request: ', error);
+    console.error('error: sending POST request', error);
   }
 }
 
@@ -176,6 +172,25 @@ export async function insertUser(userName: string, image: string, cookie: string
     }
   } catch (error) {
     console.error('error: sending POST request: ', error);
+  }
+}
+
+export async function muteUserFromChannel(channelName : string, userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/mute/${userName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ channelName: channelName, userName: userName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
   }
 }
 

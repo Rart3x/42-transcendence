@@ -9,8 +9,16 @@ export class ChannelController {
   constructor(private readonly channelService: ChannelService, private readonly prisma: PrismaService, private readonly userService: UserService) {}
 
   @Post(':channelName/ban/:userName')
-  async banUserFromChannel(@Body('channelName') channelName: string, @Body('userName') userName: string): Promise<User> {
-    return await this.channelService.banUserFromChannel(channelName, userName);
+  async banUserFromChannel(@Body('channelName') channelName: string, @Body('userName') userName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.banUserFromChannel(channelName, userName);
+    return { success: result };
+
+  }
+
+  @Post(':channelName/mute/:userName')
+  async muteUserFromChannel(@Body('channelName') channelName: string, @Body('userName') userName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.muteUserFromChannel(channelName, userName);
+    return { success: result };
   }
 
   @Get(':channelName/messages')
@@ -41,6 +49,18 @@ export class ChannelController {
     catch (error) {
       return null;
     }    
+  }
+
+  @Get(':channelName/isBan/:userName')
+  async isUserBanInChannel(@Param('channelName') channelName: string, @Param('userName') userName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.isUserBanInChannel(channelName, userName);
+    return { success: result };
+  }
+
+  @Get(':channelName/isMute/:userName')
+  async isUserMuteInChannel(@Param('channelName') channelName: string, @Param('userName') userName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.isUserMuteInChannel(channelName, userName);
+    return { success: result };
   }
 
   @Post(':channelName')
