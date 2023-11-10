@@ -17,6 +17,9 @@ export default {
           autoCenter: Phaser.Scale.CENTER_BOTH,
           mode: Phaser.Scale.FIT,
         },
+        dom :{
+          createContainer: true
+        },
         width: 1000,
         height: 800,
         physics: {
@@ -25,7 +28,7 @@ export default {
         },
         scene: GameScene
       },
-      initialize: true
+      initialize: true,
     }
   },
   methods: {

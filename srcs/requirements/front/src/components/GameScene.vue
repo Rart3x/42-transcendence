@@ -1,35 +1,52 @@
 <script lang="ts">
 
+//IMPORTS
 import '@geckos.io/snapshot-interpolation';
+
 import { io } from 'socket.io-client';
+
+//Game library
 import Phaser from 'phaser';
-import rectWrapper from '../elements/rectWrapper';
+
 import * as Matter from 'matter-js';
-import Player from '../elements/player';
+
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-import { insertIntoQueueList, setClientSocket, updateUsername } from './api/post.call';
-import { getClientFromQueueList } from './api/get.call';
+
+import { getUserByCookie, getUserByUsername } from './api/get.call';
+
 import Cookies from "js-cookie";
 
+import Entities from '../entities/entities';
+
+import GameRoom from "../gameRoom/gameRoom";
+
+import Player from "../player/player";
+
+//UTILS
+function Between(min : number, max : number){
+	return (Math.random() * (max - min) + min)
+}
+
+//Create and bind our socke to the server
 const socket = io('http://localhost:3000');
 
-
-
+//Initialize snapshot library
 const SI = new SnapshotInterpolation();
 
+//GAME CLASS
 export default class Game extends Phaser.Scene {
-	mainPlayer !: Player;
-	secondPlayer !: Player;
-	ball : Matter.Image;
-	scoreMainPlayer : number = 0;
-	scoreSecondPlayer : number = 0;
-	scoreMainPlayerDisplayed !: Phaser.GameObjects.BitmapText;
-	scoreSecondPlayerDisplayed !: Phaser.GameObjects.BitmapText;
-	bounce !: Phaser.Sound.BaseSound;
+
 	startButton !: Phaser.GameObjects.BitmapText;
-	gameRunning : boolean = false;
-	multiGameMode : boolean = false;
-	botGameMode : boolean = false;
+	gameRoom : GameRoom;
+	player: Player;
+	ball : any;
+	walls : any[] = [];
+	paused: Boolean = false;
+	UIElement : Phaser.GameObjects.DOMElement;
+
+	constructor(){
+		super("game");
+	}
 
 	preload(){
 		this.load.setPath('src/assets');
@@ -37,319 +54,379 @@ export default class Game extends Phaser.Scene {
 		this.load.image('ball','ball-pink.png');
 		//Font
 		this.load.bitmapFont('atari', 'atari-smooth.png', 'atari-smooth.xml');
-		//Ball bouncing sound
-		this.load.audio('bounce', 'SwitchClickOldDbx PE1090906.mp3');
 		//Particles sprite
 		this.load.image('red', 'red.png');
-		this.load.image('bg','modern-futuristic-sci-fi-background.jpg');
+		//html
+		this.load.html('loading', '../assets/loading.html');
+		this.load.image('userImage', 'userImages/dguillau.jpg');
+
 	}
 
-	chooseGameMode(){
-		let choiceButton1 : Phaser.GameObjects.BitmapText;
-		let choiceButton2 : Phaser.GameObjects.BitmapText;
+	async setupUI(){
+		const token = Cookies.get("_authToken");
+		const user = await getUserByCookie(token);
 
-		const graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
-
-		const fx0 = graphics.postFX.addGlow(0xdb2e94, 4, 0, false, 0.1, 8);
-		graphics.lineStyle(3, 0xff00ff, 1);
-
-		graphics.strokeRoundedRect(410, 385, 200, 70,12);
-		graphics.strokeRoundedRect(280, 285,480, 70,12);
-
-		choiceButton1 = this.add.bitmapText(300, 300, 'atari', '', 40)
-		choiceButton1.setText("MULTIPLAYER").setTint(0xdb2e94ff);
-		choiceButton1.setInteractive({ useHandCursor: true })
-
-		choiceButton1.on('pointerdown', () => {
-    console.log(socket.id);
-			this.multiGameMode = true;
-			this.botGameMode = false;
-			choiceButton1.destroy();
-			choiceButton2.destroy();
-			graphics.visible = false;
-			socket.emit('playerReady', { multiplayer : this.multiGameMode, bot : this.botGameMode });
-//      insertIntoQueueList(socket.id);
-//      getClientFromQueueList();
-    }, this)
-
-		choiceButton2 = this.add.bitmapText(450, 400, 'atari', '', 40)
-		choiceButton2.setText("BOT").setTint(0xdb2e94ff);
-		choiceButton2.setInteractive({ useHandCursor: true })
-
-		choiceButton2.on('pointerdown', async () => {
-      const userName = Cookies.get("userLogin");
-      setClientSocket(userName, socket.id)
-      //console.log(`client username is ${userName} and socket is ${socket.id}`);
-			this.multiGameMode = false;
-			this.botGameMode = true;
-			choiceButton1.destroy();
-			choiceButton2.destroy();
-			graphics.visible = false;
-			socket.emit('playerReady', { multiplayer : this.multiGameMode, bot : this.botGameMode });
-		}, this)
-
-		const fx1 = choiceButton1.postFX.addGlow(0xdb2e94ff, 0, 0, false, 0.1, 24);
-		const fx2 = choiceButton2.postFX.addGlow(0xdb2e94ff, 0, 0, false, 0.1, 24);
-
-		this.tweens.add({
-			targets: [fx0, fx1, fx2],
-			outerStrength: 1,
-			yoyo: true,
-			loop: -1,
-			ease: 'sine.inout'
-		})
-	}
-
-	setupUI(){
 		let startButtonCanvas : Phaser.GameObjects.Graphics;
 
-		const graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
+		//START BUTTON and hook
+		// const graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
+		// graphics.lineStyle(3, 0xff00ff, 1);
+		// startButtonCanvas = graphics.strokeRoundedRect(380, 385, 250, 70,12);
+		// this.startButton = this.add.bitmapText(400, 400, 'atari', '', 40);
+		// this.startButton.setText("START").setTint(0xdb2e94ff);
+		// this.startButton.setInteractive({ useHandCursor: true });
 
-		const fx0 = graphics.postFX.addGlow(0xdb2e94, 4, 0, false, 0.1, 8);
-		graphics.lineStyle(3, 0xff00ff, 1);
-
-		startButtonCanvas = graphics.strokeRoundedRect(380, 385, 250, 70,12);
-		this.startButton = this.add.bitmapText(400, 400, 'atari', '', 40)
-		this.startButton.setText("START").setTint(0xdb2e94ff);
-		this.startButton.setInteractive({ useHandCursor: true })
-		this.startButton.on('pointerdown', () => {
-			this.chooseGameMode();
-			this.startButton.destroy();
-			startButtonCanvas.destroy();
-		}, this)
-
-		const fx1 = this.startButton.postFX.addGlow(0xdb2e94ff, 0, 0, false, 0.1, 24);
-		this.tweens.add({
-			targets: fx1,
-			outerStrength: 1,
-			yoyo: true,
-			loop: -1,
-			ease: 'sine.inout'
-		});
+		// this.startButton.on('pointerdown', () => {
+		// 	this.startButton.destroy();
+		// 	startButtonCanvas.destroy();
+		// 	// socket.emit('playerReady', user.userId);
+		// }, this);
 	}
 
-	setupScore(){
-		this.scoreMainPlayerDisplayed = this.add.bitmapText(300, 120, 'atari', '', 35);
-		this.scoreSecondPlayerDisplayed = this.add.bitmapText(680, 120, 'atari', '', 35);
+	// createGameWorld(engine: Matter.Engine, world: Matter.World, entities: Entities){
+	// 	engine.gravity.x = 0;
+	// 	engine.gravity.y = 0;
+	// 	//???? je garde ou garde pasz
+	// 	this.matter.world.disableGravity();
+	// 	this.matter.world.setBounds();
+	// }
 
-		this.scoreMainPlayerDisplayed.setScale(3 / 4, 1);
-		this.scoreSecondPlayerDisplayed.setScale(3 / 4, 1);
-
-		this.scoreMainPlayerDisplayed.setText("0").setTint(0xdb2e94ff)
-		this.scoreSecondPlayerDisplayed.setText("0").setTint(0xdb2e94ff)
-
-		const fx1 = this.scoreMainPlayerDisplayed.postFX.addGlow(0xdb2e94ff, 0, 0, false, 0.1, 24);
-		const fx2 = this.scoreSecondPlayerDisplayed.postFX.addGlow(0xdb2e94ff, 0, 0, false, 0.1, 24);
-
-		this.tweens.add({
-			targets: [fx1, fx2],
-			outerStrength: 1,
-			yoyo: true,
-			loop: -1,
-			ease: 'sine.inout'
-		});
+	launchGame(){
+		// console.log("relaunch");
+		this.scene.resume('game');
 	}
 
 	create(){
-		this.setupUI();
+		var self = this;
 
-		socket.on('init',  (data) => {
-			if (this.ball){
-				this.ball.destroy();
-			}
-			this.bounce = this.sound.add('bounce');
-			this.startButton.destroy();
-			this.setupScore();
+		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-1 grid-cols-1 justify-items-center gap-y 8> \
+			<div class="..."><button id="inQueueButton" class="btn btn-primary ml-5 ...">Find game</button><div> \
+		</div> \
+		');
+		let inQueueButton = this.UIElement.node.querySelector('#inQueueButton') as HTMLElement;
+		inQueueButton.addEventListener('click', function() {
+			socket.emit('playerJoinQueue', socket.id);
+			self.UIElement.destroy();
+			self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
+			<div class="row-start-1 col-start-2 col-end-3 ..."> \
+				<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
+			</div> \
+			<div class="row-start-2 col-start-2 col-end-3 ..."> \
+				<span class=" loading loading-dots loading-lg"></span> \
+			</div> \
+			</div>');
+			// console.log("inside the queue");
+		});
 
-			//Middle line
-			const graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
-			const fx1 = graphics.postFX.addGlow(0xdb2e94, 4, 0, false, 0.1, 8);
+		socket.on('lobby', (data) => {
+			// this.setupUI();
+			// console.log(self.UIElement);
+			// this.UIElementHTMLElement().destroy();
+			// console.log("inside a lobby");
+			this.UIElement.destroy();
 
-			const point = new Phaser.Math.Vector2(500, 20);
-			for (let offset = 100; offset < 680; offset+=40)
-			{
-				point.y = offset;
-				const rect = new Phaser.Geom.Rectangle(point.x, point.y, 3, 20);
-				graphics.fillRectShape(rect);
-			}
-			this.matter.world.disableGravity();
-			this.matter.world.setBounds();
+			this.gameRoom =  new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
+
+
+			// console.log(self.UIElement);
+
+			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-5 grid-cols-3 justify-items-center gap-y-8 gap-x-32"> \
+			<div class="avatar row-start-2"> \
+				<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+				</div> \
+			</div> \
+			<div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
+			<div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
+				<div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+				</div> \
+			</div> \
+			<div class="row-start-3 ..."> \
+				<h1 class="text-4xl font-bold dark:text-white ...">dguillau</h1> \
+			</div> \
+			<div class="row-start-3 col-start-3 col-end-4 ..."> \
+				<h1 class="text-4xl font-bold dark:text-white">random</h1> \
+			</div> \
+			<div class="row-start-4 col-start-1 col-end-2"> \
+				<button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready  </button> \
+			</div> \
+			<div class="row-start-4 col-start-3 col-end-4"> \
+				<button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready  </button> \
+			</div> \
+			<div class="row-start-5 col-start-2 col-end-3 ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
+			</div>');
 			
-			const walls : rectWrapper[] = data.walls;
-			const players : rectWrapper[] = data.players;
-			const ball : any = data.ball;
-			const id : string = data.id;
-			const firstSlotOccupied : boolean = data.firstSlot;
+			// this.UIElement.setInteractive();
+			Phaser.DOM.AddToDOM(this.textures.get('userImage').getSourceImage() as HTMLElement, 'userProfile1');
+			let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
+			let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
+			let isReadyButtonPlayer2 = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
+
+			let userProfile1 = this.UIElement.node.querySelector("#userProfile1");
+			let userProfile2 = this.UIElement.node.querySelector("#userProfile2");
 			
-			//Creating the game objects based on the serialized data received from the server
-			//and adding them inside the physics simulation to have collisions.
-			// for (let i = 0; i < 4; i++){
-			//   this.matter.add.gameObject(
-			//     this.add.rectangle(walls[i].x, walls[i].y, walls[i].width, walls[i].height, 0xffffffff),
-			//     { isStatic: true, label: walls[i].label, render : { visible : false} });
+			var self = this;
+
+			// if (socket.id == this.gameRoom.player2SocketId){
+			// 	isReadyButtonPlayer1.innerText = 'Ready';
+			// 	isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
+			// 	if (userProfile1){
+			// 		userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+			// 	}
 			// }
-
-			for (let i = 0; i < 2; i++){
-				let playerObject = this.matter.add.gameObject(
-				this.add.rectangle(players[i].x, players[i].y, 5, 80, 0xdb2e94ff),
-				{ isStatic: true, label: players[i].label });
-				if (i == 0){
-					if (firstSlotOccupied == false){
-						this.mainPlayer = new Player(socket.id, playerObject);
-					}
-					else{
-						this.secondPlayer = new Player("", playerObject);
-					}
-					}
-					else{
-					if (this.mainPlayer == undefined){
-						this.mainPlayer = new Player(socket.id, playerObject);
-					}
-					else{
-						this.secondPlayer = new Player("", playerObject);
+			startButton.addEventListener('click', function() {
+				if (socket.id == self.gameRoom.player2SocketId){
+					console.log("player 2 is ready!")
+					isReadyButtonPlayer2.innerText = 'Ready';
+					isReadyButtonPlayer2.className = 'btn no-animation btn-active btn-accent';
+					if (userProfile2){
+						userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
 					}
 				}
-			}
-			const fx2 = this.mainPlayer.gameObject.postFX.addGlow(0xdb2e94, 4, 0, false, 0.1, 8);
-			const fx3 = this.secondPlayer.gameObject.postFX.addGlow(0xdb2e94, 4, 0, false, 0.1, 8);
-
-			const ballOptions = {
-				isStatic: false,
-				restitution: 1,
-				friction: 0,
-				frictionAir: 0,
-				frictionStatic: 0,
-				inertia: Infinity,
-				label: ball.name
-			}
-
-			this.ball = this.add.rectangle(ball.x, ball.y, 10, 10, 0xdb2e94ff);
-
-			// this.ball.setVelocity(5, 5);
-			this.ball = this.matter.add.gameObject(this.ball, ballOptions);
-			const fx4 = this.ball.postFX.addGlow(0xdb2e94, 4, 0, false, 0.1, 8);
-			// this.ball.setVelocity(5, 5);
-
-			this.tweens.add({
-				targets: [fx1, fx2, fx3],
-				outerStrength: 1,
-				yoyo: true,
-				loop: -1,
-				ease: 'sine.inout'
+				else{
+					console.log("player 1 is ready!");
+					isReadyButtonPlayer1.innerText = 'Ready';
+					isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
+					if (userProfile1){
+						userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+					}
+				}
+				socket.emit('playerReady', self.gameRoom.id);
+				// console.log('Start button clicked!');
 			});
 		});
 
-		socket.on('otherPlayerConnect', (data) => {
-			const id : string = data.id;
-			this.secondPlayer.id = id;
-			console.log("other player is connected");
-			let counter = 3;
-			// intervalId = setInterval
-			let countdown = this.add.bitmapText(500, 400, 'atari', '', 125);
+		var self = this;
 
-			let interval = setInterval(() => {
-				let temp = countdown.setText(counter.toString()).setTint(0xdb2e94ff);
-				if (counter == 0){
-					clearInterval(interval);
-					temp.destroy();
-				}
-				counter--;
-			}, 1000);
-			setTimeout(() => {
-				this.gameRunning = true;
-				this.ball.setVelocity(5, 5);
-			}, 5000);
+		socket.on('otherPlayerReady', () => {
+			let otherPlayerProfile : any;
+			let otherPlayerReadyButton : any;
+
+			if (socket.id == self.gameRoom.player1SocketId){
+				// console.log("other player 2 is ready!")
+				otherPlayerProfile = this.UIElement.node.querySelector("#userProfile2");
+				otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
+			}
+			else if (socket.id == self.gameRoom.player2SocketId){
+				// console.log("other player 1 is ready!")
+				otherPlayerProfile = this.UIElement.node.querySelector("#userProfile1");
+				otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
+			}
+			otherPlayerReadyButton.innerText = 'Ready';
+			otherPlayerReadyButton.className = 'btn no-animation btn-active btn-accent';
+			if (otherPlayerProfile){
+				otherPlayerProfile.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+			}
 		});
 
+		// let grid = this.add.dom(500, 400).createFromHTML('<div class="grid grid-cols-3 gap-4"> \
+		//   	<div class="...">01</div> \
+		// 	<div class="btn btn-primary ...">START</button></div> \
+		// 	<div class="btn btn-primary ...">START</button></div> \
+		// 	</div>'
+		// );
+
+		// console.log(this.textures);
+
+		// console.log(this.textures.get('userImage').getSourceImage());
+		
+
+		// this.UIElement.on('pointerdown', (event) => {
+		
+			// let button = this.UIElement.node.querySelector('#startButton') as HTMLElement;
+			// console.log(event.quer);
+			// if (event.target == button){
+			// 	button.innerText = 'Ready';
+			// 	button.className = 'btn btn-active btn-accent';
+			// }
+			// let newContent = document.createElement('div');
+			// newContent.innerText = 'You clicked me!';
+			// this.UIElement.setElement(newContent);
+		// });
+
+		
+		// button.addListener('click')
+		// button.on('click', function(event) {
+		// 	socket.emit('playerReady', socket.id);
+		// 	loadingAnim = this.add.dom(500, 400).createFromCache('loading');
+		// 	button.destroy();
+		// }, this);
+		
+
+		//Waiting for server response to isReady command
+		var self = this;
+		socket.on('init', () => {
+			// isReadyButtonPlayer2.innerText = 'Ready';
+			// isReadyButtonPlayer2.className = 'btn no-animation btn-active btn-accent';
+			// if (userProfile2){
+			// 	userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+			// }
+			// console.log("test init");
+			this.gameRoom.engine = Matter.Engine.create();
+
+			this.gameRoom.engine.gravity.x = 0;
+			this.gameRoom.engine.gravity.y = 0;
+
+			this.matter.world.disableGravity();
+			this.matter.world.setBounds();
+        	this.gameRoom.world = this.gameRoom.engine.world;
+
+
+			//???? je garde ou garde pasz
+
+			this.time.delayedCall(3000, self.spawnSceneProps, [], self);
+
+			// isReadyButtonPlayer1.innerText = 'Ready';
+			// isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
+			// if (userProfile1){
+			// 	userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+			// }
+			
+			// loadingAnim.destroy();
+			// this.startButton.destroy();
+			//Basic scene elements
+		});
+
+		//Mouse hook for movement
 		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
-			socket.emit('playerMovement', { x: pointer.x, y : pointer.y })
-			if (this.mainPlayer){
-				this.mainPlayer.gameObject.y = Phaser.Math.Clamp(pointer.y, 65, 735);
-				this.mainPlayer.gameObject.body.position.y = this.mainPlayer.gameObject.y;
+			if (this.gameRoom && this.gameRoom.entities){
+				if (this.gameRoom.player1SocketId == socket.id){
+					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 65, 735);
+					socket.emit('playerMovement', {
+						roomId: this.gameRoom.id,
+						socketId: socket.id,
+						x: this.gameRoom.entities.players[0].x,
+						y: this.gameRoom.entities.players[0].y
+					});
+					if (this.gameRoom.entities.players[0].gameObject){
+						this.gameRoom.entities.players[0].gameObject.y = this.gameRoom.entities.players[0].y;
+						this.gameRoom.entities.players[0].gameObject.body.position.y = this.gameRoom.entities.players[0].y;
+					}
+				}
+				else if (this.gameRoom.player2SocketId == socket.id){
+					this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 65, 735);
+					socket.emit('playerMovement', {
+						roomId: this.gameRoom.id,
+						socketId: socket.id,
+						x: this.gameRoom.entities.players[1].x,
+						y: this.gameRoom.entities.players[1].y
+					});
+					if (this.gameRoom.entities.players[1].gameObject){
+						this.gameRoom.entities.players[1].gameObject.y = this.gameRoom.entities.players[1].y;
+						this.gameRoom.entities.players[1].gameObject.body.position.y = this.gameRoom.entities.players[1].y;
+					}
+				}
 			}
 		}, this);
 
-		//Ball collision
-		this.matter.world.on('collisionstart', (event : Phaser.Physics.Matter.Events.CollisionStartEvent, bodyA : MatterJS.BodyType, bodyB : MatterJS.BodyType) => {
-			let bodies = [bodyA.label, bodyB.label];
-			if (bodies.includes('lower') || bodies.includes('upper') || bodies.includes('player1') || bodies.includes('player2')){
-				this.bounce.play();
+		socket.on('scorePoint', (data) => {
+			if (this.gameRoom && this.gameRoom.entities){
+				// setTimeout(() => {
+					//Reset ball to the middle
+				if (this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
+					// this.paused = true;
+					this.gameRoom.entities.ball.gameObject.x = 500;
+					this.gameRoom.entities.ball.gameObject.y = data.ball.y;
+					this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
+				}
+				// }, 100);
+				//Update score
+				if (this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
+					this.gameRoom.score.set(this.gameRoom.player1SocketId, data.score.player1);
+					this.gameRoom.score.set(this.gameRoom.player2SocketId, data.score.player2);
+				}
 			}
-			if (bodies.includes('ball') && (bodies.includes('player1') || bodies.includes('player2'))){
-				this.handleCollisionsPlayerBall(bodyA, bodyB);
-			}
-		}, this);
+		});
 
-		socket.on('playerMoved', (data) => {
-			if (this.mainPlayer && data.id != this.mainPlayer.id){
-				this.secondPlayer.gameObject.y = data.y
-				this.secondPlayer.gameObject.body.position.y = this.secondPlayer.gameObject.y;
+		socket.on('restartAfterScore', () => {
+			if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject){
+				console.log("test restartAfterScore")
+				this.gameRoom.entities.ball.gameObject.setVelocity(3, 3);
+				// this.paused = false;
 			}
+		});
+	
+		socket.on('gameFinish', () => {
+			this.destroy();
 		});
 
 		socket.on('snapshot', (data) => {
-			//read the snapshot
+			// if (this.paused == true)
+			// 	return ;
+			//Read the snapshot
 			SI.snapshot.add(data);
-		})
+		});
+	}
+
+	spawnSceneProps(){
+		// console.log(data);
+		// console.log(this.UIElement);
+		this.UIElement.destroy();
+
+        this.gameRoom.entities = new Entities(this, this.gameRoom.player1SocketId, this.gameRoom.player2SocketId);
+
+		// console.log("spawn scene props");
+		let countdown = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
+			<span id="countdown" style="--value:3;"></span> \
+		</span>');
+		let counter = 3;
+		const refreshID = setInterval(() => {
+			console.log(counter);
+			if(counter > 0){
+				counter--;
+			}
+			let countdownUI = countdown.node.querySelector('#countdown') as HTMLElement;
+			countdownUI.style.setProperty('--value', counter.toString());
+			if (counter == 0){
+				countdown.destroy();
+				clearInterval(refreshID);
+				if (this.gameRoom.entities){
+					this.gameRoom.entities.ball.gameObject.setVelocity(3, 3);
+				}
+			}
+			// console.log(countdownUI);
+		}, 1000);
+		// Phaser.DOM.RemoveFromDOM(Phaser.DOM.GetTarget(this.UIElement));
+		// console.log("scene loaded");
+		const graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
+		const point = new Phaser.Math.Vector2(500, 20);
+		for (let offset = 100; offset < 680; offset+=40)
+		{
+			point.y = offset;
+			const rect = new Phaser.Geom.Rectangle(point.x, point.y, 3, 20);
+			graphics.fillRectShape(rect);
+		}
+		// if (this.gameRoom.engine && this.gameRoom.world && this.gameRoom.entities){
+		// 	this.createGameWorld(this.gameRoom.engine, this.gameRoom.world, this.gameRoom.entities);
+		// }
+		//Assign player to each paddle
+		if (this.gameRoom.entities){
+			if (this.gameRoom.player1SocketId == socket.id){
+				this.player = new Player(this.gameRoom.entities.players[0].gameObject);
+			}
+			else{
+				this.player = new Player(this.gameRoom.entities.players[1].gameObject);
+			}
+		}
 	}
 
 	destroy(){
 		this.scene.remove();
 	}
 
-	handleCollisionsPlayerBall(bodyA : MatterJS.BodyType, bodyB : MatterJS.BodyType){
-		var player : Player;
-		if (bodyB.label == 'player1'){
-			if (this.mainPlayer.gameObject.label == "player1"){
-				player = this.mainPlayer;
-			}
-			else{
-				player = this.secondPlayer;
-			}
-		}
-		else{
-			if (this.mainPlayer.gameObject.label == "player2"){
-				player = this.mainPlayer;
-			}
-			else{
-				player = this.secondPlayer;
-			}
-		}
-		var intersectionDeltaY = 0;
-		if (this.ball.body.velocity.y > 0){
-			if (player.gameObject.y > this.ball.y){
-				intersectionDeltaY = player.gameObject.y - this.ball.y;
-				this.ball.setVelocityY(this.ball.body.velocity.y * -1);
-			}
-			else{
-				intersectionDeltaY = this.ball.y - player.gameObject.y;
-				this.ball.setVelocityY(this.ball.body.velocity.y );
-			}
-		}
-		else{
-			if (player.gameObject.y > this.ball.y){
-				intersectionDeltaY = player.gameObject.y - this.ball.y;
-				this.ball.setVelocityY(this.ball.body.velocity.y );
-			}
-			else{
-				intersectionDeltaY = this.ball.y - player.gameObject.y;
-				this.ball.setVelocityY(this.ball.body.velocity.y * -1);
-			}
-		}
-	}
-
 	update(){
 		//Client receive a snapshot which contains both the ball and the players position
 		//by doing so, every client we read the same game steps.
+
 		//Interpolate x y coordinates on ball object
-		const ballSnapshot = SI.calcInterpolation('x y', 'ball')
+		const ballSnapshot = SI.calcInterpolation('x y', 'ball');;
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;
 			if (state){
 				const { id, x, y } = state[0];
-				if (this.ball) {
-					this.ball.x = x;
-					this.ball.y = y;
+				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
+					this.gameRoom.entities.ball.gameObject.x = x;
+					this.gameRoom.entities.ball.gameObject.y = y;
+					console.log(` x ${x} y ${y}`);
 				}
 			}
 		}
@@ -360,17 +437,13 @@ export default class Game extends Phaser.Scene {
 			const { state } = playerSnapshot;
 			if (state) {
 				state.forEach(s => {
-					const { id, x, y, score } = s;
-					if (id != undefined){
-						if (id == this.mainPlayer.id){
-							this.mainPlayer.gameObject.y = y;
-							this.scoreMainPlayer = score;
-							this.scoreMainPlayerDisplayed.setText(this.scoreMainPlayer);
+					const { id, x, y, } = s;
+					if (id != undefined && this.gameRoom && this.gameRoom.entities){
+						if (id == this.gameRoom.player1SocketId){
+							this.gameRoom.entities.players[0].gameObject.y = y;
 						}
 						else{
-							this.secondPlayer.gameObject.y = y;
-							this.scoreSecondPlayer = score;
-							this.scoreSecondPlayerDisplayed.setText(this.scoreSecondPlayer);
+							this.gameRoom.entities.players[1].gameObject.y = y;
 						}
 					}
 				})
