@@ -98,11 +98,20 @@ onMounted(async () => {
 
 <template>
   <div v-if="userA2F">
-    <h1>Sign In with A2F</h1>
-    <form @submit.prevent="verifyToken">
-      <!-- Number only in the text -->
-      <input type="text" v-model="userToken" placeholder="Enter your token" required pattern="\d{6}" />
-      <button type="submit">Sign In</button>
-    </form>
+    <h1 class="title">Sign In with A2F</h1>
+    <div class="flex justify-center">
+      <form @submit.prevent="verifyToken">
+        <!-- Number only in the text -->
+        <input class="input input-bordered" type="text" v-model="userToken" placeholder="Enter your token" required pattern="\d{6}" />
+        <button class="btn" type="submit">Sign In</button>
+      </form>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.title {
+  text-align: center;
+  font-size: 50px;
+}
+</style>
