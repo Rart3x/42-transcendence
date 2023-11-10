@@ -64,6 +64,11 @@
 
   <div class="navbar bg-base-100">
     <div class="navbar-start">
+      <div>
+          <router-link to="/">
+            <img src="./images/icon-pmt.png" class="w-10 h-10 rounded-xl" />
+          </router-link>
+      </div>
       <div class="dropdown" @click="picToggleDropdown">
         <label tabindex="0" class="btn btn-ghost btn-circle">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

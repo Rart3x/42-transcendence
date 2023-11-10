@@ -18,7 +18,7 @@ const signInWithIntra = () => {
 
 <template>
   <body>
-    <div class="hero min-h-screen the-background-image justify-content-center">
+    <div class="hero min-h-screen the-background-image ">
       <div class="hero-overlay bg-opacity-60"></div>
       <div class="hero-content text-center text-neutral-content" v-if="!user">
         <div class="max-w-md">
@@ -36,5 +36,9 @@ const signInWithIntra = () => {
   width: 92vw;
   height: 92vh;
   background-image: url("./images/kramjatt.jpg");
+  align-self: center;
+}
+body{
+  min-height: 100%;
 }
 </style>

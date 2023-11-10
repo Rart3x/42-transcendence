@@ -89,10 +89,10 @@
         <button class="btn" @click="uploadImage">Upload</button>
     </div>
     <div class="divider"></div> 
-    <div class="form-control">
+    <div class="form-control w-full max-w-xs">
         <label>2FA : </label>
-        <button v-if="A2FEnabled" class="btn" @click="changeA2F">Disable</button>
-        <button v-else class="btn" @click="changeA2F">Enable</button>
+        <button v-if="A2FEnabled" class="btn btn-error" @click="changeA2F">Disable</button>
+        <button v-else class="btn btn-success" @click="changeA2F">Enable</button>
         <img v-if="dataURL" :src="dataURL" class="qrcode" />
     </div>
 </template>
