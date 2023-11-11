@@ -13,7 +13,7 @@ export class GameRoomService {
         player2SocketId: player2[1],
         startDate: new Date(),
         users: {
-          create: [
+          connect: [
             { userId: player1[0] },
             { userId: player2[0] },
           ],

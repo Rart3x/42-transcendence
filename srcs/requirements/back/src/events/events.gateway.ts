@@ -47,6 +47,7 @@ import { takeCoverage } from 'v8';
 //Server
 import { Server } from 'ws';
 import { isArray } from 'class-validator';
+
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //ALIASES------------------------------------------------------------------------------------------------------------------------------------
@@ -353,11 +354,11 @@ export class EventsGateway {
 		let gameRoom = this.findCorrespondingGame(roomId);
 		// console.log(gameRoom)
 		if (gameRoom?.player1SocketId == socket.id){
-			console.log("player 1 wants to play again");
+			// console.log("player 1 wants to play again");
 			this.server.to(gameRoom.player2SocketId).emit('playAgain');
 		}
 		else if (gameRoom?.player2SocketId == socket.id){
-			console.log("player 2 wants to play again");
+			// console.log("player 2 wants to play again");
 			this.server.to(gameRoom.player1SocketId).emit('playAgain');
 		}
 	}

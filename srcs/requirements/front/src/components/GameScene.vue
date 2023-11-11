@@ -31,6 +31,7 @@ function Between(min : number, max : number){
 const token = await Cookies.get("_authToken");
 // console.log(token);
 const user = await getUserByCookie(token);
+
 // console.log(user);
 // 
 //Create and bind our socke to the server
@@ -90,6 +91,7 @@ export default class Game extends Phaser.Scene {
 		');
 		let inQueueButton = this.UIElement.node.querySelector('#inQueueButton') as HTMLElement;
 		inQueueButton.addEventListener('click', function() {
+			console.log("test join queue");
 			socket.emit('playerJoinQueue', user.userId);
 			self.UIElement.destroy();
 			self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \

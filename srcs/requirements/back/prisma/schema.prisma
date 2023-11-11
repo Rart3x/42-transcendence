@@ -24,21 +24,14 @@ model GameRoom {
   player2SocketId String
   player1Ready    Boolean  @default(false)
   player2Ready    Boolean  @default(false)
-  score           Json
+  score           Json?
   running         Boolean  @default(false)
   started         Boolean  @default(false)
   paused          Boolean  @default(false)
   finish          Boolean  @default(false)
   startDate       DateTime
   endDate         DateTime?
-  users           GameRoomUser[]
-}
-
-model GameRoomUser {
-  gameRoomId  Int
-  userId      Int @unique
-  GameRoom    GameRoom @relation(fields: [gameRoomId], references: [id])
-  User        User    @relation(fields: [userId], references: [userId])
+  users           User[]
 }
 
 model Message {
@@ -76,7 +69,8 @@ model User {
   friends       User[]     @relation("Friendship")
   friendOf      User[]     @relation("Friendship")
 
-  gameRoomUser  GameRoomUser?
+  gameRoomId    Int?
+  gameRoom      GameRoom?   @relation(fields: [gameRoomId], references: [id])
 
   messages      Message[]
 
