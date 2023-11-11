@@ -43,6 +43,8 @@ export default class Game extends Phaser.Scene {
 	walls : any[] = [];
 	paused: Boolean = false;
 	UIElement : Phaser.GameObjects.DOMElement;
+	UIScorePlayer1: Phaser.GameObjects.DOMElement;
+	UIScorePlayer2: Phaser.GameObjects.DOMElement;
 
 	constructor(){
 		super("game");
@@ -153,7 +155,6 @@ export default class Game extends Phaser.Scene {
 			});
 		});
 
-
 		socket.on('otherPlayerReady', () => {
 			let otherPlayerProfile : any;
 			let otherPlayerReadyButton : any;
@@ -189,8 +190,8 @@ export default class Game extends Phaser.Scene {
 
 		//Mouse hook for movement
 		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
-			if (this.gameRoom && this.gameRoom.entities){
-				if (this.gameRoom.player1SocketId == socket.id){
+			if (this?.gameRoom?.entities){
+				if (this.gameRoom?.player1SocketId == socket.id){
 					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 65, 735);
 					socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
@@ -203,7 +204,7 @@ export default class Game extends Phaser.Scene {
 						this.gameRoom.entities.players[0].gameObject.body.position.y = this.gameRoom.entities.players[0].y;
 					}
 				}
-				else if (this.gameRoom.player2SocketId == socket.id){
+				else if (this.gameRoom?.player2SocketId == socket.id){
 					this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 65, 735);
 					socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
@@ -220,9 +221,9 @@ export default class Game extends Phaser.Scene {
 		}, this);
 
 		socket.on('scorePoint', (data) => {
-			if (this.gameRoom && this.gameRoom.entities){
+			if (this?.gameRoom?.entities){
 				//Reset ball to the middle
-				if (this.gameRoom.entities.ball.gameObject) {
+				if (this.gameRoom.entities?.ball.gameObject) {
 					this.gameRoom.entities.ball.gameObject.x = 500;
 					this.gameRoom.entities.ball.gameObject.y = data.ball.y;
 					this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
@@ -231,28 +232,43 @@ export default class Game extends Phaser.Scene {
 				if (this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
 					this.gameRoom.score.set(this.gameRoom.player1SocketId, data.score.player1);
 					this.gameRoom.score.set(this.gameRoom.player2SocketId, data.score.player2);
+					this.updateUIScore();
 				}
 			}
 		});
 
 		socket.on('restartAfterScore', () => {
-			if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject){
-				this.gameRoom.entities.ball.gameObject.setVelocity(3, 3);
-			}
+				this?.gameRoom?.entities?.ball.gameObject.setVelocity(3, 3);
 		});
 
 		socket.on('playAgain', () => {
-			// this.
+			console.log("other player wants to play again");
+			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
+			if (socket.id == this?.gameRoom?.player1SocketId){
+				if (this.gameRoom.player1PlayAgain)
+					playAgainButton.innerText = "Play again 2/2";
+				else
+					playAgainButton.innerText = "Play again 1/2";
+			}
+			else{
+				if (this.gameRoom.player2PlayAgain)
+					playAgainButton.innerText = "Play again 2/2";
+				else
+					playAgainButton.innerText = "Play again 1/2";
+			}
 		});
 
 		socket.on('gameFinish', () => {
-			// this.scene.remove();
+			if (this?.gameRoom?.entities){
+				this.switchSceneInvisible();
+			}
 			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
-			<div class="row-start-1 col-start-2 col-end-3"><button id="replayButton" class="btn btn-accent">Play again</button></div> \
+			<div class="row-start-1 col-start-2 col-end-3"><button id="replayButton" class="btn btn-accent">Play again 0/2</button></div> \
 			<div class="row-start-2 col-start-2 col-end-3"> <button id="stopButton" class="btn btn-secondary">Stop</button></div></div>');
-			let readyButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
+			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
 			let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
-			readyButton.addEventListener('click', () => {
+			playAgainButton.addEventListener('click', () => {
+				playAgainButton.innerText = "Play again 1/2";
 				socket.emit('playAgain', this.gameRoom.id);
 				setTimeout(() => {
 					this.UIElement.destroy();
@@ -272,9 +288,41 @@ export default class Game extends Phaser.Scene {
 		});
 	}
 
+	createUIScore(){
+		this.UIScorePlayer1 = this.add.dom(400, 100).createFromHTML('<span class="countdown font-mono text-6xl"> \
+			<span id="scorePlayer1" style="--value:0;"></span> \
+		</span>');
+		this.UIScorePlayer2 = this.add.dom(600, 100).createFromHTML('<span class="countdown font-mono text-6xl"> \
+			<span id="scorePlayer2" style="--value:0;"></span> \
+		</span>');
+	}
+
+	updateUIScore(){
+		let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1SocketId);
+		let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2SocketId);
+
+		let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
+		let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
+
+		scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
+		scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
+	}
+
+	switchSceneInvisible(){
+		for (let i = 0; i < 4; i++){
+			this.gameRoom.entities.walls[i].gameObject.setVisible(false);
+		}
+		for (let i = 0; i < 2; i++){
+			this.gameRoom.entities.players[i].gameObject.setVisible(false);
+
+		}
+		this.gameRoom.entities.ball.gameObject.setVisible(false);
+	}
+
 	spawnSceneProps(){
 		this.UIElement.destroy();
 
+		this.createUIScore();
         this.gameRoom.entities = new Entities(this, this.gameRoom.player1SocketId, this.gameRoom.player2SocketId);
 
 		let countdown = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \

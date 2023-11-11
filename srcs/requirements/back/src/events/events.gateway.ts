@@ -126,15 +126,16 @@ export class EventsGateway {
 			}
 
 			for (let i = 0; i < this.gameRooms.length; i++){
-				if (this.gameRooms[i].running && this.gameRooms[i].started){
+				if (this.gameRooms[i].running && this.gameRooms[i].started && this.gameRooms[i].finish == false){
 					//save game state and sending it to game players
 					this.checkWinCondition(this.gameRooms[i]);
 					if (this.gameRooms[i].finish){
 						//Need a method to update it in the database
 						this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {});
 						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {});
-						this.gameRooms.splice(i, 1);
-						return ;
+						this.gameRooms[i].finish = true;
+						// this.gameRooms.splice(i, 1);
+						// return ;
 					}
 					if (this.gameRooms[i].paused == false){
 						this.saveGameState(this.gameRooms[i]);
@@ -350,10 +351,13 @@ export class EventsGateway {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() roomId: number): void {
 		let gameRoom = this.findCorrespondingGame(roomId);
-		if (gameRoom.player1SocketId == socket.id){
+		// console.log(gameRoom)
+		if (gameRoom?.player1SocketId == socket.id){
+			console.log("player 1 wants to play again");
 			this.server.to(gameRoom.player2SocketId).emit('playAgain');
 		}
-		else{
+		else if (gameRoom?.player2SocketId == socket.id){
+			console.log("player 2 wants to play again");
 			this.server.to(gameRoom.player1SocketId).emit('playAgain');
 		}
 	}
