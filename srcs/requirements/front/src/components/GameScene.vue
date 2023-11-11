@@ -11,8 +11,9 @@ import Phaser from 'phaser';
 import * as Matter from 'matter-js';
 
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
+  import { computed, onMounted, ref } from "vue";
 
-import { getUserByCookie, getUserByUsername } from './api/get.call';
+import { getUserByCookie } from './api/get.call';
 
 import Cookies from "js-cookie";
 
@@ -27,6 +28,11 @@ function Between(min : number, max : number){
 	return (Math.random() * (max - min) + min)
 }
 
+const token = await Cookies.get("_authToken");
+// console.log(token);
+const user = await getUserByCookie(token);
+// console.log(user);
+// 
 //Create and bind our socke to the server
 const socket = io('http://localhost:3000');
 
@@ -46,7 +52,9 @@ export default class Game extends Phaser.Scene {
 	UIScorePlayer1: Phaser.GameObjects.DOMElement;
 	UIScorePlayer2: Phaser.GameObjects.DOMElement;
 
+
 	constructor(){
+		console.log(user);
 		super("game");
 	}
 
@@ -65,8 +73,6 @@ export default class Game extends Phaser.Scene {
 	}
 
 	async setupUI(){
-		const token = Cookies.get("_authToken");
-		const user = await getUserByCookie(token);
 
 		let startButtonCanvas : Phaser.GameObjects.Graphics;
 	}
@@ -75,7 +81,7 @@ export default class Game extends Phaser.Scene {
 		this.scene.resume('game');
 	}
 
-	create(){
+	async create(){
 		var self = this;
 
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-1 grid-cols-1 justify-items-center gap-y 8> \
@@ -84,7 +90,7 @@ export default class Game extends Phaser.Scene {
 		');
 		let inQueueButton = this.UIElement.node.querySelector('#inQueueButton') as HTMLElement;
 		inQueueButton.addEventListener('click', function() {
-			socket.emit('playerJoinQueue', socket.id);
+			socket.emit('playerJoinQueue', user.userId);
 			self.UIElement.destroy();
 			self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
 			<div class="row-start-1 col-start-2 col-end-3 ..."> \
@@ -242,19 +248,25 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('playAgain', () => {
-			console.log("other player wants to play again");
+			// console.log("other player wants to play again");
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
 			if (socket.id == this?.gameRoom?.player1SocketId){
-				if (this.gameRoom.player1PlayAgain)
+				this.gameRoom.player2PlayAgain = true;
+				if (this.gameRoom.player1PlayAgain){
 					playAgainButton.innerText = "Play again 2/2";
-				else
+				}
+				else{
 					playAgainButton.innerText = "Play again 1/2";
+				}
 			}
 			else{
-				if (this.gameRoom.player2PlayAgain)
+				this.gameRoom.player1PlayAgain = true;
+				if (this.gameRoom.player2PlayAgain){
 					playAgainButton.innerText = "Play again 2/2";
-				else
+				}
+				else{
 					playAgainButton.innerText = "Play again 1/2";
+				}
 			}
 		});
 
@@ -268,11 +280,28 @@ export default class Game extends Phaser.Scene {
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
 			let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
 			playAgainButton.addEventListener('click', () => {
-				playAgainButton.innerText = "Play again 1/2";
+				if (socket.id == this?.gameRoom?.player1SocketId){
+					this.gameRoom.player1PlayAgain = true;
+					if (this.gameRoom.player2PlayAgain){
+						playAgainButton.innerText = "Play again 2/2";
+					}
+					else{
+						playAgainButton.innerText = "Play again 1/2";
+					}
+				}
+				else{
+					this.gameRoom.player2PlayAgain = true;
+					if (this.gameRoom.player1PlayAgain){
+						playAgainButton.innerText = "Play again 2/2";
+					}
+					else{
+						playAgainButton.innerText = "Play again 1/2";
+					}
+				}
 				socket.emit('playAgain', this.gameRoom.id);
-				setTimeout(() => {
-					this.UIElement.destroy();
-				}, 3000);
+				// setTimeout(() => {
+				// 	this.UIElement.destroy();
+				// }, 3000);
 			});
 			stopButton.addEventListener('click', () => {
 				socket.emit('stopPlay', this.gameRoom.id);
@@ -303,9 +332,10 @@ export default class Game extends Phaser.Scene {
 
 		let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
 		let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
-
-		scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
-		scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
+		if (scorePlayer1 <= 3 && scorePlayer2 <= 3){
+			scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
+			scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
+		}
 	}
 
 	switchSceneInvisible(){

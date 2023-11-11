@@ -13,7 +13,7 @@ import { map } from 'rxjs/operators';
 
 //Socket
 import { io } from 'socket.io-client';
-import { Socket } from 'socket.io' //good
+import { Socket } from 'socket.io';
 
 //Game Engine
 import * as Matter from 'matter-js';
@@ -81,7 +81,7 @@ export class EventsGateway {
 
 	@WebSocketServer() server: any = io("https://localhost:5573");
 
-	queueList : Array<string> = new Array();
+	queueList : Map<number, string> = new Map();
 	gameRooms : GameRoom[] = [];
 	roomId: number = 0;
 
@@ -91,24 +91,21 @@ export class EventsGateway {
 		private readonly UserService: UserService
 	){}
 
-	afterInit() {
-		// const clients = await this.QueueListService.getAllClients();
-		// const nbClients = clients.length;
+	async afterInit() {
 
-		setInterval(() => {
-			if (this.queueList.length == 2){
-				// const gameRoom = await this.GameRoomService.createGameRoom(this.queueList[0], this.queueList[1]);
-				// this.queueList.slice(0, 2);
-				// const player1SocketId = await this.UserService.getSocketByUserId(this.queueList[0]);
-				// const player2SocketId = await this.UserService.getSocketByUserId(this.queueList[1]);
+		setInterval(async () => {
+			if (this.queueList && this.queueList.size == 2){
+				const first = this.queueList.entries().next().value;
+				const second = this.queueList.entries().next().value;
+
+				console.log(`userId ${first[0]} socketId ${first[1]}`);
+				const gameRoom = await this.GameRoomService.createGameRoom(first, second);
 				
-				// const localRoom = this.createGameRoomLocal(gameRoom.id, player1SocketId, player2SocketId);
+				const localRoom = this.createGameRoomLocal(this.roomId++, first, second);
+
+				this.queueList.delete(first.key);
+				this.queueList.delete(second.key);
 				
-				// En attendant de pouvoir tester avec des differents users
-				const localRoom = this.createGameRoomLocal(this.roomId++, this.queueList[0], this.queueList[1]);
-				this.queueList.pop();
-				this.queueList.pop();
-				// console.log()
 				this.gameRooms.push(localRoom);
 
 				this.server.to(localRoom.player1SocketId).emit('lobby', {
@@ -122,7 +119,6 @@ export class EventsGateway {
 					player1SocketId: localRoom.player1SocketId,
 					player2SocketId: localRoom.player2SocketId
 				});
-				// console.log(localRoom);
 			}
 
 			for (let i = 0; i < this.gameRooms.length; i++){
@@ -137,9 +133,9 @@ export class EventsGateway {
 						// this.gameRooms.splice(i, 1);
 						// return ;
 					}
-					if (this.gameRooms[i].paused == false){
+					// if (this.gameRooms[i].paused == false){
 						this.saveGameState(this.gameRooms[i]);
-					}
+					// }
 					Engine.update(this.gameRooms[i].engine);
 				}
 				else if (this.gameRooms[i].running == false){
@@ -159,11 +155,13 @@ export class EventsGateway {
 		(scorePlayer1 >= 3 || scorePlayer2 >= 3) ? gameRoom.finish = true : gameRoom.finish = false;
 	}
 
-	createGameRoomLocal(gameRoomId: number, player1SocketId: string, player2SocketId: string) : GameRoom{
+	createGameRoomLocal(gameRoomId: number, player1: any, player2: any) : GameRoom{
 		let gameRoom : GameRoom = {
 			roomId: gameRoomId,
-			player1SocketId: player1SocketId,
-			player2SocketId: player2SocketId,
+			player1UserId: player1[0],
+			player2UserId: player2[0],
+			player1SocketId: player1[1],
+			player2SocketId: player2[1],
 			player1Ready: false,
 			player2Ready: false,
 			world: null,
@@ -185,10 +183,10 @@ export class EventsGateway {
 		gameRoom.engine.gravity.y = 0;
 
 		//Default score
-		gameRoom.score.set(player1SocketId, 0);
-		gameRoom.score.set(player2SocketId, 0);
+		gameRoom.score.set(player1[1], 0);
+		gameRoom.score.set(player2[1], 0);
 
-		gameRoom.entities = this.createEntities(player1SocketId, player2SocketId);
+		gameRoom.entities = this.createEntities(player1[1], player2[1]);
 		gameRoom.world = gameRoom.engine.world;
 
 		return gameRoom;
@@ -342,7 +340,9 @@ export class EventsGateway {
 	handleEvent(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() userId: number): void {
-		this.queueList.push(socket.id);
+		console.log(`userId: ${userId} socketId: ${socket.id}`);
+		if (this.queueList)
+			this.queueList.set(userId, socket.id);
 		this.server.to(socket.id).emit('matchmaking', {});
 	}
 
@@ -384,7 +384,7 @@ export class EventsGateway {
 					x: 3,
 					y: 3
 				});
-			}, 6000);
+			}, 7000);
 		}
 	}
 
@@ -412,6 +412,7 @@ export class EventsGateway {
 			players : playerState,
 			ball: ballState
 		}
+
 		const snapshot = SI.snapshot.create(globalState);
 
 		this.server.to(gameRoom.player1SocketId).emit('snapshot', snapshot);

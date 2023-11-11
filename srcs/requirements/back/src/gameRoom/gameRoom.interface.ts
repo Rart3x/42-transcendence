@@ -9,6 +9,8 @@ import Entities  from '../entities/entities';
 
 export interface GameRoom {
     roomId: number;
+    player1UserId: number,
+    player2UserId: number,
     player1SocketId: string;
     player2SocketId: string;
     player1Ready: boolean;
