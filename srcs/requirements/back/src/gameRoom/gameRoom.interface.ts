@@ -1,8 +1,8 @@
 import { User } from '../user/user.interface';
 
 import {
-    Engine,
-    World
+Engine,
+World
 } from 'matter-js';
 
 import Entities  from '../entities/entities';

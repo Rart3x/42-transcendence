@@ -8,42 +8,49 @@ datasource db {
 }
 
 model Channel {
-  channelId    Int            @id @default(autoincrement())
-  channelName  String         @unique
-  channelAdmin Int
-  channelMessages Message[]
-  channelUsers    User[]      @relation("ChannelUser")
-  channelUsersBan User[]      @relation("ChannelUserBan")
-  channelUsersMute User[]     @relation("ChannelUserMute")
-  channelPassword String?
-}
-
-model Game {
-  gameId       Int     @id @default(autoincrement())
+  channelId         Int            @id @default(autoincrement())
+  channelName       String         @unique
+  channelAdmin      Int
+  channelMessages   Message[]
+  channelUsers      User[]      @relation("ChannelUser")
+  channelUsersBan   User[]      @relation("ChannelUserBan")
+  channelUsersMute  User[]     @relation("ChannelUserMute")
+  channelPassword   String?
 }
 
 model GameRoom {
-  id              Int     @id @default(autoincrement())
-  gameRoomUsers   GameRoomUser[]
+  id              Int       @id @default(autoincrement())
+  player1SocketId String
+  player2SocketId String
+  player1Ready    Boolean  @default(false)
+  player2Ready    Boolean  @default(false)
+  score           Json
+  running         Boolean  @default(false)
+  started         Boolean  @default(false)
+  paused          Boolean  @default(false)
+  finish          Boolean  @default(false)
+  startDate       DateTime
+  endDate         DateTime?
+  users           GameRoomUser[]
 }
 
 model GameRoomUser {
-  gameRoomId Int
-  userId    Int @unique
-  GameRoom  GameRoom @relation(fields: [gameRoomId], references: [id])
-  User      User    @relation(fields: [userId], references: [userId])
+  gameRoomId  Int
+  userId      Int @unique
+  GameRoom    GameRoom @relation(fields: [gameRoomId], references: [id])
+  User        User    @relation(fields: [userId], references: [userId])
 }
 
 model Message {
-  messageId Int    @id @default(autoincrement())
-  channelId Int
-  userId    Int?
+  messageId     Int    @id @default(autoincrement())
+  channelId     Int
+  userId        Int?
 
-  message_text String?
-  message_date DateTime? @default(now()) @db.Timestamp(6)
+  message_text  String?
+  message_date  DateTime? @default(now()) @db.Timestamp(6)
 
-  Channel   Channel @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
-  sender    User?  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  Channel       Channel @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
+  sender        User?  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model QueueList {
@@ -59,34 +66,34 @@ model Stat {
 }
 
 model User {
-  userId      Int        @id @unique @default(autoincrement())
-  userName    String?    @unique
+  userId        Int        @id @unique @default(autoincrement())
+  userName      String?    @unique
 
-  channels    Channel[]  @relation("ChannelUser")
-  channelsBan Channel[]  @relation("ChannelUserBan")
-  channelsMute Channel[] @relation("ChannelUserMute")
+  channels      Channel[]  @relation("ChannelUser")
+  channelsBan   Channel[]  @relation("ChannelUserBan")
+  channelsMute  Channel[] @relation("ChannelUserMute")
   
-  friends     User[]     @relation("Friendship")
-  friendOf    User[]     @relation("Friendship")
+  friends       User[]     @relation("Friendship")
+  friendOf      User[]     @relation("Friendship")
 
-  gameRoomUser GameRoomUser?
+  gameRoomUser  GameRoomUser?
 
-  messages    Message[]
+  messages      Message[]
 
-  queueId     Int?
-  queue       QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
+  queueId       Int?
+  queue         QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
 
-  statId      Int?
-  stat        Stat?      @relation(fields: [statId], references: [statId], onDelete: Cascade, onUpdate: Cascade)
+  statId        Int?
+  stat          Stat?      @relation(fields: [statId], references: [statId], onDelete: Cascade, onUpdate: Cascade)
 
-  displayName String?    @unique
-  image       String     @default("default_pic.jpg")
-  isChecked   Boolean    @default(false)
+  displayName   String?    @unique
+  image         String     @default("default_pic.jpg")
+  isChecked     Boolean    @default(false)
 
-  cookie      String?    @unique
-  socket      String?
+  cookie        String?    @unique
+  socket        String?
 
-  A2F         Boolean    @default(false)
-  A2FSecret   String?
-  A2FUrl      String?
+  A2F           Boolean    @default(false)
+  A2FSecret     String?
+  A2FUrl        String?
 }

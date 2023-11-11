@@ -6,15 +6,34 @@ import { GameRoom, Prisma } from '@prisma/client';
 export class GameRoomService {
   constructor (private prisma: PrismaService) {}
 
-  async createGameRoom(userId1: number, userId2: number): Promise<GameRoom> {
-    return await this.prisma.gameRoom.create({
+  async createGameRoom(player1: any, player2: any): Promise<GameRoom> {
+    const createdGameRoom = await this.prisma.gameRoom.create({
       data: {
-        gameRoomUsers: {
+        player1SocketId: player1[1],
+        player2SocketId: player2[1],
+        startDate: new Date(),
+        users: {
           create: [
-            { userId: userId1 },
-            { userId: userId2 },
+            { userId: player1[0] },
+            { userId: player2[0] },
           ],
-        },
+        }
+      },
+    });
+    return createdGameRoom;
+  } 
+
+  async updateGameRoom(gameRoomId: number, player1SocketId: string, player2SocketId: string, score: Map<string, number>): Promise<GameRoom> {
+    const scoreJson = JSON.stringify(Object.fromEntries(score.entries()));
+  
+    return await this.prisma.gameRoom.update({
+      where: {
+        id: gameRoomId,
+      },
+      data: {
+        player1SocketId: player1SocketId,
+        player2SocketId: player2SocketId,
+        score: scoreJson,
       },
     });
   }
