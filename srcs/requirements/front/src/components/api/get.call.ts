@@ -76,8 +76,10 @@ export async function isFriend(userName : string, friendName : string){
         "Content-Type": "application/json",
       },
     });
-    if (response.ok)
-      return await response.json();
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
   }
   catch (error) {
     console.error('error: sending GET request', error);

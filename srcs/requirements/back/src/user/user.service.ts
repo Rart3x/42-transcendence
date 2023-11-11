@@ -44,12 +44,15 @@ export class UserService {
     const friend = await this.getUserByName(friendName);
 
     if (!user || !friend)
-      return (false);
+      return false;
 
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
         friends: {
+          connect: { userId: friend.userId }
+        },
+        friendOf: {
           connect: { userId: friend.userId }
         }
       }
@@ -58,21 +61,28 @@ export class UserService {
     await this.prisma.user.update({
       where: { userId: friend.userId },
       data: {
+        friends: {
+          connect: { userId: user.userId }
+        },
         friendOf: {
           connect: { userId: user.userId }
         }
       }
     });
+
     return true;
   }
 
   async isFriend(userName: string, friendName: string): Promise<boolean> {
     const user = await this.getUserByName(userName);
     const friend = await this.getUserByName(friendName);
-
+  
+    console.log('User:', user);
+    console.log('Friend:', friend);
+  
     if (!user || !friend)
-      throw new Error("error: user or friend not found");
-
+      return false;
+  
     const friendOf = await this.prisma.user.findMany({
       where: {
         userId: user.userId,
@@ -83,19 +93,24 @@ export class UserService {
         },
       },
     });
-
+  
     const friends = await this.prisma.user.findMany({
       where: {
-        userId: user.userId,
+        userId: friend.userId,
         friends: {
           some: {
-            userId: friend.userId,
+            userId: user.userId,
           },
         },
       },
     });
-
-    return friendOf.length > 0 && friends.length > 0;
+  
+    console.log('FriendOf:', friendOf);
+    console.log('Friends:', friends);
+  
+    if (friendOf.length > 0 && friends.length > 0)
+      return true;
+    return false;
   }
 
   async getAllFriends(userId: number): Promise<User[]> {
