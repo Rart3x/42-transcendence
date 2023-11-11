@@ -217,10 +217,13 @@
         </div>
       </div>
       <div class="chat-input">
-        <input v-if="!actualUserMuted" type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
+        {{ isUserMuteInChannelInDB() }} 
+        <div class="userMutedOrNot" v-if="!actualUserMuted">
+          <input  type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
+          <button class="btn btn-primary" @click="sendMessage">Send</button>
+        </div>
         <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/>
 
-        <button class="btn btn-primary" @click="sendMessage">Send</button>
       </div>
     </div>
   </div>
@@ -273,37 +276,21 @@
   max-height: 55vh;
   overflow-x: auto;
 }
-.chat-messages::-webkit-scrollbar-thumb {
-  background: #888;
-}
-.chat-messages::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-.chat-messages::-webkit-scrollbar-track {
-  background: #ddd;
-}
+.chat-messages::-webkit-scrollbar-thumb { background: #888; }
+.chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
+.chat-messages::-webkit-scrollbar-track { background: #ddd; }
 .friend-list {
   max-height: 55vh;
   overflow-x: auto;
 }
-.friend-list::-webkit-scrollbar-thumb {
-  background: #888;
-}
-.friend-list::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-.friend-list::-webkit-scrollbar-track {
-  background: #ddd;
-}
-.dark-row:hover {
-  background-color: #364e6e;
-}
+.friend-list::-webkit-scrollbar-thumb { background: #888; }
+.friend-list::-webkit-scrollbar-thumb:hover { background: #555; }
+.friend-list::-webkit-scrollbar-track { background: #ddd; }
+.dark-row:hover { background-color: #364e6e; }
 .grid-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 10vh;
 }
-tbody tr:hover {
-  background-color: #efefef;
-}
+tbody tr:hover { background-color: #efefef; }
 </style>
