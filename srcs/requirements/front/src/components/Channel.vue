@@ -24,6 +24,8 @@
   let kickFailed = ref(false);
   let muteFailed = ref(false);
 
+  let actualUserMuted = ref(false);
+
   const banUserFromChannelInDB = async (channelName, userName) => {
     const response = await banUserFromChannel(channelName, userName);
 
@@ -32,7 +34,8 @@
       setTimeout(() => {
         banSuccess.value = false;
       }, 3000);
-    } else {
+    } 
+    else {
       banFailed.value = true;
       setTimeout(() => {
         banFailed.value = false;
@@ -43,7 +46,8 @@
 
   const isUserMuteInChannelInDB = async () => {
     const response = await isUserMuteInChannel(route.params.channelName, actualUser.value.userName);
-    return response.success;
+    console.log(actualUserMuted.value);
+    actualUserMuted.value = response.success;
   };
 
   const muteUserFromChannelInDB = async (channelName, userName) => {
@@ -54,7 +58,8 @@
       setTimeout(() => {
         muteSuccess.value = false;
       }, 3000);
-    } else {
+    } 
+    else {
       muteFailed.value = true;
       setTimeout(() => {
         muteFailed.value = false;
@@ -71,7 +76,8 @@
       setTimeout(() => {
         kickSuccess.value = false;
       }, 3000);
-    } else {
+    } 
+    else {
       kickFailed.value = true;
       setTimeout(() => {
         kickFailed.value = false;
@@ -170,7 +176,7 @@
               <td v-if="channel.channelAdmin == actualUser.userId">
                 <button class="btn btn-warning" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
                 <button class="btn btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
-                <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName,user.userName)">Kick</button> 
+                <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button> 
               </td>
             </tr>
           </tbody>
@@ -210,12 +216,11 @@
           </div>
         </div>
       </div>
-      <div class="chat-input" v-if="!isUserMuteInChannelInDB()">
-        <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
+      <div class="chat-input">
+        <input v-if="!actualUserMuted" type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
+        <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/>
+
         <button class="btn btn-primary" @click="sendMessage">Send</button>
-      </div>
-      <div class="chat-input" v-else>
-        <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="You are muted" v-model="message_text" disabled/>
       </div>
     </div>
   </div>

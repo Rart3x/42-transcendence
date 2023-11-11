@@ -23,32 +23,17 @@ export class ChannelController {
 
   @Get(':channelName/messages')
   async getMessagesFromChannel(@Param('channelName') channelName: string): Promise<Message[]> {
-    try {
-      return this.channelService.getMessagesFromChannel(channelName);
-    }
-    catch (error) {
-      return null;
-    }    
+    return this.channelService.getMessagesFromChannel(channelName);
   }
 
   @Get(':channelName/users')
   async getUsersFromChannel(@Param('channelName') channelName: string): Promise<User[]> {
-    try {
-      return this.channelService.getUsersFromChannel(channelName);
-    }
-    catch (error) {
-      return null;
-    }    
+    return this.channelService.getUsersFromChannel(channelName);
   }
 
   @Get('get/:channelName')
   async getChannelByName(@Param('channelName') channelName: string): Promise<Channel> {
-    try {
-      return this.channelService.getChannelByName(channelName);
-    }
-    catch (error) {
-      return null;
-    }    
+    return this.channelService.getChannelByName(channelName);
   }
 
   @Get(':channelName/isBan/:userName')
