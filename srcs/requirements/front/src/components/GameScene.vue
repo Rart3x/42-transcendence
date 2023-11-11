@@ -67,32 +67,9 @@ export default class Game extends Phaser.Scene {
 		const user = await getUserByCookie(token);
 
 		let startButtonCanvas : Phaser.GameObjects.Graphics;
-
-		//START BUTTON and hook
-		// const graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
-		// graphics.lineStyle(3, 0xff00ff, 1);
-		// startButtonCanvas = graphics.strokeRoundedRect(380, 385, 250, 70,12);
-		// this.startButton = this.add.bitmapText(400, 400, 'atari', '', 40);
-		// this.startButton.setText("START").setTint(0xdb2e94ff);
-		// this.startButton.setInteractive({ useHandCursor: true });
-
-		// this.startButton.on('pointerdown', () => {
-		// 	this.startButton.destroy();
-		// 	startButtonCanvas.destroy();
-		// 	// socket.emit('playerReady', user.userId);
-		// }, this);
 	}
 
-	// createGameWorld(engine: Matter.Engine, world: Matter.World, entities: Entities){
-	// 	engine.gravity.x = 0;
-	// 	engine.gravity.y = 0;
-	// 	//???? je garde ou garde pasz
-	// 	this.matter.world.disableGravity();
-	// 	this.matter.world.setBounds();
-	// }
-
 	launchGame(){
-		// console.log("relaunch");
 		this.scene.resume('game');
 	}
 
@@ -115,20 +92,12 @@ export default class Game extends Phaser.Scene {
 				<span class=" loading loading-dots loading-lg"></span> \
 			</div> \
 			</div>');
-			// console.log("inside the queue");
 		});
 
 		socket.on('lobby', (data) => {
-			// this.setupUI();
-			// console.log(self.UIElement);
-			// this.UIElementHTMLElement().destroy();
-			// console.log("inside a lobby");
 			this.UIElement.destroy();
 
 			this.gameRoom =  new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
-
-
-			// console.log(self.UIElement);
 
 			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-5 grid-cols-3 justify-items-center gap-y-8 gap-x-32"> \
 			<div class="avatar row-start-2"> \
@@ -155,7 +124,6 @@ export default class Game extends Phaser.Scene {
 			<div class="row-start-5 col-start-2 col-end-3 ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
 			</div>');
 			
-			// this.UIElement.setInteractive();
 			Phaser.DOM.AddToDOM(this.textures.get('userImage').getSourceImage() as HTMLElement, 'userProfile1');
 			let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
 			let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
@@ -166,16 +134,8 @@ export default class Game extends Phaser.Scene {
 			
 			var self = this;
 
-			// if (socket.id == this.gameRoom.player2SocketId){
-			// 	isReadyButtonPlayer1.innerText = 'Ready';
-			// 	isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
-			// 	if (userProfile1){
-			// 		userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
-			// 	}
-			// }
 			startButton.addEventListener('click', function() {
 				if (socket.id == self.gameRoom.player2SocketId){
-					console.log("player 2 is ready!")
 					isReadyButtonPlayer2.innerText = 'Ready';
 					isReadyButtonPlayer2.className = 'btn no-animation btn-active btn-accent';
 					if (userProfile2){
@@ -183,7 +143,6 @@ export default class Game extends Phaser.Scene {
 					}
 				}
 				else{
-					console.log("player 1 is ready!");
 					isReadyButtonPlayer1.innerText = 'Ready';
 					isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
 					if (userProfile1){
@@ -191,23 +150,19 @@ export default class Game extends Phaser.Scene {
 					}
 				}
 				socket.emit('playerReady', self.gameRoom.id);
-				// console.log('Start button clicked!');
 			});
 		});
 
-		var self = this;
 
 		socket.on('otherPlayerReady', () => {
 			let otherPlayerProfile : any;
 			let otherPlayerReadyButton : any;
 
 			if (socket.id == self.gameRoom.player1SocketId){
-				// console.log("other player 2 is ready!")
 				otherPlayerProfile = this.UIElement.node.querySelector("#userProfile2");
 				otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
 			}
 			else if (socket.id == self.gameRoom.player2SocketId){
-				// console.log("other player 1 is ready!")
 				otherPlayerProfile = this.UIElement.node.querySelector("#userProfile1");
 				otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
 			}
@@ -218,49 +173,8 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		// let grid = this.add.dom(500, 400).createFromHTML('<div class="grid grid-cols-3 gap-4"> \
-		//   	<div class="...">01</div> \
-		// 	<div class="btn btn-primary ...">START</button></div> \
-		// 	<div class="btn btn-primary ...">START</button></div> \
-		// 	</div>'
-		// );
-
-		// console.log(this.textures);
-
-		// console.log(this.textures.get('userImage').getSourceImage());
-		
-
-		// this.UIElement.on('pointerdown', (event) => {
-		
-			// let button = this.UIElement.node.querySelector('#startButton') as HTMLElement;
-			// console.log(event.quer);
-			// if (event.target == button){
-			// 	button.innerText = 'Ready';
-			// 	button.className = 'btn btn-active btn-accent';
-			// }
-			// let newContent = document.createElement('div');
-			// newContent.innerText = 'You clicked me!';
-			// this.UIElement.setElement(newContent);
-		// });
-
-		
-		// button.addListener('click')
-		// button.on('click', function(event) {
-		// 	socket.emit('playerReady', socket.id);
-		// 	loadingAnim = this.add.dom(500, 400).createFromCache('loading');
-		// 	button.destroy();
-		// }, this);
-		
-
 		//Waiting for server response to isReady command
-		var self = this;
 		socket.on('init', () => {
-			// isReadyButtonPlayer2.innerText = 'Ready';
-			// isReadyButtonPlayer2.className = 'btn no-animation btn-active btn-accent';
-			// if (userProfile2){
-			// 	userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
-			// }
-			// console.log("test init");
 			this.gameRoom.engine = Matter.Engine.create();
 
 			this.gameRoom.engine.gravity.x = 0;
@@ -270,20 +184,7 @@ export default class Game extends Phaser.Scene {
 			this.matter.world.setBounds();
         	this.gameRoom.world = this.gameRoom.engine.world;
 
-
-			//???? je garde ou garde pasz
-
 			this.time.delayedCall(3000, self.spawnSceneProps, [], self);
-
-			// isReadyButtonPlayer1.innerText = 'Ready';
-			// isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
-			// if (userProfile1){
-			// 	userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
-			// }
-			
-			// loadingAnim.destroy();
-			// this.startButton.destroy();
-			//Basic scene elements
 		});
 
 		//Mouse hook for movement
@@ -320,15 +221,12 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('scorePoint', (data) => {
 			if (this.gameRoom && this.gameRoom.entities){
-				// setTimeout(() => {
-					//Reset ball to the middle
-				if (this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
-					// this.paused = true;
+				//Reset ball to the middle
+				if (this.gameRoom.entities.ball.gameObject) {
 					this.gameRoom.entities.ball.gameObject.x = 500;
 					this.gameRoom.entities.ball.gameObject.y = data.ball.y;
 					this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
 				}
-				// }, 100);
 				//Update score
 				if (this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
 					this.gameRoom.score.set(this.gameRoom.player1SocketId, data.score.player1);
@@ -339,38 +237,51 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('restartAfterScore', () => {
 			if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject){
-				console.log("test restartAfterScore")
 				this.gameRoom.entities.ball.gameObject.setVelocity(3, 3);
-				// this.paused = false;
 			}
 		});
-	
+
+		socket.on('playAgain', () => {
+			// this.
+		});
+
 		socket.on('gameFinish', () => {
-			this.destroy();
+			// this.scene.remove();
+			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
+			<div class="row-start-1 col-start-2 col-end-3"><button id="replayButton" class="btn btn-accent">Play again</button></div> \
+			<div class="row-start-2 col-start-2 col-end-3"> <button id="stopButton" class="btn btn-secondary">Stop</button></div></div>');
+			let readyButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
+			let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
+			readyButton.addEventListener('click', () => {
+				socket.emit('playAgain', this.gameRoom.id);
+				setTimeout(() => {
+					this.UIElement.destroy();
+				}, 3000);
+			});
+			stopButton.addEventListener('click', () => {
+				socket.emit('stopPlay', this.gameRoom.id);
+				setTimeout(() => {
+					this.UIElement.destroy();
+				}, 3000);
+			});
 		});
 
 		socket.on('snapshot', (data) => {
-			// if (this.paused == true)
-			// 	return ;
 			//Read the snapshot
 			SI.snapshot.add(data);
 		});
 	}
 
 	spawnSceneProps(){
-		// console.log(data);
-		// console.log(this.UIElement);
 		this.UIElement.destroy();
 
         this.gameRoom.entities = new Entities(this, this.gameRoom.player1SocketId, this.gameRoom.player2SocketId);
 
-		// console.log("spawn scene props");
 		let countdown = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
 			<span id="countdown" style="--value:3;"></span> \
 		</span>');
 		let counter = 3;
 		const refreshID = setInterval(() => {
-			console.log(counter);
 			if(counter > 0){
 				counter--;
 			}
@@ -383,10 +294,7 @@ export default class Game extends Phaser.Scene {
 					this.gameRoom.entities.ball.gameObject.setVelocity(3, 3);
 				}
 			}
-			// console.log(countdownUI);
 		}, 1000);
-		// Phaser.DOM.RemoveFromDOM(Phaser.DOM.GetTarget(this.UIElement));
-		// console.log("scene loaded");
 		const graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
 		const point = new Phaser.Math.Vector2(500, 20);
 		for (let offset = 100; offset < 680; offset+=40)
@@ -395,9 +303,6 @@ export default class Game extends Phaser.Scene {
 			const rect = new Phaser.Geom.Rectangle(point.x, point.y, 3, 20);
 			graphics.fillRectShape(rect);
 		}
-		// if (this.gameRoom.engine && this.gameRoom.world && this.gameRoom.entities){
-		// 	this.createGameWorld(this.gameRoom.engine, this.gameRoom.world, this.gameRoom.entities);
-		// }
 		//Assign player to each paddle
 		if (this.gameRoom.entities){
 			if (this.gameRoom.player1SocketId == socket.id){
@@ -410,7 +315,7 @@ export default class Game extends Phaser.Scene {
 	}
 
 	destroy(){
-		this.scene.remove();
+
 	}
 
 	update(){
@@ -418,15 +323,16 @@ export default class Game extends Phaser.Scene {
 		//by doing so, every client we read the same game steps.
 
 		//Interpolate x y coordinates on ball object
-		const ballSnapshot = SI.calcInterpolation('x y', 'ball');;
+		const ballSnapshot = SI.calcInterpolation('x y', 'ball');
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;
 			if (state){
 				const { id, x, y } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
-					this.gameRoom.entities.ball.gameObject.x = x;
-					this.gameRoom.entities.ball.gameObject.y = y;
-					console.log(` x ${x} y ${y}`);
+					if (this.gameRoom.entities.ball.gameObject.body.velocity.x != 0){
+						this.gameRoom.entities.ball.gameObject.x = x;
+						this.gameRoom.entities.ball.gameObject.y = y;
+					}
 				}
 			}
 		}

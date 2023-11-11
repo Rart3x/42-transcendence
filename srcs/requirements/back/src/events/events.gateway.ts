@@ -81,7 +81,6 @@ export class EventsGateway {
 
 	@WebSocketServer() server: any = io("https://localhost:5573");
 
-	// queueList : Array<number> = new Array();
 	queueList : Array<string> = new Array();
 	gameRooms : GameRoom[] = [];
 	roomId: number = 0;
@@ -92,11 +91,11 @@ export class EventsGateway {
 		private readonly UserService: UserService
 	){}
 
-	async afterInit() {
-		const clients = await this.QueueListService.getAllClients();
-		const nbClients = clients.length;
+	afterInit() {
+		// const clients = await this.QueueListService.getAllClients();
+		// const nbClients = clients.length;
 
-		setInterval(async () => {
+		setInterval(() => {
 			if (this.queueList.length == 2){
 				// const gameRoom = await this.GameRoomService.createGameRoom(this.queueList[0], this.queueList[1]);
 				// this.queueList.slice(0, 2);
@@ -134,32 +133,19 @@ export class EventsGateway {
 						//Need a method to update it in the database
 						this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {});
 						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {});
-						// this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {});
 						this.gameRooms.splice(i, 1);
 						return ;
 					}
-					// if (this.gameRooms[i].paused == true){
-						// this.saveGameState(this.gameRooms[i]);
-						// continue ;
-					// }
-					console.log("impossible");
-					this.saveGameState(this.gameRooms[i]);
+					if (this.gameRooms[i].paused == false){
+						this.saveGameState(this.gameRooms[i]);
+					}
 					Engine.update(this.gameRooms[i].engine);
-					// console.log(`ball x: ${this.gameRooms[i].entities.ball.gameObject.position.x} y: ${this.gameRooms[i].entities.ball.gameObject.position.y}\n`)
 				}
 				else if (this.gameRooms[i].running == false){
 					//starting the game
-					// console.log(`${this.gameRooms.length}\n`);
-					// console.log(`game ${i} is not running yet`)
 					this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
-					// this.sendGameInfoToPlayers(this.gameRooms[i]);
-					// this.gameRooms[i].paused = true;
-					// setTimeout(() => {
-						// if (this.gameRooms[i]){
 					this.gameRooms[i].running = true;
-						// }
 					Matter.Engine.run(this.gameRooms[i].engine);
-					// }, 3000);
 				}
 			}
 		}, SERVER_REFRESH_RATE);
@@ -185,6 +171,7 @@ export class EventsGateway {
 			score: new Map<string, number>(),
 			running: false,
 			started: false,
+			paused: false,
 			finish: false,
 			startDate: new Date(),
 			endDate: null
@@ -271,7 +258,6 @@ export class EventsGateway {
 			else{
 				if (player.gameObject.y > gameRoom.entities.ball.gameObject.y){
 					intersectionDeltaY = player.gameObject.y - gameRoom.entities.ball.gameObject.y;
-					// console.log("test rebound");
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
 						x: gameRoom.entities.ball.gameObject.velocity.x,
 						y: gameRoom.entities.ball.gameObject.velocity.y
@@ -294,10 +280,6 @@ export class EventsGateway {
 			pair.bodyA.label == "left" ?
 				gameRoom.score.set(gameRoom.player2SocketId, ++scorePlayer2) :
 				gameRoom.score.set(gameRoom.player1SocketId, ++scorePlayer1);
-			//test score
-			// let testscorePlayer1 = gameRoom.score.get(gameRoom.player1SocketId);
-			// let testscorePlayer2 = gameRoom.score.get(gameRoom.player2SocketId);
-			// console.log(`Score player1 / player2 | ${testscorePlayer1} / ${testscorePlayer2}`)
 		}
 	
 		const ballRespawn = (gameRoom: GameRoom) => {
@@ -324,9 +306,7 @@ export class EventsGateway {
 				x: 0,
 				y: 0
 			});
-			// gameRoom.paused = true;
 			setTimeout(() => {
-				// gameRoom.paused = false;
 				Matter.Body.setPosition(gameRoom.entities.ball.gameObject, {
 					x: 500,
 					y: randY
@@ -337,22 +317,15 @@ export class EventsGateway {
 				});
 				this.server.to(gameRoom.player1SocketId).emit('restartAfterScore', {});
 				this.server.to(gameRoom.player2SocketId).emit('restartAfterScore', {});
+				gameRoom.paused = false;
 			}, 3000);
-			// this.server.to(gameRoom.player2SocketId).emit('scorePoint', {
-			// 	score : {
-			// 		player1: gameRoom.score.get(gameRoom.player1SocketId),
-			// 		player2: gameRoom.score.get(gameRoom.player2SocketId)
-			// 	},
-			// 	ball: {
-			// 		y: gameRoom.entities.ball.gameObject.y
-			// 	}
-			// });
 		}
 
 		Matter.Events.on(engine, 'collisionStart', function(event : Matter.IEventCollision<Matter.Engine>) {
 			event.pairs.forEach(function(pair: Matter.Pair) {
 				//Ball score
 				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "left" || pair.bodyA.label == "right")){
+					gameRoom.paused = true;
 					scorePoint(pair, gameRoom);
 					ballRespawn(gameRoom);
 				}
@@ -364,61 +337,41 @@ export class EventsGateway {
 		});
 	}
 
-
-	sendGameInfoToPlayers(gameRoom: GameRoom){
-
-		// this.server.to(gameRoom.player1SocketId).emit('init', {});
-		// this.server.to(gameRoom.player2SocketId).emit('init', {
-		// 	roomId: gameRoom.roomId,
-		// 	player1SocketId: gameRoom.player1SocketId,
-		// 	player2SocketId: gameRoom.player2SocketId
-		// });
-	}
-
 	@SubscribeMessage('playerJoinQueue')
 	handleEvent(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() userId: number): void {
-		// this.queueList.push(userId);
-		// console.info(socket);
-		if (this.queueList.length == 0){
-			// socket.join(socket.id);
-		}
-		else {
-			// socket.join(this.queueList[0]);
-		}
 		this.queueList.push(socket.id);
 		this.server.to(socket.id).emit('matchmaking', {});
-		// this.server.to(this.queueList[0]).emit('matchmaking', {});
-		// this.queueList.push(userId);
-		// console.log(`${socket.id} joined the queue`)
-		// setInterval(() => {
-		// 	for (let i = 0; i < this.queueList.length; i++){
-		// 		console.log(`In queue ${i}: ${userId}`);
-		// 	}
-		// }, SERVER_REFRESH_RATE);
+	}
+
+	@SubscribeMessage('playAgain')
+	handleReplay(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() roomId: number): void {
+		let gameRoom = this.findCorrespondingGame(roomId);
+		if (gameRoom.player1SocketId == socket.id){
+			this.server.to(gameRoom.player2SocketId).emit('playAgain');
+		}
+		else{
+			this.server.to(gameRoom.player1SocketId).emit('playAgain');
+		}
 	}
 
 	@SubscribeMessage('playerReady')
 	handlePlayerReady(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() roomId: number): void {
-		// console.log("test");
 		var gameRoom : GameRoom = this.findCorrespondingGame(roomId);
-		// console.log(gameRoom);
 		if (socket.id == gameRoom.player1SocketId){
 			gameRoom.player1Ready = true;
 			this.server.to(gameRoom.player2SocketId).emit('otherPlayerReady', {});
-			// console.log("player1 is ready");
 		}
 		else{
 			gameRoom.player2Ready = true;
-			// console.log("player2 is ready");
 			this.server.to(gameRoom.player1SocketId).emit('otherPlayerReady', {});
 		}
 		if (gameRoom.player1Ready == true && gameRoom.player2Ready == true){
-			// console.log("both player are ready");
-			// gameRoom.player2SocketId.join(gameRoom.player1SocketId);
 			this.server.to(gameRoom.player1SocketId).emit('init', {});
 			this.server.to(gameRoom.player2SocketId).emit('init', {});
 			setTimeout(() => {
@@ -428,7 +381,6 @@ export class EventsGateway {
 					y: 3
 				});
 			}, 6000);
-			// this.server.to(gameRoom.player2SocketId).emit('init', {});
 		}
 	}
 
@@ -456,15 +408,10 @@ export class EventsGateway {
 			players : playerState,
 			ball: ballState
 		}
-
-		// console.log(`Engine state: ${globalState}`);
-
 		const snapshot = SI.snapshot.create(globalState);
 
 		this.server.to(gameRoom.player1SocketId).emit('snapshot', snapshot);
 		this.server.to(gameRoom.player2SocketId).emit('snapshot', snapshot);
-
-		// this.server.to(gameRoom.player2SocketId).emit('snapshot', snapshot);
 	}
 
 	@SubscribeMessage('playerMovement')
@@ -488,7 +435,6 @@ export class EventsGateway {
 						y: Math.min(Math.max(data.y, 65), 735)
 					});
 				}
-				// console.log(`player 1 position: x ${this.gameRooms[i].entities.players[0].gameObject.position.x} y ${this.gameRooms[i].entities.players[0].gameObject.position.y} \n player 2 position x ${this.gameRooms[i].entities.players[1].gameObject.position.x} y ${this.gameRooms[i].entities.players[1].gameObject.position.y} \n`)
 			}
 		}
 	}

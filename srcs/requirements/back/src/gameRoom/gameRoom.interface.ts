@@ -19,6 +19,7 @@ export interface GameRoom {
     score: Map<string, number>;
     running: Boolean;
     started: Boolean;
+    paused: Boolean;
     finish: Boolean;
     startDate: Date;
     endDate: Date | null;
