@@ -147,7 +147,7 @@ export default class Game extends Phaser.Scene {
 
 			let userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
 			let userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
-	
+
 			if (socket.id == this.gameRoom.player1SocketId){
 				userProfile1Name.innerText = user.userName;
 				userProfile2Name.innerText = data.player2Name;
@@ -162,7 +162,6 @@ export default class Game extends Phaser.Scene {
 
 		 	this.load.image('userImage1', imagePathPlayer1);
 			this.load.image('userImage2', imagePathPlayer2);
-
 	
 			this.load.once(Phaser.Loader.Events.COMPLETE, () => {
 				Phaser.DOM.AddToDOM(this.textures.get('userImage1').getSourceImage() as HTMLElement, 'userProfile1');
@@ -174,7 +173,6 @@ export default class Game extends Phaser.Scene {
 			let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
 			let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
 			let isReadyButtonPlayer2 = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
-
 			
 			var self = this;
 
@@ -196,6 +194,8 @@ export default class Game extends Phaser.Scene {
 				socket.emit('playerReady', self.gameRoom.id);
 			});
 		});
+
+		//Happy Birthday to our lead developper kenny <3
 
 		socket.on('otherPlayerReady', () => {
 			let otherPlayerProfile : any;
