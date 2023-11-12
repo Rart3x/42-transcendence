@@ -122,7 +122,9 @@ export class EventsGateway {
 					player1SocketId: localRoom.player1SocketId,
 					player2SocketId: localRoom.player2SocketId,
 					player1Name: user1.userName,
-					player2Name: user2.userName
+					player2Name: user2.userName,
+					player1Image: user1.image,
+					player2Image: user2.image
 				});
 
 				this.server.to(localRoom.player2SocketId).emit('lobby', {
@@ -130,7 +132,9 @@ export class EventsGateway {
 					player1SocketId: localRoom.player1SocketId,
 					player2SocketId: localRoom.player2SocketId,
 					player1Name: user1.userName,
-					player2Name: user2.userName
+					player2Name: user2.userName,
+					player1Image: user1.image,
+					player2Image: user2.image
 				});
 			}
 

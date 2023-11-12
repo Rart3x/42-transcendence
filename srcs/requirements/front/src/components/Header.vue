@@ -42,6 +42,7 @@
     let imagePath = "../assets/userImages/" + user.value.image;
     import(/* @vite-ignore */ imagePath).then((image) => {
       imageSrc.value = image.default;
+      console.log(imageSrc.value);
     });
     const allUsers = await getAllUsers();
     users.value = allUsers;
