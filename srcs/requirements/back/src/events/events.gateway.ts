@@ -48,6 +48,7 @@ import { takeCoverage } from 'v8';
 import { Server } from 'ws';
 import { isArray } from 'class-validator';
 
+
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //ALIASES------------------------------------------------------------------------------------------------------------------------------------
@@ -96,29 +97,40 @@ export class EventsGateway {
 
 		setInterval(async () => {
 			if (this.queueList && this.queueList.size == 2){
+
 				const first = this.queueList.entries().next().value;
+
+				this.queueList.delete(first[0]);
+
 				const second = this.queueList.entries().next().value;
 
-				console.log(`userId ${first[0]} socketId ${first[1]}`);
-				const gameRoom = await this.GameRoomService.createGameRoom(first, second);
-				
-				const localRoom = this.createGameRoomLocal(this.roomId++, first, second);
+				const user1 = await  this.UserService.getUserById(first[0]);
 
-				this.queueList.delete(first.key);
-				this.queueList.delete(second.key);
+				const user2 = await this.UserService.getUserById(second[0]);
 				
+				console.log(user1, user2);
+				this.queueList.delete(second[0]);
+
+				const gameRoom = await this.GameRoomService.createGameRoom(first, second);
+
+				const localRoom = this.createGameRoomLocal(gameRoom.id, first, second);
+
 				this.gameRooms.push(localRoom);
 
 				this.server.to(localRoom.player1SocketId).emit('lobby', {
 					roomId: localRoom.roomId,
 					player1SocketId: localRoom.player1SocketId,
-					player2SocketId: localRoom.player2SocketId
+					player2SocketId: localRoom.player2SocketId,
+					player1Name: user1.userName,
+					player2Name: user2.userName
 				});
 
 				this.server.to(localRoom.player2SocketId).emit('lobby', {
 					roomId: localRoom.roomId,
 					player1SocketId: localRoom.player1SocketId,
-					player2SocketId: localRoom.player2SocketId
+					player2SocketId: localRoom.player2SocketId,
+					player1Name: user1.userName,
+					player2Name: user2.userName
 				});
 			}
 
@@ -127,20 +139,21 @@ export class EventsGateway {
 					//save game state and sending it to game players
 					this.checkWinCondition(this.gameRooms[i]);
 					if (this.gameRooms[i].finish){
+
 						//Need a method to update it in the database
 						this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {});
+
 						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {});
+
 						this.gameRooms[i].finish = true;
-						// this.gameRooms.splice(i, 1);
-						// return ;
+						this.GameRoomService.updateGameRoom(this.gameRooms[i].roomId, this.gameRooms[i].player1SocketId, this.gameRooms[i].player2SocketId, this.gameRooms[i].score);
 					}
-					// if (this.gameRooms[i].paused == false){
-						this.saveGameState(this.gameRooms[i]);
-					// }
+					this.saveGameState(this.gameRooms[i]);
+
 					Engine.update(this.gameRooms[i].engine);
 				}
 				else if (this.gameRooms[i].running == false){
-					//starting the game
+					//Starting the game
 					this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
 					this.gameRooms[i].running = true;
 					Matter.Engine.run(this.gameRooms[i].engine);
@@ -151,6 +164,7 @@ export class EventsGateway {
 
 	checkWinCondition(gameRoom: GameRoom){
 		const scorePlayer1 = gameRoom.score.get(gameRoom.player1SocketId);
+
 		const scorePlayer2 = gameRoom.score.get(gameRoom.player2SocketId);
 
 		(scorePlayer1 >= 3 || scorePlayer2 >= 3) ? gameRoom.finish = true : gameRoom.finish = false;
@@ -341,9 +355,8 @@ export class EventsGateway {
 	handleEvent(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() userId: number): void {
-		console.log(`userId: ${userId} socketId: ${socket.id}`);
-		if (this.queueList)
-			this.queueList.set(userId, socket.id);
+		// console.log(`userId: ${userId} socketId: ${socket.id}`);
+		this.queueList.set(userId, socket.id);
 		this.server.to(socket.id).emit('matchmaking', {});
 	}
 

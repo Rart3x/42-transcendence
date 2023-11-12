@@ -11,7 +11,7 @@ export interface User {
     roomId: number | null;
     room: GameRoom | null;
     
-    queueId : number | null;
+    queueId: number | null;
     queue: QueueList | null;
 
     statId: number | null;
@@ -19,5 +19,5 @@ export interface User {
 
     cookie: string | null;
     image: string | null;
-    socket : string | null; 
+    socket: string | null; 
 }

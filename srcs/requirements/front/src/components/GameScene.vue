@@ -28,12 +28,18 @@ function Between(min : number, max : number){
 	return (Math.random() * (max - min) + min)
 }
 
+//get user
 const token = await Cookies.get("_authToken");
-// console.log(token);
 const user = await getUserByCookie(token);
 
-// console.log(user);
-// 
+//get image path
+let imagePath = "../assets/userImages/" + user.image;
+
+await import(/* @vite-ignore */ imagePath).then((image) => {
+	user.image = image.default;
+});
+
+
 //Create and bind our socke to the server
 const socket = io('http://localhost:3000');
 
@@ -55,7 +61,6 @@ export default class Game extends Phaser.Scene {
 
 
 	constructor(){
-		console.log(user);
 		super("game");
 	}
 
@@ -68,7 +73,7 @@ export default class Game extends Phaser.Scene {
 		//Particles sprite
 		this.load.image('red', 'red.png');
 		//html
-		this.load.html('loading', '../assets/loading.html');
+		// this.load.html('loading', '../assets/loading.html');
 		this.load.image('userImage', 'userImages/dguillau.jpg');
 
 	}
@@ -89,9 +94,10 @@ export default class Game extends Phaser.Scene {
 			<div class="..."><button id="inQueueButton" class="btn btn-primary ml-5 ...">Find game</button><div> \
 		</div> \
 		');
+
 		let inQueueButton = this.UIElement.node.querySelector('#inQueueButton') as HTMLElement;
+		
 		inQueueButton.addEventListener('click', function() {
-			console.log("test join queue");
 			socket.emit('playerJoinQueue', user.userId);
 			self.UIElement.destroy();
 			self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
@@ -106,24 +112,26 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('lobby', (data) => {
 			this.UIElement.destroy();
-
+    
 			this.gameRoom =  new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
 
 			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-5 grid-cols-3 justify-items-center gap-y-8 gap-x-32"> \
 			<div class="avatar row-start-2"> \
 				<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+					<img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" /> \
 				</div> \
 			</div> \
 			<div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
 			<div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
 				<div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+				    <img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" /> \
 				</div> \
 			</div> \
 			<div class="row-start-3 ..."> \
-				<h1 class="text-4xl font-bold dark:text-white ...">dguillau</h1> \
+				<h1 id="player1Name" class="text-4xl font-bold dark:text-white ..."></h1> \
 			</div> \
 			<div class="row-start-3 col-start-3 col-end-4 ..."> \
-				<h1 class="text-4xl font-bold dark:text-white">random</h1> \
+				<h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
 			</div> \
 			<div class="row-start-4 col-start-1 col-end-2"> \
 				<button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready  </button> \
@@ -133,14 +141,34 @@ export default class Game extends Phaser.Scene {
 			</div> \
 			<div class="row-start-5 col-start-2 col-end-3 ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
 			</div>');
-			
+	
+			let userProfile1 = this.UIElement.node.querySelector("#userProfile1");
+			let userProfile2 = this.UIElement.node.querySelector("#userProfile2");
+			let userProfile1Img = userProfile1.querySelector("img");
+			let userProfile2Img = userProfile2.querySelector("img");
+
+			let userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
+			let userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
+	
+			if (socket.id == this.gameRoom.player1SocketId){
+				userProfile1Img.src = imagePath;
+				userProfile1Name.innerText = user.userName;
+				userProfile2Name.innerText = data.player2Name;
+			}
+			else{
+				userProfile2Img.src = imagePath;
+				userProfile2Name.innerText = user.userName;
+				userProfile1Name.innerText = data.player1Name;
+			}
+
 			Phaser.DOM.AddToDOM(this.textures.get('userImage').getSourceImage() as HTMLElement, 'userProfile1');
+			Phaser.DOM.AddToDOM(this.textures.get('userImage').getSourceImage() as HTMLElement, 'userProfile2');
+
 			let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
 			let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
 			let isReadyButtonPlayer2 = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
 
-			let userProfile1 = this.UIElement.node.querySelector("#userProfile1");
-			let userProfile2 = this.UIElement.node.querySelector("#userProfile2");
+
 			
 			var self = this;
 
@@ -250,7 +278,6 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('playAgain', () => {
-			// console.log("other player wants to play again");
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
 			if (socket.id == this?.gameRoom?.player1SocketId){
 				this.gameRoom.player2PlayAgain = true;

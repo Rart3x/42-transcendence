@@ -192,6 +192,12 @@ export class UserService {
     });
   }
 
+  async getUserById(userId: number) {
+    return await this.prisma.user.findFirst({
+      where: { userId: userId },
+    });
+  }
+
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {
       return this.prisma.user.findUnique({
@@ -252,5 +258,4 @@ export class UserService {
 
     return await this.getUserByName(userName);
   }
-
 }
