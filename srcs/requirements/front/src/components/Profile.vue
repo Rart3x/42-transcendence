@@ -148,6 +148,9 @@
 </template>
 
 <style>
+  .stats{
+  border-radius: unset;
+}
   .addingFriend {
     text-align: center;
   }
