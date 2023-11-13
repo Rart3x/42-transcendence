@@ -403,21 +403,17 @@ export class EventsGateway {
 		if (gameRoom){
 			const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
 			const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
-			console.log(`socket id is ${socket.id}`);
 			if (gameRoom.player1SocketId == socket.id){
 				this.server.to(gameRoom.player2SocketId).emit('playAgain');
-				console.log("player1 is ready to play again");
 				gameRoom.player1Ready = true;
 			}
 			else if (gameRoom.player2SocketId == socket.id){
-				console.log("player2 is ready to play again");
 				this.server.to(gameRoom.player1SocketId).emit('playAgain');
 				gameRoom.player2Ready = true;
 			}
 			if (gameRoom.player1Ready == true && gameRoom.player2Ready == true){
 				let indexGameRoom = this.gameRooms.indexOf(gameRoom);
 				this.gameRooms.splice(indexGameRoom, 1);
-				console.log("both player are ready to play again");
 				const localRoom = this.createGameRoomLocal(gameRoom.roomId, [ gameRoom.player1UserId, gameRoom.player1SocketId ],  [ gameRoom.player2UserId, gameRoom.player2SocketId ]);
 				this.gameRooms.push(localRoom);
 				setTimeout(() => {
