@@ -1,8 +1,9 @@
 import { User } from '../user/user.interface';
+import { Score } from '../score/score.interface';
 
 import {
-Engine,
-World
+    Engine,
+    World
 } from 'matter-js';
 
 import Entities  from '../entities/entities';
@@ -18,7 +19,8 @@ export interface GameRoom {
     world: World | null;
     engine: Engine | null ;
     entities: Entities | null;
-    score: Map<string, number>;
+    scoreActual: Map<string, number>;
+    score: Score[];
     running: Boolean;
     started: Boolean;
     paused: Boolean;

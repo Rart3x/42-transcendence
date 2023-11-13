@@ -31,6 +31,7 @@ import { GameRoomService } from '../gameRoom/gameRoom.service';
 import { Prisma } from '@prisma/client';
 
 //Interfaces
+import { Score } from '../score/score.interface';
 import { GameRoom } from '../gameRoom/gameRoom.interface';
 
 //Initialize the snapshot library
@@ -107,12 +108,13 @@ export class EventsGateway {
 				const user1 = await  this.UserService.getUserById(first[0]);
 
 				const user2 = await this.UserService.getUserById(second[0]);
-				
-				console.log(user1, user2);
+
 				this.queueList.delete(second[0]);
 
+				//Database service
 				const gameRoom = await this.GameRoomService.createGameRoom(first, second);
 
+				//Create same variable but in local so its easier to access
 				const localRoom = this.createGameRoomLocal(gameRoom.id, first, second);
 
 				this.gameRooms.push(localRoom);
@@ -140,16 +142,19 @@ export class EventsGateway {
 
 			for (let i = 0; i < this.gameRooms.length; i++){
 				if (this.gameRooms[i].running && this.gameRooms[i].started && this.gameRooms[i].finish == false){
-					//save game state and sending it to game players
+					//Loop through every game room
+					//If the game was launch then save her state every SERVER_REFRESH_RATE ms and sending it to game both players of the game.
+					//If it wasnt then launch the game engine
 					this.checkWinCondition(this.gameRooms[i]);
 					if (this.gameRooms[i].finish){
-
 						//Need a method to update it in the database
 						this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {});
 
 						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {});
 
 						this.gameRooms[i].finish = true;
+						this.gameRooms[i].endDate = new Date();
+						// console.log(this.gameRooms[i].endDate.getMinutes(), this.gameRooms[i].endDate.getSeconds());
 						this.GameRoomService.updateGameRoom(this.gameRooms[i].roomId, this.gameRooms[i].player1SocketId, this.gameRooms[i].player2SocketId, this.gameRooms[i].score);
 					}
 					this.saveGameState(this.gameRooms[i]);
@@ -160,6 +165,7 @@ export class EventsGateway {
 					//Starting the game
 					this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
 					this.gameRooms[i].running = true;
+					// console.log(this.gameRooms[i].startDate.getMinutes(), this.gameRooms[i].startDate.getSeconds());
 					Matter.Engine.run(this.gameRooms[i].engine);
 				}
 			}
@@ -167,9 +173,9 @@ export class EventsGateway {
 	}
 
 	checkWinCondition(gameRoom: GameRoom){
-		const scorePlayer1 = gameRoom.score.get(gameRoom.player1SocketId);
+		const scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
 
-		const scorePlayer2 = gameRoom.score.get(gameRoom.player2SocketId);
+		const scorePlayer2 = gameRoom.scoreActual.get(gameRoom.player2SocketId);
 
 		(scorePlayer1 >= 3 || scorePlayer2 >= 3) ? gameRoom.finish = true : gameRoom.finish = false;
 	}
@@ -186,7 +192,8 @@ export class EventsGateway {
 			world: null,
 			engine: null,
 			entities: null,
-			score: new Map<string, number>(),
+			scoreActual: new Map<string, number>(),
+			score: [],
 			running: false,
 			started: false,
 			paused: false,
@@ -202,8 +209,8 @@ export class EventsGateway {
 		gameRoom.engine.gravity.y = 0;
 
 		//Default score
-		gameRoom.score.set(player1[1], 0);
-		gameRoom.score.set(player2[1], 0);
+		gameRoom.scoreActual.set(player1[1], 0);
+		gameRoom.scoreActual.set(player2[1], 0);
 
 		gameRoom.entities = this.createEntities(player1[1], player2[1]);
 		gameRoom.world = gameRoom.engine.world;
@@ -292,20 +299,46 @@ export class EventsGateway {
 		}
 
 		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoom) => {
-			let scorePlayer1 = gameRoom.score.get(gameRoom.player1SocketId);
-			let scorePlayer2 = gameRoom.score.get(gameRoom.player2SocketId);
+			let scorerId : number;
+			let scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
+			let scorePlayer2  = gameRoom.scoreActual.get(gameRoom.player2SocketId);
 
-			pair.bodyA.label == "left" ?
-				gameRoom.score.set(gameRoom.player2SocketId, ++scorePlayer2) :
-				gameRoom.score.set(gameRoom.player1SocketId, ++scorePlayer1);
+			if (pair.bodyA.label == "left"){
+				scorerId = gameRoom.player1UserId;
+				gameRoom.scoreActual.set(gameRoom.player1SocketId, ++scorePlayer1);
+			}
+			else {
+				scorerId = gameRoom.player2UserId;
+				gameRoom.scoreActual.set(gameRoom.player2SocketId, ++scorePlayer2);
+			}
+			let scoreDate = new Date();
+			
+			let timeDiff = (scoreDate.valueOf() - gameRoom.startDate.valueOf()) / 1000;
+			let newScore : Score = {
+				time: timeDiff,
+				scorerId: scorerId,
+				score: [
+					{
+						userId: gameRoom.player1UserId,
+						score: scorePlayer1 
+					},
+					{
+						userId: gameRoom.player2UserId,
+						score: scorePlayer2 
+
+					}
+				]
+			}
+			console.log(newScore);
+			gameRoom.score.push(newScore);
 		}
 	
 		const ballRespawn = (gameRoom: GameRoom) => {
 			let randY = Between(10, 790);
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
-					player1: gameRoom.score.get(gameRoom.player1SocketId),
-					player2: gameRoom.score.get(gameRoom.player2SocketId)
+					player1: gameRoom.scoreActual.get(gameRoom.player1SocketId),
+					player2: gameRoom.scoreActual.get(gameRoom.player2SocketId)
 				},
 				ball: {
 					y: randY
@@ -313,8 +346,8 @@ export class EventsGateway {
 			});
 			this.server.to(gameRoom.player2SocketId).emit('scorePoint', {
 				score : {
-					player1: gameRoom.score.get(gameRoom.player1SocketId),
-					player2: gameRoom.score.get(gameRoom.player2SocketId)
+					player1: gameRoom.scoreActual.get(gameRoom.player1SocketId),
+					player2: gameRoom.scoreActual.get(gameRoom.player2SocketId)
 				},
 				ball: {
 					y: randY
@@ -369,13 +402,10 @@ export class EventsGateway {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() roomId: number): void {
 		let gameRoom = this.findCorrespondingGame(roomId);
-		// console.log(gameRoom)
 		if (gameRoom?.player1SocketId == socket.id){
-			// console.log("player 1 wants to play again");
 			this.server.to(gameRoom.player2SocketId).emit('playAgain');
 		}
 		else if (gameRoom?.player2SocketId == socket.id){
-			// console.log("player 2 wants to play again");
 			this.server.to(gameRoom.player1SocketId).emit('playAgain');
 		}
 	}
@@ -425,7 +455,7 @@ export class EventsGateway {
 			y : gameRoom.entities.players[1].gameObject.position.y,
 		}]
 
-		//better use JSON stringify function to do this
+		//Better use JSON stringify function to do this
 		const globalState = {
 			players : playerState,
 			ball: ballState
