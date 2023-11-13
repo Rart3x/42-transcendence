@@ -154,7 +154,6 @@ export class EventsGateway {
 
 						this.gameRooms[i].finish = true;
 						this.gameRooms[i].endDate = new Date();
-						// console.log(this.gameRooms[i].endDate.getMinutes(), this.gameRooms[i].endDate.getSeconds());
 						this.GameRoomService.updateGameRoom(this.gameRooms[i].roomId, this.gameRooms[i].player1SocketId, this.gameRooms[i].player2SocketId, this.gameRooms[i].score);
 					}
 					this.saveGameState(this.gameRooms[i]);
@@ -165,7 +164,6 @@ export class EventsGateway {
 					//Starting the game
 					this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
 					this.gameRooms[i].running = true;
-					// console.log(this.gameRooms[i].startDate.getMinutes(), this.gameRooms[i].startDate.getSeconds());
 					Matter.Engine.run(this.gameRooms[i].engine);
 				}
 			}
@@ -304,15 +302,16 @@ export class EventsGateway {
 			let scorePlayer2  = gameRoom.scoreActual.get(gameRoom.player2SocketId);
 
 			if (pair.bodyA.label == "left"){
-				scorerId = gameRoom.player1UserId;
-				gameRoom.scoreActual.set(gameRoom.player1SocketId, ++scorePlayer1);
-			}
-			else {
 				scorerId = gameRoom.player2UserId;
 				gameRoom.scoreActual.set(gameRoom.player2SocketId, ++scorePlayer2);
 			}
+			else{
+				scorerId = gameRoom.player1UserId;
+				gameRoom.scoreActual.set(gameRoom.player1SocketId, ++scorePlayer1);
+			}
+
 			let scoreDate = new Date();
-			
+
 			let timeDiff = (scoreDate.valueOf() - gameRoom.startDate.valueOf()) / 1000;
 			let newScore : Score = {
 				time: timeDiff,
@@ -325,14 +324,12 @@ export class EventsGateway {
 					{
 						userId: gameRoom.player2UserId,
 						score: scorePlayer2 
-
 					}
 				]
 			}
-			console.log(newScore);
 			gameRoom.score.push(newScore);
 		}
-	
+
 		const ballRespawn = (gameRoom: GameRoom) => {
 			let randY = Between(10, 790);
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
@@ -392,13 +389,63 @@ export class EventsGateway {
 	handleEvent(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() userId: number): void {
-		// console.log(`userId: ${userId} socketId: ${socket.id}`);
 		this.queueList.set(userId, socket.id);
 		this.server.to(socket.id).emit('matchmaking', {});
 	}
 
 	@SubscribeMessage('playAgain')
-	handleReplay(
+	async handleReplay(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() roomId: number) {
+
+		let gameRoom = this.findCorrespondingGame(roomId);
+
+		if (gameRoom){
+			const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
+			const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
+			console.log(`socket id is ${socket.id}`);
+			if (gameRoom.player1SocketId == socket.id){
+				this.server.to(gameRoom.player2SocketId).emit('playAgain');
+				console.log("player1 is ready to play again");
+				gameRoom.player1Ready = true;
+			}
+			else if (gameRoom.player2SocketId == socket.id){
+				console.log("player2 is ready to play again");
+				this.server.to(gameRoom.player1SocketId).emit('playAgain');
+				gameRoom.player2Ready = true;
+			}
+			if (gameRoom.player1Ready == true && gameRoom.player2Ready == true){
+				let indexGameRoom = this.gameRooms.indexOf(gameRoom);
+				this.gameRooms.splice(indexGameRoom, 1);
+				console.log("both player are ready to play again");
+				const localRoom = this.createGameRoomLocal(gameRoom.roomId, [ gameRoom.player1UserId, gameRoom.player1SocketId ],  [ gameRoom.player2UserId, gameRoom.player2SocketId ]);
+				this.gameRooms.push(localRoom);
+				setTimeout(() => {
+					this.server.to(gameRoom.player1SocketId).emit('lobby', {
+						roomId: gameRoom.roomId,
+						player1SocketId: gameRoom.player1SocketId,
+						player2SocketId: gameRoom.player2SocketId,
+						player1Name: user1.userName,
+						player2Name: user2.userName,
+						player1Image: user1.image,
+						player2Image: user2.image
+					});
+					this.server.to(gameRoom.player2SocketId).emit('lobby', {
+						roomId: gameRoom.roomId,
+						player1SocketId: gameRoom.player1SocketId,
+						player2SocketId: gameRoom.player2SocketId,
+						player1Name: user1.userName,
+						player2Name: user2.userName,
+						player1Image: user1.image,
+						player2Image: user2.image
+					});
+				});
+			}
+		}
+	}
+
+	@SubscribeMessage('playAgain')
+	handle(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() roomId: number): void {
 		let gameRoom = this.findCorrespondingGame(roomId);
@@ -432,6 +479,8 @@ export class EventsGateway {
 					x: 3,
 					y: 3
 				});
+				gameRoom.player2Ready = false;
+				gameRoom.player1Ready = false;
 			}, 7000);
 		}
 	}

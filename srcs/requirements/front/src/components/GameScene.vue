@@ -113,86 +113,8 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('lobby', (data) => {
 			this.UIElement.destroy();
-    
-			this.gameRoom =  new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
 
-			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-5 grid-cols-3 justify-items-center gap-y-8 gap-x-32"> \
-			<div class="avatar row-start-2"> \
-				<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
-				</div> \
-			</div> \
-			<div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
-			<div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
-				<div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
-				</div> \
-			</div> \
-			<div class="row-start-3 ..."> \
-				<h1 id="player1Name" class="text-4xl font-bold dark:text-white ..."></h1> \
-			</div> \
-			<div class="row-start-3 col-start-3 col-end-4 ..."> \
-				<h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
-			</div> \
-			<div class="row-start-4 col-start-1 col-end-2"> \
-				<button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready  </button> \
-			</div> \
-			<div class="row-start-4 col-start-3 col-end-4"> \
-				<button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready  </button> \
-			</div> \
-			<div class="row-start-5 col-start-2 col-end-3 ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
-			</div>');
-	
-			let userProfile1 = this.UIElement.node.querySelector("#userProfile1");
-			let userProfile2 = this.UIElement.node.querySelector("#userProfile2");
-
-
-			let userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
-			let userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
-
-			if (socket.id == this.gameRoom.player1SocketId){
-				userProfile1Name.innerText = user.userName;
-				userProfile2Name.innerText = data.player2Name;
-			}
-			else{
-				userProfile2Name.innerText = user.userName;
-				userProfile1Name.innerText = data.player1Name;
-			}
-
-			let imagePathPlayer1 = "userImages/" + data.player1Image;
-			let imagePathPlayer2 = "userImages/" + data.player2Image;
-
-		 	this.load.image('userImage1', imagePathPlayer1);
-			this.load.image('userImage2', imagePathPlayer2);
-	
-			this.load.once(Phaser.Loader.Events.COMPLETE, () => {
-				Phaser.DOM.AddToDOM(this.textures.get('userImage1').getSourceImage() as HTMLElement, 'userProfile1');
-				Phaser.DOM.AddToDOM(this.textures.get('userImage2').getSourceImage() as HTMLElement, 'userProfile2');
-			});
-
-			this.load.start();
-
-			let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
-			let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
-			let isReadyButtonPlayer2 = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
-			
-			var self = this;
-
-			startButton.addEventListener('click', function() {
-				if (socket.id == self.gameRoom.player2SocketId){
-					isReadyButtonPlayer2.innerText = 'Ready';
-					isReadyButtonPlayer2.className = 'btn no-animation btn-active btn-accent';
-					if (userProfile2){
-						userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
-					}
-				}
-				else{
-					isReadyButtonPlayer1.innerText = 'Ready';
-					isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
-					if (userProfile1){
-						userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
-					}
-				}
-				socket.emit('playerReady', self.gameRoom.id);
-			});
+			this.startLobby(data);
 		});
 
 		//Happy Birthday to our lead developper kenny <3
@@ -224,10 +146,12 @@ export default class Game extends Phaser.Scene {
 			this.gameRoom.engine.gravity.y = 0;
 
 			this.matter.world.disableGravity();
+
 			this.matter.world.setBounds();
+	
         	this.gameRoom.world = this.gameRoom.engine.world;
 
-			this.time.delayedCall(3000, self.spawnSceneProps, [], self);
+			this.time.delayedCall(4000, self.spawnSceneProps, [], self);
 		});
 
 		//Mouse hook for movement
@@ -280,7 +204,7 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('restartAfterScore', () => {
-				this?.gameRoom?.entities?.ball.gameObject.setVelocity(3, 3);
+			this?.gameRoom?.entities?.ball.gameObject.setVelocity(3, 3);
 		});
 
 		socket.on('playAgain', () => {
@@ -334,9 +258,6 @@ export default class Game extends Phaser.Scene {
 					}
 				}
 				socket.emit('playAgain', this.gameRoom.id);
-				// setTimeout(() => {
-				// 	this.UIElement.destroy();
-				// }, 3000);
 			});
 			stopButton.addEventListener('click', () => {
 				socket.emit('stopPlay', this.gameRoom.id);
@@ -349,6 +270,90 @@ export default class Game extends Phaser.Scene {
 		socket.on('snapshot', (data) => {
 			//Read the snapshot
 			SI.snapshot.add(data);
+		});
+	}
+
+	startLobby(data : any){
+		if (this.gameRoom){
+			delete this.gameRoom;
+		}
+		this.gameRoom =  new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
+
+		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-5 grid-cols-3 justify-items-center gap-y-8 gap-x-32"> \
+		<div class="avatar row-start-2"> \
+			<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+			</div> \
+		</div> \
+		<div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
+		<div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
+			<div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+			</div> \
+		</div> \
+		<div class="row-start-3 ..."> \
+			<h1 id="player1Name" class="text-4xl font-bold dark:text-white ..."></h1> \
+		</div> \
+		<div class="row-start-3 col-start-3 col-end-4 ..."> \
+			<h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
+		</div> \
+		<div class="row-start-4 col-start-1 col-end-2"> \
+			<button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready  </button> \
+		</div> \
+		<div class="row-start-4 col-start-3 col-end-4"> \
+			<button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready  </button> \
+		</div> \
+		<div class="row-start-5 col-start-2 col-end-3 ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
+		</div>');
+
+		let userProfile1 = this.UIElement.node.querySelector("#userProfile1");
+		let userProfile2 = this.UIElement.node.querySelector("#userProfile2");
+
+		let userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
+		let userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
+
+		if (socket.id == this.gameRoom.player1SocketId){
+			userProfile1Name.innerText = user.userName;
+			userProfile2Name.innerText = data.player2Name;
+		}
+		else{
+			userProfile2Name.innerText = user.userName;
+			userProfile1Name.innerText = data.player1Name;
+		}
+
+		let imagePathPlayer1 = "userImages/" + data.player1Image;
+		let imagePathPlayer2 = "userImages/" + data.player2Image;
+
+		this.load.image('userImage1', imagePathPlayer1);
+		this.load.image('userImage2', imagePathPlayer2);
+
+		this.load.once(Phaser.Loader.Events.COMPLETE, () => {
+			Phaser.DOM.AddToDOM(this.textures.get('userImage1').getSourceImage() as HTMLElement, 'userProfile1');
+			Phaser.DOM.AddToDOM(this.textures.get('userImage2').getSourceImage() as HTMLElement, 'userProfile2');
+		});
+
+		this.load.start();
+
+		let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
+		let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
+		let isReadyButtonPlayer2 = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
+		
+		var self = this;
+
+		startButton.addEventListener('click', function() {
+			if (socket.id == self.gameRoom.player2SocketId){
+				isReadyButtonPlayer2.innerText = 'Ready';
+				isReadyButtonPlayer2.className = 'btn no-animation btn-active btn-accent';
+				if (userProfile2){
+					userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+				}
+			}
+			else{
+				isReadyButtonPlayer1.innerText = 'Ready';
+				isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
+				if (userProfile1){
+					userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+				}
+			}
+			socket.emit('playerReady', self.gameRoom.id);
 		});
 	}
 
@@ -438,6 +443,7 @@ export default class Game extends Phaser.Scene {
 		//Interpolate x y coordinates on ball object
 		const ballSnapshot = SI.calcInterpolation('x y', 'ball');
 		if (ballSnapshot) {
+			console.log("update ball");
 			const { state } = ballSnapshot;
 			if (state){
 				const { id, x, y } = state[0];
