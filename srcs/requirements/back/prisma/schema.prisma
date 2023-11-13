@@ -57,6 +57,19 @@ model Message {
   sender        User?     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
 }
 
+model PrivateMessage { 
+  privateMessageId    Int       @id @default(autoincrement())
+
+  privateMessageText  String
+  privateMessageDate  DateTime @default(now()) @db.Timestamp(6)
+
+  senderName          String
+  sender              User      @relation("PrivateMessageSender", fields: [senderName], references: [userName], onDelete: Cascade, onUpdate: Cascade)
+
+  receiverName        String
+  receiver            User      @relation("PrivateMessageReceiver", fields: [receiverName], references: [userName], onDelete: Cascade, onUpdate: Cascade)
+}
+
 model QueueList {
   queueId Int           @id @default(autoincrement())
   users   User[]
@@ -92,11 +105,14 @@ model User {
 
   messages      Message[]
 
+  privateMessagesSent      PrivateMessage[] @relation("PrivateMessageSender")
+  privateMessagesReceived  PrivateMessage[] @relation("PrivateMessageReceiver")
+
   queueId       Int?
   queue         QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
 
   stat          Stat[]     @relation("GameStats")
-  stats       Stat[]       @relation("UserStats")
+  stats         Stat[]     @relation("UserStats")
 
   displayName   String?    @unique
   image         String     @default("default_pic.jpg")

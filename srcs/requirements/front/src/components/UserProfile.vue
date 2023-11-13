@@ -256,12 +256,7 @@
                 </router-link>
               </td>
               <td>
-                <!-- <div v-if="user.isChecked" class="profile"> -->
-                  <button class="btn btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
-                <!-- </div>
-                <div v-else class="profile">
-                  <button class="btn" @click="sendMessageFromFront">Visit Profile</button>
-                </div> -->
+                <button class="btn btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
               </td>
               <td>
                 <button class="btn" @click="openManageChannelModal(user.userName)">Manage Channel</button>
@@ -270,8 +265,9 @@
                     <form class="dialogModalChannel" @submit.prevent="togglePasswordInput(channel.channelName, password, passwordCheckBox)">
                       <label>Set password</label><br><br>
                       <input type="checkbox" class="checkbox" v-model="passwordCheckBox"><br><br>
-                      <input v-if="passwordCheckBox.value" type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
-                      <button class="btn" >Apply changes</button>
+                      <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
+                      <br>
+                      <button class="btn">Apply changes</button>
                     </form>
                   </div>
                 </dialog>

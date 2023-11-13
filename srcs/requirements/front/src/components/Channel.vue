@@ -272,25 +272,27 @@
 </template>
 
 <style scoped>
-.chat-messages {
-  max-height: 55vh;
-  overflow-x: auto;
-}
-.chat-messages::-webkit-scrollbar-thumb { background: #888; }
-.chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
-.chat-messages::-webkit-scrollbar-track { background: #ddd; }
-.friend-list {
-  max-height: 55vh;
-  overflow-x: auto;
-}
-.friend-list::-webkit-scrollbar-thumb { background: #888; }
-.friend-list::-webkit-scrollbar-thumb:hover { background: #555; }
-.friend-list::-webkit-scrollbar-track { background: #ddd; }
-.dark-row:hover { background-color: #364e6e; }
-.grid-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 10vh;
-}
-tbody tr:hover { background-color: #efefef; }
+  .chat-messages {
+    max-height: 55vh;
+    overflow-x: auto;
+  }
+  .chat-messages::-webkit-scrollbar-thumb { background: #888; }
+  .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
+  .chat-messages::-webkit-scrollbar-track { background: #ddd; }
+
+  .friend-list {
+    max-height: 55vh;
+    overflow-x: auto;
+  }
+  .friend-list::-webkit-scrollbar-thumb { background: #888; }
+  .friend-list::-webkit-scrollbar-thumb:hover { background: #555; }
+  .friend-list::-webkit-scrollbar-track { background: #ddd; }
+  
+  .dark-row:hover { background-color: #364e6e; }
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 10vh;
+  }
+  tbody tr:hover { background-color: #efefef; }
 </style>

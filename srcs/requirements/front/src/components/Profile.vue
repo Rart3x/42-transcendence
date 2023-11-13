@@ -2,8 +2,8 @@
   import Cookies from "js-cookie";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isFriend, getUserByCookie, getUserByName } from './api/get.call';
-  import { addFriend, createChannel } from './api/post.call';
+  import { isFriend, getPrivateMessages, getUserByCookie, getUserByName } from './api/get.call';
+  import { addFriend, createChannel, createPrivateMessage } from './api/post.call';
   import { useRoute } from 'vue-router';
 
   let actualUser = ref(null);
@@ -25,6 +25,9 @@
   let   currentUserName = null;
   const modalChannel = ref(false);
   const userName = ref(null);
+
+  let messages = ref([]);
+  let message_text = ref(null);
 
   const addFriendFromDB = async (userName, friendName) => {
     const response = await addFriend(userName, friendName);
@@ -97,12 +100,21 @@
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
     actualUser.value = await getUserByName(route.params.userName);
+    
     isFriendBool.value = isFriendFromDB(user.value.userName, actualUser.value.userName).sucess;
+    
+    messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName);
 
     let imagePath = "../assets/userImages/" + actualUser.value.image;
     await import(/* @vite-ignore */ imagePath).then((image) => {
       actualUser.value.image = image.default;
     });
+
+    let imagePathUser = "../assets/userImages/" + user.value.image;
+    await import(/* @vite-ignore */ imagePathUser).then((image) => {
+      user.value.image = image.default;
+    });
+
   });
 </script> 
 
@@ -129,7 +141,7 @@
       <div class="stat-figure text-primary">
       </div>
       <div class="stat-title">Games Total</div>
-      <div class="stat-value">0</div>
+      <div class="stat-va lue">0</div>
     </div>
     
     <div class="stat">
@@ -153,7 +165,7 @@
       <button class="btn" @click="openChannelModal(user.userName)"> Invite {{ $route.params.userName }} in Channel </button>
       <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
         <div class="modal-box w-11/12 max-w-5xl">
-          <form class ="dialogModalChannel" method="dialog" @keyup="esc" @submit.prevent="createChannelInDB(channelName, user.userName, $route.params.userName)">
+          <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannelInDB(channelName, user.userName, $route.params.userName)">
             <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
             <button class="btn">Send Invitation</button>
           </form>
@@ -161,6 +173,47 @@
       </dialog>
     </div>
   </div>
+  <!-- Chat-->
+  <div class="chat-box" style="text-align: center">
+    <div class="chat-messages">
+      <div v-for="(message, index) in messages" :key="index" class="message">
+        <div class="message-row">
+          <div v-if="message.receiver.userId === user.userId">
+            <div class="chat chat-start">
+              <label tabindex="0" class="btn btn-ghost btn-circle">
+                <div class="avatar">
+                  <div class="w-24 mask mask-squircle">
+                    <img :src="actualUser.image" />
+                  </div>
+                </div>
+              </label>
+              <div class="chat-bubble" v-if="message.privateMessageText">{{ message.privateMessageText }}</div>
+            </div>
+          </div>
+          <div v-else>
+            <div class="chat chat-end">
+              <div class="chat-bubble">{{ message.privateMessageText }}</div>
+              <label tabindex="0" class="btn btn-ghost btn-circle">
+                <div class="avatar">
+                  <div class="w-24 mask mask-squircle">
+                    <img :src="user.image" />
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="chat-input"> -->
+      <!-- {{ isUserMuteInChannelInDB() }} -->
+      <!-- <div class="userMutedOrNot" v-if="!actualUserMuted"> -->
+        <input  type="text" class="input input-bordered w-full max-w-xs" id="message_text" placeholder="Send Message" v-model="message_text"/>
+        <button class="btn btn-primary" @click="createPrivateMessage(user.userName, $route.params.userName, message_text)">Send</button>
+      <!-- </div> -->
+      <!-- <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/> -->
+    </div>
+<!-- </div> -->
   <!--Alerts-->
   <div v-if="addFriendSuccess" class="toast toast-start">
     <div class="alert alert-success">
@@ -199,9 +252,17 @@
 </template>
 
 <style>
+  .chat-messages {
+    max-height: 55vh;
+    overflow-x: auto;
+  }
+  .chat-messages::-webkit-scrollbar-thumb { background: #888; }
+  .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
+  .chat-messages::-webkit-scrollbar-track { background: #ddd; }
+
   .stats{
   border-radius: unset;
-}
+  }
   .addingFriend {
     text-align: center;
   }
