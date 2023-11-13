@@ -35,7 +35,8 @@
         addFriendSuccess.value = false;
       }, 3000);
       isFriendBool.value = true;
-    } else {
+    } 
+    else {
       addFriendFailed.value = true;
       setTimeout(() => {
         addFriendFailed.value = false;
@@ -52,7 +53,8 @@
       setTimeout(() => {
         addChannelSuccess.value = false;
       }, 3000);
-    } else {
+    } 
+    else {
       addChannelFailed.value = true;
       setTimeout(() => {
         addChannelFailed.value = false;
@@ -83,7 +85,8 @@
         removeFriendSuccess.value = false;
       }, 3000);
       isFriendBool.value = false;
-    } else {
+    } 
+    else {
       removeFriendFailed.value = true;
       setTimeout(() => {
         removeFriendFailed.value = false;
