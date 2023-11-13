@@ -1,8 +1,11 @@
 <script lang="ts">
 
 //IMPORTS
+
+//Linear interpolation
 import '@geckos.io/snapshot-interpolation';
 
+//Socket communication
 import { io } from 'socket.io-client';
 
 //Game library
@@ -23,23 +26,16 @@ import GameRoom from "../gameRoom/gameRoom";
 
 import Player from "../player/player";
 
+
 //UTILS
 function Between(min : number, max : number){
 	return (Math.random() * (max - min) + min)
 }
 
-//get user
+//Get user
 const token = await Cookies.get("_authToken");
 const user = await getUserByCookie(token);
 
-//get image path
-// let imagePath = "../assets/userImages/" + user.image;
-
-// await import(/* @vite-ignore */ imagePath).then((image) => {
-// 	user.image = image.default;
-// });
-
-// console.log(user.image);
 
 //Create and bind our socket to the server
 const socket = io('http://localhost:3000');
@@ -52,10 +48,6 @@ export default class Game extends Phaser.Scene {
 
 	startButton !: Phaser.GameObjects.BitmapText;
 	gameRoom : GameRoom;
-	player: Player;
-	ball : any;
-	walls : any[] = [];
-	paused: Boolean = false;
 	UIElement : Phaser.GameObjects.DOMElement;
 	UIScorePlayer1: Phaser.GameObjects.DOMElement;
 	UIScorePlayer2: Phaser.GameObjects.DOMElement;
@@ -73,10 +65,6 @@ export default class Game extends Phaser.Scene {
 		this.load.bitmapFont('atari', 'atari-smooth.png', 'atari-smooth.xml');
 		//Particles sprite
 		this.load.image('red', 'red.png');
-		//html
-		// this.load.html('loading', '../assets/loading.html');
-
-
 	}
 
 	async setupUI(){
@@ -88,9 +76,7 @@ export default class Game extends Phaser.Scene {
 		this.scene.resume('game');
 	}
 
-	create(){
-		var self = this;
-
+	gamePage(self : any){
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-1 grid-cols-1 justify-items-center gap-y 8> \
 			<div class="..."><button id="inQueueButton" class="btn btn-primary ml-5 ...">Find game</button><div> \
 		</div> \
@@ -110,6 +96,12 @@ export default class Game extends Phaser.Scene {
 			</div> \
 			</div>');
 		});
+	}
+
+	create(){
+		var self = this;
+
+		this.gamePage(self);
 
 		socket.on('lobby', (data) => {
 			this.UIElement.destroy();
@@ -230,9 +222,7 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('gameFinish', () => {
-			if (this?.gameRoom?.entities){
-				this.switchSceneInvisible();
-			}
+			this.children.removeAll();
 			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
 			<div class="row-start-1 col-start-2 col-end-3"><button id="replayButton" class="btn btn-accent">Play again 0/2</button></div> \
 			<div class="row-start-2 col-start-2 col-end-3"> <button id="stopButton" class="btn btn-secondary">Stop</button></div></div>');
@@ -261,25 +251,33 @@ export default class Game extends Phaser.Scene {
 			});
 			stopButton.addEventListener('click', () => {
 				socket.emit('stopPlay', this.gameRoom.id);
-				setTimeout(() => {
-					this.UIElement.destroy();
-				}, 3000);
+				this.destroyUI();
+				this.children.removeAll();
+				this.gamePage(this);
 			});
 		});
 
 		socket.on('snapshot', (data) => {
 			//Read the snapshot
 			SI.snapshot.add(data);
+			SI.vault.add(data);
 		});
+	}
+
+	destroyUI(){
+		this.UIElement.destroy();
+		this.UIScorePlayer1.destroy();
+		this.UIScorePlayer2.destroy();
 	}
 
 	startLobby(data : any){
 		if (this.gameRoom){
-			delete this.gameRoom;
+			this.destroyUI();
 		}
 		this.gameRoom =  new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
 
-		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-5 grid-cols-3 justify-items-center gap-y-8 gap-x-32"> \
+		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
+		<div class="grid grid-rows-5 grid-cols-3 justify-items-center  gap-y-8 gap-x-32"> \
 		<div class="avatar row-start-2"> \
 			<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
 			</div> \
@@ -421,15 +419,6 @@ export default class Game extends Phaser.Scene {
 			const rect = new Phaser.Geom.Rectangle(point.x, point.y, 3, 20);
 			graphics.fillRectShape(rect);
 		}
-		//Assign player to each paddle
-		if (this.gameRoom.entities){
-			if (this.gameRoom.player1SocketId == socket.id){
-				this.player = new Player(this.gameRoom.entities.players[0].gameObject);
-			}
-			else{
-				this.player = new Player(this.gameRoom.entities.players[1].gameObject);
-			}
-		}
 	}
 
 	destroy(){
@@ -441,14 +430,14 @@ export default class Game extends Phaser.Scene {
 		//by doing so, every client we read the same game steps.
 
 		//Interpolate x y coordinates on ball object
+		
 		const ballSnapshot = SI.calcInterpolation('x y', 'ball');
 		if (ballSnapshot) {
-			console.log("update ball");
 			const { state } = ballSnapshot;
 			if (state){
 				const { id, x, y } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
-					if (this.gameRoom.entities.ball.gameObject.body.velocity.x != 0){
+					if (Math.abs(Number(x) - Number(this.gameRoom.entities.ball.gameObject.x)) < 100){
 						this.gameRoom.entities.ball.gameObject.x = x;
 						this.gameRoom.entities.ball.gameObject.y = y;
 					}
@@ -471,18 +460,18 @@ export default class Game extends Phaser.Scene {
 							this.gameRoom.entities.players[1].gameObject.y = y;
 						}
 					}
-				})
+				});
 			}
 		}
 	}
 }
 
-	const config = {
-		width: 1000,
-		height: 800,
-		physics : {
-			default: 'matter',
-			matter : { debug: false }
+const config = {
+	width: 800,
+	height: 800,
+	physics : {
+		default: 'matter',
+		matter : { debug: false }
 	},
 	scale : {
 		mode: Phaser.Scale.FIT,
