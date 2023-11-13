@@ -110,8 +110,17 @@
   <!--Stats-->
   <div class="stats shadow">
     <div class="stat">
-      <div class="stat-figure text-primary">
-      </div>
+      <label tabindex="0" class="btn btn-ghost btn-circle">
+        <div class="avatar">
+          <div class="w-20 mask mask-squircle" v-if="actualUser">
+            <img :src="actualUser.image" />
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <div class="stat">
+      <div class="stat-figure text-primary"></div>
       <div class="stat-title">Username</div>
       <div class="stat-value">{{ $route.params.userName }}</div>
     </div>
@@ -141,7 +150,7 @@
       </button>
     </div>
     <div class="stat">
-      <button class="btn" v-if="user && !isFriendBool" @click="openChannelModal(user.userName)"> Invite {{ $route.params.userName }} in Channel </button>
+      <button class="btn" @click="openChannelModal(user.userName)"> Invite {{ $route.params.userName }} in Channel </button>
       <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
         <div class="modal-box w-11/12 max-w-5xl">
           <form class ="dialogModalChannel" method="dialog" @keyup="esc" @submit.prevent="createChannelInDB(channelName, user.userName, $route.params.userName)">
