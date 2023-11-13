@@ -8,54 +8,70 @@ datasource db {
 }
 
 model Channel {
-  channelId         Int            @id @default(autoincrement())
-  channelName       String         @unique
+  channelId         Int         @id @default(autoincrement())
+  channelName       String      @unique
   channelAdmin      Int
+
+  channelPassword   String?
+
   channelMessages   Message[]
   channelUsers      User[]      @relation("ChannelUser")
   channelUsersBan   User[]      @relation("ChannelUserBan")
-  channelUsersMute  User[]     @relation("ChannelUserMute")
-  channelPassword   String?
+  channelUsersMute  User[]      @relation("ChannelUserMute")
 }
 
 model GameRoom {
-  id              Int       @id @default(autoincrement())
+  id           Int   @id @default(autoincrement())
+
   player1SocketId String
   player2SocketId String
-  player1Ready    Boolean  @default(false)
-  player2Ready    Boolean  @default(false)
-  score           Json?
-  running         Boolean  @default(false)
-  started         Boolean  @default(false)
-  paused          Boolean  @default(false)
-  finish          Boolean  @default(false)
-  startDate       DateTime
-  endDate         DateTime?
-  users           User[]
+
+  player1Ready Boolean @default(false)
+  player2Ready Boolean @default(false)
+
+  score        Json?
+
+  running      Boolean @default(false)
+  started      Boolean @default(false)
+  paused       Boolean @default(false)
+  finish       Boolean @default(false)
+
+  startDate    DateTime
+  endDate      DateTime?
+
+  users        User[]
+
+  statId       Int?    @unique
+  stat         Stat?   @relation("GameRoomStat", fields: [statId], references: [statId])
 }
 
 model Message {
-  messageId     Int    @id @default(autoincrement())
+  messageId     Int       @id @default(autoincrement())
   channelId     Int
   userId        Int?
 
   message_text  String?
   message_date  DateTime? @default(now()) @db.Timestamp(6)
 
-  Channel       Channel @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
-  sender        User?  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  Channel       Channel   @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
+  sender        User?     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model QueueList {
-  queueId Int            @id @default(autoincrement())
+  queueId Int           @id @default(autoincrement())
   users   User[]
 }
 
 model Stat {
-  statId      Int        @id @default(autoincrement())
-  gamePlayed  Int
-  gameWon     Int
-  users       User[]
+  statId      Int       @id @default(autoincrement())
+  
+  gameRoomId  Int       @unique
+  gameRoom    GameRoom? @relation("GameRoomStat")
+
+  userId      Int
+  user        User      @relation("GameStats", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  users       User[]    @relation("UserStats")
 }
 
 model User {
@@ -64,21 +80,23 @@ model User {
 
   channels      Channel[]  @relation("ChannelUser")
   channelsBan   Channel[]  @relation("ChannelUserBan")
-  channelsMute  Channel[] @relation("ChannelUserMute")
+  channelsMute  Channel[]  @relation("ChannelUserMute")
   
   friends       User[]     @relation("Friendship")
   friendOf      User[]     @relation("Friendship")
 
   gameRoomId    Int?
-  gameRoom      GameRoom?   @relation(fields: [gameRoomId], references: [id])
+  gameRoom      GameRoom?  @relation(fields: [gameRoomId], references: [id])
+  gamePlayed    Int        @default(0)
+  gameWon       Int        @default(0)
 
   messages      Message[]
 
   queueId       Int?
   queue         QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
 
-  statId        Int?
-  stat          Stat?      @relation(fields: [statId], references: [statId], onDelete: Cascade, onUpdate: Cascade)
+  stat          Stat[]     @relation("GameStats")
+  stats       Stat[]       @relation("UserStats")
 
   displayName   String?    @unique
   image         String     @default("default_pic.jpg")

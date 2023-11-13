@@ -217,7 +217,7 @@
         </div>
       </div>
       <div class="chat-input">
-        {{ isUserMuteInChannelInDB() }} 
+        {{ isUserMuteInChannelInDB() }}
         <div class="userMutedOrNot" v-if="!actualUserMuted">
           <input  type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
           <button class="btn btn-primary" @click="sendMessage">Send</button>

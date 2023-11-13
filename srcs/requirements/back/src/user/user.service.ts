@@ -77,9 +77,6 @@ export class UserService {
     const user = await this.getUserByName(userName);
     const friend = await this.getUserByName(friendName);
   
-    console.log('User:', user);
-    console.log('Friend:', friend);
-  
     if (!user || !friend)
       return false;
   
@@ -104,9 +101,6 @@ export class UserService {
         },
       },
     });
-  
-    console.log('FriendOf:', friendOf);
-    console.log('Friends:', friends);
   
     if (friendOf.length > 0 && friends.length > 0)
       return true;
