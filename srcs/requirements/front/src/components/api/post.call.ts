@@ -133,6 +133,27 @@ export async function insertMessageToChannel(channelName : string, message_text 
   }
 }
 
+/*-----------------------------------------------PRIVATEMESSAGES-----------------------------------------------*/
+export async function createPrivateMessage(userName1 : string, userName2 : string, privateMessageText : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/privateMessage/create/${userName1}/${userName2}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName1: userName1, userName2: userName2, privateMessageText: privateMessageText }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
 /*-----------------------------------------------USERS-----------------------------------------------*/
 export async function banUserFromChannel(channelName : string, userName : string) {
   try {

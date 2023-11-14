@@ -16,7 +16,7 @@ import * as Matter from 'matter-js';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import { computed, onMounted, ref } from "vue";
 
-import { insideRunningGame, getUserByCookie } from './api/get.call';
+import { getGameRoomByRoomId, getUserByCookie } from './api/get.call';
 
 import Cookies from "js-cookie";
 
@@ -86,9 +86,10 @@ export default class Game extends Phaser.Scene {
 	async create(){
 		var self = this;
 
-		let insideGame : boolean = await insideRunningGame(user.gameRoomId);
+		let gameRoom : boolean = await getGameRoomByRoomId(user.gameRoomId);
 
-		console.log(insideGame);
+		console.log(gameRoom);
+	
 		this.gamePage(self);
 
 		socket.on('lobby', (data) => {
