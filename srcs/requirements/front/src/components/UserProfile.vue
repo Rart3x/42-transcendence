@@ -1,5 +1,6 @@
 <script setup>
   import Cookies from "js-cookie";
+	import sha256 from 'js-sha256';
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { getAllChannels, getAllFriends, getUserByCookie, getGameRoomByRoomId } from "./api/get.call";
@@ -70,14 +71,11 @@
 
   const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
     if (passwordCheckBox)
-      setPassword(channelName, password);
+      setPassword(channelName, sha256(password));
     else
-      unsetPassword(channelName, password);
+      unsetPassword(channelName, sha256(password));
     modalManageChannel.value = false;
   };
-
-  const setPasswordInDB = async (password) => { setPassword(password); };
-  const unsetPasswordInDB = async (password) => { unsetPassword(password); };
 
   const removeFriendFromDB = async (userName, friendName) => {
     const response = await removeFriend(userName, friendName);
@@ -87,7 +85,8 @@
       setTimeout(() => {
         removeFriendSuccess.value = false;
       }, 3000);
-    } else {
+    } 
+    else {
       removeFriendFailed.value = true;
       setTimeout(() => {
         removeFriendFailed.value = false;
@@ -104,7 +103,8 @@
       setTimeout(() => {
         removeChannelSuccess.value = false;
       }, 3000);
-    } else {
+    } 
+    else {
       removeChannelFailed.value = true;
       setTimeout(() => {
         removeChannelFailed.value = false;
@@ -250,8 +250,13 @@
                   </div>
                 </label>
               </td>
-              <td>
+              <td v-if="channel.password === ''">
                 <router-link :to="'/channel/' + channel.channelName">
+                  <button class="btn no-animation">{{ channel.channelName }}</button>
+                </router-link>
+              </td>
+              <td v-else>
+                <router-link :to="'/checkPass/' + channel.channelName">
                   <button class="btn no-animation">{{ channel.channelName }}</button>
                 </router-link>
               </td>

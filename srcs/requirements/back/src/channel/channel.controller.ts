@@ -12,7 +12,12 @@ export class ChannelController {
   async banUserFromChannel(@Body('channelName') channelName: string, @Body('userName') userName: string): Promise<{ success: boolean }> {
     const result = await this.channelService.banUserFromChannel(channelName, userName);
     return { success: result };
+  }
 
+  @Post(':channelName/checkPass')
+  async checkPass(@Param('channelName') channelName: string, @Body('password') password: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.checkPass(channelName, password);
+    return { success: result };
   }
 
   @Post(':channelName/mute/:userName')

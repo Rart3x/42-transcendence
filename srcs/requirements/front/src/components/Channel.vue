@@ -46,7 +46,6 @@
 
   const isUserMuteInChannelInDB = async () => {
     const response = await isUserMuteInChannel(route.params.channelName, actualUser.value.userName);
-    console.log(actualUserMuted.value);
     actualUserMuted.value = response.success;
   };
 

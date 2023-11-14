@@ -38,6 +38,17 @@ export class ChannelService {
     return true;
   }
 
+  async checkPass(channelName: string, password: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+
+    if (!channel)
+      return false;
+
+    if (channel.channelPassword === password)
+      return true;
+    return false;
+  }
+
   async createChannel(channelName: string, userName: string, invitedUserName: string): Promise<boolean> {
     const user = await this.userService.getUserByName(userName);
     const invitedUser = await this.userService.getUserByName(invitedUserName);
