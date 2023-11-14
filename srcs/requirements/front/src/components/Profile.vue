@@ -2,8 +2,8 @@
   import Cookies from "js-cookie";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isFriend, getPrivateMessages, getUserByCookie, getUserByName } from './api/get.call';
-  import { addFriend, createChannel, createPrivateMessage } from './api/post.call';
+  import { isBlock, isFriend, getPrivateMessages, getUserByCookie, getUserByName } from './api/get.call';
+  import { addFriend, blockUser, createChannel, createPrivateMessage, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
 
   let actualUser = ref(null);
@@ -11,13 +11,18 @@
 
   let addChannelSuccess = ref(false);
   let addFriendSuccess = ref(false);
+  let blockSuccess = ref(false);
   let removeFriendSuccess = ref(false);
+  let unblockSuccess = ref(false);
 
   let addChannelFailed = ref(false);
   let addFriendFailed = ref(false);
+  let blockFailed = ref(false);
   let removeFriendFailed = ref(false);
+  let unblockFailed = ref(false);
 
   let isFriendBool = ref(false);
+  let isBlockBool = ref(false);
 
   const route = useRoute();
 
@@ -47,6 +52,26 @@
     }
   };
 
+  const blockFromDB = async (userName, blockedUserName) => {
+    const response = await blockUser(userName, blockedUserName);
+
+    if (response && response.success) {
+      blockSuccess.value = true;
+      setTimeout(() => {
+        blockSuccess.value = false;
+      }, 3000);
+      isBlockBool.value = true;
+      await removeFriendFromDB(userName, blockedUserName);
+    } 
+    else {
+      blockFailed.value = true;
+      setTimeout(() => {
+        blockFailed.value = false;
+      }, 3000);
+      isBlockBool.value = false;
+    }
+  };
+
   const createChannelInDB = async (channelName, userName, currentUserName) => {
     const response = await createChannel(channelName, userName, currentUserName);
     modalChannel.value = false;
@@ -63,6 +88,15 @@
         addChannelFailed.value = false;
       }, 3000);
     }
+  };
+
+  const isBlockFromDB = async (userName, blockedUserName) => {
+    const response = await isBlock(userName, blockedUserName);
+
+    if (response && response.success)
+      isBlockBool.value = true;
+    else
+      isBlockBool.value = false;
   };
 
   const isFriendFromDB = async (userName, friendName) => {
@@ -102,6 +136,7 @@
     actualUser.value = await getUserByName(route.params.userName);
     
     isFriendBool.value = isFriendFromDB(user.value.userName, actualUser.value.userName).sucess;
+    isBlockBool.value = isBlockFromDB(user.value.userName, actualUser.value.userName).sucess;
     
     messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName);
 
@@ -116,6 +151,23 @@
     });
 
   });
+
+  const unblockFromDB = async (userName, unblockedUserName) => {
+    const response = await unblockUser(userName, unblockedUserName);
+
+    if (response && response.success) {
+      unblockSuccess.value = true;
+      setTimeout(() => {
+        unblockSuccess.value = false;
+      }, 3000);
+    } 
+    else {
+      unblockFailed.value = true;
+      setTimeout(() => {
+        unblockFailed.value = false;
+      }, 3000);
+    }
+  };
 </script> 
 
 <template>
@@ -157,7 +209,7 @@
         Add {{ $route.params.userName }}
       </button>
       <button class="btn btn-error" v-else="user && isFriendFromDB(user.userName, $route.params.userName)" @click="removeFriendFromDB(user.userName, $route.params.userName)">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         Remove {{ $route.params.userName }}
       </button>
     </div>
@@ -171,6 +223,16 @@
           </form>
         </div>
       </dialog>
+    </div>
+    <div class="stat">
+      <button class="btn btn-error" v-if="user && !isBlockBool" @click="blockFromDB(user.userName, $route.params.userName)">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        Block {{ $route.params.userName }}
+      </button>
+      <button class="btn" v-else="user && isBlockBool" @click="unblockFromDB(user.userName, $route.params.userName)">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        Unblock {{ $route.params.userName }}
+      </button>
     </div>
   </div>
   <!-- Chat-->
@@ -223,6 +285,28 @@
   <div v-if="addFriendFailed" class="toast toast-start">
     <div class="alert alert-error">
       <span>Failed to add friend.</span>
+    </div>
+  </div>
+
+  <div v-if="blockSuccess" class="toast toast-start">
+    <div class="alert alert-success">
+      <span>User blocked successfully.</span>
+    </div>
+  </div>
+  <div v-if="blockFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to block User</span>
+    </div>
+  </div>
+
+    <div v-if="unblockSuccess" class="toast toast-start">
+    <div class="alert alert-success">
+      <span>User unblocked successfully.</span>
+    </div>
+  </div>
+  <div v-if="unblockFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to unblock User</span>
     </div>
   </div>
 

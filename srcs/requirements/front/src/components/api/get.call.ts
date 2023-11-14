@@ -199,6 +199,25 @@ export async function getPrivateMessages(userName1 : string, userName2 : string)
 }
 
 /*-----------------------------------------------USERS-----------------------------------------------*/
+export async function isBlock(userName : string, blockedUserName : string){
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/isBlock/${blockedUserName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
 export async function getUsersFromChannel(channelName : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/users`, {

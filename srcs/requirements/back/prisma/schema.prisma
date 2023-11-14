@@ -91,6 +91,9 @@ model User {
   userId        Int        @id @unique @default(autoincrement())
   userName      String?    @unique
 
+  blockUsers    User[]     @relation("BlockUser")
+  blockOf       User[]     @relation("BlockUser")
+
   channels      Channel[]  @relation("ChannelUser")
   channelsBan   Channel[]  @relation("ChannelUserBan")
   channelsMute  Channel[]  @relation("ChannelUserMute")

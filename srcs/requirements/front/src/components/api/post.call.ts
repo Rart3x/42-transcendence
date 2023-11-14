@@ -174,6 +174,45 @@ export async function banUserFromChannel(channelName : string, userName : string
   }
 }
 
+export async function blockUser(userName : string, blockedUserName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/block/${blockedUserName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: userName, blockedUserName: blockedUserName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
+export async function unblockUser(userName : string, unblockedUserName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/unblock/${unblockedUserName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: userName, unblockedUserName: unblockedUserName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+
+}
+
 export async function insertUser(userName: string, image: string, cookie: string) {
   try {
     const response = await fetch(`http://localhost:3000/user`, {

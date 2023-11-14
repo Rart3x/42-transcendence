@@ -54,6 +54,12 @@ export class UserController {
 }
 
 /*-----------------------------------------------USERS-----------------------------------------------*/
+  @Post(':userName/block/:blockedUserName')
+  async blockUser(@Body('userName') userName: string, @Body('blockedUserName') blockedUserName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.blockUser(userName, blockedUserName);
+    return { success: result };
+  }
+
   @Post()
   async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
     try {
@@ -64,6 +70,18 @@ export class UserController {
     catch (validationErrors) {
       throw new BadRequestException(validationErrors);
     }
+  }
+
+  @Get(':userName/isBlock/:blockedUserName')
+  async isBlock(@Param('userName') userName: string, @Param('blockedUserName') blockedUserName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.isBlock(userName, blockedUserName);
+    return { success: result };
+  }
+
+  @Post(':userName/unblock/:unblockedUserName')
+  async unblockUser(@Body('userName') userName: string, @Body('unblockedUserName') unblockedUserName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.unblockUser(userName, unblockedUserName);
+    return { success: result };
   }
 
   @Post('updateUsername/:userName')
