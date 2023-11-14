@@ -39,9 +39,9 @@ export class GameRoomService {
     });
   }
 
-  async getGameRoomById(roomId: number) {
-    return await this.prisma.gameRoom.findFirst({
-      where: { id: roomId },
+  async getGameRoomById(id: number) {
+    return await this.prisma.gameRoom.findUnique({
+      where: { id: id },
     });
   }
 }

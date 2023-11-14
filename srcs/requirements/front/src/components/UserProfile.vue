@@ -2,7 +2,7 @@
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
-  import { getAllChannels, getAllFriends, getUserByCookie } from "./api/get.call";
+  import { getAllChannels, getAllFriends, getUserByCookie, getGameRoomByRoomId } from "./api/get.call";
   import { addFriend, createChannel, setPassword, unsetPassword } from './api/post.call';
 
   let adminImage = ref(null);

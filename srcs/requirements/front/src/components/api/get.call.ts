@@ -294,7 +294,6 @@ export async function getAllUsers() {
 }
 
 /*-----------------------------------------------GAMEROOM--------------------------------------------*/
-
 export async function getGameRoomByRoomId(id : number) {
   try {
     const response = await fetch(`http://localhost:3000/gameroom/id/${id}`, {
