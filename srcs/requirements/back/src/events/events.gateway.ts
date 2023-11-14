@@ -257,40 +257,41 @@ export class EventsGateway {
 		const collisionBallPlayer = (pair: Matter.Pair, gameRoom: GameRoom) => {
 			let player: Player;
 			var intersectionDeltaY = 0;
-	
-			pair.bodyA.label == "player1" ? 
+
+			pair.bodyA.label == "player1" ?
 				player = (gameRoom.entities.players[0].gameObject.label == "player1" ? gameRoom.entities.players[0] : gameRoom.entities.players[1]) :
 				player = (gameRoom.entities.players[0].gameObject.label == "player2" ? gameRoom.entities.players[0] : gameRoom.entities.players[1])
 			
-			if (gameRoom.entities.ball.gameObject.velocity.y > 0){
-				if (player.gameObject.y > gameRoom.entities.ball.gameObject.y){
-					intersectionDeltaY = player.gameObject.y - gameRoom.entities.ball.gameObject.y;
-					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-						x: gameRoom.entities.ball.gameObject.velocity.x,
-						y: gameRoom.entities.ball.gameObject.velocity.y * -1
-					});
-				}
-				else{
-					intersectionDeltaY = gameRoom.entities.ball.gameObject.y - player.gameObject.y;
+			if (gameRoom.entities.ball.gameObject.velocity.x > 0){
+
+				if (player.gameObject.y > gameRoom.entities.ball.gameObject.position.y){
+					intersectionDeltaY = player.gameObject.y - gameRoom.entities.ball.gameObject.position.y;
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
 						x: gameRoom.entities.ball.gameObject.velocity.x,
 						y: gameRoom.entities.ball.gameObject.velocity.y
+					});
+				}
+				else{
+					intersectionDeltaY = gameRoom.entities.ball.gameObject.position.y - player.gameObject.y;
+					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
+						x: gameRoom.entities.ball.gameObject.velocity.x,
+						y: gameRoom.entities.ball.gameObject.velocity.y * -1
 					});
 				}
 			}
 			else{
-				if (player.gameObject.y > gameRoom.entities.ball.gameObject.y){
-					intersectionDeltaY = player.gameObject.y - gameRoom.entities.ball.gameObject.y;
-					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-						x: gameRoom.entities.ball.gameObject.velocity.x,
-						y: gameRoom.entities.ball.gameObject.velocity.y
-					});
-				}
-				else{
-					intersectionDeltaY = gameRoom.entities.ball.gameObject.y - player.gameObject.y;
+				if (player.gameObject.y > gameRoom.entities.ball.gameObject.position.y){
+					intersectionDeltaY = player.gameObject.y - gameRoom.entities.ball.gameObject.position.y;
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
 						x: gameRoom.entities.ball.gameObject.velocity.x,
 						y: gameRoom.entities.ball.gameObject.velocity.y * -1
+					});
+				}
+				else{
+					intersectionDeltaY = gameRoom.entities.ball.gameObject.position.y - player.gameObject.y;
+					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
+						x: gameRoom.entities.ball.gameObject.velocity.x,
+						y: gameRoom.entities.ball.gameObject.velocity.y
 					});
 				}
 			}

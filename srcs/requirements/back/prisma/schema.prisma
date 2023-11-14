@@ -96,7 +96,7 @@ model User {
   queue         QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
 
   stat          Stat[]     @relation("GameStats")
-  stats       Stat[]       @relation("UserStats")
+  stats         Stat[]      @relation("UserStats")
 
   displayName   String?    @unique
   image         String     @default("default_pic.jpg")

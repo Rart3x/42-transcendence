@@ -14,9 +14,9 @@ import Phaser from 'phaser';
 import * as Matter from 'matter-js';
 
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-  import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
-import { getUserByCookie } from './api/get.call';
+import { insideRunningGame, getUserByCookie } from './api/get.call';
 
 import Cookies from "js-cookie";
 
@@ -36,7 +36,6 @@ function Between(min : number, max : number){
 const token = await Cookies.get("_authToken");
 const user = await getUserByCookie(token);
 
-
 //Create and bind our socket to the server
 const socket = io('http://localhost:3000');
 
@@ -47,7 +46,7 @@ const SI = new SnapshotInterpolation();
 export default class Game extends Phaser.Scene {
 
 	startButton !: Phaser.GameObjects.BitmapText;
-	gameRoom : GameRoom;
+	static gameRoom : GameRoom;
 	UIElement : Phaser.GameObjects.DOMElement;
 	UIScorePlayer1: Phaser.GameObjects.DOMElement;
 	UIScorePlayer2: Phaser.GameObjects.DOMElement;
@@ -59,21 +58,6 @@ export default class Game extends Phaser.Scene {
 
 	preload(){
 		this.load.setPath('src/assets');
-		//Ball sprite
-		this.load.image('ball','ball-pink.png');
-		//Font
-		this.load.bitmapFont('atari', 'atari-smooth.png', 'atari-smooth.xml');
-		//Particles sprite
-		this.load.image('red', 'red.png');
-	}
-
-	async setupUI(){
-
-		let startButtonCanvas : Phaser.GameObjects.Graphics;
-	}
-
-	launchGame(){
-		this.scene.resume('game');
 	}
 
 	gamePage(self : any){
@@ -98,9 +82,13 @@ export default class Game extends Phaser.Scene {
 		});
 	}
 
-	create(){
+
+	async create(){
 		var self = this;
 
+		let insideGame : boolean = await insideRunningGame(user.gameRoomId);
+
+		console.log(insideGame);
 		this.gamePage(self);
 
 		socket.on('lobby', (data) => {
@@ -421,9 +409,7 @@ export default class Game extends Phaser.Scene {
 		}
 	}
 
-	destroy(){
-
-	}
+	destroy(){}
 
 	update(){
 		//Client receive a snapshot which contains both the ball and the players position

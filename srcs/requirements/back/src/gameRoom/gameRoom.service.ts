@@ -38,4 +38,10 @@ export class GameRoomService {
       },
     });
   }
+
+  async getGameRoomById(roomId: number) {
+    return await this.prisma.gameRoom.findFirst({
+      where: { id: roomId },
+    });
+  }
 }
