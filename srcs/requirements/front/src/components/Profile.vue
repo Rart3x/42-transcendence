@@ -160,12 +160,14 @@
       setTimeout(() => {
         unblockSuccess.value = false;
       }, 3000);
+      isBlockBool.value = false;
     } 
     else {
       unblockFailed.value = true;
       setTimeout(() => {
         unblockFailed.value = false;
       }, 3000);
+      isBlockBool.value = true;
     }
   };
 </script> 
@@ -204,7 +206,7 @@
     </div>
   </div>
   <div class="stats shadow">
-    <div class="stat">
+    <div class="stat" v-if="!isBlockBool">
       <button class="btn" v-if="user && !isFriendBool" @click="addFriendFromDB(user.userName, $route.params.userName)">
         Add {{ $route.params.userName }}
       </button>
@@ -213,7 +215,7 @@
         Remove {{ $route.params.userName }}
       </button>
     </div>
-    <div class="stat">
+    <div class="stat" v-if="!isBlockBool">
       <button class="btn" @click="openChannelModal(user.userName)"> Invite {{ $route.params.userName }} in Channel </button>
       <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
         <div class="modal-box w-11/12 max-w-5xl">
@@ -236,7 +238,7 @@
     </div>
   </div>
   <!-- Chat-->
-  <div class="chat-box" style="text-align: center">
+  <div class="chat-box" style="text-align: center" v-if="!isBlockBool">
     <div class="chat-messages">
       <div v-for="(message, index) in messages" :key="index" class="message">
         <div class="message-row">
