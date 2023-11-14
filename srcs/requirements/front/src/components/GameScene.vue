@@ -86,6 +86,7 @@ export default class Game extends Phaser.Scene {
 	async create(){
 		var self = this;
 
+		console.log(user.gameRoomId);
 		let gameRoom : boolean = await getGameRoomByRoomId(user.gameRoomId);
 
 		console.log(gameRoom);

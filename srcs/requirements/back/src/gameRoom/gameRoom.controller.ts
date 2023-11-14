@@ -13,9 +13,8 @@ export class GameRoomController {
   }
 
   @Get('id/:id')
-  async insideRunningGame(@Param('id') id: number): Promise<boolean> {
+  async getGameRoomByRoomId(@Param('id') id: number): Promise<GameRoom> {
     const gameRoom = await this.gameRoomService.getGameRoomById(id);
-    console.log(gameRoom);
-    return (gameRoom.running);
+    return (gameRoom);
   }
 }
