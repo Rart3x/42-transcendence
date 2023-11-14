@@ -255,10 +255,10 @@
                   <button class="btn no-animation">{{ channel.channelName }}</button>
                 </router-link>
               </td>
-              <td>
+              <td v-if="user && channel && channel.channelAdmin == user.userId">
                 <button class="btn btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
               </td>
-              <td>
+              <td v-if="user && channel && channel.channelAdmin == user.userId">
                 <button class="btn" @click="openManageChannelModal(user.userName)">Manage Channel</button>
                 <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalManageChannel">
                   <div class="modal-box w-11/12 max-w-5xl">

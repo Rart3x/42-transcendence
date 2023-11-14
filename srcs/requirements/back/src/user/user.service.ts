@@ -30,9 +30,12 @@ export class UserService {
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
   async getAllChannels(userName: string): Promise<Channel[]> {
     const user = await this.getUserByName(userName);
+    const userChannels = user.channels;
     const channels = await this.prisma.channel.findMany({
       where: {
-        channelAdmin: user.userId,
+        channelId: {
+          in: userChannels.map((channel) => channel.channelId),
+        },
       },
     });
     return channels;
@@ -198,6 +201,9 @@ export class UserService {
   async getUserByName(userName: string) {
     return await this.prisma.user.findFirst({
       where: { userName: userName },
+      include: {
+        channels: true,
+      },
     });
   }
 
