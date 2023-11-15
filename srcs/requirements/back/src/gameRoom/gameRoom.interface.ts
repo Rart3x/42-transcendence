@@ -16,6 +16,8 @@ export interface GameRoom {
     player2SocketId: string;
     player1Ready: boolean;
     player2Ready: boolean;
+    player1Disconnected: boolean;
+    player2Disconnected: boolean;
     world: World | null;
     engine: Engine | null ;
     entities: Entities | null;

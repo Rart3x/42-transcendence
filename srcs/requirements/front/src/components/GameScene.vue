@@ -26,7 +26,6 @@ import GameRoom from "../gameRoom/gameRoom";
 
 import Player from "../player/player";
 
-
 //UTILS
 function Between(min : number, max : number){
 	return (Math.random() * (max - min) + min)
@@ -46,10 +45,11 @@ const SI = new SnapshotInterpolation();
 export default class Game extends Phaser.Scene {
 
 	startButton !: Phaser.GameObjects.BitmapText;
-	static gameRoom : GameRoom;
+	gameRoom : GameRoom;
 	UIElement : Phaser.GameObjects.DOMElement;
 	UIScorePlayer1: Phaser.GameObjects.DOMElement;
 	UIScorePlayer2: Phaser.GameObjects.DOMElement;
+	graphics : any;
 
 	constructor(){
 		super("game");
@@ -78,6 +78,7 @@ export default class Game extends Phaser.Scene {
 		}, this);
 
 		document.addEventListener('fullscreenchange', function() {
+
 		});
 
 		let inQueueButton = this.UIElement.node.querySelector('#inQueueButton') as HTMLElement;
@@ -96,22 +97,90 @@ export default class Game extends Phaser.Scene {
 		});
 	}
 
+	hideSceneGameObjects(){
+		for (let i = 0; i < 2; i++){
+			this.gameRoom.entities.players[i].gameObject.visible = false;
+		}
+		for (let i = 0; i < 4; i++){
+			this.gameRoom.entities.walls[i].gameObject.visible = false;
+		}
+		this.gameRoom.entities.ball.gameObject.visible = false;
+		this.graphics.visible = false;
+	}
+
 	async create(){
 		var self = this;
 
-		console.log(user.gameRoomId);
-
 		if (user.gameRoomId != null){
-			let gameRoom : boolean = await getGameRoomByRoomId(user.gameRoomId);
-			console.log(gameRoom);
+			let gameRoom : any = await getGameRoomByRoomId(user.gameRoomId);
+			if (gameRoom.running){
+				this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
+				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Trying to reconnect to the game...</h1></div> \
+				<div class="row-start-2 ..."><span class="loading loading-spinner loading-lg"></span></div> \
+				</div>');
+				console.log(user.gameRoomId);
+				socket.emit('playerReconnection', {
+					roomId: user.gameRoomId,
+					userId: user.id
+				});
+			}
+			else {
+				this.gamePage(self);
+			}
+		}
+		else {
+			this.gamePage(self);
 		}
 
-		this.gamePage(self);
+		socket.on('resumeGame', (data) => {
+			this.time.delayedCall(4000, self.spawnSceneProps, [], self);
+		});
+
+		socket.on('informOnReconnection', (data) => {
+			this.gameRoom = new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
+		
+			this.gameRoom.engine = Matter.Engine.create();
+
+			this.gameRoom.engine.gravity.x = 0;
+			this.gameRoom.engine.gravity.y = 0;
+
+			this.matter.world.disableGravity();
+
+			this.matter.world.setBounds();
+	
+        	this.gameRoom.world = this.gameRoom.engine.world;
+		});
 
 		socket.on('lobby', (data) => {
 			this.UIElement.destroy();
 
 			this.startLobby(data);
+		});
+
+		socket.on('opponentDisconnection', (data) => {
+			this.destroyUI();
+			this.hideSceneGameObjects();
+			this.UIElement.destroy();
+			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
+				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Waiting for opponent to reconnect to the game...</h1></div> \
+				<div class="row-start-2 ..."> \
+					<span class="countdown font-mono text-6xl"> \
+						<span id="countdown" style="--value:30;"></span> \
+					</span> \
+				</div> \
+			</div>');
+			let counter = 30;
+			const refreshID = setInterval(() => {
+				if(counter > 0){
+					counter--;
+				}
+				let countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
+				countdownUI.style.setProperty('--value', counter.toString());
+				if (counter == 0){
+					this.UIElement.destroy();
+					clearInterval(refreshID);
+				}
+			}, 1000);
 		});
 
 		//Happy Birthday to our lead developper kenny <3
@@ -137,6 +206,7 @@ export default class Game extends Phaser.Scene {
 
 		//Waiting for server response to isReady command
 		socket.on('init', () => {
+
 			this.gameRoom.engine = Matter.Engine.create();
 
 			this.gameRoom.engine.gravity.x = 0;
@@ -228,6 +298,7 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('gameFinish', () => {
 			this.children.removeAll();
+			this.destroyUI();
 			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
 			<div class="row-start-1 col-start-2 col-end-3"><button id="replayButton" class="btn btn-accent">Play again 0/2</button></div> \
 			<div class="row-start-2 col-start-2 col-end-3"><button id="stopButton" class="btn btn-secondary">Stop</button></div></div>');
@@ -279,7 +350,7 @@ export default class Game extends Phaser.Scene {
 		if (this.gameRoom){
 			this.destroyUI();
 		}
-		this.gameRoom =  new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
+		this.gameRoom = new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
 
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 		<div class="grid grid-rows-5 grid-cols-3 justify-items-center  gap-y-8 gap-x-32"> \
@@ -416,13 +487,13 @@ export default class Game extends Phaser.Scene {
 				}
 			}
 		}, 1000);
-		const graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
+		this.graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
 		const point = new Phaser.Math.Vector2(500, 20);
 		for (let offset = 100; offset < 680; offset+=40)
 		{
 			point.y = offset;
 			const rect = new Phaser.Geom.Rectangle(point.x, point.y, 3, 20);
-			graphics.fillRectShape(rect);
+			this.graphics.fillRectShape(rect);
 		}
 	}
 

@@ -35,6 +35,18 @@ export class GameRoomService {
         player1SocketId: player1SocketId,
         player2SocketId: player2SocketId,
         score: scoreJson,
+        running: false
+      },
+    });
+  }
+
+  async setRunning(gameRoomId: number){
+    return await this.prisma.gameRoom.update({
+      where: {
+        id: gameRoomId,
+      },
+      data: {
+        running: true,
       },
     });
   }

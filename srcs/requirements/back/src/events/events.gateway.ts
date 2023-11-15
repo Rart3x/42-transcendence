@@ -6,6 +6,9 @@ import {
 	WsResponse,
 	MessageBody,
 	ConnectedSocket,
+	OnGatewayDisconnect,
+	OnGatewayInit,
+	OnGatewayConnection
 } from '@nestjs/websockets';
 
 //Utils
@@ -80,7 +83,7 @@ function Between(min : number, max : number){
 
 
 @WebSocketGateway()
-export class EventsGateway {
+export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
 	@WebSocketServer() server: any = io("https://localhost:5573");
 
@@ -93,6 +96,21 @@ export class EventsGateway {
 		private readonly GameRoomService: GameRoomService,
 		private readonly UserService: UserService
 	){}
+
+	handleConnection(){}
+
+	handleDisconnect(client: any) {
+		for (let i = 0; i < this.gameRooms.length; i++){
+			if (this.gameRooms[i].player1SocketId == client.id){
+				this.server.to(this.gameRooms[i].player2SocketId).emit('opponentDisconnection');
+				this.gameRooms[i].player1Disconnected = true;
+			}
+			else if (this.gameRooms[i].player2SocketId == client.id){
+				this.server.to(this.gameRooms[i].player1SocketId).emit('opponentDisconnection');
+				this.gameRooms[i].player2Disconnected = true;
+			}
+		}
+	}
 
 	async afterInit() {
 
@@ -156,14 +174,16 @@ export class EventsGateway {
 						this.gameRooms[i].endDate = new Date();
 						this.GameRoomService.updateGameRoom(this.gameRooms[i].roomId, this.gameRooms[i].player1SocketId, this.gameRooms[i].player2SocketId, this.gameRooms[i].score);
 					}
-					this.saveGameState(this.gameRooms[i]);
-
-					Engine.update(this.gameRooms[i].engine);
+					if (this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
+						this.saveGameState(this.gameRooms[i]);
+						Engine.update(this.gameRooms[i].engine);
+					}
 				}
 				else if (this.gameRooms[i].running == false){
 					//Starting the game
 					this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
 					this.gameRooms[i].running = true;
+					this.GameRoomService.setRunning(this.gameRooms[i].roomId);
 					Matter.Engine.run(this.gameRooms[i].engine);
 				}
 			}
@@ -187,6 +207,8 @@ export class EventsGateway {
 			player2SocketId: player2[1],
 			player1Ready: false,
 			player2Ready: false,
+			player1Disconnected: false,
+			player2Disconnected: false,
 			world: null,
 			engine: null,
 			entities: null,
@@ -394,6 +416,58 @@ export class EventsGateway {
 		this.server.to(socket.id).emit('matchmaking', {});
 	}
 
+	@SubscribeMessage('playerReconnection')
+	async handlePlayerReconnection(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() roomId: number, userId: number) {
+		var gameRoom = this.findCorrespondingGame(roomId);
+
+		console.log(gameRoom);
+		if (!gameRoom){
+			return ;
+		}
+		const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
+		const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
+		
+		if (gameRoom && gameRoom.player1UserId == userId){
+			socket.to(gameRoom.player2SocketId).emit('playerReconnection',{
+				playerSocket: socket.id
+			});
+
+			socket.to(gameRoom.player1SocketId).emit('informOnReconnection',{
+				roomId: gameRoom.roomId,
+				player1SocketId: gameRoom.player1SocketId,
+				player2SocketId: gameRoom.player2SocketId,
+				player1Name: user1.userName,
+				player2Name: user2.userName,
+				player1Image: user1.image,
+				player2Image: user2.image
+			});
+			gameRoom.player1SocketId = socket.id;
+		}
+		else if (gameRoom && gameRoom.player2UserId == userId){
+			socket.to(gameRoom.player1SocketId).emit('playerReconnection',{
+				playerSocket: socket.id
+			});
+			socket.to(gameRoom.player2SocketId).emit('informOnReconnection',{
+				roomId: gameRoom.roomId,
+				player1SocketId: gameRoom.player1SocketId,
+				player2SocketId: gameRoom.player2SocketId,
+				player1Name: user1.userName,
+				player2Name: user2.userName,
+				player1Image: user1.image,
+				player2Image: user2.image
+			});
+			gameRoom.player2SocketId = socket.id;
+		}
+		if (gameRoom){
+			setTimeout(() => {
+				socket.to(gameRoom.player1SocketId).emit('resumeGame');
+				socket.to(gameRoom.player2SocketId).emit('resumeGame');
+			}, 3000);
+		}
+	}
+
 	@SubscribeMessage('playAgain')
 	async handleReplay(
 		@ConnectedSocket() socket: Socket,
@@ -541,6 +615,7 @@ export class EventsGateway {
 	findCorrespondingGame(roomId: number) : GameRoom{
 		for (let i = 0; i < this.gameRooms.length; i++){
 			if (this.gameRooms[i].roomId == roomId){
+				console.log("found");
 				return (this.gameRooms[i]);
 			}
 		}
