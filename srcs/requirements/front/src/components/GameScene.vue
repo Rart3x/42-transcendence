@@ -113,7 +113,8 @@ export default class Game extends Phaser.Scene {
 
 		if (user.gameRoomId != null){
 			let gameRoom : any = await getGameRoomByRoomId(user.gameRoomId);
-			if (gameRoom.running){
+			// gameRoom.running = false;
+			if (gameRoom && gameRoom.running == true){
 				this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
 				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Trying to reconnect to the game...</h1></div> \
 				<div class="row-start-2 ..."><span class="loading loading-spinner loading-lg"></span></div> \
@@ -121,7 +122,7 @@ export default class Game extends Phaser.Scene {
 				console.log(user.gameRoomId);
 				socket.emit('playerReconnection', {
 					roomId: user.gameRoomId,
-					userId: user.id
+					userId: user.userId
 				});
 			}
 			else {
@@ -132,12 +133,26 @@ export default class Game extends Phaser.Scene {
 			this.gamePage(self);
 		}
 
+		console.log(socket.id);
+		socket.on('opponentReconnection', (data) => {
+			console.log("opponent reconnected");
+			if (this.gameRoom.player1UserId == data.userId){
+				this.gameRoom.player1SocketId = data.playerSocket;
+			}
+			else{
+				this.gameRoom.player2SocketId = data.playerSocket;
+			}
+		});
+
 		socket.on('resumeGame', (data) => {
+			console.log("resume game");
 			this.time.delayedCall(4000, self.spawnSceneProps, [], self);
 		});
 
 		socket.on('informOnReconnection', (data) => {
-			this.gameRoom = new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
+
+			console.log("recreating gameroom,ect ...");
+			this.gameRoom = new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId, data.player1UserId, data.player2UserId);
 		
 			this.gameRoom.engine = Matter.Engine.create();
 
@@ -350,7 +365,7 @@ export default class Game extends Phaser.Scene {
 		if (this.gameRoom){
 			this.destroyUI();
 		}
-		this.gameRoom = new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId);
+		this.gameRoom = new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId, data.player1UserId, data.player2UserId);
 
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 		<div class="grid grid-rows-5 grid-cols-3 justify-items-center  gap-y-8 gap-x-32"> \

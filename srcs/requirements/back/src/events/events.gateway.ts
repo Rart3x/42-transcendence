@@ -419,51 +419,62 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	@SubscribeMessage('playerReconnection')
 	async handlePlayerReconnection(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() roomId: number, userId: number) {
-		var gameRoom = this.findCorrespondingGame(roomId);
+		@MessageBody() data : { roomId: number, userId: number }) {
+		
+		let gameRoom = this.findCorrespondingGame(data.roomId);
 
-		console.log(gameRoom);
 		if (!gameRoom){
 			return ;
 		}
 		const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
 		const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
-		
-		if (gameRoom && gameRoom.player1UserId == userId){
-			socket.to(gameRoom.player2SocketId).emit('playerReconnection',{
+
+		if (gameRoom && gameRoom.player1UserId == data.userId){
+
+			gameRoom.player1SocketId = socket.id;
+
+			this.server.to(gameRoom.player2SocketId).emit('opponentReconnection',{
+				userId: gameRoom.player1UserId,
 				playerSocket: socket.id
 			});
 
-			socket.to(gameRoom.player1SocketId).emit('informOnReconnection',{
+			this.server.to(socket.id).emit('informOnReconnection',{
 				roomId: gameRoom.roomId,
 				player1SocketId: gameRoom.player1SocketId,
 				player2SocketId: gameRoom.player2SocketId,
+				player1UserId: gameRoom.player1UserId,
+				player2UserId: gameRoom.player2UserId,
 				player1Name: user1.userName,
 				player2Name: user2.userName,
 				player1Image: user1.image,
 				player2Image: user2.image
 			});
-			gameRoom.player1SocketId = socket.id;
 		}
-		else if (gameRoom && gameRoom.player2UserId == userId){
-			socket.to(gameRoom.player1SocketId).emit('playerReconnection',{
+		else if (gameRoom && gameRoom.player2UserId == data.userId){
+
+			gameRoom.player2SocketId = socket.id;
+
+			this.server.to(gameRoom.player1SocketId).emit('opponentReconnection',{
+				userId: gameRoom.player2UserId,
 				playerSocket: socket.id
 			});
-			socket.to(gameRoom.player2SocketId).emit('informOnReconnection',{
+
+			this.server.to(socket.id).emit('informOnReconnection',{
 				roomId: gameRoom.roomId,
 				player1SocketId: gameRoom.player1SocketId,
 				player2SocketId: gameRoom.player2SocketId,
+				player1UserId: gameRoom.player1UserId,
+				player2UserId: gameRoom.player2UserId,
 				player1Name: user1.userName,
 				player2Name: user2.userName,
 				player1Image: user1.image,
 				player2Image: user2.image
 			});
-			gameRoom.player2SocketId = socket.id;
 		}
 		if (gameRoom){
 			setTimeout(() => {
-				socket.to(gameRoom.player1SocketId).emit('resumeGame');
-				socket.to(gameRoom.player2SocketId).emit('resumeGame');
+				this.server.to(gameRoom.player1SocketId).emit('resumeGame');
+				this.server.to(gameRoom.player2SocketId).emit('resumeGame');
 			}, 3000);
 		}
 	}
@@ -496,6 +507,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						roomId: gameRoom.roomId,
 						player1SocketId: gameRoom.player1SocketId,
 						player2SocketId: gameRoom.player2SocketId,
+						player1UserId: user1.userId,
+						player2UserId: user2.userId,
 						player1Name: user1.userName,
 						player2Name: user2.userName,
 						player1Image: user1.image,
@@ -505,6 +518,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						roomId: gameRoom.roomId,
 						player1SocketId: gameRoom.player1SocketId,
 						player2SocketId: gameRoom.player2SocketId,
+						player1UserId: user1.userId,
+						player2UserId: user2.userId,
 						player1Name: user1.userName,
 						player2Name: user2.userName,
 						player1Image: user1.image,
@@ -615,9 +630,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	findCorrespondingGame(roomId: number) : GameRoom{
 		for (let i = 0; i < this.gameRooms.length; i++){
 			if (this.gameRooms[i].roomId == roomId){
-				console.log("found");
 				return (this.gameRooms[i]);
 			}
 		}
+		return null;
 	}
 }
