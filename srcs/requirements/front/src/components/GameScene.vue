@@ -119,7 +119,6 @@ export default class Game extends Phaser.Scene {
 				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Trying to reconnect to the game...</h1></div> \
 				<div class="row-start-2 ..."><span class="loading loading-spinner loading-lg"></span></div> \
 				</div>');
-				console.log(user.gameRoomId);
 				socket.emit('playerReconnection', {
 					roomId: user.gameRoomId,
 					userId: user.userId
@@ -133,9 +132,7 @@ export default class Game extends Phaser.Scene {
 			this.gamePage(self);
 		}
 
-		console.log(socket.id);
 		socket.on('opponentReconnection', (data) => {
-			console.log("opponent reconnected");
 			if (this.gameRoom.player1UserId == data.userId){
 				this.gameRoom.player1SocketId = data.playerSocket;
 			}
@@ -145,13 +142,11 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('resumeGame', (data) => {
-			console.log("resume game");
 			this.time.delayedCall(4000, self.spawnSceneProps, [], self);
 		});
 
 		socket.on('informOnReconnection', (data) => {
 
-			console.log("recreating gameroom,ect ...");
 			this.gameRoom = new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId, data.player1UserId, data.player2UserId);
 		
 			this.gameRoom.engine = Matter.Engine.create();
@@ -173,6 +168,12 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('opponentDisconnection', (data) => {
+			if (user.userId == this.gameRoom.player1UserId){
+				this.gameRoom.player2Disconnected = true;
+			}
+			else{
+				this.gameRoom.player1Disconnected = true;
+			}
 			this.destroyUI();
 			this.hideSceneGameObjects();
 			this.UIElement.destroy();
@@ -180,11 +181,11 @@ export default class Game extends Phaser.Scene {
 				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Waiting for opponent to reconnect to the game...</h1></div> \
 				<div class="row-start-2 ..."> \
 					<span class="countdown font-mono text-6xl"> \
-						<span id="countdown" style="--value:30;"></span> \
+						<span id="countdown" style="--value:10;"></span> \
 					</span> \
 				</div> \
 			</div>');
-			let counter = 30;
+			let counter = 10;
 			const refreshID = setInterval(() => {
 				if(counter > 0){
 					counter--;
@@ -192,6 +193,9 @@ export default class Game extends Phaser.Scene {
 				let countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
 				countdownUI.style.setProperty('--value', counter.toString());
 				if (counter == 0){
+					if (this.gameRoom && (this.gameRoom.player1Disconnected || this.gameRoom.player2Disconnected)){
+						console.log("you won by forfeit");
+					}
 					this.UIElement.destroy();
 					clearInterval(refreshID);
 				}
@@ -269,7 +273,7 @@ export default class Game extends Phaser.Scene {
 		}, this);
 
 		socket.on('scorePoint', (data) => {
-			if (this?.gameRoom?.entities){
+			if (this?.gameRoom?.entities && !this.gameRoom.player1Disconnected && !this.gameRoom.player2Disconnected){
 				//Reset ball to the middle
 				if (this.gameRoom.entities?.ball.gameObject) {
 					this.gameRoom.entities.ball.gameObject.x = 500;

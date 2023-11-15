@@ -15,6 +15,8 @@ export default class GameRoom {
     player2UserId: number;
     player1PlayAgain: boolean;
     player2PlayAgain: boolean;
+    player1Disconnected: boolean;
+    player2Disconnected: boolean;
     world?: World | null;
     engine?: Engine | null;
     entities?: Entities | null;
@@ -27,8 +29,10 @@ export default class GameRoom {
         this.player2SocketId = socketPlayer2;
         this.player1UserId = player1UserId;
         this.player2UserId = player2UserId;
-        player1PlayAgain: false;
-        player2PlayAgain: false;
+        this.player1PlayAgain = false;
+        this.player2PlayAgain = false;
+        this.player1Disconnected = false;
+        this.player2Disconnected = false;
         this.engine = null;
         this.world = null;
         this.entities = null;
