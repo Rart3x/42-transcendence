@@ -51,7 +51,6 @@ export default class Game extends Phaser.Scene {
 	UIScorePlayer1: Phaser.GameObjects.DOMElement;
 	UIScorePlayer2: Phaser.GameObjects.DOMElement;
 
-
 	constructor(){
 		super("game");
 	}
@@ -61,13 +60,26 @@ export default class Game extends Phaser.Scene {
 	}
 
 	gamePage(self : any){
-		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-1 grid-cols-1 justify-items-center gap-y 8> \
-			<div class="..."><button id="inQueueButton" class="btn btn-primary ml-5 ...">Find game</button><div> \
-		</div> \
+		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center gap-y-32 ..."> \
+			<div class="row-start-3 col-span-2 ..."><button id="inQueueButton" class="btn btn-primary ml-5 ...">Find game</button></div> \
+			<div class="row-start-5 ...">Press <kbd class="kbd kbd-sm">Echap</kbd> to go full screen</div> \
+			</div> \
 		');
 
+  		const FKey = this.input.keyboard.addKey('F');
+
+        FKey.on('down', function (){
+			console.log("f key pressed");
+			if (this.scale.isFullscreen){
+				this.scale.stopFullscreen();
+			}
+			else{
+				this.scale.startFullscreen();
+			}
+		}, this);
+
 		let inQueueButton = this.UIElement.node.querySelector('#inQueueButton') as HTMLElement;
-		
+
 		inQueueButton.addEventListener('click', function() {
 			socket.emit('playerJoinQueue', user.userId);
 			self.UIElement.destroy();
@@ -82,11 +94,11 @@ export default class Game extends Phaser.Scene {
 		});
 	}
 
-
 	async create(){
 		var self = this;
 
 		console.log(user.gameRoomId);
+
 		let gameRoom : boolean = await getGameRoomByRoomId(user.gameRoomId);
 
 		console.log(gameRoom);
@@ -215,7 +227,7 @@ export default class Game extends Phaser.Scene {
 			this.children.removeAll();
 			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
 			<div class="row-start-1 col-start-2 col-end-3"><button id="replayButton" class="btn btn-accent">Play again 0/2</button></div> \
-			<div class="row-start-2 col-start-2 col-end-3"> <button id="stopButton" class="btn btn-secondary">Stop</button></div></div>');
+			<div class="row-start-2 col-start-2 col-end-3"><button id="stopButton" class="btn btn-secondary">Stop</button></div></div>');
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
 			let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
 			playAgainButton.addEventListener('click', () => {
@@ -452,19 +464,6 @@ export default class Game extends Phaser.Scene {
 			}
 		}
 	}
-}
-
-const config = {
-	width: 800,
-	height: 800,
-	physics : {
-		default: 'matter',
-		matter : { debug: false }
-	},
-	scale : {
-		mode: Phaser.Scale.FIT,
-	},
-	scene: Game
 }
 
 </script>
