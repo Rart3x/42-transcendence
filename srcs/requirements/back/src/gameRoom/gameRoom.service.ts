@@ -41,7 +41,7 @@ export class GameRoomService {
 
   async getGameRoomById(id: number) {
     return await this.prisma.gameRoom.findUnique({
-      where: { id: id },
+      where: { id: id - 0 },
     });
   }
 }

@@ -66,10 +66,9 @@ export default class Game extends Phaser.Scene {
 			</div> \
 		');
 
-  		const FKey = this.input.keyboard.addKey('F');
+		const FKey = this.input.keyboard.addKey('F');
 
-        FKey.on('down', function (){
-			console.log("f key pressed");
+		FKey.on('down', function (){
 			if (this.scale.isFullscreen){
 				this.scale.stopFullscreen();
 			}
@@ -77,6 +76,9 @@ export default class Game extends Phaser.Scene {
 				this.scale.startFullscreen();
 			}
 		}, this);
+
+		document.addEventListener('fullscreenchange', function() {
+		});
 
 		let inQueueButton = this.UIElement.node.querySelector('#inQueueButton') as HTMLElement;
 
@@ -99,10 +101,11 @@ export default class Game extends Phaser.Scene {
 
 		console.log(user.gameRoomId);
 
-		let gameRoom : boolean = await getGameRoomByRoomId(user.gameRoomId);
+		if (user.gameRoomId != null){
+			let gameRoom : boolean = await getGameRoomByRoomId(user.gameRoomId);
+			console.log(gameRoom);
+		}
 
-		console.log(gameRoom);
-	
 		this.gamePage(self);
 
 		socket.on('lobby', (data) => {

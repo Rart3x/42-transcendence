@@ -12,6 +12,7 @@ export default {
     return {
       game: {
         type: Phaser.AUTO,
+        fullscreenTarget: 'game',
         scale: {
           parent: 'game',
           autoCenter: Phaser.Scale.CENTER_BOTH,
