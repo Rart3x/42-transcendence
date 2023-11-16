@@ -44,6 +44,12 @@
     users.value = await getUsersFromChannel(route.params.channelName);
   };
 
+  const isOperatorInDB = async (channelName, userName) => {
+    const response = await isOperator(channelName, userName);
+    console.log(response.success);
+    return response.success;
+  };
+
   const isUserMuteInChannelInDB = async () => {
     const response = await isUserMuteInChannel(route.params.channelName, actualUser.value.userName);
     actualUserMuted.value = response.success;
@@ -168,16 +174,16 @@
                 </label>
               </td>
               <td>
-                <router-link :to="'/profile/' + user.userName">
-                  <button class="btn no-animation">{{ user.userName }}</button>
-                </router-link>
+                <router-link :to="'/profile/' + user.userName"> <button class="btn no-animation">{{ user.userName }}</button> </router-link>
               </td>
-              <td v-if="channel.channelAdmin == actualUser.userId">
-                <button class="btn btn-warning" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
-                <button class="btn btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
-                <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button> 
-                <button class="btn btn-success" @click="addOperator($route.params.channelName, user.userName)" v-if="user && !isOperator($route.params.channelName, user.userName).success">Promote</button>
-                <button class="btn btn-error" @click="removeOperator($route.params.channelName, user.userName)" v-else>Depreciate</button>
+              <td v-if="channel.channelAdmin == actualUser.userId || isOperatorInDB($route.params.channelName, user.userName)">
+                <div class="isAdmin" v-if="user.userId != channel.channelAdmin">
+                  <button class="btn btn-warning" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
+                  <button class="btn btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
+                  <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button> 
+                  <button class="btn btn-success" @click="addOperator($route.params.channelName, user.userName)" v-if="user && !isOperatorInDB($route.params.channelName, user.userName)">Promote</button>
+                  <button class="btn btn-error" @click="removeOperator($route.params.channelName, user.userName)" v-else>Depreciate</button>
+                </div>
               </td>
             </tr>
           </tbody>

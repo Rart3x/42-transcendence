@@ -19,6 +19,8 @@ model Channel {
   channelUsers      User[]      @relation("ChannelUser")
   channelUsersBan   User[]      @relation("ChannelUserBan")
   channelUsersMute  User[]      @relation("ChannelUserMute")
+
+  isPrivate         Boolean     @default(false)
 }
 
 model GameRoom {
