@@ -3,7 +3,7 @@ import GameConfig from "@/components/GameConfig.vue";
 </script>
 
 <template>
-  <div id="game">
+    <div id="game">
       <GameConfig/>
     </div>
 </template>
@@ -14,4 +14,3 @@ import GameConfig from "@/components/GameConfig.vue";
   top: 70px;
 }
 </style>
-

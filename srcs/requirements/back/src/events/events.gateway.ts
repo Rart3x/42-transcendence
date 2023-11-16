@@ -65,7 +65,7 @@ const Engine = Matter.Engine,
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //DEFINES------------------------------------------------------------------------------------------------------------------------------------
-const SERVER_REFRESH_RATE = 1000 / 15
+const SERVER_REFRESH_RATE = 1000 / 30
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //UTILS--------------------------------------------------------------------------------------------------------------------------------------
@@ -104,10 +104,34 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			if (this.gameRooms[i].player1SocketId == client.id){
 				this.server.to(this.gameRooms[i].player2SocketId).emit('opponentDisconnection');
 				this.gameRooms[i].player1Disconnected = true;
+				console.log("player1 disconnection");
+
+				setTimeout(() => {
+					console.log("player1 is still disconnected?");
+
+					if (this.gameRooms[i].player1Disconnected == true){
+						console.log("yes");
+						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish',{
+							winUserId: this.gameRooms[i].player2UserId
+						})
+					}
+				}, 10000);
 			}
 			else if (this.gameRooms[i].player2SocketId == client.id){
 				this.server.to(this.gameRooms[i].player1SocketId).emit('opponentDisconnection');
 				this.gameRooms[i].player2Disconnected = true;
+				console.log("player2 disconnection");
+				setTimeout(() => {
+					console.log("player2 is still disconnected?");
+
+					if (this.gameRooms[i].player2Disconnected == true){
+						console.log("yes");
+
+						this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish',{
+							winUserId: this.gameRooms[i].player1UserId
+						})
+					}
+				}, 10000);
 			}
 		}
 	}
@@ -141,8 +165,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					roomId: localRoom.roomId,
 					player1SocketId: localRoom.player1SocketId,
 					player2SocketId: localRoom.player2SocketId,
-					player1Name: user1.userName,
-					player2Name: user2.userName,
+					player1UserName: user1.userName,
+					player2UserName: user2.userName,
 					player1Image: user1.image,
 					player2Image: user2.image
 				});
@@ -151,8 +175,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					roomId: localRoom.roomId,
 					player1SocketId: localRoom.player1SocketId,
 					player2SocketId: localRoom.player2SocketId,
-					player1Name: user1.userName,
-					player2Name: user2.userName,
+					player1UserName: user1.userName,
+					player2UserName: user2.userName,
 					player1Image: user1.image,
 					player2Image: user2.image
 				});
@@ -165,11 +189,24 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					//If it wasnt then launch the game engine
 					this.checkWinCondition(this.gameRooms[i]);
 					if (this.gameRooms[i].finish){
-						//Need a method to update it in the database
 
-						this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {});
-						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {});
-						
+						if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
+							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
+								winUserId: this.gameRooms[i].player1UserId
+							});
+							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
+								winUserId: this.gameRooms[i].player1UserId
+							});
+						}
+						else{
+							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
+								winUserId: this.gameRooms[i].player2UserId
+							});
+							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
+								winUserId: this.gameRooms[i].player2UserId
+							});
+						}
+				
 						this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
 						this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 
@@ -331,33 +368,36 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			let scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
 			let scorePlayer2  = gameRoom.scoreActual.get(gameRoom.player2SocketId);
 
-			if (pair.bodyA.label == "left"){
-				scorerId = gameRoom.player2UserId;
-				gameRoom.scoreActual.set(gameRoom.player2SocketId, ++scorePlayer2);
+			// console.log(new Date(), scorePlayer1, scorePlayer2);
+			if (gameRoom.player1Disconnected == false && gameRoom.player2Disconnected == false){
+				if (pair.bodyA.label == "left"){
+					scorerId = gameRoom.player2UserId;
+					gameRoom.scoreActual.set(gameRoom.player2SocketId, ++scorePlayer2);
+				}
+				else{
+					scorerId = gameRoom.player1UserId;
+					gameRoom.scoreActual.set(gameRoom.player1SocketId, ++scorePlayer1);
+				}
+	
+				let scoreDate = new Date();
+	
+				let timeDiff = (scoreDate.valueOf() - gameRoom.startDate.valueOf()) / 1000;
+				let newScore : Score = {
+					time: timeDiff,
+					scorerId: scorerId,
+					score: [
+						{
+							userId: gameRoom.player1UserId,
+							score: scorePlayer1 
+						},
+						{
+							userId: gameRoom.player2UserId,
+							score: scorePlayer2 
+						}
+					]
+				}
+				gameRoom.score.push(newScore);
 			}
-			else{
-				scorerId = gameRoom.player1UserId;
-				gameRoom.scoreActual.set(gameRoom.player1SocketId, ++scorePlayer1);
-			}
-
-			let scoreDate = new Date();
-
-			let timeDiff = (scoreDate.valueOf() - gameRoom.startDate.valueOf()) / 1000;
-			let newScore : Score = {
-				time: timeDiff,
-				scorerId: scorerId,
-				score: [
-					{
-						userId: gameRoom.player1UserId,
-						score: scorePlayer1 
-					},
-					{
-						userId: gameRoom.player2UserId,
-						score: scorePlayer2 
-					}
-				]
-			}
-			gameRoom.score.push(newScore);
 		}
 
 		const ballRespawn = (gameRoom: GameRoom) => {
@@ -451,8 +491,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				player2SocketId: gameRoom.player2SocketId,
 				player1UserId: gameRoom.player1UserId,
 				player2UserId: gameRoom.player2UserId,
-				player1Name: user1.userName,
-				player2Name: user2.userName,
+				player1UserName: user1.userName,
+				player2UserName: user2.userName,
 				player1Image: user1.image,
 				player2Image: user2.image
 			});
@@ -472,8 +512,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				player2SocketId: gameRoom.player2SocketId,
 				player1UserId: gameRoom.player1UserId,
 				player2UserId: gameRoom.player2UserId,
-				player1Name: user1.userName,
-				player2Name: user2.userName,
+				player1UserName: user1.userName,
+				player2UserName: user2.userName,
 				player1Image: user1.image,
 				player2Image: user2.image
 			});

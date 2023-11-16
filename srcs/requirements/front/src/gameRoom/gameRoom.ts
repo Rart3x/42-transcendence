@@ -11,22 +11,36 @@ export default class GameRoom {
     id?: number;
     player1SocketId: string;
     player2SocketId: string;
+    player1UserName: string;
+    player2UserName: string;
     player1UserId: number;
     player2UserId: number;
     player1PlayAgain: boolean;
     player2PlayAgain: boolean;
     player1Disconnected: boolean;
     player2Disconnected: boolean;
+
     world?: World | null;
     engine?: Engine | null;
     entities?: Entities | null;
     score?: Map<string, number>;
     running?: Boolean;
 
-    constructor(game: Phaser.Scene, roomId: number, socketPlayer1: string, socketPlayer2: string, player1UserId: number, player2UserId: number){
+    constructor(
+        game: Phaser.Scene,
+        roomId: number,
+        socketPlayer1: string,
+        socketPlayer2: string,
+        player1UserId: number,
+        player2UserId: number,
+        player1UserName: string,
+        player2UserName: string)
+    {
         this.id = roomId;
         this.player1SocketId = socketPlayer1;
         this.player2SocketId = socketPlayer2;
+        this.player1UserName = player1UserName;
+        this.player2UserName = player2UserName;
         this.player1UserId = player1UserId;
         this.player2UserId = player2UserId;
         this.player1PlayAgain = false;

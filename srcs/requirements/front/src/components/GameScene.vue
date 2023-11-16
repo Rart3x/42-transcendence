@@ -62,13 +62,13 @@ export default class Game extends Phaser.Scene {
 	gamePage(self : any){
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center gap-y-32 ..."> \
 			<div class="row-start-3 col-span-2 ..."><button id="inQueueButton" class="btn btn-primary ml-5 ...">Find game</button></div> \
-			<div class="row-start-5 ...">Press <kbd class="kbd kbd-sm">Echap</kbd> to go full screen</div> \
+			<div class="row-start-5 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
 			</div> \
 		');
 
-		const FKey = this.input.keyboard.addKey('F');
+		const SPACEKey = this.input.keyboard.addKey('SPACE');
 
-		FKey.on('down', function (){
+		SPACEKey.on('down', function (){
 			if (this.scale.isFullscreen){
 				this.scale.stopFullscreen();
 			}
@@ -77,9 +77,6 @@ export default class Game extends Phaser.Scene {
 			}
 		}, this);
 
-		document.addEventListener('fullscreenchange', function() {
-
-		});
 
 		let inQueueButton = this.UIElement.node.querySelector('#inQueueButton') as HTMLElement;
 
@@ -147,7 +144,15 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('informOnReconnection', (data) => {
 
-			this.gameRoom = new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId, data.player1UserId, data.player2UserId);
+			this.gameRoom = new GameRoom(
+				this,
+				data.roomId,
+				data.player1SocketId,
+				data.player2SocketId,
+				data.player1UserId,
+				data.player2UserId,
+				data.player1UserName,
+				data.player2UserName);
 		
 			this.gameRoom.engine = Matter.Engine.create();
 
@@ -163,9 +168,10 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('lobby', (data) => {
 			this.UIElement.destroy();
-
 			this.startLobby(data);
 		});
+	
+
 
 		socket.on('opponentDisconnection', (data) => {
 			if (user.userId == this.gameRoom.player1UserId){
@@ -315,15 +321,38 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		socket.on('gameFinish', () => {
+		socket.on('gameFinish', (data) => {
+			console.log("game is finish");
 			this.children.removeAll();
 			this.destroyUI();
-			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
-			<div class="row-start-1 col-start-2 col-end-3"><button id="replayButton" class="btn btn-accent">Play again 0/2</button></div> \
-			<div class="row-start-2 col-start-2 col-end-3"><button id="stopButton" class="btn btn-secondary">Stop</button></div></div>');
+			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
+				<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
+				<div class="row-start-1"> <h1 id="winLooseMessage" class="text-4xl font-bold dark:text-white ..."></h1> </div> \
+				<div class="row-start-2 col-start-1 col-end-2"><button id="replayButton" class="btn btn-accent">Play again 0/2</button></div> \
+				<div class="row-start-3 col-start-1 col-end-2"><button id="stopButton" class="btn btn-secondary">Stop</button></div> \
+				</div> \
+			')
+
+			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
+
+			if (user.userId == data.winUserId){
+				if (user.userId == this.gameRoom.player1UserId)
+					winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
+				else
+					winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
+			}
+			else{
+				if (user.userId == this.gameRoom.player1UserId)
+					winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
+				else
+					winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
+			}
+		
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
 			let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
+
 			playAgainButton.addEventListener('click', () => {
+				console.log("play again");
 				if (socket.id == this?.gameRoom?.player1SocketId){
 					this.gameRoom.player1PlayAgain = true;
 					if (this.gameRoom.player2PlayAgain){
@@ -344,6 +373,7 @@ export default class Game extends Phaser.Scene {
 				}
 				socket.emit('playAgain', this.gameRoom.id);
 			});
+
 			stopButton.addEventListener('click', () => {
 				socket.emit('stopPlay', this.gameRoom.id);
 				this.destroyUI();
@@ -369,7 +399,15 @@ export default class Game extends Phaser.Scene {
 		if (this.gameRoom){
 			this.destroyUI();
 		}
-		this.gameRoom = new GameRoom(this, data.roomId, data.player1SocketId, data.player2SocketId, data.player1UserId, data.player2UserId);
+		this.gameRoom = new GameRoom(
+			this,
+			data.roomId,
+			data.player1SocketId,
+			data.player2SocketId,
+			data.player1UserId,
+			data.player2UserId,
+			data.player1UserName,
+			data.player2UserName);
 
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 		<div class="grid grid-rows-5 grid-cols-3 justify-items-center  gap-y-8 gap-x-32"> \
@@ -405,11 +443,11 @@ export default class Game extends Phaser.Scene {
 
 		if (socket.id == this.gameRoom.player1SocketId){
 			userProfile1Name.innerText = user.userName;
-			userProfile2Name.innerText = data.player2Name;
+			userProfile2Name.innerText = data.player2UserName;
 		}
 		else{
 			userProfile2Name.innerText = user.userName;
-			userProfile1Name.innerText = data.player1Name;
+			userProfile1Name.innerText = data.player1UserName;
 		}
 
 		let imagePathPlayer1 = "userImages/" + data.player1Image;
