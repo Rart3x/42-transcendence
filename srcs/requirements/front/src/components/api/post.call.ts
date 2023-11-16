@@ -1,6 +1,26 @@
 import { User } from '../../../../back/node_modules/@prisma/client';
 
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
+export async function addOperator(channelName : string, operatorName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/add/operator/${operatorName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ channelName: channelName, operatorName: operatorName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error("error: sending POST request", error);
+  }
+
+}
+
 export async function checkPass(channelName: string, password: string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/checkPass`, {

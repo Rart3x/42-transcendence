@@ -8,6 +8,24 @@ import { UserService } from '../user/user.service';
 export class ChannelService {
   constructor (private prisma: PrismaService, private messageService: MessageService, private userService: UserService) {}
   
+  async addOperator(channelName: string, operatorName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const operator = await this.userService.getUserByName(operatorName);
+
+    if (!channel || !operator)
+      return false;
+
+    await this.prisma.channel.update({
+      where: { channelId: channel.channelId },
+      data: {
+        channelOperators: {
+          connect: { userId: operator.userId },
+        },
+      },
+    });
+    return true;
+  }
+
   async banUserFromChannel(channelName: string, userName: string): Promise<boolean> {
     const channel = await this.getChannelByName(channelName);
     const user = await this.userService.getUserByName(userName);
@@ -162,6 +180,26 @@ export class ChannelService {
     return channel;
   }
 
+  async isOperator(channelName: string, userName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const user = await this.userService.getUserByName(userName);
+
+    if (!channel || !user)
+      return false;
+
+    const channelUsers = await this.prisma.channel.findFirst({
+      where: { channelId: channel.channelId },
+      select: {
+        channelOperators: {
+          where: { userId: user.userId }
+        }
+      },
+    });
+    if (channelUsers && channelUsers.channelOperators.length > 0)
+      return true;
+    return false;
+  }
+
   async isUserAdminOfChannel(channel: Channel, user: User): Promise<Boolean> {
     const channelUser = await this.prisma.channel.findFirst({
       where: { channelAdmin: user.userId },
@@ -246,6 +284,24 @@ export class ChannelService {
       data: {
         channelsMute: {
           connect: { channelId: channel.channelId },
+        },
+      },
+    });
+    return true;
+  }
+
+  async removeOperator(channelName: string, operatorName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const operator = await this.userService.getUserByName(operatorName);
+
+    if (!channel || !operator)
+      return false;
+
+    await this.prisma.channel.update({
+      where: { channelId: channel.channelId },
+      data: {
+        channelOperators: {
+          disconnect: { userId: operator.userId },
         },
       },
     });

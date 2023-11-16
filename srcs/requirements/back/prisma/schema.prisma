@@ -15,6 +15,7 @@ model Channel {
   channelPassword   String?
 
   channelMessages   Message[]
+  channelOperators  User[]      @relation("ChannelOperator")
   channelUsers      User[]      @relation("ChannelUser")
   channelUsersBan   User[]      @relation("ChannelUserBan")
   channelUsersMute  User[]      @relation("ChannelUserMute")
@@ -95,6 +96,7 @@ model User {
   blockOf       User[]     @relation("BlockUser")
 
   channels      Channel[]  @relation("ChannelUser")
+  channelsOp    Channel[]  @relation("ChannelOperator")
   channelsBan   Channel[]  @relation("ChannelUserBan")
   channelsMute  Channel[]  @relation("ChannelUserMute")
   
@@ -123,6 +125,7 @@ model User {
 
   cookie        String?    @unique
   socket        String?
+  status        String?    @default("offline")
 
   A2F           Boolean    @default(false)
   A2FSecret     String?

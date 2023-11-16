@@ -8,6 +8,12 @@ import { PrismaService } from '../prisma.service';
 export class ChannelController {
   constructor(private readonly channelService: ChannelService, private readonly prisma: PrismaService, private readonly userService: UserService) {}
 
+  @Post(':channelName/add/operator/:operatorName')
+  async addOperator(@Body('channelName') channelName: string, @Body('operatorName') operatorName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.addOperator(channelName, operatorName);
+    return { success: result };
+  }
+
   @Post(':channelName/ban/:userName')
   async banUserFromChannel(@Body('channelName') channelName: string, @Body('userName') userName: string): Promise<{ success: boolean }> {
     const result = await this.channelService.banUserFromChannel(channelName, userName);
@@ -39,6 +45,12 @@ export class ChannelController {
   @Get('get/:channelName')
   async getChannelByName(@Param('channelName') channelName: string): Promise<Channel> {
     return this.channelService.getChannelByName(channelName);
+  }
+
+  @Get(':channelName/isOperator/:userName')
+  async isOperator(@Param('channelName') channelName: string, @Param('userName') userName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.isOperator(channelName, userName);
+    return { success: result };
   }
 
   @Get(':channelName/isBan/:userName')
@@ -88,6 +100,12 @@ export class ChannelController {
   @Delete(':channelName/delete/:friendName')
   async removeUserFromChannel(@Body('channelName') channelName: string, @Body('friendName') friendName: string): Promise<{ success: boolean }> {
     const response = await this.channelService.removeUserFromChannel(channelName, friendName);
+    return { success: response };
+  }
+
+  @Delete(':channelName/operator/delete/:operatorName')
+  async removeOperator(@Body('channelName') channelName: string, @Body('operatorName') operatorName: string): Promise<{ success: boolean }> {
+    const response = await this.channelService.removeOperator(channelName, operatorName);
     return { success: response };
   }
 }

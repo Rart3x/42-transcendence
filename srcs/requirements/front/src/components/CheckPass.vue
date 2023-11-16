@@ -47,6 +47,8 @@
 	</div>
 	</dialog>
 
+  <div class="background"></div>
+
   <div v-if="checkPassFailed" class="toast toast-start">
     <div class="alert alert-error">
       <span>Invalid Password</span>

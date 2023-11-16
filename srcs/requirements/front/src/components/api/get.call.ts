@@ -33,6 +33,24 @@ export async function getChannelByName(channelName : string) {
   return null;
 }
 
+export async function isOperator(channelName : string, userName : string) {
+  try { 
+    const response  = await fetch(`http://localhost:3000/channel/${channelName}/isOperator/${userName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
 export async function isUserBanInChannel(channelName : string, userName : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/isBan/${userName}`, {

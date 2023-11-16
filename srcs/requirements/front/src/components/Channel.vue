@@ -1,8 +1,8 @@
 <script setup>
   import Cookies from "js-cookie";
-  import { removeUserFromChannel } from "./api/delete.call";
-  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie, isUserBanInChannel, isUserMuteInChannel } from "./api/get.call";
-  import { banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
+  import { removeOperator, removeUserFromChannel } from "./api/delete.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie, isUserBanInChannel, isOperator, isUserMuteInChannel } from "./api/get.call";
+  import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
   import { computed, onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
   import { nextTick } from "vue";
@@ -176,6 +176,8 @@
                 <button class="btn btn-warning" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
                 <button class="btn btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
                 <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button> 
+                <button class="btn btn-success" @click="addOperator($route.params.channelName, user.userName)" v-if="user && !isOperator($route.params.channelName, user.userName).success">Promote</button>
+                <button class="btn btn-error" @click="removeOperator($route.params.channelName, user.userName)" v-else>Depreciate</button>
               </td>
             </tr>
           </tbody>
