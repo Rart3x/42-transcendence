@@ -166,9 +166,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					this.checkWinCondition(this.gameRooms[i]);
 					if (this.gameRooms[i].finish){
 						//Need a method to update it in the database
-						this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {});
 
+						this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {});
 						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {});
+						
+						this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+						this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 
 						this.gameRooms[i].finish = true;
 						this.gameRooms[i].endDate = new Date();
@@ -184,6 +187,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
 					this.gameRooms[i].running = true;
 					this.GameRoomService.setRunning(this.gameRooms[i].roomId);
+
+					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "ingame");
+					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "ingame");
+
 					Matter.Engine.run(this.gameRooms[i].engine);
 				}
 			}

@@ -314,6 +314,13 @@ export class UserService {
       data: { displayName: newUserName },
     });
   }
+
+  async updateStatus(userId: number, newStatus: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId: userId },
+      data: { status: newStatus },
+    });
+  }
   
   async getAllUsers(): Promise<PartialUserDTO[]> {
     return await this.prisma.user.findMany({
