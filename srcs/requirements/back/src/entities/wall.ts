@@ -11,7 +11,7 @@ export default class Wall{
     constructor(x : number, y : number, width: number, height: number, label: string){
         const wallOptions = {
 			isStatic: true,
-            color: 0xdb2e94ff,
+            color: 0xffffffff,
             label: label
 		}
 

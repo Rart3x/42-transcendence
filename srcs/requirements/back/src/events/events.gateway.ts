@@ -65,7 +65,9 @@ const Engine = Matter.Engine,
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //DEFINES------------------------------------------------------------------------------------------------------------------------------------
-const SERVER_REFRESH_RATE = 1000 / 30
+const SERVER_REFRESH_RATE = 1000 / 60;
+const PADDLE_HEIGHT = 80;
+const MAX_BOUNCING_ANGLE = Math.PI/2;
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //UTILS--------------------------------------------------------------------------------------------------------------------------------------
@@ -81,11 +83,10 @@ function Between(min : number, max : number){
 	},
 })
 
-
-@WebSocketGateway()
+@WebSocketGateway({ pingInterval: 5000 })
 export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
-	@WebSocketServer() server: any = io("https://localhost:5573");
+	@WebSocketServer() server: any = io("https://localhost:5173");
 
 	queueList : Map<number, string> = new Map();
 	gameRooms : GameRoom[] = [];
@@ -104,13 +105,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			if (this.gameRooms[i].player1SocketId == client.id){
 				this.server.to(this.gameRooms[i].player2SocketId).emit('opponentDisconnection');
 				this.gameRooms[i].player1Disconnected = true;
-				console.log("player1 disconnection");
-
 				setTimeout(() => {
-					console.log("player1 is still disconnected?");
-
 					if (this.gameRooms[i].player1Disconnected == true){
-						console.log("yes");
 						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish',{
 							winUserId: this.gameRooms[i].player2UserId
 						})
@@ -120,13 +116,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			else if (this.gameRooms[i].player2SocketId == client.id){
 				this.server.to(this.gameRooms[i].player1SocketId).emit('opponentDisconnection');
 				this.gameRooms[i].player2Disconnected = true;
-				console.log("player2 disconnection");
 				setTimeout(() => {
-					console.log("player2 is still disconnected?");
-
 					if (this.gameRooms[i].player2Disconnected == true){
-						console.log("yes");
-
 						this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish',{
 							winUserId: this.gameRooms[i].player1UserId
 						})
@@ -323,52 +314,41 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		const collisionBallPlayer = (pair: Matter.Pair, gameRoom: GameRoom) => {
 			let player: Player;
 			var intersectionDeltaY = 0;
+			var theta = 0;
+			var bouncingAngle = 0;
 
 			pair.bodyA.label == "player1" ?
 				player = (gameRoom.entities.players[0].gameObject.label == "player1" ? gameRoom.entities.players[0] : gameRoom.entities.players[1]) :
 				player = (gameRoom.entities.players[0].gameObject.label == "player2" ? gameRoom.entities.players[0] : gameRoom.entities.players[1])
-			
-			if (gameRoom.entities.ball.gameObject.velocity.x > 0){
 
-				if (player.gameObject.y > gameRoom.entities.ball.gameObject.position.y){
-					intersectionDeltaY = player.gameObject.y - gameRoom.entities.ball.gameObject.position.y;
-					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-						x: gameRoom.entities.ball.gameObject.velocity.x,
-						y: gameRoom.entities.ball.gameObject.velocity.y
-					});
-				}
-				else{
-					intersectionDeltaY = gameRoom.entities.ball.gameObject.position.y - player.gameObject.y;
-					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-						x: gameRoom.entities.ball.gameObject.velocity.x,
-						y: gameRoom.entities.ball.gameObject.velocity.y * -1
-					});
-				}
+				//Relative intersect (between -40 and 40)
+				intersectionDeltaY = player.gameObject.position.y + 40 - gameRoom.entities.ball.gameObject.position.y;
+
+				//Normalized intersect
+				theta = intersectionDeltaY / PADDLE_HEIGHT / 2;
+
+				//Get speed of incoming ball and saving it
+				let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
+				let speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+
+				//Bouncing angle
+
+				bouncingAngle = theta * MAX_BOUNCING_ANGLE;
+
+				let xDirection = speed * Math.cos(bouncingAngle);
+				let yDirection = speed * -Math.sin(bouncingAngle);
+
+				Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
+					x: xDirection,
+					y: yDirection
+				});
 			}
-			else{
-				if (player.gameObject.y > gameRoom.entities.ball.gameObject.position.y){
-					intersectionDeltaY = player.gameObject.y - gameRoom.entities.ball.gameObject.position.y;
-					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-						x: gameRoom.entities.ball.gameObject.velocity.x,
-						y: gameRoom.entities.ball.gameObject.velocity.y * -1
-					});
-				}
-				else{
-					intersectionDeltaY = gameRoom.entities.ball.gameObject.position.y - player.gameObject.y;
-					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-						x: gameRoom.entities.ball.gameObject.velocity.x,
-						y: gameRoom.entities.ball.gameObject.velocity.y
-					});
-				}
-			}
-		}
 
 		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoom) => {
 			let scorerId : number;
 			let scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
 			let scorePlayer2  = gameRoom.scoreActual.get(gameRoom.player2SocketId);
 
-			// console.log(new Date(), scorePlayer1, scorePlayer2);
 			if (gameRoom.player1Disconnected == false && gameRoom.player2Disconnected == false){
 				if (pair.bodyA.label == "left"){
 					scorerId = gameRoom.player2UserId;
@@ -661,13 +641,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					Matter.Body.setPosition(this.gameRooms[i].entities.players[0].gameObject, {
 						x: this.gameRooms[i].entities.players[0].gameObject.position.x,
 						//The collision between the players and upper lower wall is hardcoded by clamping the y value
-						y: Math.min(Math.max(data.y, 65), 735)
+						y: Math.min(Math.max(data.y, 75), 725)
 					});
 				}
 				else{
 					Matter.Body.setPosition(this.gameRooms[i].entities.players[1].gameObject, {
 						x: this.gameRooms[i].entities.players[1].gameObject.position.x,
-						y: Math.min(Math.max(data.y, 65), 735)
+						y: Math.min(Math.max(data.y, 75), 725)
 					});
 				}
 			}

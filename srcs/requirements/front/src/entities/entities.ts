@@ -9,8 +9,8 @@ export default class Entities {
 
     constructor(game: Phaser.Scene, player1SocketId: string, player2SocketId: string){
 
-        this.players.push(new Player(game, 70, 400, 10, 60, player1SocketId));
-        this.players.push(new Player(game, 930, 400, 10, 60, player2SocketId));
+        this.players.push(new Player(game, 70, 400, 10, 80, player1SocketId));
+        this.players.push(new Player(game, 930, 400, 10, 80, player2SocketId));
 
         this.walls.push(new Wall(game, 30, 400, 10, 770));
         this.walls.push(new Wall(game, 970, 400, 10, 770));

@@ -59,6 +59,8 @@ export default class Game extends Phaser.Scene {
 		this.load.setPath('src/assets');
 	}
 
+
+
 	gamePage(self : any){
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center gap-y-32 ..."> \
 			<div class="row-start-3 col-span-2 ..."><button id="inQueueButton" class="btn btn-primary ml-5 ...">Find game</button></div> \
@@ -199,9 +201,9 @@ export default class Game extends Phaser.Scene {
 				let countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
 				countdownUI.style.setProperty('--value', counter.toString());
 				if (counter == 0){
-					if (this.gameRoom && (this.gameRoom.player1Disconnected || this.gameRoom.player2Disconnected)){
-						console.log("you won by forfeit");
-					}
+					// if (this.gameRoom && (this.gameRoom.player1Disconnected || this.gameRoom.player2Disconnected)){
+					// 	console.log("you won by forfeit");
+					// }
 					this.UIElement.destroy();
 					clearInterval(refreshID);
 				}
@@ -250,7 +252,7 @@ export default class Game extends Phaser.Scene {
 		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
 			if (this?.gameRoom?.entities){
 				if (this.gameRoom?.player1SocketId == socket.id){
-					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 65, 735);
+					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
 					socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
 						socketId: socket.id,
@@ -263,7 +265,7 @@ export default class Game extends Phaser.Scene {
 					}
 				}
 				else if (this.gameRoom?.player2SocketId == socket.id){
-					this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 65, 735);
+					this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 75, 725);
 					socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
 						socketId: socket.id,
@@ -322,7 +324,6 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('gameFinish', (data) => {
-			console.log("game is finish");
 			this.children.removeAll();
 			this.destroyUI();
 			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
@@ -337,22 +338,21 @@ export default class Game extends Phaser.Scene {
 
 			if (user.userId == data.winUserId){
 				if (user.userId == this.gameRoom.player1UserId)
-					winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
-				else
 					winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
+				else
+					winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
 			}
 			else{
 				if (user.userId == this.gameRoom.player1UserId)
-					winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
+					winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName;
 				else
-					winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
+					winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName;
 			}
 		
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
 			let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
 
 			playAgainButton.addEventListener('click', () => {
-				console.log("play again");
 				if (socket.id == this?.gameRoom?.player1SocketId){
 					this.gameRoom.player1PlayAgain = true;
 					if (this.gameRoom.player2PlayAgain){
@@ -544,7 +544,7 @@ export default class Game extends Phaser.Scene {
 				}
 			}
 		}, 1000);
-		this.graphics = this.add.graphics({ fillStyle: { color: 0xdb2e94ff } });
+		this.graphics = this.add.graphics({ fillStyle: { color: 0xffffffff } });
 		const point = new Phaser.Math.Vector2(500, 20);
 		for (let offset = 100; offset < 680; offset+=40)
 		{

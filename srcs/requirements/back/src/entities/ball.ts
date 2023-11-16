@@ -18,6 +18,6 @@ export default class Ball {
 		}
         this.x = x;
         this.y = y;
-        this.gameObject = Bodies.rectangle(x, y, 10, 10, ballOptions);
+        this.gameObject = Bodies.rectangle(x, y, 15, 15, ballOptions);
     }
 }

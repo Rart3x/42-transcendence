@@ -9,8 +9,8 @@ export default class Entities {
 
     constructor(player1SocketId: string, player2SocketId: string){
 
-        this.players.push(new Player(60, 400, 10, 60, player1SocketId, "player1"));
-        this.players.push(new Player(940, 400, 10, 60, player2SocketId, "player2"));
+        this.players.push(new Player(60, 400, 10, 80, player1SocketId, "player1"));
+        this.players.push(new Player(940, 400, 10, 80, player2SocketId, "player2"));
 
         this.walls.push(new Wall(20, 400, 10, 770, "left"));
         this.walls.push(new Wall(980, 400, 10, 770, "right"));

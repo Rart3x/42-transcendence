@@ -23,7 +23,7 @@ export default class Wall{
         this.width = width;
         this.height = height;
         
-        this.gameObject = this.game.add.rectangle(x, y, width, height, 0xdb2e94ff);
+        this.gameObject = this.game.add.rectangle(x, y, width, height, 0xffffffff);
         this.game.matter.add.gameObject(this.gameObject, wallOptions);
         this.gameObject.name = "wall";
     }
