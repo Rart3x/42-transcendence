@@ -11,6 +11,9 @@ import {
 	OnGatewayConnection
 } from '@nestjs/websockets';
 
+
+import { GameRoomType, createGameRoom } from '../gameRoom/gameRoom';
+
 //Utils
 import { map } from 'rxjs/operators';
 
@@ -89,7 +92,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	@WebSocketServer() server: any = io("https://localhost:5173");
 
 	queueList : Map<number, string> = new Map();
-	gameRooms : GameRoom[] = [];
+	gameRooms : GameRoomType[] = [];
 	roomId: number = 0;
 
 	constructor(
@@ -178,54 +181,91 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					//Loop through every game room
 					//If the game was launch then save her state every SERVER_REFRESH_RATE ms and sending it to game both players of the game.
 					//If it wasnt then launch the game engine
-					this.checkWinCondition(this.gameRooms[i]);
-					if (this.gameRooms[i].finish){
+					if (this.gameRooms[i].botGame == false){
+						this.checkWinConditionMultiGame(this.gameRooms[i]);
+						if (this.gameRooms[i].finish){
+	
+							if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
+								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
+									winUserId: this.gameRooms[i].player1UserId
+								});
+								this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
+									winUserId: this.gameRooms[i].player1UserId
+								});
+							}
+							else{
+								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
+									winUserId: this.gameRooms[i].player2UserId
+								});
+								this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
+									winUserId: this.gameRooms[i].player2UserId
+								});
+							}
+					
+							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+	
+							this.gameRooms[i].finish = true;
+							this.gameRooms[i].endDate = new Date();
+							this.GameRoomService.updateGameRoom(this.gameRooms[i].roomId, this.gameRooms[i].player1SocketId, this.gameRooms[i].player2SocketId, this.gameRooms[i].score);
+						}
+						if (this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
+							this.saveGameState(this.gameRooms[i]);
+							Engine.update(this.gameRooms[i].engine);
+						}
+						else if (this.gameRooms[i].running == false){
+							//Starting the game
+							this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
+							this.gameRooms[i].running = true;
+							this.GameRoomService.setRunning(this.gameRooms[i].roomId);
+		
+							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "ingame");
+							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "ingame");
+		
+							Matter.Engine.run(this.gameRooms[i].engine);
+						}
+					}
+					else if (this.gameRooms[i].botGame == true){
+						if (this.gameRooms[i].running == false){
 
-						if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
-							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player1UserId
-							});
-							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player1UserId
-							});
+							this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
+
+							Matter.Engine.run(this.gameRooms[i].engine);
+
+							this.gameRooms[i].running = true;
+
+							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "ingame");
 						}
 						else{
-							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player2UserId
-							});
-							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player2UserId
-							});
+							this.checkWinConditionBotGame(this.gameRooms[i]);
+							if (this.gameRooms[i].finish){
+								if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
+									this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
+										winUserId: this.gameRooms[i].player1UserId
+									});
+								}
+								else{
+									this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
+										winUserId: 1001
+									});
+								}
+								this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+		
+								this.gameRooms[i].finish = true;
+								this.gameRooms[i].endDate = new Date();
+							}
+							else if (this.gameRooms[i].player1Disconnected == false){
+								this.saveGameState(this.gameRooms[i]);
+								Engine.update(this.gameRooms[i].engine);
+							}
 						}
-				
-						this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-						this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
-
-						this.gameRooms[i].finish = true;
-						this.gameRooms[i].endDate = new Date();
-						this.GameRoomService.updateGameRoom(this.gameRooms[i].roomId, this.gameRooms[i].player1SocketId, this.gameRooms[i].player2SocketId, this.gameRooms[i].score);
 					}
-					if (this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
-						this.saveGameState(this.gameRooms[i]);
-						Engine.update(this.gameRooms[i].engine);
-					}
-				}
-				else if (this.gameRooms[i].running == false){
-					//Starting the game
-					this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
-					this.gameRooms[i].running = true;
-					this.GameRoomService.setRunning(this.gameRooms[i].roomId);
-
-					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "ingame");
-					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "ingame");
-
-					Matter.Engine.run(this.gameRooms[i].engine);
 				}
 			}
 		}, SERVER_REFRESH_RATE);
 	}
 
-	checkWinCondition(gameRoom: GameRoom){
+	checkWinConditionMultiGame(gameRoom: GameRoomType){
 		const scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
 
 		const scorePlayer2 = gameRoom.scoreActual.get(gameRoom.player2SocketId);
@@ -233,29 +273,37 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		(scorePlayer1 >= 3 || scorePlayer2 >= 3) ? gameRoom.finish = true : gameRoom.finish = false;
 	}
 
-	createGameRoomLocal(gameRoomId: number, player1: any, player2: any) : GameRoom{
-		let gameRoom : GameRoom = {
-			roomId: gameRoomId,
-			player1UserId: player1[0],
-			player2UserId: player2[0],
-			player1SocketId: player1[1],
-			player2SocketId: player2[1],
-			player1Ready: false,
-			player2Ready: false,
-			player1Disconnected: false,
-			player2Disconnected: false,
-			world: null,
-			engine: null,
-			entities: null,
-			scoreActual: new Map<string, number>(),
-			score: [],
-			running: false,
-			started: false,
-			paused: false,
-			finish: false,
-			startDate: new Date(),
-			endDate: null
-		};
+	checkWinConditionBotGame(gameRoom: GameRoomType){
+		const scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
+
+		const scorePlayer2 = gameRoom.scoreActual.get("bot");
+
+		(scorePlayer1 >= 3 || scorePlayer2 >= 3) ? gameRoom.finish = true : gameRoom.finish = false;
+	}
+
+
+
+	createBotGameRoomLocal(gameRoomId: number, player1: any) : GameRoomType{
+		let gameRoom = createGameRoom(gameRoomId, player1, null, true);
+
+		gameRoom.engine = Matter.Engine.create();
+
+		//Desactive gravity so we got an arcade physic
+		gameRoom.engine.gravity.x = 0;
+		gameRoom.engine.gravity.y = 0;
+
+		//Default score
+		gameRoom.scoreActual.set(player1[1], 0);
+		gameRoom.scoreActual.set("bot", 0);
+
+		gameRoom.entities = this.createEntities(player1[1], "bot");
+		gameRoom.world = gameRoom.engine.world;
+
+		return gameRoom;
+	}
+
+	createGameRoomLocal(gameRoomId: number, player1: any, player2: any) : GameRoomType{
+		let gameRoom = createGameRoom(gameRoomId, player1, player2, true);
 
 		gameRoom.engine = Matter.Engine.create();
 
@@ -278,7 +326,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		return new Entities(player1SocketId, player2SocketId);
 	}
 
-	createGameWorld(gameRoom: GameRoom, engine: Matter.Engine, world: Matter.World, entities: Entities){
+	createGameWorld(gameRoom: GameRoomType, engine: Matter.Engine, world: Matter.World, entities: Entities){
 
 		this.setBallDefaultParameters(entities.ball);
 
@@ -310,8 +358,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 	}
 
-	initCollisionsEvent(engine: Matter.Engine, gameRoom: GameRoom){
-		const collisionBallPlayer = (pair: Matter.Pair, gameRoom: GameRoom) => {
+	initCollisionsEvent(engine: Matter.Engine, gameRoom: GameRoomType){
+		const collisionBallPlayer = (pair: Matter.Pair, gameRoom: GameRoomType) => {
 			let player: Player;
 			var intersectionDeltaY = 0;
 			var theta = 0;
@@ -349,7 +397,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 			}
 
-		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoom) => {
+		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoomType) => {
 			let scorerId : number;
 			let scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
 			let scorePlayer2  = gameRoom.scoreActual.get(gameRoom.player2SocketId);
@@ -385,7 +433,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}
 		}
 
-		const ballRespawn = (gameRoom: GameRoom) => {
+		const ballRespawn = (gameRoom: GameRoomType) => {
 			let randY = Between(10, 790);
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
@@ -468,6 +516,19 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		});
 	}
 
+	@SubscribeMessage('botGame')
+	handleBotGame(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() userId: number): void {
+		let gameRoom = this.createBotGameRoomLocal(Between(10000, 10001), [userId, socket.id]);
+		console.log(gameRoom);
+		this.gameRooms.push(gameRoom);
+		this.server.to(socket.id).emit('botReady', {
+			roomId: Between(1000, 5000)
+		});
+	}
+
+
 	@SubscribeMessage('playerJoinQueue')
 	handleEvent(
 		@ConnectedSocket() socket: Socket,
@@ -538,6 +599,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}, 3000);
 		}
 	}
+	
 
 	@SubscribeMessage('playAgain')
 	async handleReplay(
@@ -560,7 +622,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			if (gameRoom.player1Ready == true && gameRoom.player2Ready == true){
 				let indexGameRoom = this.gameRooms.indexOf(gameRoom);
 				this.gameRooms.splice(indexGameRoom, 1);
-				const localRoom = this.createGameRoomLocal(gameRoom.roomId, [ gameRoom.player1UserId, gameRoom.player1SocketId ],  [ gameRoom.player2UserId, gameRoom.player2SocketId ]);
+				const localRoom = this.createGameRoomLocal(
+					gameRoom.roomId,
+					[ gameRoom.player1UserId, gameRoom.player1SocketId ],
+					[ gameRoom.player2UserId, gameRoom.player2SocketId ]);
 				this.gameRooms.push(localRoom);
 				setTimeout(() => {
 					this.server.to(gameRoom.player1SocketId).emit('lobby', {
@@ -607,7 +672,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	handlePlayerReady(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() roomId: number): void {
-		var gameRoom : GameRoom = this.findCorrespondingGame(roomId);
+		var gameRoom : GameRoomType = this.findCorrespondingGame(roomId);
 		if (socket.id == gameRoom.player1SocketId){
 			gameRoom.player1Ready = true;
 			this.server.to(gameRoom.player2SocketId).emit('otherPlayerReady', {});
@@ -631,12 +696,25 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 	}
 
-	saveGameState(gameRoom: GameRoom){
+	botPlay(gameRoom: GameRoomType){
+		//IA Thinking
+		Matter.Body.setPosition(gameRoom.entities.players[1].gameObject,
+		{
+			x: gameRoom.entities.players[1].gameObject.position.x,
+			y: gameRoom.entities.ball.gameObject.position.y
+		});
+	}
+
+	saveGameState(gameRoom: GameRoomType){
 		//We take a snapshot of ball and players position
 		let velocity;
 
 		if (gameRoom.entities){
 			velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
+		}
+
+		if (gameRoom.botGame == true){
+			this.botPlay(gameRoom);
 		}
 
 		const ballState = [{
@@ -667,7 +745,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		const snapshot = SI.snapshot.create(globalState);
 
 		this.server.to(gameRoom.player1SocketId).emit('snapshot', snapshot);
-		this.server.to(gameRoom.player2SocketId).emit('snapshot', snapshot);
+		if (gameRoom.botGame == false){
+			this.server.to(gameRoom.player2SocketId).emit('snapshot', snapshot);
+		}
 	}
 
 	@SubscribeMessage('playerMovement')
@@ -678,14 +758,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		for (let i = 0; i < this.gameRooms.length; i++){
 			if (this.gameRooms[i].roomId == data.roomId){
 				// Update player position in data structure
-				if (this.gameRooms[i].player1SocketId == data.socketId){
+				if (this.gameRooms[i].player1SocketId == data.socketId || this.gameRooms[i].botGame == true){
 					Matter.Body.setPosition(this.gameRooms[i].entities.players[0].gameObject, {
 						x: this.gameRooms[i].entities.players[0].gameObject.position.x,
 						//The collision between the players and upper lower wall is hardcoded by clamping the y value
 						y: Math.min(Math.max(data.y, 75), 725)
 					});
 				}
-				else{
+				else if (this.gameRooms[i].botGame == false && this.gameRooms[i].player2SocketId == data.socketId){
 					Matter.Body.setPosition(this.gameRooms[i].entities.players[1].gameObject, {
 						x: this.gameRooms[i].entities.players[1].gameObject.position.x,
 						y: Math.min(Math.max(data.y, 75), 725)
@@ -695,7 +775,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 	}
 
-	findCorrespondingGame(roomId: number) : GameRoom{
+	findCorrespondingGame(roomId: number) : GameRoomType{
 		for (let i = 0; i < this.gameRooms.length; i++){
 			if (this.gameRooms[i].roomId == roomId){
 				return (this.gameRooms[i]);

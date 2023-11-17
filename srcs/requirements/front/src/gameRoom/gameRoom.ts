@@ -30,29 +30,40 @@ export default class GameRoom {
         game: Phaser.Scene,
         roomId: number,
         socketPlayer1: string,
-        socketPlayer2: string,
         player1UserId: number,
-        player2UserId: number,
         player1UserName: string,
-        player2UserName: string)
-    {
-        this.id = roomId;
-        this.player1SocketId = socketPlayer1;
-        this.player2SocketId = socketPlayer2;
-        this.player1UserName = player1UserName;
-        this.player2UserName = player2UserName;
-        this.player1UserId = player1UserId;
-        this.player2UserId = player2UserId;
-        this.player1PlayAgain = false;
-        this.player2PlayAgain = false;
-        this.player1Disconnected = false;
-        this.player2Disconnected = false;
-        this.engine = null;
-        this.world = null;
-        this.entities = null;
-        this.running = false;
-        this.score = new Map<string, number>();
-        this.score.set(socketPlayer1, 0);
-        this.score.set(socketPlayer2, 0);
+        socketPlayer2?: string,
+        player2UserId?: number,
+        player2UserName?: string,
+        botGame: boolean = false
+      ) {
+            this.id = roomId;
+            this.player1SocketId = socketPlayer1;
+            this.player2SocketId = socketPlayer2 ?? '';
+            this.player1UserName = player1UserName;
+            this.player2UserName = player2UserName ?? '';
+            this.player1UserId = player1UserId;
+            this.player2UserId = player2UserId ?? 0;
+            this.player1PlayAgain = false;
+            this.player2PlayAgain = false;
+            this.player1Disconnected = false;
+            this.player2Disconnected = false;
+            this.engine = null;
+            this.world = null;
+            this.entities = null;
+            this.running = false;
+            this.score = new Map<string, number>();
+            this.score.set(socketPlayer1, 0);
+            if (!botGame && socketPlayer2) {
+                this.score.set(socketPlayer2, 0);
+            }
+        }
+
+    static createBotGameRoom(game: Phaser.Scene, roomId: number, socketPlayer1: string, player1UserId: number, player1UserName: string): GameRoom {
+        return new GameRoom(game, roomId, socketPlayer1, player1UserId, player1UserName, undefined, undefined, undefined, true);
+    }
+ 
+    static createRegularGameRoom(game: Phaser.Scene, roomId: number, socketPlayer1: string, player1UserId: number, player1UserName: string, socketPlayer2: string, player2UserId: number, player2UserName: string): GameRoom {
+        return new GameRoom(game, roomId, socketPlayer1, player1UserId, player1UserName, socketPlayer2, player2UserId, player2UserName, false);
     }
 }

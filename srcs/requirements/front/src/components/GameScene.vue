@@ -69,16 +69,18 @@ export default class Game extends Phaser.Scene {
 			</div> \
 		');
 
-		const SPACEKey = this.input.keyboard.addKey('SPACE');
+		if (this.input.keyboard){
+			const SPACEKey = this.input.keyboard.addKey('SPACE');
 
-		SPACEKey.on('down', function (){
-			if (this.scale.isFullscreen){
-				this.scale.stopFullscreen();
-			}
-			else{
-				this.scale.startFullscreen();
-			}
-		}, this);
+			SPACEKey.on('down', function (){
+				if (this.scale.isFullscreen){
+					this.scale.stopFullscreen();
+				}
+				else{
+					this.scale.startFullscreen();
+				}
+			}, this);
+		}
 
 		let botButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
 
@@ -94,6 +96,7 @@ export default class Game extends Phaser.Scene {
 			</div> \
 			</div>');
 		});
+
 
 		let multiplayerButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
 
@@ -112,13 +115,15 @@ export default class Game extends Phaser.Scene {
 	}
 
 	hideSceneGameObjects(){
-		for (let i = 0; i < 2; i++){
-			this.gameRoom.entities.players[i].gameObject.visible = false;
+		if (this.gameRoom.entities){
+			for (let i = 0; i < 2; i++){
+				this.gameRoom.entities.players[i].gameObject.visible = false;
+			}
+			for (let i = 0; i < 4; i++){
+				this.gameRoom.entities.walls[i].gameObject.visible = false;
+			}
+			this.gameRoom.entities.ball.gameObject.visible = false;
 		}
-		for (let i = 0; i < 4; i++){
-			this.gameRoom.entities.walls[i].gameObject.visible = false;
-		}
-		this.gameRoom.entities.ball.gameObject.visible = false;
 		this.graphics.visible = false;
 	}
 
@@ -188,7 +193,27 @@ export default class Game extends Phaser.Scene {
 			this.startLobby(data);
 		});
 	
+		socket.on('botReady', (data) => {
+			this.gameRoom = GameRoom.createBotGameRoom(
+				this,
+				data.roomId,
+				socket.id,
+				user.userId,
+				user.userName);
+		
+			this.gameRoom.engine = Matter.Engine.create();
 
+			this.gameRoom.engine.gravity.x = 0;
+			this.gameRoom.engine.gravity.y = 0;
+
+			this.matter.world.disableGravity();
+
+			this.matter.world.setBounds();
+
+			this.gameRoom.world = this.gameRoom.engine.world;
+
+			this.spawnSceneProps();
+		});
 
 		socket.on('opponentDisconnection', (data) => {
 			if (user.userId == this.gameRoom.player1UserId){
@@ -414,7 +439,7 @@ export default class Game extends Phaser.Scene {
 		if (this.gameRoom){
 			this.destroyUI();
 		}
-		this.gameRoom = new GameRoom(
+		this.gameRoom = GameRoom.createRegularGameRoom(
 			this,
 			data.roomId,
 			data.player1SocketId,
@@ -513,26 +538,31 @@ export default class Game extends Phaser.Scene {
 	}
 
 	updateUIScore(){
-		let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1SocketId);
-		let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2SocketId);
+		if (this.gameRoom.score){
+			let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1SocketId);
+			let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2SocketId);
 
-		let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
-		let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
-		if (scorePlayer1 <= 3 && scorePlayer2 <= 3){
-			scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
-			scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
+			let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
+			let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
+			if (scorePlayer1 && scorePlayer2 && scorePlayer1 <= 3 && scorePlayer2 <= 3){
+				scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
+				scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
+			}
 		}
+
 	}
 
 	switchSceneInvisible(){
-		for (let i = 0; i < 4; i++){
-			this.gameRoom.entities.walls[i].gameObject.setVisible(false);
-		}
-		for (let i = 0; i < 2; i++){
-			this.gameRoom.entities.players[i].gameObject.setVisible(false);
+		if (this.gameRoom.entities){
+			for (let i = 0; i < 4; i++){
+				this.gameRoom.entities.walls[i].gameObject.setVisible(false);
+			}
+			for (let i = 0; i < 2; i++){
+				this.gameRoom.entities.players[i].gameObject.setVisible(false);
 
+			}
+			this.gameRoom.entities.ball.gameObject.setVisible(false);
 		}
-		this.gameRoom.entities.ball.gameObject.setVisible(false);
 	}
 
 	spawnSceneProps(){
@@ -576,7 +606,6 @@ export default class Game extends Phaser.Scene {
 		//by doing so, every client we read the same game steps.
 
 		//Interpolate x y coordinates on ball object
-		
 		const ballSnapshot = SI.calcInterpolation('x y velX velY', 'ball');
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;
