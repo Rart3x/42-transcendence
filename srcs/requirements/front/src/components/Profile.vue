@@ -188,7 +188,9 @@
     <div class="stat">
       <div class="stat-figure text-primary"></div>
       <div class="stat-title">Username</div>
-      <div class="stat-value">{{ $route.params.userName }}</div>
+      <div v-if="actualUser && actualUser.status === 'offline'" class="stat-value text-red-500">{{ $route.params.userName }}</div>
+      <div v-if="actualUser && actualUser.status === 'online'" class="stat-value  text-green-500">{{ $route.params.userName }}</div>
+      <div v-if="actualUser && actualUser.status === 'ingame'" class="stat-value  text-blue-500">{{ $route.params.userName }}</div>
     </div>
 
     <div class="stat">
