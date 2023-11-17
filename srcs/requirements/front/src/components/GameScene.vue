@@ -62,9 +62,10 @@ export default class Game extends Phaser.Scene {
 
 
 	gamePage(self : any){
-		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center gap-y-32 ..."> \
-			<div class="row-start-3 col-span-2 ..."><button id="inQueueButton" class="btn btn-primary ml-5 ...">Find game</button></div> \
-			<div class="row-start-5 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
+		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
+			<div class="row-start-1 col-span-2 ..."><button id="botButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
+			<div class="row-start-3 col-span-2 ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Bot</button></div> \
+			<div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
 			</div> \
 		');
 
@@ -79,10 +80,24 @@ export default class Game extends Phaser.Scene {
 			}
 		}, this);
 
+		let botButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
 
-		let inQueueButton = this.UIElement.node.querySelector('#inQueueButton') as HTMLElement;
+		botButton.addEventListener('click', function() {
+			socket.emit('botGame', user.userId);
+			self.UIElement.destroy();
+			self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
+			<div class="row-start-1 col-start-2 col-end-3 ..."> \
+				<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
+			</div> \
+			<div class="row-start-2 col-start-2 col-end-3 ..."> \
+				<span class=" loading loading-dots loading-lg"></span> \
+			</div> \
+			</div>');
+		});
 
-		inQueueButton.addEventListener('click', function() {
+		let multiplayerButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
+
+		multiplayerButton.addEventListener('click', function() {
 			socket.emit('playerJoinQueue', user.userId);
 			self.UIElement.destroy();
 			self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
@@ -562,15 +577,16 @@ export default class Game extends Phaser.Scene {
 
 		//Interpolate x y coordinates on ball object
 		
-		const ballSnapshot = SI.calcInterpolation('x y', 'ball');
+		const ballSnapshot = SI.calcInterpolation('x y velX velY', 'ball');
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;
 			if (state){
-				const { id, x, y } = state[0];
+				const { id, x, y, velX, velY } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
 					if (Math.abs(Number(x) - Number(this.gameRoom.entities.ball.gameObject.x)) < 100){
 						this.gameRoom.entities.ball.gameObject.x = x;
 						this.gameRoom.entities.ball.gameObject.y = y;
+						this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
 					}
 				}
 			}

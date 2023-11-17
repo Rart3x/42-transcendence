@@ -83,7 +83,7 @@ function Between(min : number, max : number){
 	},
 })
 
-@WebSocketGateway({ pingInterval: 5000 })
+@WebSocketGateway()
 export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
 	@WebSocketServer() server: any = io("https://localhost:5173");
@@ -322,11 +322,15 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				player = (gameRoom.entities.players[0].gameObject.label == "player2" ? gameRoom.entities.players[0] : gameRoom.entities.players[1])
 
 				//Relative intersect (between -40 and 40)
-				intersectionDeltaY = player.gameObject.position.y + 40 - gameRoom.entities.ball.gameObject.position.y;
+
+				intersectionDeltaY = player.gameObject.position.y  - gameRoom.entities.ball.gameObject.position.y;
+
+
+				console.log(intersectionDeltaY);
 
 				//Normalized intersect
 				theta = intersectionDeltaY / PADDLE_HEIGHT / 2;
-
+				
 				//Get speed of incoming ball and saving it
 				let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
 				let speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
@@ -335,13 +339,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				bouncingAngle = theta * MAX_BOUNCING_ANGLE;
 
-				let xDirection = speed * Math.cos(bouncingAngle);
-				let yDirection = speed * -Math.sin(bouncingAngle);
+				let xDirection = (speed + 0.1) * Math.cos(bouncingAngle);
+				let yDirection = (speed + 0.1) * -Math.sin(bouncingAngle);
 
 				Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
 					x: xDirection,
 					y: yDirection
 				});
+
 			}
 
 		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoom) => {
@@ -432,6 +437,34 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					collisionBallPlayer(pair, gameRoom);
 				}
 			}, this);
+		});
+
+		Matter.Events.on(engine, 'collisionEnd', function(event : Matter.IEventCollision<Matter.Engine>) {
+			event.pairs.forEach(function(pair: Matter.Pair) {
+				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "up" || pair.bodyA.label == "down")){
+					let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
+
+					var velX : number;
+					var velY : number;
+					if (velocity.x > 0){
+						velX = velocity.x + 0.1;
+					}
+					else if (velocity.x < 0){
+						velX = velocity.x - 0.1;
+					}
+					if (velocity.y > 0){
+						velY = velocity.y + 0.1;
+					}
+					else if (velocity.y < 0){
+						velY = velocity.y - 0.1;
+					}
+					//Bouncing angle
+					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
+						x: velX,
+						y: velY,
+					});
+				}
+			});
 		});
 	}
 
@@ -600,10 +633,18 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	saveGameState(gameRoom: GameRoom){
 		//We take a snapshot of ball and players position
+		let velocity;
+
+		if (gameRoom.entities){
+			velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
+		}
+
 		const ballState = [{
 			id : '0',
 			x : gameRoom.entities.ball.gameObject.position.x,
-			y : gameRoom.entities.ball.gameObject.position.y
+			y : gameRoom.entities.ball.gameObject.position.y,
+			velX: velocity.x,
+			velY: velocity.y
 		}];
 
 		const playerState = [{

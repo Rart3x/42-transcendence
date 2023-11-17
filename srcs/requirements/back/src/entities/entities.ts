@@ -18,13 +18,5 @@ export default class Entities {
         this.walls.push(new Wall(500, 790, 970, 10, "down"));
 
         this.ball = new Ball(500, 400);
-        //test labels
-        // console.log(this.ball.gameObject.label);
-        // console.log(this.players[0].gameObject.label);
-        // console.log(this.players[1].gameObject.label);
-        // for (let i = 0; i < 4; i++)
-        // {
-        //     console.log(this.walls[i].gameObject.label);
-        // }
     }
 }
