@@ -90,6 +90,13 @@
     }
   };
 
+  const createPrivateMessageInDB = async (userName, receiverName, message_text) => {
+    const response = await createPrivateMessage(userName, receiverName, message_text);
+
+    message_text = "";//Devrait effacer le contenu de la box, a voir
+    messages.value = await getPrivateMessages(userName, receiverName);
+  };
+
   const isBlockFromDB = async (userName, blockedUserName) => {
     const response = await isBlock(userName, blockedUserName);
 
@@ -275,7 +282,7 @@
       <!-- {{ isUserMuteInChannelInDB() }} -->
       <!-- <div class="userMutedOrNot" v-if="!actualUserMuted"> -->
         <input  type="text" class="input input-bordered w-full max-w-xs" id="message_text" placeholder="Send Message" v-model="message_text"/>
-        <button class="btn btn-primary" @click="createPrivateMessage(user.userName, $route.params.userName, message_text)">Send</button>
+        <button class="btn btn-primary" @click="createPrivateMessageInDB(user.userName, $route.params.userName, message_text)">Send</button>
       <!-- </div> -->
       <!-- <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/> -->
     </div>
