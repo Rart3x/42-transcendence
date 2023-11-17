@@ -4,6 +4,8 @@
   import { onMounted, ref, unref } from "vue";
   import { RouterLink, RouterView } from "vue-router";
   import { getUserByCookie, getAllUsers } from "./api/get.call.ts";
+  import { setStatus } from "./api/post.call.ts";
+
 
   const userName = ref("");
   let user = ref(null);
@@ -31,6 +33,7 @@
 
   const logout = () => {
     Cookies.remove("_authToken");
+    setStatus(user.value.userName, "offline");
     window.location.href = "/";
   };
 

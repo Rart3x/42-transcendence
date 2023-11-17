@@ -78,6 +78,12 @@ export class UserController {
     return { success: result };
   }
 
+  @Post(':userName/setStatus')
+  async setStatus(@Body('userName') userName: string, @Body('status') status: string): Promise<{ success: boolean }> {
+    const result = await this.userService.setStatus(userName, status);
+    return { success: result };
+  }
+
   @Post(':userName/unblock/:unblockedUserName')
   async unblockUser(@Body('userName') userName: string, @Body('unblockedUserName') unblockedUserName: string): Promise<{ success: boolean }> {
     const result = await this.userService.unblockUser(userName, unblockedUserName);

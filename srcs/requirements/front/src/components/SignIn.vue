@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { insertUser } from './api/post.call.ts';
+import { insertUser, setStatus} from './api/post.call.ts';
 import { getUserByName, checkA2F } from './api/get.call.ts';
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
@@ -82,12 +82,14 @@ onMounted(async () => {
         secure: true,
         sameSite: "Strict",
       });
-
+      setStatus(user.value.userName, "online");
       window.location.href = "/settings";
     }
     else
+    {
       router.push('/');
-  }
+    }
+    }
   catch (error) {
     console.log(error);
     router.push('/');

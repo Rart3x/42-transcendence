@@ -294,6 +294,25 @@ export async function muteUserFromChannel(channelName : string, userName : strin
   }
 }
 
+export async function setStatus(userName : string, status : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/setStatus`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: userName, status: status }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
 export async function updateUsername(userName : string, newUserName : string) {
   try {
     const response = await fetch(`http://localhost:3000/user/updateUsername/${userName}`, {

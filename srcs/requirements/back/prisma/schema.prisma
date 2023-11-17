@@ -12,7 +12,7 @@ model Channel {
   channelName       String      @unique
   channelAdmin      Int
 
-  channelPassword   String?
+  channelPassword   String?      @default("")  
 
   channelMessages   Message[]
   channelOperators  User[]      @relation("ChannelOperator")

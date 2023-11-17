@@ -46,7 +46,6 @@
 
   const isOperatorInDB = async (channelName, userName) => {
     const response = await isOperator(channelName, userName);
-    console.log(response.success);
     return response.success;
   };
 
@@ -124,6 +123,11 @@
 
     channel.value = await getChannelByName(route.params.channelName);
 
+    if (channel.value && channel.value.channelUsers) {
+      const userWithSameId = channel.value.channelUsers.find(user => user.userId === actualUser.value.userId);
+      if (!userWithSameId) window.location.href = "/profile";
+    }
+
     if (actualUser.value.image) {
       let userImagePath = "../assets/userImages/" + actualUser.value.image;
       await import(/* @vite-ignore */ userImagePath).then((userImage) => {
@@ -156,7 +160,12 @@
 
 <template>
   <div class="navbar bg-base-100">
-    <button class="btn btn-ghost normal-case text-xl">{{ $route.params.channelName }}</button>
+    <details class="dropdown">
+      <summary class="m-1 btn">{{ $route.params.channelName }}</summary>
+      <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+        <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName)">Quit</li>
+      </ul>
+    </details>
   </div>
   <div class="grid-container">
     <div class="overflow-x-auto">
@@ -174,7 +183,11 @@
                 </label>
               </td>
               <td>
-                <router-link :to="'/profile/' + user.userName"> <button class="btn no-animation">{{ user.userName }}</button> </router-link>
+                <router-link :to="'/profile/' + user.userName">
+                  <button v-if="user.status === 'offline'" class="btn no-animation text-red-500">{{ user.userName }}</button>
+                  <button v-if="user.status === 'online'" class="btn no-animation text-green-500">{{ user.userName }}</button>
+                  <button v-if="user.status === 'ingame'" class="btn no-animation text-blue-500">{{ user.userName }}</button>
+                </router-link>
               </td>
               <td v-if="channel.channelAdmin == actualUser.userId || isOperatorInDB($route.params.channelName, user.userName)">
                 <div class="isAdmin" v-if="user.userId != channel.channelAdmin">
@@ -288,7 +301,7 @@
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }
 
   .friend-list {
-    max-height: 55vh;
+    max-height: 85vh;
     overflow-x: auto;
   }
   .friend-list::-webkit-scrollbar-thumb { background: #888; }
@@ -299,7 +312,7 @@
   .grid-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    height: 10vh;
+    height: 85vh;
   }
   tbody tr:hover { background-color: #efefef; }
 </style>

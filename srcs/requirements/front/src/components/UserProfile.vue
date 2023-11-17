@@ -4,7 +4,7 @@
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { getAllChannels, getAllFriends, getUserByCookie, getGameRoomByRoomId } from "./api/get.call";
-  import { addFriend, createChannel, setPassword, unsetPassword } from './api/post.call';
+  import { addFriend, createChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
 
   let adminImage = ref(null);
   let currentUserName = ref(null);
@@ -124,8 +124,7 @@
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
     
-    if (!user.value)
-      window.location.href = "/";
+    if (!user.value) window.location.href = "/";
 
     userName.value = user.value.displayName;
     adminImage = "src/assets/userImages/" + user.value.image;
@@ -202,7 +201,9 @@
               </td>
               <td>
                 <router-link :to="'/profile/' + user.userName">
-                  <button class="btn no-animation">{{ user.userName }}</button>
+                  <button v-if="user.status === 'offline'" class="btn no-animation text-red-500">{{ user.userName }}</button>
+                  <button v-if="user.status === 'online'" class="btn no-animation text-green-500">{{ user.userName }}</button>
+                  <button v-if="user.status === 'ingame'" class="btn no-animation text-blue-500">{{ user.userName }}</button>
                 </router-link>
               </td>
               <td>
@@ -250,7 +251,7 @@
                   </div>
                 </label>
               </td>
-              <td v-if="channel.password === ''">
+              <td v-if="channel.password === null">
                 <router-link :to="'/channel/' + channel.channelName">
                   <button class="btn no-animation">{{ channel.channelName }}</button>
                 </router-link>

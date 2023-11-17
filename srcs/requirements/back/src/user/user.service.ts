@@ -275,6 +275,18 @@ export class UserService {
     });
   }
 
+  async setStatus(userName: string, status : string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    if (!user)
+      return false;
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: { status: status },
+    });
+    return true;
+  }
+
   async unblockUser(userName: string, blockedUserName: string): Promise<boolean> {
     const user = await this.getUserByName(userName);
     const blockedUser = await this.getUserByName(blockedUserName);
