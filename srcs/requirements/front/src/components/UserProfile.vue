@@ -251,7 +251,7 @@
                   </div>
                 </label>
               </td>
-              <td v-if="channel.password === null">
+              <td v-if="!channel.password">
                 <router-link :to="'/channel/' + channel.channelName">
                   <button class="btn no-animation">{{ channel.channelName }}</button>
                 </router-link>
