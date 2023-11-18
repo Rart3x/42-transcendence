@@ -177,7 +177,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						}
 					}
 					else if (this.gameRooms[i].botGame == true){
-						// console.log("update bot game");
 						this.checkWinConditionBotGame(this.gameRooms[i]);
 						if (this.gameRooms[i].finish){
 							if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
@@ -539,10 +538,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			user2 = await this.UserService.getUserById(second[0]);
 	
 			this.queueListNormalGame.delete(second[0]);
-	
+
 			//Database service
 			const gameRoom = await this.GameRoomService.createGameRoom(first, second);
-	
+
 			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
 
 			this.gameRooms.push(localRoom);
@@ -709,37 +708,48 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				gameRoom.player2Ready = true;
 			}
 			if (gameRoom.player1Ready == true && gameRoom.player2Ready == true){
-				let indexGameRoom = this.gameRooms.indexOf(gameRoom);
-				this.gameRooms.splice(indexGameRoom, 1);
-				const localRoom = this.createGameRoomLocal(
-					gameRoom.roomId,
+				
+				const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
+				const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
+
+				//Db service
+				var newGameRoom = await this.GameRoomService.createGameRoom(
 					[ gameRoom.player1UserId, gameRoom.player1SocketId ],
-					[ gameRoom.player2UserId, gameRoom.player2SocketId ],
+					[ gameRoom.player2UserId, gameRoom.player2SocketId ]);
+
+				//Erasing previous game from local array
+				let indexGameRoom = this.gameRooms.indexOf(gameRoom);
+	
+				//Recreating a new game room with same both users
+				const localRoom = this.createGameRoomLocal(
+					newGameRoom.id,
+					[ gameRoom.player1UserId, newGameRoom.player1SocketId ],
+					[ gameRoom.player2UserId, newGameRoom.player2SocketId ],
 					gameRoom.customGame);
+
+				this.gameRooms.splice(indexGameRoom, 1);
+
 				this.gameRooms.push(localRoom);
-				setTimeout(() => {
-					this.server.to(gameRoom.player1SocketId).emit('lobby', {
-						roomId: gameRoom.roomId,
-						player1SocketId: gameRoom.player1SocketId,
-						player2SocketId: gameRoom.player2SocketId,
-						player1UserId: user1.userId,
-						player2UserId: user2.userId,
-						player1Name: user1.userName,
-						player2Name: user2.userName,
-						player1Image: user1.image,
-						player2Image: user2.image
-					});
-					this.server.to(gameRoom.player2SocketId).emit('lobby', {
-						roomId: gameRoom.roomId,
-						player1SocketId: gameRoom.player1SocketId,
-						player2SocketId: gameRoom.player2SocketId,
-						player1UserId: user1.userId,
-						player2UserId: user2.userId,
-						player1Name: user1.userName,
-						player2Name: user2.userName,
-						player1Image: user1.image,
-						player2Image: user2.image
-					});
+					
+				console.log(user1.userName, user2.userName);
+
+				this.server.to(localRoom.player1SocketId).emit('lobby', {
+					roomId: localRoom.roomId,
+					player1SocketId: localRoom.player1SocketId,
+					player2SocketId: localRoom.player2SocketId,
+					player1UserName: user1.userName,
+					player2UserName: user2.userName,
+					player1Image: user1.image,
+					player2Image: user2.image
+				});
+				this.server.to(localRoom.player2SocketId).emit('lobby', {
+					roomId: localRoom.roomId,
+					player1SocketId: localRoom.player1SocketId,
+					player2SocketId: localRoom.player2SocketId,
+					player1UserName: user1.userName,
+					player2UserName: user2.userName,
+					player1Image: user1.image,
+					player2Image: user2.image
 				});
 			}
 		}
@@ -774,9 +784,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (gameRoom.player1Ready == true && gameRoom.player2Ready == true){
 			this.server.to(gameRoom.player1SocketId).emit('init', {});
 			this.server.to(gameRoom.player2SocketId).emit('init', {});
+
 			setTimeout(() => {
 				gameRoom.started = true;
-				Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
+				Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
 					x: 3,
 					y: 3
 				});

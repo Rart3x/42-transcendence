@@ -481,28 +481,28 @@ export default class Game extends Phaser.Scene {
 
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 		<div class="grid grid-rows-5 grid-cols-3 justify-items-center  gap-y-8 gap-x-32"> \
-		<div class="avatar row-start-2"> \
-			<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+			<div class="avatar row-start-2"> \
+				<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+				</div> \
 			</div> \
-		</div> \
-		<div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
-		<div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
-			<div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+			<div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
+			<div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
+				<div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+				</div> \
 			</div> \
-		</div> \
-		<div class="row-start-3 ..."> \
-			<h1 id="player1Name" class="text-4xl font-bold dark:text-white ..."></h1> \
-		</div> \
-		<div class="row-start-3 col-start-3 col-end-4 ..."> \
-			<h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
-		</div> \
-		<div class="row-start-4 col-start-1 col-end-2"> \
-			<button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready  </button> \
-		</div> \
-		<div class="row-start-4 col-start-3 col-end-4"> \
-			<button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready  </button> \
-		</div> \
-		<div class="row-start-5 col-start-2 col-end-3 ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
+			<div class="row-start-3 ..."> \
+				<h1 id="player1Name" class="text-4xl font-bold dark:text-white ..."></h1> \
+			</div> \
+			<div class="row-start-3 col-start-3 col-end-4 ..."> \
+				<h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
+			</div> \
+			<div class="row-start-4 col-start-1 col-end-2"> \
+				<button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready  </button> \
+			</div> \
+			<div class="row-start-4 col-start-3 col-end-4"> \
+				<button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready  </button> \
+			</div> \
+			<div class="row-start-5 col-start-2 col-end-3 ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
 		</div>');
 
 		let userProfile1 = this.UIElement.node.querySelector("#userProfile1");
@@ -512,11 +512,11 @@ export default class Game extends Phaser.Scene {
 		let userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
 
 		if (socket.id == this.gameRoom.player1SocketId){
-			userProfile1Name.innerText = user.userName;
+			userProfile1Name.innerText = data.player1UserName;
 			userProfile2Name.innerText = data.player2UserName;
 		}
 		else{
-			userProfile2Name.innerText = user.userName;
+			userProfile2Name.innerText = data.player2UserName;
 			userProfile1Name.innerText = data.player1UserName;
 		}
 
@@ -534,9 +534,10 @@ export default class Game extends Phaser.Scene {
 		this.load.start();
 
 		let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
+
 		let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
 		let isReadyButtonPlayer2 = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
-		
+
 		var self = this;
 
 		startButton.addEventListener('click', function() {
@@ -637,17 +638,22 @@ export default class Game extends Phaser.Scene {
 
 		//Interpolate x y coordinates on ball object
 		const ballSnapshot = SI.calcInterpolation('x y velX velY', 'ball');
+		if (ballSnapshot){
+			if (ballSnapshot.newer){
+				var date = new Date();
+				console.log(Math.abs(Number(date.valueOf()) - SI.vault.getById(ballSnapshot.newer).time))
+			}
+		}
+
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;
 			if (state){
 				const { id, x, y, velX, velY } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
-						if (Math.abs(this.gameRoom.entities.ball.gameObject.x - Number(x)) < 10
-							&& Math.abs(this.gameRoom.entities.ball.gameObject.y - Number(y)) < 10){
-							this.gameRoom.entities.ball.gameObject.x = x;
-							this.gameRoom.entities.ball.gameObject.y = y;
-							this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
-					}
+				
+					this.gameRoom.entities.ball.gameObject.x = x;
+					this.gameRoom.entities.ball.gameObject.y = y;
+					this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
 				}
 			}
 		}
