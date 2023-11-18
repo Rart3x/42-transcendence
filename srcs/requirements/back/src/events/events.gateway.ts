@@ -381,15 +381,34 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}
 		}
 
-		const ballRespawn = (gameRoom: GameRoomType) => {
+		const ballRespawn = (gameRoom: GameRoomType, pair: Matter.Pairs) => {
 			let randY = Between(10, 790);
+			var vecX : number;
+			var vecY : number;
+	
+			var coinFlip = randomInt(0, 1);
+
+			if (coinFlip == 1){
+				vecY = -3;
+			}
+			else{
+				vecY = 3;
+			}
+
+			if (pair.bodyA.label == "left"){
+				vecX = -3;
+			}
+			else{
+				vecX = 3;
+			}
+
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
 					player1: gameRoom.scoreActual.get(gameRoom.player1SocketId),
 					player2: gameRoom.scoreActual.get(gameRoom.player2SocketId)
 				},
 				ball: {
-					y: randY
+					y: randY,
 				}
 			});
 			this.server.to(gameRoom.player2SocketId).emit('scorePoint', {
@@ -398,24 +417,37 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					player2: gameRoom.scoreActual.get(gameRoom.player2SocketId)
 				},
 				ball: {
-					y: randY
+					y: randY,
 				}
 			});
 			Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
 				x: 0,
 				y: 0
 			});
+
 			setTimeout(() => {
 				Matter.Body.setPosition(gameRoom.entities.ball.gameObject, {
 					x: 500,
 					y: randY
 				});
+
 				Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-					x: 3,
-					y: 3
+					x: vecX,
+					y: vecY
 				});
-				this.server.to(gameRoom.player1SocketId).emit('restartAfterScore', {});
-				this.server.to(gameRoom.player2SocketId).emit('restartAfterScore', {});
+
+				this.server.to(gameRoom.player1SocketId).emit('restartAfterScore', {
+					ball: {
+						vecX: vecX,
+						vecY: vecY
+					}
+				});
+				this.server.to(gameRoom.player2SocketId).emit('restartAfterScore', {
+					ball: {
+						vecX: vecX,
+						vecY: vecY
+					}
+				});
 				gameRoom.paused = false;
 			}, 3000);
 		}
@@ -426,7 +458,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "left" || pair.bodyA.label == "right")){
 					gameRoom.paused = true;
 					scorePoint(pair, gameRoom);
-					ballRespawn(gameRoom);
+
+					ballRespawn(gameRoom, pair);
 				}
 				//Elastic physics
 				else if (pair.bodyB.label == "ball" && (pair.bodyA.label == "player1"|| pair.bodyA.label == "player2")){

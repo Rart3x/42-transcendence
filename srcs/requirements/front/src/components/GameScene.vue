@@ -216,7 +216,6 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('lobby', (data) => {
-			console.log("lobby");
 			this.UIElement.destroy();
 			this.startLobby(data);
 		});
@@ -269,9 +268,7 @@ export default class Game extends Phaser.Scene {
 				let countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
 				countdownUI.style.setProperty('--value', counter.toString());
 				if (counter == 0){
-					// if (this.gameRoom && (this.gameRoom.player1Disconnected || this.gameRoom.player2Disconnected)){
-					// 	console.log("you won by forfeit");
-					// }
+
 					this.UIElement.destroy();
 					clearInterval(refreshID);
 				}
@@ -351,24 +348,26 @@ export default class Game extends Phaser.Scene {
 		}, this);
 
 		socket.on('scorePoint', (data) => {
-			if (this?.gameRoom?.entities && !this.gameRoom.player1Disconnected && !this.gameRoom.player2Disconnected){
-				//Reset ball to the middle
-				if (this.gameRoom.entities?.ball.gameObject) {
-					this.gameRoom.entities.ball.gameObject.x = 500;
-					this.gameRoom.entities.ball.gameObject.y = data.ball.y;
-					this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
-				}
-				//Update score
-				if (this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
-					this.gameRoom.score.set(this.gameRoom.player1SocketId, data.score.player1);
-					this.gameRoom.score.set(this.gameRoom.player2SocketId, data.score.player2);
-					this.updateUIScore();
+			if (this.gameRoom.entities){
+				if (!this.gameRoom.player1Disconnected && !this.gameRoom.player2Disconnected){
+					//Reset ball to the middle
+					if (this.gameRoom.entities?.ball.gameObject) {
+						this.gameRoom.entities.ball.gameObject.x = 500;
+						this.gameRoom.entities.ball.gameObject.y = data.ball.y;
+						this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
+					}
+					//Update score
+					if (this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
+						this.gameRoom.score.set(this.gameRoom.player1SocketId, data.score.player1);
+						this.gameRoom.score.set(this.gameRoom.player2SocketId, data.score.player2);
+						this.updateUIScore();
+					}
 				}
 			}
 		});
 
-		socket.on('restartAfterScore', () => {
-			this?.gameRoom?.entities?.ball.gameObject.setVelocity(3, 3);
+		socket.on('restartAfterScore', (data) => {
+			this?.gameRoom?.entities?.ball.gameObject.setVelocity(data.ball.vecX, data.ball.vecY);
 		});
 
 		socket.on('playAgain', () => {
@@ -575,7 +574,7 @@ export default class Game extends Phaser.Scene {
 
 			let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
 			let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
-			if (scorePlayer1 && scorePlayer2 && scorePlayer1 <= 3 && scorePlayer2 <= 3){
+			if ( scorePlayer1 <= 3 && scorePlayer2 <= 3){
 				scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
 				scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
 			}
@@ -615,9 +614,9 @@ export default class Game extends Phaser.Scene {
 			if (counter == 0){
 				countdown.destroy();
 				clearInterval(refreshID);
-				if (this.gameRoom.entities){
-					this.gameRoom.entities.ball.gameObject.setVelocity(3, 3);
-				}
+				// if (this.gameRoom.entities){
+					// this.gameRoom.entities.ball.gameObject.setVelocity(3, 3);
+				// }
 			}
 		}, 1000);
 		this.graphics = this.add.graphics({ fillStyle: { color: 0xffffffff } });
@@ -643,10 +642,11 @@ export default class Game extends Phaser.Scene {
 			if (state){
 				const { id, x, y, velX, velY } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
-					if (Math.abs(Number(x) - Number(this.gameRoom.entities.ball.gameObject.x)) < 100){
-						this.gameRoom.entities.ball.gameObject.x = x;
-						this.gameRoom.entities.ball.gameObject.y = y;
-						this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
+						if (Math.abs(this.gameRoom.entities.ball.gameObject.x - Number(x)) < 10
+							&& Math.abs(this.gameRoom.entities.ball.gameObject.y - Number(y)) < 10){
+							this.gameRoom.entities.ball.gameObject.x = x;
+							this.gameRoom.entities.ball.gameObject.y = y;
+							this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
 					}
 				}
 			}
