@@ -63,8 +63,8 @@ export default class Game extends Phaser.Scene {
 
 	gamePage(self : any){
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
-			<div class="row-start-1 col-span-2 ..."><button id="botButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
-			<div class="row-start-3 col-span-2 ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Bot</button></div> \
+			<div class="row-start-1 col-span-2 ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
+			<div class="row-start-3 col-span-2 ..."><button id="botButton" class="btn btn-primary ml-5 ...">Bot</button></div> \
 			<div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
 			</div> \
 		');
@@ -82,7 +82,7 @@ export default class Game extends Phaser.Scene {
 			}, this);
 		}
 
-		let botButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
+		let botButton = this.UIElement.node.querySelector('#botButton') as HTMLElement;
 
 		botButton.addEventListener('click', function() {
 			socket.emit('botGame', user.userId);
@@ -189,6 +189,7 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('lobby', (data) => {
+			console.log("lobby");
 			this.UIElement.destroy();
 			this.startLobby(data);
 		});
@@ -264,8 +265,10 @@ export default class Game extends Phaser.Scene {
 				otherPlayerProfile = this.UIElement.node.querySelector("#userProfile1");
 				otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
 			}
-			otherPlayerReadyButton.innerText = 'Ready';
-			otherPlayerReadyButton.className = 'btn no-animation btn-active btn-accent';
+			if (otherPlayerReadyButton){
+				otherPlayerReadyButton.innerText = 'Ready';
+				otherPlayerReadyButton.className = 'btn no-animation btn-active btn-accent';
+			}
 			if (otherPlayerProfile){
 				otherPlayerProfile.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
 			}
@@ -293,6 +296,7 @@ export default class Game extends Phaser.Scene {
 			if (this?.gameRoom?.entities){
 				if (this.gameRoom?.player1SocketId == socket.id){
 					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+					console.log(this.gameRoom.entities.players[0].x, this.gameRoom.entities.players[0].y);
 					socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
 						socketId: socket.id,
@@ -439,6 +443,7 @@ export default class Game extends Phaser.Scene {
 		if (this.gameRoom){
 			this.destroyUI();
 		}
+
 		this.gameRoom = GameRoom.createRegularGameRoom(
 			this,
 			data.roomId,
@@ -603,7 +608,7 @@ export default class Game extends Phaser.Scene {
 
 	update(){
 		//Client receive a snapshot which contains both the ball and the players position
-		//by doing so, every client we read the same game steps.
+		//by doing so, every client read the same game steps.
 
 		//Interpolate x y coordinates on ball object
 		const ballSnapshot = SI.calcInterpolation('x y velX velY', 'ball');

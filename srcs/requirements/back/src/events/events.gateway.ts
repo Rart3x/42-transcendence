@@ -77,6 +77,9 @@ const MAX_BOUNCING_ANGLE = Math.PI/2;
 function Between(min : number, max : number){
 	return (Math.random() * (max - min) + min)
 }
+
+const randomInt = (min, max) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //Gateway
@@ -141,7 +144,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				const second = this.queueList.entries().next().value;
 
-				const user1 = await  this.UserService.getUserById(first[0]);
+				const user1 = await this.UserService.getUserById(first[0]);
 
 				const user2 = await this.UserService.getUserById(second[0]);
 
@@ -202,8 +205,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								});
 							}
 					
-							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+							// this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+							// this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 	
 							this.gameRooms[i].finish = true;
 							this.gameRooms[i].endDate = new Date();
@@ -213,55 +216,47 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.saveGameState(this.gameRooms[i]);
 							Engine.update(this.gameRooms[i].engine);
 						}
-						else if (this.gameRooms[i].running == false){
-							//Starting the game
-							this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
-							this.gameRooms[i].running = true;
-							this.GameRoomService.setRunning(this.gameRooms[i].roomId);
-		
-							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "ingame");
-							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "ingame");
-		
-							Matter.Engine.run(this.gameRooms[i].engine);
-						}
 					}
 					else if (this.gameRooms[i].botGame == true){
-						if (this.gameRooms[i].running == false){
-
-							this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
-
-							Matter.Engine.run(this.gameRooms[i].engine);
-
-							this.gameRooms[i].running = true;
-
-							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "ingame");
+						// console.log("update bot game");
+						this.checkWinConditionBotGame(this.gameRooms[i]);
+						if (this.gameRooms[i].finish){
+							if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
+								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
+									winUserId: this.gameRooms[i].player1UserId
+								});
+							}
+							else{
+								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
+									winUserId: 1001
+								});
+							}
+							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+	
+							this.gameRooms[i].finish = true;
+							this.gameRooms[i].endDate = new Date();
 						}
-						else{
-							this.checkWinConditionBotGame(this.gameRooms[i]);
-							if (this.gameRooms[i].finish){
-								if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
-									this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-										winUserId: this.gameRooms[i].player1UserId
-									});
-								}
-								else{
-									this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-										winUserId: 1001
-									});
-								}
-								this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-		
-								this.gameRooms[i].finish = true;
-								this.gameRooms[i].endDate = new Date();
-							}
-							else if (this.gameRooms[i].player1Disconnected == false){
-								this.saveGameState(this.gameRooms[i]);
-								Engine.update(this.gameRooms[i].engine);
-							}
+						else if (this.gameRooms[i].player1Disconnected == false){
+							this.saveGameState(this.gameRooms[i]);
+							Engine.update(this.gameRooms[i].engine);
 						}
 					}
-				}
 			}
+			if (this.gameRooms[i].running == false){
+				//Starting the game
+				this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
+				if (this.gameRooms[i].botGame == false){
+					this.GameRoomService.setRunning(this.gameRooms[i].roomId);
+				}
+
+				this.UserService.updateStatus(this.gameRooms[i].player1UserId, "ingame");
+				if (this.gameRooms[i].botGame == false){
+					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "ingame");
+				}
+				Matter.Engine.run(this.gameRooms[i].engine);
+				this.gameRooms[i].running = true;
+			}
+		}
 		}, SERVER_REFRESH_RATE);
 	}
 
@@ -303,7 +298,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	createGameRoomLocal(gameRoomId: number, player1: any, player2: any) : GameRoomType{
-		let gameRoom = createGameRoom(gameRoomId, player1, player2, true);
+		let gameRoom = createGameRoom(gameRoomId, player1, player2, false);
 
 		gameRoom.engine = Matter.Engine.create();
 
@@ -373,8 +368,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				intersectionDeltaY = player.gameObject.position.y  - gameRoom.entities.ball.gameObject.position.y;
 
-
-				console.log(intersectionDeltaY);
 
 				//Normalized intersect
 				theta = intersectionDeltaY / PADDLE_HEIGHT / 2;
@@ -520,12 +513,21 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	handleBotGame(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() userId: number): void {
-		let gameRoom = this.createBotGameRoomLocal(Between(10000, 10001), [userId, socket.id]);
-		console.log(gameRoom);
+		const roomId = randomInt(1000, 5000);
+		let gameRoom = this.createBotGameRoomLocal(roomId, [userId, socket.id]);
 		this.gameRooms.push(gameRoom);
+	
 		this.server.to(socket.id).emit('botReady', {
-			roomId: Between(1000, 5000)
+			roomId: roomId
 		});
+
+		setTimeout(() => {
+			gameRoom.started = true;
+			Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
+				x: 3,
+				y: 3
+			});
+		}, 3000);
 	}
 
 
@@ -724,18 +726,33 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			velX: velocity.x,
 			velY: velocity.y
 		}];
+		
+		var playerState;
 
-		const playerState = [{
-			id : gameRoom.player1SocketId,
-			x : gameRoom.entities.players[0].gameObject.position.x,
-			y : gameRoom.entities.players[0].gameObject.position.y,
-		},
-		{
-			id : gameRoom.player2SocketId,
-			x : gameRoom.entities.players[1].gameObject.position.x,
-			y : gameRoom.entities.players[1].gameObject.position.y,
-		}]
-
+		if (gameRoom.botGame == false){
+			playerState = [{
+				id : gameRoom.player1SocketId,
+				x : gameRoom.entities.players[0].gameObject.position.x,
+				y : gameRoom.entities.players[0].gameObject.position.y
+			},
+			{
+				id : gameRoom.player2SocketId,
+				x : gameRoom.entities.players[1].gameObject.position.x,
+				y : gameRoom.entities.players[1].gameObject.position.y
+			}]
+		}
+		else{
+			playerState = [{
+				id : gameRoom.player1SocketId,
+				x : gameRoom.entities.players[0].gameObject.position.x,
+				y : gameRoom.entities.players[0].gameObject.position.y
+			},
+			{
+				id : 1001,
+				x : gameRoom.entities.players[1].gameObject.position.x,
+				y : gameRoom.entities.players[1].gameObject.position.y
+			}]
+		}
 		//Better use JSON stringify function to do this
 		const globalState = {
 			players : playerState,
@@ -754,7 +771,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	handlePlayerMovement(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() data: {roomId: number, socketId: string, x: number,y : number}): void {
-
 		for (let i = 0; i < this.gameRooms.length; i++){
 			if (this.gameRooms[i].roomId == data.roomId){
 				// Update player position in data structure
