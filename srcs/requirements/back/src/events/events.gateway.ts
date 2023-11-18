@@ -164,22 +164,22 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				}
 				else{
-					const first = this.queueListNormalGame.entries().next().value;
+					const first = this.queueListCustomGame.entries().next().value;
 
-					this.queueListNormalGame.delete(first[0]);
+					this.queueListCustomGame.delete(first[0]);
 	
-					const second = this.queueListNormalGame.entries().next().value;
+					const second = this.queueListCustomGame.entries().next().value;
 	
 					user1 = await this.UserService.getUserById(first[0]);
 	
 					user2 = await this.UserService.getUserById(second[0]);
 	
-					this.queueListNormalGame.delete(second[0]);
+					this.queueListCustomGame.delete(second[0]);
 	
 					//Database service
 					const gameRoom = await this.GameRoomService.createGameRoom(first, second);
 
-					localRoom = this.createGameRoomLocal(gameRoom.id, first, second, true);
+					localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
 
 				}
 
@@ -308,7 +308,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 
 	createBotGameRoomLocal(gameRoomId: number, player1: any) : GameRoomType{
-		let gameRoom = createGameRoom(gameRoomId, player1, null, true, false);
+		let gameRoom = createGameRoom(gameRoomId, player1, null, false, true);
 
 		gameRoom.engine = Matter.Engine.create();
 

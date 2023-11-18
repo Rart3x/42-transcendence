@@ -101,7 +101,7 @@ export default class Game extends Phaser.Scene {
 
 		multiplayerButton.addEventListener('click', function() {
 			self.UIElement.destroy();
-			self.UIElement = self.add.dom(500, 400).createFromHTML(' <div class="grid grid-rows-3 grid-cols-5 justify-items-center ..."> \
+			self.UIElement = self.add.dom(500, 400).createFromHTML(' <div id="parent" class="grid grid-rows-3 grid-cols-5 justify-items-center ..."> \
 				<div class="row-start-1 col-start-3 ..."> \
 					<h1 class="text-4xl font-bold dark:text-white ...">Choose a game mode</h1> \
 				</div> \
@@ -113,25 +113,32 @@ export default class Game extends Phaser.Scene {
 				</div> \
 			</div>');
 
-			// self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
-			// 	<div class="row-start-1 col-start-2 col-end-3 ..."> \
-			// 		<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
-			// 	</div> \
-			// 	<div class="row-start-2 col-start-2 col-end-3 ..."> \
-			// 		<span class=" loading loading-dots loading-lg"></span> \
-			// 	</div> \
-			// </div>');
+
 
 			let customGameModeButton = self.UIElement.node.querySelector("#choseCustomGameMode") as HTMLElement;
 
 			let normalGameModeButton = self.UIElement.node.querySelector("#choseNormalGameMode") as HTMLElement;
 
-			customGameModeButton.addEventListener('click', function() {
-				socket.emit('playerJoinCustomQueue', user.userId);
-			});
-
-			normalGameModeButton.addEventListener('click', function() {
-				socket.emit('playerJoinNormalQueue', user.userId);
+			document.getElementById('parent').addEventListener('click', function(event) {
+				if (event.target.id == "choseCustomGameMode" || event.target.id == "choseNormalGameMode"){
+					if (event.target.id == "choseCustomGameMode"){
+						self.UIElement.destroy();
+						socket.emit('playerJoinCustomQueue', user.userId);
+					}
+					else{
+						self.UIElement.destroy();
+						socket.emit('playerJoinNormalQueue', user.userId);
+					}
+					self.UIElement = self.add.dom(500, 400).createFromHTML(' \
+					<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
+						<div class="row-start-1 col-start-2 col-end-3 ..."> \
+							<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
+						</div> \
+						<div class="row-start-2 col-start-2 col-end-3 ..."> \
+							<span class=" loading loading-dots loading-lg"></span> \
+						</div> \
+					</div>');
+				}
 			});
 		});
 	}
