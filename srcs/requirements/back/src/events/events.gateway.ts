@@ -94,7 +94,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	@WebSocketServer() server: any = io("https://localhost:5173");
 
-	queueList : Map<number, string> = new Map();
+	queueListNormalGame : Map<number, string> = new Map();
+	queueListCustomGame : Map<number, string> = new Map();
+
 	gameRooms : GameRoomType[] = [];
 	roomId: number = 0;
 
@@ -136,27 +138,54 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	async afterInit() {
 
 		setInterval(async () => {
-			if (this.queueList && this.queueList.size == 2){
+			if ((this.queueListNormalGame && this.queueListNormalGame.size == 2) || (this.queueListCustomGame && this.queueListCustomGame.size == 2)){
 
-				const first = this.queueList.entries().next().value;
+				var localRoom : GameRoomType;
+				var user1 : any;
+				var user2 : any;
 
-				this.queueList.delete(first[0]);
+				if (this.queueListNormalGame.size > 2){
+					const first = this.queueListNormalGame.entries().next().value;
 
-				const second = this.queueList.entries().next().value;
+					this.queueListNormalGame.delete(first[0]);
+	
+					const second = this.queueListNormalGame.entries().next().value;
+	
+					user1 = await this.UserService.getUserById(first[0]);
+	
+					user2 = await this.UserService.getUserById(second[0]);
+	
+					this.queueListNormalGame.delete(second[0]);
+	
+					//Database service
+					const gameRoom = await this.GameRoomService.createGameRoom(first, second);
 
-				const user1 = await this.UserService.getUserById(first[0]);
+					localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
 
-				const user2 = await this.UserService.getUserById(second[0]);
+				}
+				else{
+					const first = this.queueListNormalGame.entries().next().value;
 
-				this.queueList.delete(second[0]);
+					this.queueListNormalGame.delete(first[0]);
+	
+					const second = this.queueListNormalGame.entries().next().value;
+	
+					user1 = await this.UserService.getUserById(first[0]);
+	
+					user2 = await this.UserService.getUserById(second[0]);
+	
+					this.queueListNormalGame.delete(second[0]);
+	
+					//Database service
+					const gameRoom = await this.GameRoomService.createGameRoom(first, second);
 
-				//Database service
-				const gameRoom = await this.GameRoomService.createGameRoom(first, second);
+					localRoom = this.createGameRoomLocal(gameRoom.id, first, second, true);
 
-				//Create same variable but in local so its easier to access
-				const localRoom = this.createGameRoomLocal(gameRoom.id, first, second);
+				}
 
 				this.gameRooms.push(localRoom);
+
+				//Create same variable but in local so its easier to access
 
 				this.server.to(localRoom.player1SocketId).emit('lobby', {
 					roomId: localRoom.roomId,
@@ -205,8 +234,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								});
 							}
 					
-							// this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-							// this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 	
 							this.gameRooms[i].finish = true;
 							this.gameRooms[i].endDate = new Date();
@@ -279,7 +308,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 
 	createBotGameRoomLocal(gameRoomId: number, player1: any) : GameRoomType{
-		let gameRoom = createGameRoom(gameRoomId, player1, null, true);
+		let gameRoom = createGameRoom(gameRoomId, player1, null, true, false);
 
 		gameRoom.engine = Matter.Engine.create();
 
@@ -297,8 +326,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		return gameRoom;
 	}
 
-	createGameRoomLocal(gameRoomId: number, player1: any, player2: any) : GameRoomType{
-		let gameRoom = createGameRoom(gameRoomId, player1, player2, false);
+	createGameRoomLocal(gameRoomId: number, player1: any, player2: any, customGame: Boolean) : GameRoomType{
+		let gameRoom = createGameRoom(gameRoomId, player1, player2, false, customGame);
 
 		gameRoom.engine = Matter.Engine.create();
 
@@ -531,11 +560,19 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 
-	@SubscribeMessage('playerJoinQueue')
+	@SubscribeMessage('playerJoinNormalQueue')
 	handleEvent(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() userId: number): void {
-		this.queueList.set(userId, socket.id);
+		this.queueListNormalGame.set(userId, socket.id);
+		this.server.to(socket.id).emit('matchmaking', {});
+	}
+
+	@SubscribeMessage('playerJoinCustomQueue')
+	handleJoinQueue(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() userId: number): void {
+		this.queueListCustomGame.set(userId, socket.id);
 		this.server.to(socket.id).emit('matchmaking', {});
 	}
 
@@ -627,7 +664,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				const localRoom = this.createGameRoomLocal(
 					gameRoom.roomId,
 					[ gameRoom.player1UserId, gameRoom.player1SocketId ],
-					[ gameRoom.player2UserId, gameRoom.player2SocketId ]);
+					[ gameRoom.player2UserId, gameRoom.player2SocketId ],
+					gameRoom.customGame);
 				this.gameRooms.push(localRoom);
 				setTimeout(() => {
 					this.server.to(gameRoom.player1SocketId).emit('lobby', {
@@ -726,7 +764,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			velX: velocity.x,
 			velY: velocity.y
 		}];
-		
+	
 		var playerState;
 
 		if (gameRoom.botGame == false){
@@ -748,7 +786,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				y : gameRoom.entities.players[0].gameObject.position.y
 			},
 			{
-				id : 1001,
+				id : 100001,
 				x : gameRoom.entities.players[1].gameObject.position.x,
 				y : gameRoom.entities.players[1].gameObject.position.y
 			}]

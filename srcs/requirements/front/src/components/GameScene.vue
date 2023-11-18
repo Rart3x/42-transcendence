@@ -60,7 +60,6 @@ export default class Game extends Phaser.Scene {
 	}
 
 
-
 	gamePage(self : any){
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
 			<div class="row-start-1 col-span-2 ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
@@ -101,16 +100,39 @@ export default class Game extends Phaser.Scene {
 		let multiplayerButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
 
 		multiplayerButton.addEventListener('click', function() {
-			socket.emit('playerJoinQueue', user.userId);
 			self.UIElement.destroy();
-			self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
-			<div class="row-start-1 col-start-2 col-end-3 ..."> \
-				<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
-			</div> \
-			<div class="row-start-2 col-start-2 col-end-3 ..."> \
-				<span class=" loading loading-dots loading-lg"></span> \
-			</div> \
+			self.UIElement = self.add.dom(500, 400).createFromHTML(' <div class="grid grid-rows-3 grid-cols-5 justify-items-center ..."> \
+				<div class="row-start-1 col-start-3 ..."> \
+					<h1 class="text-4xl font-bold dark:text-white ...">Choose a game mode</h1> \
+				</div> \
+				<div class="row-start-3 col-start-2 ..."> \
+					<button id="choseCustomGameMode" class="btn btn-primary ml-5 ...">Custom</button> \
+				</div> \
+				<div class="row-start-3 col-start-4 ..."> \
+					<button id="choseNormalGameMode" class="btn btn-primary ml-5 ...">Normal</button> \
+				</div> \
 			</div>');
+
+			// self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
+			// 	<div class="row-start-1 col-start-2 col-end-3 ..."> \
+			// 		<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
+			// 	</div> \
+			// 	<div class="row-start-2 col-start-2 col-end-3 ..."> \
+			// 		<span class=" loading loading-dots loading-lg"></span> \
+			// 	</div> \
+			// </div>');
+
+			let customGameModeButton = self.UIElement.node.querySelector("#choseCustomGameMode") as HTMLElement;
+
+			let normalGameModeButton = self.UIElement.node.querySelector("#choseNormalGameMode") as HTMLElement;
+
+			customGameModeButton.addEventListener('click', function() {
+				socket.emit('playerJoinCustomQueue', user.userId);
+			});
+
+			normalGameModeButton.addEventListener('click', function() {
+				socket.emit('playerJoinNormalQueue', user.userId);
+			});
 		});
 	}
 
@@ -296,7 +318,6 @@ export default class Game extends Phaser.Scene {
 			if (this?.gameRoom?.entities){
 				if (this.gameRoom?.player1SocketId == socket.id){
 					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
-					console.log(this.gameRoom.entities.players[0].x, this.gameRoom.entities.players[0].y);
 					socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
 						socketId: socket.id,

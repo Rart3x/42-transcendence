@@ -18,6 +18,7 @@ export interface GameRoom {
     player2Ready: boolean;
     player1Disconnected: boolean;
     player2Disconnected: boolean;
+    customGame: Boolean;
     botGame: Boolean;
     world: World | null;
     engine: Engine | null ;

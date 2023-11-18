@@ -24,7 +24,7 @@ export type BotGameRoom = Omit<GameRoom, 'player2UserId' | 'player2SocketId' | '
  export type GameRoomType = BotGameRoom | RegularGameRoom;
 
 
- export function createGameRoom(gameRoomId: number, player1: any, player2: any, botGame: Boolean): GameRoomType {
+ export function createGameRoom(gameRoomId: number, player1: any, player2: any, customGame: Boolean, botGame: Boolean): GameRoomType {
   if (botGame) {
       return {
           roomId: gameRoomId,
@@ -32,6 +32,7 @@ export type BotGameRoom = Omit<GameRoom, 'player2UserId' | 'player2SocketId' | '
           player1SocketId: player1[1],
           player1Ready: false,
           player1Disconnected: false,
+          customGame: false,
           botGame: true,
           world: null,
           engine: null,
@@ -56,6 +57,7 @@ export type BotGameRoom = Omit<GameRoom, 'player2UserId' | 'player2SocketId' | '
           player2Ready: false,
           player1Disconnected: false,
           player2Disconnected: false,
+          customGame: customGame,
           botGame: false,
           world: null,
           engine: null,
