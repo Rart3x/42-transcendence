@@ -68,7 +68,7 @@ const Engine = Matter.Engine,
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //DEFINES------------------------------------------------------------------------------------------------------------------------------------
-const SERVER_REFRESH_RATE = 1000 / 60;
+const SERVER_REFRESH_RATE = 1000 / 30;
 const PADDLE_HEIGHT = 80;
 const MAX_BOUNCING_ANGLE = Math.PI/2;
 //-------------------------------------------------------------------------------------------------------------------------------------------
@@ -135,79 +135,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 	}
 
-	async afterInit() {
+	afterInit() {
 
-		setInterval(async () => {
-			if ((this.queueListNormalGame && this.queueListNormalGame.size == 2) || (this.queueListCustomGame && this.queueListCustomGame.size == 2)){
-
-				var localRoom : GameRoomType;
-				var user1 : any;
-				var user2 : any;
-
-				if (this.queueListNormalGame.size > 2){
-					const first = this.queueListNormalGame.entries().next().value;
-
-					this.queueListNormalGame.delete(first[0]);
-	
-					const second = this.queueListNormalGame.entries().next().value;
-	
-					user1 = await this.UserService.getUserById(first[0]);
-	
-					user2 = await this.UserService.getUserById(second[0]);
-	
-					this.queueListNormalGame.delete(second[0]);
-	
-					//Database service
-					const gameRoom = await this.GameRoomService.createGameRoom(first, second);
-
-					localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
-
-				}
-				else{
-					const first = this.queueListCustomGame.entries().next().value;
-
-					this.queueListCustomGame.delete(first[0]);
-	
-					const second = this.queueListCustomGame.entries().next().value;
-	
-					user1 = await this.UserService.getUserById(first[0]);
-	
-					user2 = await this.UserService.getUserById(second[0]);
-	
-					this.queueListCustomGame.delete(second[0]);
-	
-					//Database service
-					const gameRoom = await this.GameRoomService.createGameRoom(first, second);
-
-					localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
-
-				}
-
-				this.gameRooms.push(localRoom);
-
-				//Create same variable but in local so its easier to access
-
-				this.server.to(localRoom.player1SocketId).emit('lobby', {
-					roomId: localRoom.roomId,
-					player1SocketId: localRoom.player1SocketId,
-					player2SocketId: localRoom.player2SocketId,
-					player1UserName: user1.userName,
-					player2UserName: user2.userName,
-					player1Image: user1.image,
-					player2Image: user2.image
-				});
-
-				this.server.to(localRoom.player2SocketId).emit('lobby', {
-					roomId: localRoom.roomId,
-					player1SocketId: localRoom.player1SocketId,
-					player2SocketId: localRoom.player2SocketId,
-					player1UserName: user1.userName,
-					player2UserName: user2.userName,
-					player1Image: user1.image,
-					player2Image: user2.image
-				});
-			}
-
+		setInterval(() => {
 			for (let i = 0; i < this.gameRooms.length; i++){
 				if (this.gameRooms[i].running && this.gameRooms[i].started && this.gameRooms[i].finish == false){
 					//Loop through every game room
@@ -216,7 +146,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					if (this.gameRooms[i].botGame == false){
 						this.checkWinConditionMultiGame(this.gameRooms[i]);
 						if (this.gameRooms[i].finish){
-	
+
 							if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
 								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 									winUserId: this.gameRooms[i].player1UserId
@@ -304,8 +234,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 		(scorePlayer1 >= 3 || scorePlayer2 >= 3) ? gameRoom.finish = true : gameRoom.finish = false;
 	}
-
-
 
 	createBotGameRoomLocal(gameRoomId: number, player1: any) : GameRoomType{
 		let gameRoom = createGameRoom(gameRoomId, player1, null, false, true);
@@ -397,7 +325,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				intersectionDeltaY = player.gameObject.position.y  - gameRoom.entities.ball.gameObject.position.y;
 
-
 				//Normalized intersect
 				theta = intersectionDeltaY / PADDLE_HEIGHT / 2;
 				
@@ -416,7 +343,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					x: xDirection,
 					y: yDirection
 				});
-
 			}
 
 		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoomType) => {
@@ -559,20 +485,111 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}, 3000);
 	}
 
-
 	@SubscribeMessage('playerJoinNormalQueue')
-	handleEvent(
+	async handleJoinQueueNormal(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() userId: number): void {
+		@MessageBody() userId: number) {
 		this.queueListNormalGame.set(userId, socket.id);
+		var localRoom : GameRoomType;
+		var user1 : any;
+		var user2 : any;
+
+		if (this.queueListNormalGame.size >= 2){
+			const first = this.queueListNormalGame.entries().next().value;
+
+			this.queueListNormalGame.delete(first[0]);
+	
+			const second = this.queueListNormalGame.entries().next().value;
+	
+			user1 = await this.UserService.getUserById(first[0]);
+	
+			user2 = await this.UserService.getUserById(second[0]);
+	
+			this.queueListNormalGame.delete(second[0]);
+	
+			//Database service
+			const gameRoom = await this.GameRoomService.createGameRoom(first, second);
+	
+			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
+
+			this.gameRooms.push(localRoom);
+
+			this.server.to(localRoom.player1SocketId).emit('lobby', {
+				roomId: localRoom.roomId,
+				player1SocketId: localRoom.player1SocketId,
+				player2SocketId: localRoom.player2SocketId,
+				player1UserName: user1.userName,
+				player2UserName: user2.userName,
+				player1Image: user1.image,
+				player2Image: user2.image
+			});
+	
+			this.server.to(localRoom.player2SocketId).emit('lobby', {
+				roomId: localRoom.roomId,
+				player1SocketId: localRoom.player1SocketId,
+				player2SocketId: localRoom.player2SocketId,
+				player1UserName: user1.userName,
+				player2UserName: user2.userName,
+				player1Image: user1.image,
+				player2Image: user2.image
+			});
+		}
+
 		this.server.to(socket.id).emit('matchmaking', {});
 	}
 
+
 	@SubscribeMessage('playerJoinCustomQueue')
-	handleJoinQueue(
+	async handleJoinQueueCustom(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() userId: number): void {
+		@MessageBody() userId: number) {
 		this.queueListCustomGame.set(userId, socket.id);
+		var localRoom : GameRoomType;
+		var user1 : any;
+		var user2 : any;
+
+		if (this.queueListCustomGame.size >= 2){
+			const first = this.queueListCustomGame.entries().next().value;
+
+			this.queueListCustomGame.delete(first[0]);
+	
+			const second = this.queueListCustomGame.entries().next().value;
+	
+			user1 = await this.UserService.getUserById(first[0]);
+	
+			user2 = await this.UserService.getUserById(second[0]);
+	
+			this.queueListCustomGame.delete(second[0]);
+	
+			//Database service
+			const gameRoom = await this.GameRoomService.createGameRoom(first, second);
+	
+			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
+
+			this.gameRooms.push(localRoom);
+
+			this.server.to(localRoom.player1SocketId).emit('lobby', {
+				roomId: localRoom.roomId,
+				player1SocketId: localRoom.player1SocketId,
+				player2SocketId: localRoom.player2SocketId,
+				player1UserName: user1.userName,
+				player2UserName: user2.userName,
+				player1Image: user1.image,
+				player2Image: user2.image
+			});
+	
+			this.server.to(localRoom.player2SocketId).emit('lobby', {
+				roomId: localRoom.roomId,
+				player1SocketId: localRoom.player1SocketId,
+				player2SocketId: localRoom.player2SocketId,
+				player1UserName: user1.userName,
+				player2UserName: user2.userName,
+				player1Image: user1.image,
+				player2Image: user2.image
+			});
+		}
+		
+
 		this.server.to(socket.id).emit('matchmaking', {});
 	}
 
