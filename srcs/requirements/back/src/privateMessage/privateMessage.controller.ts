@@ -13,7 +13,8 @@ export class PrivateMessageController {
   }
 
   @Post('create/:userName1/:userName2')
-  async createPrivateMessage(@Body('userName1') userName1: string, @Body('userName2') userName2: string, @Body('privateMessageText') privateMessageText: string): Promise<PrivateMessage> {
-    return this.privateMessageService.createPrivateMessage(userName1, userName2, privateMessageText);
+  async createPrivateMessage(@Body('userName1') userName1: string, @Body('userName2') userName2: string, @Body('privateMessageText') privateMessageText: string): Promise<{ success: boolean }> {
+    const result = await this.privateMessageService.createPrivateMessage(userName1, userName2, privateMessageText);
+    return { success: result };
   }
 }

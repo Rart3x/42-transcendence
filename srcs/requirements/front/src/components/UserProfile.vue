@@ -4,7 +4,7 @@
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { getAllChannels, getAllFriends, getUserByCookie, getGameRoomByRoomId } from "./api/get.call";
-  import { addFriend, createChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
+  import { addFriend, createChannel, createPrivateMessage, setPassword, setStatus, unsetPassword } from './api/post.call';
 
   let adminImage = ref(null);
   let currentUserName = ref(null);
@@ -23,14 +23,17 @@
 
   let addChannelSuccess = ref(false);
   let addFriendSuccess = ref(false);
+  let addMessageSuccess = ref(false);
   let removeChannelSuccess = ref(false);
   let removeFriendSuccess = ref(false);
 
   let addChannelFailed = ref(false);
   let addFriendFailed = ref(false);
+  let addMessageFailed = ref(false);
   let removeChannelFailed = ref(false);
   let removeFriendFailed = ref(false);
 
+  let message_text = ref("");
   let passwordCheckBox = false;
   let password = ref("");
 
@@ -67,6 +70,23 @@
       }, 3000);
     }
     channels.value = await getAllChannels(userName);
+  };
+
+  const createPrivateMessageInDB = async (userName, currentUserName, message_text) => {
+    const response = await createPrivateMessage(userName, currentUserName, message_text);
+    modalMessage.value = false;
+
+    if (response && response.success) {
+      addMessageSuccess.value = true;
+      setTimeout(() => {
+        addMessageSuccess.value = false;
+      }, 3000);
+    } else {
+      addMessageFailed.value = true;
+      setTimeout(() => {
+        addMessageFailed.value = false;
+      }, 3000);
+    }
   };
 
   const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
@@ -179,7 +199,7 @@
     <div class="grid-container">
       <div class="underStat">
         <form @submit.prevent="addFriendFromDB(userName, friendName)">
-          <button class="btn btn-primary">Add Friend</button>
+          <button class="btn">Add Friend</button>
           <input type="text" id="friendName" v-model="friendName" class="input input-bordered w-full max-w-xs" />
         </form>
       </div>
@@ -189,11 +209,11 @@
         <table class="table">
           <caption>Friends</caption>
           <tbody>
-            <tr v-for="(user, index) in friends" :key="index">
+            <tr class="dark-row" v-for="(user, index) in friends" :key="index">
               <td>
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
-                    <div class="w-20 mask mask-squircle">
+                    <div class="w-15 mask mask-squircle">
                       <img :src="user.imageSrc" />
                     </div>
                   </div>
@@ -214,7 +234,7 @@
                 <button class="btn" @click="openChannelModal(user.userName)">Invite in Channel</button>
                 <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
                   <div class="modal-box w-11/12 max-w-5xl">
-                    <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannelInDB(channelName, userName, currentUserName)">
+                    <form class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, userName, currentUserName)">
                       <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
                       <button class="btn">Send Invitation</button>
                     </form>
@@ -225,8 +245,8 @@
                 <button class="btn" @click="openMessageModal(user.userName)">Send Message</button>
                 <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalMessage">
                   <div class="modal-box w-11/12 max-w-5xl">
-                    <form class ="dialogModalMessage" method="dialog" @submit.prevent="createMessageInDB(MessageName, userName, currentUserName)">
-                      <button class="btn">BITE</button>
+                    <form class ="dialogModal" method="dialog" @submit.prevent="createPrivateMessageInDB(userName, user.userName, message_text)">
+                      <input type="text" v-model="message_text" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
                     </form>
                   </div>
                 </dialog>
@@ -241,11 +261,11 @@
         <table class="table">
           <caption>Channels</caption>
           <tbody>
-            <tr v-for="(channel, index) in channels" :key="index">
+            <tr class="dark-row" v-for="(channel, index) in channels" :key="index">
               <td>
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
-                    <div class="w-20 mask mask-squircle">
+                    <div class="w-15 mask mask-squircle">
                       <img :src="adminImage" />
                     </div>
                   </div>
@@ -261,14 +281,14 @@
                   <button class="btn no-animation">{{ channel.channelName }}</button>
                 </router-link>
               </td>
-              <td v-if="user && channel && channel.channelAdmin == user.userId">
+              <td v-if="user && channel && channel.channelAdmin.userId == user.userId">
                 <button class="btn btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
               </td>
               <td v-if="user && channel && channel.channelAdmin == user.userId">
                 <button class="btn" @click="openManageChannelModal(user.userName)">Manage Channel</button>
                 <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalManageChannel">
                   <div class="modal-box w-11/12 max-w-5xl">
-                    <form class="dialogModalChannel" @submit.prevent="togglePasswordInput(channel.channelName, password, passwordCheckBox)">
+                    <form class="dialogModal" @submit.prevent="togglePasswordInput(channel.channelName, password, passwordCheckBox)">
                       <label>Set password</label><br><br>
                       <input type="checkbox" class="checkbox" v-model="passwordCheckBox"><br><br>
                       <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
@@ -321,6 +341,18 @@
     </div>
   </div>
 
+  <div v-if="addMessageSuccess" class="toast toast-start">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span>Message sended successfully.</span>
+    </div>
+  </div>
+  <div v-if="addMessageFailed" class="toast toast-start">
+    <div class="alert alert-error">
+      <span>Failed to send message</span>
+    </div>
+  </div>
+
   <div v-if="removeChannelSuccess" class="toast toast-start">
     <div class="alert alert-success">
       <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -336,9 +368,11 @@
 </template>
 
 <style>
-.stats{
-  border-radius: unset;
-}
+  .dark-row:hover { background-color: #364e6e; }
+
+  .stats{
+    border-radius: unset;
+  }
   body{
     min-height: 82.2vh;
   }
@@ -365,7 +399,7 @@
     background: #ddd;
   }
 
-  .dialogModalChannel { 
+  .dialogModal { 
     text-align:center;
   }
 

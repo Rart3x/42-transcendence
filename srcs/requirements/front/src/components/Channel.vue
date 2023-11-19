@@ -160,12 +160,14 @@
 
 <template>
   <div class="navbar bg-base-100">
-    <details class="dropdown">
-      <summary class="m-1 btn">{{ $route.params.channelName }}</summary>
-      <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-        <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName)">Quit</li>
-      </ul>
-    </details>
+    <div class="navbar-end">
+      <details class="dropdown">
+        <summary class="m-1 btn">{{ $route.params.channelName }}</summary>
+        <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+          <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName)">Quit</li>
+        </ul>
+      </details>
+    </div>
   </div>
   <div class="grid-container">
     <div class="overflow-x-auto">
@@ -176,7 +178,7 @@
               <td>
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
-                    <div class="w-24 mask mask-squircle">
+                    <div class="w-15 mask mask-squircle">
                       <img :src="user.imageSrc" />
                     </div>
                   </div>
@@ -191,7 +193,7 @@
               </td>
               <td v-if="channel.channelAdmin == actualUser.userId || isOperatorInDB($route.params.channelName, user.userName)">
                 <div class="isAdmin" v-if="user.userId != channel.channelAdmin">
-                  <button class="btn btn-warning" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
+                  <button class="btn btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
                   <button class="btn btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
                   <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button> 
                   <button class="btn btn-success" @click="addOperator($route.params.channelName, user.userName)" v-if="user && !isOperatorInDB($route.params.channelName, user.userName)">Promote</button>
@@ -209,24 +211,24 @@
       <div class="chat-messages">
         <div v-for="(message, index) in messages" :key="index" class="message">
           <div class="message-row">
-            <div v-if="message.userId !== actualUser.userId">
+            <div v-if="message.userId != actualUser.userId && message.message_text">
               <div class="chat chat-start">
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
-                    <div class="w-24 mask mask-squircle">
-                      <!-- <img :src="message.sender.image" /> -->
+                    <div class="w-15 mask mask-squircle" v-if="message.sender">
+                      <img :src="message.sender.image" />
                     </div>
                   </div>
                 </label>
-                <div class="chat-bubble" v-if="messages.message_text">{{ message.message_text }}</div>
+                <div class="chat-bubble">{{ message.message_text }}</div>
               </div>
             </div>
-            <div v-if="message.userId === actualUser.userId">
+            <div v-else-if="message.message_text">
               <div class="chat chat-end">
                 <div class="chat-bubble">{{ message.message_text }}</div>
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
-                    <div class="w-24 mask mask-squircle">
+                    <div class="w-15 mask mask-squircle">
                       <img :src="actualUser.image" />
                     </div>
                   </div>
@@ -238,8 +240,8 @@
       </div>
       <div class="chat-input">
         {{ isUserMuteInChannelInDB() }}
-        <div class="userMutedOrNot" v-if="!actualUserMuted">
-          <input  type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
+        <div class="userMutedOrNot" v-if="!actualUserMuted" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
+          <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
           <button class="btn btn-primary" @click="sendMessage">Send</button>
         </div>
         <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/>

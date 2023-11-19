@@ -42,7 +42,7 @@ export class PrivateMessageService {
 		return privateMessages;
 	}
 	
-	async createPrivateMessage(senderName: string, receiverName: string, privateMessageText: string): Promise<PrivateMessage> {
+	async createPrivateMessage(senderName: string, receiverName: string, privateMessageText: string): Promise<boolean> {
 		const user1 = await this.userService.getUserByName(senderName);
 		const user2 = await this.userService.getUserByName(receiverName);
 	
@@ -62,6 +62,6 @@ export class PrivateMessageService {
 				},
 			},
 		});
-		return dm;
+		return true;
 	}
 }

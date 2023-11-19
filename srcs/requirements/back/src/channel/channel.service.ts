@@ -141,7 +141,7 @@ export class ChannelService {
   async getMessagesFromChannel(channelName: string): Promise<Message[]> {
     
     const messages = await this.prisma.channel.findFirst({
-      where: { channelName: channelName },
+      where: { channelName },
       include: {
         channelMessages: {
           include: {
@@ -149,6 +149,10 @@ export class ChannelService {
             Channel: true,
           },
         },
+        channelOperators: true,
+        channelUsers: true,
+        channelUsersBan: true,
+        channelUsersMute: true,
       },
     });
     

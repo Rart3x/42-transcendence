@@ -255,7 +255,7 @@
             <div class="chat chat-start">
               <label tabindex="0" class="btn btn-ghost btn-circle">
                 <div class="avatar">
-                  <div class="w-24 mask mask-squircle">
+                  <div class="w-15 mask mask-squircle">
                     <img :src="actualUser.image" />
                   </div>
                 </div>
@@ -268,7 +268,7 @@
               <div class="chat-bubble">{{ message.privateMessageText }}</div>
               <label tabindex="0" class="btn btn-ghost btn-circle">
                 <div class="avatar">
-                  <div class="w-24 mask mask-squircle">
+                  <div class="w-15 mask mask-squircle">
                     <img :src="user.image" />
                   </div>
                 </div>
