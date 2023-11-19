@@ -13,11 +13,7 @@
   const friendName = ref("");
   const userName = ref("");
 
-  const modalStates = {
-    modalMessage: ref(false),
-    modalChannel: ref(false),
-    modalManageChannel: ref(false),
-  };
+  const modalStates = { modalMessage: ref(false), modalChannel: ref(false), modalManageChannel: ref(false) };
 
   let channels = ref([]);
   let friends = ref([]);
@@ -54,10 +50,6 @@
       }, 3000);
     }
     friends.value = await getAllFriends(userName);
-  };
-
-  const closeModal = (modalKey) => {
-    modalStates[modalKey].value = false;
   };
 
   const createChannelInDB = async (channelName, userName, currentUserName) => {
@@ -138,6 +130,8 @@
     }
     channels.value = await getAllChannels(userName);
   };
+
+  const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
 
   const openChannelModal = (userName) => {
     modalStates.modalChannel.value = true;
