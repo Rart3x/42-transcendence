@@ -35,6 +35,18 @@ export default {
           <div class="stat-title"> Username </div>
           <div class="stat-value"> {{ user.userName }} </div>
         </div>
+        <div class="stat">
+          <div class="stat-title"> Games Total </div>
+          <div class="stat-value"> {{ user.gamePlayed }} </div>
+        </div>
+         <div class="stat">
+          <div class="stat-title"> Games won </div>
+          <div class="stat-value"> {{ user.gameWon }} </div>
+        </div>
+        <div class="stat">
+          <div class="stat-title"> Winrate </div>
+          <div class="stat-value"> {{ user.gameWon / user.gamePlayed }} % </div>
+        </div>
       </div>
     </div>
 </template>

@@ -148,8 +148,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 							if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
 								
-								this.UserService.updateMatchmakingScore(this.gameRooms[i].player1UserId, true);
-								this.UserService.updateMatchmakingScore(this.gameRooms[i].player2UserId, false);
+								this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
+								this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
 
 								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 									winUserId: this.gameRooms[i].player1UserId
@@ -160,8 +160,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							}
 							else{
 
-								this.UserService.updateMatchmakingScore(this.gameRooms[i].player1UserId, false);
-								this.UserService.updateMatchmakingScore(this.gameRooms[i].player2UserId, true);
+								this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
+								this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
 
 								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 									winUserId: this.gameRooms[i].player2UserId

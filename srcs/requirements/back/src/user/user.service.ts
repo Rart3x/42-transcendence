@@ -334,13 +334,19 @@ export class UserService {
     });
   }
 
-  async updateMatchmakingScore(userId: number, win: boolean) {
+  async updateUserGame(userId: number, win: boolean) {
     if (win){
        await this.prisma.user.update({
         where: { userId: userId },
         data: {
           matchmakingScore: {
             increment: 10
+          },
+          gamePlayed: {
+            increment: 1
+          },
+          gameWon: {
+            increment: 1
           }
         }
       });
@@ -351,7 +357,10 @@ export class UserService {
         data: {
           matchmakingScore: {
             decrement: 10
-          }
+          },
+          gamePlayed: {
+            increment: 1
+          },
         }
       });
     }
@@ -365,6 +374,8 @@ export class UserService {
         userName: true,
         displayName: true,
         image: true,
+        gamePlayed: true,
+        gameWon: true
       },
     });
   }
