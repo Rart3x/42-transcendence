@@ -13,9 +13,11 @@
   const friendName = ref("");
   const userName = ref("");
 
-  const modalChannel = ref(false);
-  const modalManageChannel = ref(false);
-  const modalMessage = ref(false);
+  const modalStates = {
+    modalMessage: ref(false),
+    modalChannel: ref(false),
+    modalManageChannel: ref(false),
+  };
 
   let channels = ref([]);
   let friends = ref([]);
@@ -54,9 +56,13 @@
     friends.value = await getAllFriends(userName);
   };
 
+  const closeModal = (modalKey) => {
+    modalStates[modalKey].value = false;
+  };
+
   const createChannelInDB = async (channelName, userName, currentUserName) => {
     const response = await createChannel(channelName, userName, currentUserName);
-    modalChannel.value = false;
+    modalStates.modalChannel.value = false;
 
     if (response && response.success) {
       addChannelSuccess.value = true;
@@ -74,7 +80,7 @@
 
   const createPrivateMessageInDB = async (userName, currentUserName, message_text) => {
     const response = await createPrivateMessage(userName, currentUserName, message_text);
-    modalMessage.value = false;
+    modalStates.modalMessage.value = false;
 
     if (response && response.success) {
       addMessageSuccess.value = true;
@@ -134,12 +140,12 @@
   };
 
   const openChannelModal = (userName) => {
-    modalChannel.value = true;
+    modalStates.modalChannel.value = true;
     currentUserName = userName;
   };
 
-  const openManageChannelModal = () => { modalManageChannel.value = true; };
-  const openMessageModal = () => { modalMessage.value = true; };
+  const openManageChannelModal = () => { modalStates.modalManageChannel.value = true; };
+  const openMessageModal = () => { modalStates.modalMessage.value = true; };
 
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
@@ -232,7 +238,7 @@
               <td> <button class="btn">Invite in a Game</button> </td>
               <td>
                 <button class="btn" @click="openChannelModal(user.userName)">Invite in Channel</button>
-                <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
+                <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel.value" @keydown.esc="closeModal('modalChannel')">
                   <div class="modal-box w-11/12 max-w-5xl">
                     <form class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, userName, currentUserName)">
                       <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
@@ -243,7 +249,7 @@
               </td>
               <td>
                 <button class="btn" @click="openMessageModal(user.userName)">Send Message</button>
-                <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalMessage">
+                <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalMessage.value" @keydown.esc="closeModal('modalMessage')">
                   <div class="modal-box w-11/12 max-w-5xl">
                     <form class ="dialogModal" method="dialog" @submit.prevent="createPrivateMessageInDB(userName, user.userName, message_text)">
                       <input type="text" v-model="message_text" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
@@ -286,7 +292,7 @@
               </td>
               <td v-if="user && channel && channel.channelAdmin == user.userId">
                 <button class="btn" @click="openManageChannelModal(user.userName)">Manage Channel</button>
-                <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalManageChannel">
+                <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalManageChannel.value" @keydown.esc="closeModal('modalManageChannel')">
                   <div class="modal-box w-11/12 max-w-5xl">
                     <form class="dialogModal" @submit.prevent="togglePasswordInput(channel.channelName, password, passwordCheckBox)">
                       <label>Set password</label><br><br>
