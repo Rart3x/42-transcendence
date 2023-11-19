@@ -18,17 +18,18 @@ export interface GameRoom {
     player2Ready: boolean;
     player1Disconnected: boolean;
     player2Disconnected: boolean;
-    customGame: Boolean;
-    botGame: Boolean;
+    customGame: boolean;
+    botGame: boolean;
     world: World | null;
     engine: Engine | null ;
     entities: Entities | null;
+    nbBounces: number;
     scoreActual: Map<string, number>;
     score: Score[];
-    running: Boolean;
-    started: Boolean;
-    paused: Boolean;
-    finish: Boolean;
+    running: boolean;
+    started: boolean;
+    paused: boolean;
+    finish: boolean;
     startDate: Date;
     endDate: Date | null;
 }

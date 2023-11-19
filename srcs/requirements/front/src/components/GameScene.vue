@@ -580,7 +580,6 @@ export default class Game extends Phaser.Scene {
 				scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
 			}
 		}
-
 	}
 
 	switchSceneInvisible(){
@@ -638,12 +637,12 @@ export default class Game extends Phaser.Scene {
 
 		//Interpolate x y coordinates on ball object
 		const ballSnapshot = SI.calcInterpolation('x y velX velY', 'ball');
-		if (ballSnapshot){
-			if (ballSnapshot.newer){
-				var date = new Date();
-				console.log(Math.abs(Number(date.valueOf()) - SI.vault.getById(ballSnapshot.newer).time))
-			}
-		}
+		// if (ballSnapshot){
+		// 	if (ballSnapshot.newer){
+		// 		var date = new Date();
+		// 		console.log(Math.abs(Number(date.valueOf()) - SI.vault.getById(ballSnapshot.newer).time))
+		// 	}
+		// }
 
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;

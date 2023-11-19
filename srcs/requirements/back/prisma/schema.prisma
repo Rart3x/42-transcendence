@@ -34,12 +34,16 @@ model GameRoom {
 
   score        Json?
 
+  nbBounces    Int      @default(0)
+
+  botGame      Boolean @default(false)
+  customGame   Boolean @default(false)
   running      Boolean @default(false)
   started      Boolean @default(false)
   paused       Boolean @default(false)
   finish       Boolean @default(false)
 
-  startDate    DateTime
+  startDate    DateTime @default(now())
   endDate      DateTime?
 
   users        User[]
@@ -96,6 +100,8 @@ model User {
 
   blockUsers    User[]     @relation("BlockUser")
   blockOf       User[]     @relation("BlockUser")
+
+  matchmakingScore   Int   @default(1000)
 
   channels      Channel[]  @relation("ChannelUser")
   channelsOp    Channel[]  @relation("ChannelOperator")

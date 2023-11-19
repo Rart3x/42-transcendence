@@ -117,6 +117,9 @@
           <li>
             <router-link to="/history"> History </router-link>
           </li>
+              <li>
+            <router-link to="/leaderboard"> Leaderboard </router-link>
+          </li>
           <li>
               <router-link to="/settings"> Settings </router-link>
           </li>

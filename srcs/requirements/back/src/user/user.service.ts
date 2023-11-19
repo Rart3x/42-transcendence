@@ -333,6 +333,31 @@ export class UserService {
       data: { status: newStatus },
     });
   }
+
+  async updateMatchmakingScore(userId: number, win: boolean) {
+    if (win){
+      console.log("decrement");
+       await this.prisma.user.update({
+        where: { userId: userId },
+        data: {
+          matchmakingScore: {
+            increment: 10
+          }
+        }
+      });
+    }
+    else{
+      console.log("increment");
+      await this.prisma.user.update({
+        where: { userId: userId },
+        data: {
+          matchmakingScore: {
+            decrement: 10
+          }
+        }
+      });
+    }
+  }
   
   async getAllUsers(): Promise<PartialUserDTO[]> {
     return await this.prisma.user.findMany({

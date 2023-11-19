@@ -49,6 +49,11 @@ const router = createRouter({
       component: () => import("@/components/History.vue"),
     },
     {
+      path: "/leaderboard",
+      name: "leaderboard",
+      component: () => import("@/components/Leaderboard.vue"),
+    },
+    {
       path: "/checkPass/:channelName",
       name: "checkPass",
       component: () => import("@/components/CheckPass.vue"),

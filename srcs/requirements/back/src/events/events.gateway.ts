@@ -136,7 +136,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	afterInit() {
-
 		setInterval(() => {
 			for (let i = 0; i < this.gameRooms.length; i++){
 				if (this.gameRooms[i].running && this.gameRooms[i].started && this.gameRooms[i].finish == false){
@@ -148,6 +147,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						if (this.gameRooms[i].finish){
 
 							if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
+								
+								this.UserService.updateMatchmakingScore(this.gameRooms[i].player1UserId, true);
+								this.UserService.updateMatchmakingScore(this.gameRooms[i].player1UserId, false);
+
 								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 									winUserId: this.gameRooms[i].player1UserId
 								});
@@ -156,6 +159,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								});
 							}
 							else{
+								this.UserService.updateMatchmakingScore(this.gameRooms[i].player1UserId, false);
+								this.UserService.updateMatchmakingScore(this.gameRooms[i].player1UserId, true);
 								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 									winUserId: this.gameRooms[i].player2UserId
 								});
@@ -163,13 +168,19 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 									winUserId: this.gameRooms[i].player2UserId
 								});
 							}
-					
+
+						
 							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
 							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 	
 							this.gameRooms[i].finish = true;
 							this.gameRooms[i].endDate = new Date();
-							this.GameRoomService.updateGameRoom(this.gameRooms[i].roomId, this.gameRooms[i].player1SocketId, this.gameRooms[i].player2SocketId, this.gameRooms[i].score);
+							this.GameRoomService.updateGameRoom(
+								this.gameRooms[i].roomId,
+								this.gameRooms[i].player1SocketId,
+								this.gameRooms[i].player2SocketId,
+								this.gameRooms[i].score,
+								this.gameRooms[i].nbBounces);
 						}
 						if (this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
 							this.saveGameState(this.gameRooms[i]);
@@ -193,6 +204,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 							this.gameRooms[i].finish = true;
 							this.gameRooms[i].endDate = new Date();
+
+							
 						}
 						else if (this.gameRooms[i].player1Disconnected == false){
 							this.saveGameState(this.gameRooms[i]);
@@ -463,6 +476,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				//Elastic physics
 				else if (pair.bodyB.label == "ball" && (pair.bodyA.label == "player1"|| pair.bodyA.label == "player2")){
 					collisionBallPlayer(pair, gameRoom);
+					gameRoom.nbBounces++;
 				}
 			}, this);
 		});
@@ -471,6 +485,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			event.pairs.forEach(function(pair: Matter.Pair) {
 				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "up" || pair.bodyA.label == "down")){
 					let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
+					gameRoom.nbBounces++;
 
 					var velX : number;
 					var velY : number;
@@ -540,7 +555,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			this.queueListNormalGame.delete(second[0]);
 
 			//Database service
-			const gameRoom = await this.GameRoomService.createGameRoom(first, second);
+			const gameRoom = await this.GameRoomService.createGameRoom(first, second, false, false);
 
 			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
 
@@ -594,7 +609,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			this.queueListCustomGame.delete(second[0]);
 	
 			//Database service
-			const gameRoom = await this.GameRoomService.createGameRoom(first, second);
+	
+			const gameRoom = await this.GameRoomService.createGameRoom(first, second, false, true);
 	
 			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
 
@@ -715,7 +731,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				//Db service
 				var newGameRoom = await this.GameRoomService.createGameRoom(
 					[ gameRoom.player1UserId, gameRoom.player1SocketId ],
-					[ gameRoom.player2UserId, gameRoom.player2SocketId ]);
+					[ gameRoom.player2UserId, gameRoom.player2SocketId ],
+					false,
+					gameRoom.customGame);
 
 				//Erasing previous game from local array
 				let indexGameRoom = this.gameRooms.indexOf(gameRoom);
@@ -808,7 +826,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	saveGameState(gameRoom: GameRoomType){
 		//We take a snapshot of ball and players position
-		let velocity;
+		let velocity : any;
 
 		if (gameRoom.entities){
 			velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
@@ -826,7 +844,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			velY: velocity.y
 		}];
 	
-		var playerState;
+		var playerState : any;
 
 		if (gameRoom.botGame == false){
 			playerState = [{
@@ -852,6 +870,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				y : gameRoom.entities.players[1].gameObject.position.y
 			}]
 		}
+
 		//Better use JSON stringify function to do this
 		const globalState = {
 			players : playerState,
