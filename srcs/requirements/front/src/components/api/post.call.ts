@@ -61,6 +61,26 @@ export async function createChannel(channelName : string, userName : string, inv
   }
 }
 
+export async function createEmptyChannel(channelName : string, userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/create/${channelName}/empty`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ channelName: channelName, userName: userName }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
 export async function setPassword(channelName : string, password : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/set/password`, {

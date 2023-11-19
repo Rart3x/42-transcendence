@@ -1,11 +1,11 @@
 <script setup>
+  import Alert from './Alert.vue';
   import Cookies from "js-cookie";
   import { removeOperator, removeUserFromChannel } from "./api/delete.call";
   import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie, isUserBanInChannel, isOperator, isUserMuteInChannel } from "./api/get.call";
   import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
-  import { computed, onMounted, ref } from "vue";
+  import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
-  import { nextTick } from "vue";
 
   let actualUser = ref(null);
   let channel = ref(null);
@@ -205,7 +205,7 @@
         </table>
       </div>
     </div>
-    <!-- Center Chat on mid Grid -->
+    <!--Chat-->
     <!-- Penser a ajouter lhoraire denvoi et aussi le focus de la navabar en bas de la box-->
     <div class="chat-box" style="text-align: center">
       <div class="chat-messages">
@@ -249,48 +249,14 @@
       </div>
     </div>
   </div>
-  <!--Alerts-->
-  <div v-if="kickSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>User has been kicked successfully</span>
-    </div>
-  </div>
-  <div v-if="kickFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to kick User</span>
-    </div>
-  </div>
-
-  <div v-if="muteSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>User has been muted successfully</span>
-    </div>
-  </div>
-  <div v-if="muteFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to mute User</span>
-    </div>
-  </div>
-
-  <div v-if="banSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>User has been banned successfully</span>
-    </div>
-  </div>
-  <div v-if="banFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to ban User</span>
-    </div>
-  </div>
+  <Alert
+    :kickSuccess="kickSuccess"
+    :kickFailed="kickFailed"
+    :muteSuccess="muteSuccess"
+    :muteFailed="muteFailed"
+    :banSuccess="banSuccess"
+    :banFailed="banFailed"
+  />
 </template>
 
 <style scoped>

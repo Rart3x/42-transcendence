@@ -71,6 +71,12 @@ export class ChannelController {
     return { success: result };
 	}
 
+  @Post('create/:channelName/empty')
+  async createEmptyChannel(@Body('channelName') channelName: string, @Body('userName') userName: string, ): Promise<{ success: boolean }> {
+    const result = await this.channelService.createEmptyChannel(channelName, userName);
+    return { success: result };
+	}
+
   @Post(':channelName/set/password')
   async setPassword(@Body('channelName') channelName: string, @Body('password') password: string ): Promise<Channel> {
     try {
