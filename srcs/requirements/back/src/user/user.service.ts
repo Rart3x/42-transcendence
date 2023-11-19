@@ -336,7 +336,6 @@ export class UserService {
 
   async updateMatchmakingScore(userId: number, win: boolean) {
     if (win){
-      console.log("decrement");
        await this.prisma.user.update({
         where: { userId: userId },
         data: {
@@ -347,7 +346,6 @@ export class UserService {
       });
     }
     else{
-      console.log("increment");
       await this.prisma.user.update({
         where: { userId: userId },
         data: {
@@ -357,6 +355,8 @@ export class UserService {
         }
       });
     }
+    var user = this.getUserById(userId);
+    console.log(`updated matchmaking score: ${(await user).matchmakingScore}`);
   }
   
   async getAllUsers(): Promise<PartialUserDTO[]> {
