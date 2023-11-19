@@ -27,7 +27,7 @@ model GameRoom {
   id           Int   @id @default(autoincrement())
 
   player1SocketId String
-  player2SocketId String
+  player2SocketId String?
 
   player1Ready Boolean @default(false)
   player2Ready Boolean @default(false)

@@ -203,7 +203,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								});
 							}
 							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-	
+							
 							this.gameRooms[i].finish = true;
 							this.gameRooms[i].endDate = new Date();
 
@@ -519,6 +519,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@MessageBody() userId: number): void {
 		const roomId = randomInt(1000, 5000);
 		let gameRoom = this.createBotGameRoomLocal(roomId, [userId, socket.id]);
+		this.GameRoomService.createGameRoom([userId, socket.id], undefined, true, false);
 		this.gameRooms.push(gameRoom);
 	
 		this.server.to(socket.id).emit('botReady', {

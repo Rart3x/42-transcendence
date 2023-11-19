@@ -17,14 +17,12 @@ export class GameRoomService {
       return  await this.prisma.gameRoom.create({
         data: {
           player1SocketId: player1[1],
-          player2SocketId: undefined,
           botGame: isBotGame,
           customGame: isCustomGame,
           startDate: new Date(),
           users: {
             connect: [
               { userId: player1[0] },
-              { userId: undefined },
             ],
           }
         },
