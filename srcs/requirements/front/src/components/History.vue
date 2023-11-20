@@ -1,5 +1,6 @@
 
 <script setup>
+  import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
   import { getUserByCookie } from "./api/get.call";
@@ -12,46 +13,14 @@
     user.value = await getUserByCookie(Cookies.get("_authToken"));
 
     if (!user.value) window.location.href = "/";
-
+    
     versusImage = "src/assets/vs.png";
-
   });
 
 </script>
 
 <template>
-  <!--Stats-->
-  <div class="stats shadow">
-    <!--Username-->
-    <div class="stat">
-      <div class="stat-figure text-primary">
-      </div>
-      <div class="stat-title">Username</div>
-      <div v-if="user" class="stat-value">{{ user.userName }}</div>
-    </div>
-    <!--Games total-->
-    <div class="stat">
-      <div class="stat-figure text-primary">
-      </div>
-      <div class="stat-title">Games Total</div>
-      <div class="stat-value">0</div>
-    </div>
-    <!--Games won-->
-    <div class="stat">
-      <div class="stat-figure text-secondary">
-      </div>
-      <div class="stat-title">Games won</div>
-      <div class="stat-value">0</div>
-    </div>
-    <!--Username-->
-    <div class="stat">
-      <div class="stat-figure text-secondary">
-      </div>
-      <div class="stat-title">Winrate</div>
-      <div class="stat-value">0%</div>
-    </div>
-  </div>
-
+  <UserStatHeader v-if="user" :userName="user.userName" />
   <div class="overflow-x-auto">
     <div class="grid-container">
       <div class="table">
