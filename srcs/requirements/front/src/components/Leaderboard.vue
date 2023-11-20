@@ -33,7 +33,7 @@ export default {
 <template>
   <div>
       <div v-for="(user,index) in users" :key="user">
-      <div class="stats shadow">
+      <div class="stats shadow flex">
         <div class="stat">
           <div class="stat-title"> Rank </div>
           <div v-if="user" class="stat-value"> {{ index + 1 }} </div>
