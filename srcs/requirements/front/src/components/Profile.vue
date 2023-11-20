@@ -1,4 +1,5 @@
 <script setup>
+  import Alert from './Alert.vue';
   import Cookies from "js-cookie";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
@@ -288,62 +289,18 @@
     </div>
 <!-- </div> -->
   <!--Alerts-->
-  <div v-if="addFriendSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <span>Friend added successfully.</span>
-    </div>
-  </div>
-  <div v-if="addFriendFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to add friend.</span>
-    </div>
-  </div>
-
-  <div v-if="blockSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <span>User blocked successfully.</span>
-    </div>
-  </div>
-  <div v-if="blockFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to block User</span>
-    </div>
-  </div>
-
-    <div v-if="unblockSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <span>User unblocked successfully.</span>
-    </div>
-  </div>
-  <div v-if="unblockFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to unblock User</span>
-    </div>
-  </div>
-
-  <div v-if="removeFriendSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <span>Friend deleted successfully.</span>
-    </div>
-  </div>
-  <div v-if="removeFriendFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to delete Friend</span>
-    </div>
-  </div>
-
-  <div v-if="addChannelSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      <span>Channel created successfully.</span>
-    </div>
-  </div>
-  <div v-if="addChannelFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to create Channel</span>
-    </div>
-  </div>
-  
+  <Alert
+    :addChannelSuccess="addChannelSuccess"
+    :addChannelFailed="addChannelFailed"
+    :addFriendSuccess="addFriendSuccess"
+    :addFriendFailed="addFriendFailed"
+    :blockSuccess="blockSuccess"
+    :blockFailed="blockFailed"
+    :removeFriendSuccess="removeFriendSuccess"
+    :removeFriendFailed="removeFriendFailed"
+    :unblockSuccess="unblockSuccess"
+    :unblockFailed="unblockFailed"  
+  />
 </template>
 
 <style>

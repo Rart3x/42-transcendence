@@ -121,6 +121,36 @@ export class ChannelService {
   
     return true;
   }
+
+  async createEmptyChannel(channelName: string, userName: string): Promise<boolean> {
+    const user = await this.userService.getUserByName(userName);
+  
+    if (!user)
+      return false;
+  
+    const existingChannel = await this.getChannelByName(channelName);
+  
+    if (existingChannel) {
+      if (await !this.isUserAdminOfChannel(existingChannel, user))
+        return false;
+      return true;
+    }
+  
+    const channel = await this.prisma.channel.create({
+      data: {
+        channelName: channelName,
+        channelAdmin: user.userId,
+        channelUsers: {
+          connect: [
+            { userId: user.userId },
+          ],
+        },
+      },
+    });
+    await this.messageService.createMessage(channel);
+  
+    return true;
+  }
   
   async deleteChannel(channelName: string): Promise<boolean> {
     const channel = await this.getChannelByName(channelName);
