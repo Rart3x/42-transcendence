@@ -637,22 +637,18 @@ export default class Game extends Phaser.Scene {
 
 		//Interpolate x y coordinates on ball object
 		const ballSnapshot = SI.calcInterpolation('x y velX velY', 'ball');
-		// if (ballSnapshot){
-		// 	if (ballSnapshot.newer){
-		// 		var date = new Date();
-		// 		console.log(Math.abs(Number(date.valueOf()) - SI.vault.getById(ballSnapshot.newer).time))
-		// 	}
-		// }
-
+	
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;
+	
 			if (state){
 				const { id, x, y, velX, velY } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
-				
-					this.gameRoom.entities.ball.gameObject.x = x;
-					this.gameRoom.entities.ball.gameObject.y = y;
-					this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
+					if (Math.abs(Number(new Date().valueOf()) - SI.vault.getById(ballSnapshot.newer).time) < 100){
+						this.gameRoom.entities.ball.gameObject.x = x;
+						this.gameRoom.entities.ball.gameObject.y = y;
+						this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
+					}
 				}
 			}
 		}

@@ -206,8 +206,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							
 							this.gameRooms[i].finish = true;
 							this.gameRooms[i].endDate = new Date();
-
-							
 						}
 						else if (this.gameRooms[i].player1Disconnected == false){
 							this.saveGameState(this.gameRooms[i]);
@@ -362,18 +360,30 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoomType) => {
 			let scorerId : number;
 			let scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
-			let scorePlayer2  = gameRoom.scoreActual.get(gameRoom.player2SocketId);
+			var scorePlayer2 : number;
+			if (gameRoom.botGame){
+				scorePlayer2  = gameRoom.scoreActual.get("bot");
+			}
+			else{
+				scorePlayer2  = gameRoom.scoreActual.get(gameRoom.player2SocketId);
+			}
 
-			if (gameRoom.player1Disconnected == false && gameRoom.player2Disconnected == false){
+			if (gameRoom.player1Disconnected == false && (gameRoom.player2Disconnected == false || gameRoom.botGame)){
 				if (pair.bodyA.label == "left"){
 					scorerId = gameRoom.player2UserId;
-					gameRoom.scoreActual.set(gameRoom.player2SocketId, ++scorePlayer2);
+					if (gameRoom.botGame){
+						// gameRoom.scoreActual.set("bot", ++scorePlayer2);
+					}
+					else{
+						gameRoom.scoreActual.set(gameRoom.player2SocketId, ++scorePlayer2);
+
+					}
 				}
 				else{
 					scorerId = gameRoom.player1UserId;
 					gameRoom.scoreActual.set(gameRoom.player1SocketId, ++scorePlayer1);
 				}
-	
+
 				let scoreDate = new Date();
 	
 				let timeDiff = (scoreDate.valueOf() - gameRoom.startDate.valueOf()) / 1000;
