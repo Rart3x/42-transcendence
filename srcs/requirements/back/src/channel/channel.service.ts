@@ -168,6 +168,65 @@ export class ChannelService {
     return false;
   }
 
+  async joinChannel(channelName: string, userName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const user = await this.userService.getUserByName(userName);
+  
+    if (!channel || !user)
+      return false;
+  
+    await this.prisma.channel.update({
+      where: { channelId: channel.channelId },
+      data: {
+        channelUsers: {
+          connect: { userId: user.userId },
+        },
+      },
+    });
+    return true;
+  }
+
+  async getAllChannels(): Promise<Channel[]> {
+    const channels = await this.prisma.channel.findMany({
+      include: {
+        channelMessages: true,
+        channelOperators: true,
+        channelUsers: true,
+        channelUsersBan: true,
+        channelUsersMute: true,
+      },
+    });
+    return channels;
+  }
+
+  async getAllNewChannels(userName: string): Promise<Channel[]> {
+    const user = await this.userService.getUserByName(userName);
+    const channels = await this.prisma.channel.findMany({
+      where: {
+        NOT: [
+          {
+            channelAdmin: user.userId,
+          },
+          {
+            channelUsers: {
+              some: {
+                userId: user.userId,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        channelMessages: true,
+        channelOperators: true,
+        channelUsers: true,
+        channelUsersBan: true,
+        channelUsersMute: true,
+      },
+    });
+    return channels;
+  }
+
   async getMessagesFromChannel(channelName: string): Promise<Message[]> {
     
     const messages = await this.prisma.channel.findFirst({
@@ -237,6 +296,26 @@ export class ChannelService {
       },
     });
     if (channelUsers && channelUsers.channelOperators.length > 0)
+      return true;
+    return false;
+  }
+
+  async isUserInChannel(channelName: string, userName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const user = await this.userService.getUserByName(userName);
+
+    if (!channel || !user)
+      return false;
+
+    const channelUsers = await this.prisma.channel.findFirst({
+      where: { channelId: channel.channelId },
+      select: {
+        channelUsers: {
+          where: { userId: user.userId }
+        }
+      },
+    });
+    if (channelUsers && channelUsers.channelUsers.length > 0)
       return true;
     return false;
   }

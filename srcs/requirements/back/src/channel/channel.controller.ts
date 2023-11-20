@@ -32,6 +32,16 @@ export class ChannelController {
     return { success: result };
   }
 
+  @Get('getAllChannels')
+  async getAllChannels(): Promise<Channel[]> {
+    return this.channelService.getAllChannels();
+  }
+
+  @Get('getAllNewChannels/:userName')
+  async getAllNewChannels(@Param('userName') userName : string): Promise<Channel[]> {
+    return this.channelService.getAllNewChannels(userName);
+  }
+
   @Get(':channelName/messages')
   async getMessagesFromChannel(@Param('channelName') channelName: string): Promise<Message[]> {
     return this.channelService.getMessagesFromChannel(channelName);
@@ -50,6 +60,12 @@ export class ChannelController {
   @Get(':channelName/isOperator/:userName')
   async isOperator(@Param('channelName') channelName: string, @Param('userName') userName: string): Promise<{ success: boolean }> {
     const result = await this.channelService.isOperator(channelName, userName);
+    return { success: result };
+  }
+
+  @Get(':channelName/isUser/:userName')
+  async isUserInChannel(@Param('channelName') channelName: string, @Param('userName') userName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.isUserInChannel(channelName, userName);
     return { success: result };
   }
 
@@ -76,6 +92,12 @@ export class ChannelController {
     const result = await this.channelService.createEmptyChannel(channelName, userName);
     return { success: result };
 	}
+
+  @Post(':channelName/join/:userName')
+  async joinChannel(@Body('channelName') channelName: string, @Body('userName') userName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.joinChannel(channelName, userName);
+    return { success: result };
+  }
 
   @Post(':channelName/set/password')
   async setPassword(@Body('channelName') channelName: string, @Body('password') password: string ): Promise<Channel> {

@@ -28,7 +28,7 @@ async function downloadImage (url, filename) {
 export class UserService {
   constructor (private prisma: PrismaService) {}
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
-  async getAllChannels(userName: string): Promise<Channel[]> {
+  async getAllChannelsFromUser(userName: string): Promise<Channel[]> {
     const user = await this.getUserByName(userName);
     const userChannels = user.channels;
     const channels = await this.prisma.channel.findMany({
@@ -263,7 +263,7 @@ export class UserService {
   }
 
   async getUserById(userId: number) {
-    return await this.prisma.user.findFirst({
+    return await this.prisma.user.findUnique({
       where: { userId: userId },
     });
   }

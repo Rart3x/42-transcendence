@@ -1,5 +1,37 @@
 /*-----------------------------------------------CHANNEL-----------------------------------------------*/
-export async function getAllChannels(userName : string) {
+export async function getAllChannels() { 
+  try {
+    const response = await fetch("http://localhost:3000/channel/getAllChannels", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
+export async function getAllNewChannels(userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/getAllNewChannels/${userName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
+export async function getAllChannelsFromUser(userName : string) {
   try {
     const response = await fetch(`http://localhost:3000/user/${userName}/channels`, {
       method: "GET",
@@ -13,7 +45,6 @@ export async function getAllChannels(userName : string) {
   catch (error) {
     console.error('error: sending GET request', error);
   }
-  return null;
 }
 
 export async function getChannelByName(channelName : string) {
@@ -50,6 +81,25 @@ export async function isOperator(channelName: string, userName: string): Promise
     console.error('error: sending GET request', error);
   }
   
+  return false;
+}
+
+export async function isUserInChannel(channelName : string, userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/isUser/${userName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
   return false;
 }
 
@@ -282,7 +332,7 @@ export async function getUserByCookie(cookie : string) {
 
 export async function getUserByUserId(userId : number) {
   try {
-    const response = await fetch(`http://localhost:3000/user/userId/${userId}`, {
+    const response = await fetch(`http://localhost:3000/user/getUser/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

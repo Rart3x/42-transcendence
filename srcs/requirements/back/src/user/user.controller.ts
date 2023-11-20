@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors, Query} from '@nestjs/common';
+import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors, Query } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { PartialUserDTO } from './dto/partial-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -14,13 +14,12 @@ export class UserController {
 
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
   @Get(':userName/channels')
-  async getAllChannels(@Param('userName') userName: string): Promise<Channel[]> | null {
+  async getAllChannelsFromUser(@Param('userName') userName: string): Promise<Channel[]> | null {
     const user = await this.userService.getUserByName(userName);
     
-    if (!user) {
+    if (!user)
       return null;
-    }
-    return this.userService.getAllChannels(user.userName);
+    return this.userService.getAllChannelsFromUser(user.userName);
   }
 
 /*-----------------------------------------------FRIENDS-----------------------------------------------*/
@@ -107,6 +106,11 @@ export class UserController {
   @Get('getUsername/:userName')
   async getUserByName(@Param('userName') userName: string): Promise<User> {
     return await this.userService.getUserByName(userName);
+  }
+
+  @Get('getUser/:userId')
+  async getUserById(@Param('userId') userId: number): Promise<User> {
+    return await this.userService.getUserById(userId);
   }
 
   @Get('getAllUsers/')

@@ -4,8 +4,8 @@
 	import sha256 from 'js-sha256';
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
-  import { getAllChannels, getAllFriends, getUserByCookie, getGameRoomByRoomId } from "./api/get.call";
-  import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, setPassword, setStatus, unsetPassword } from './api/post.call';
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserId, getGameRoomByRoomId } from "./api/get.call";
+  import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, joinChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
 
   let adminImage = ref(null);
   let currentUserName = ref(null);
@@ -16,6 +16,7 @@
 
   const modalStates = { modalMessage: ref(false), modalChannel: ref(false), modalManageChannel: ref(false) };
 
+  let allChannels;
   let channels = ref([]);
   let friends = ref([]);
   let user = ref(null);
@@ -23,12 +24,14 @@
   let addChannelSuccess = ref(false);
   let addFriendSuccess = ref(false);
   let addMessageSuccess = ref(false);
+  let joinChannelSuccess = ref(false);
   let removeChannelSuccess = ref(false);
   let removeFriendSuccess = ref(false);
 
   let addChannelFailed = ref(false);
   let addFriendFailed = ref(false);
   let addMessageFailed = ref(false);
+  let joinChannelFailed = ref(false);
   let removeChannelFailed = ref(false);
   let removeFriendFailed = ref(false);
 
@@ -68,7 +71,7 @@
         addChannelFailed.value = false;
       }, 3000);
     }
-    channels.value = await getAllChannels(userName);
+    channels.value = await getAllChannelsFromUser(userName);
   };
 
   const createChannelInDB = async (channelName, userName, currentUserName) => {
@@ -86,7 +89,7 @@
         addChannelFailed.value = false;
       }, 3000);
     }
-    channels.value = await getAllChannels(userName);
+    channels.value = await getAllChannelsFromUser(userName);
   };
 
   const createPrivateMessageInDB = async (userName, currentUserName, message_text) => {
@@ -106,12 +109,22 @@
     }
   };
 
-  const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
-    if (passwordCheckBox)
-      setPassword(channelName, sha256(password));
-    else
-      unsetPassword(channelName, sha256(password));
-    modalManageChannel.value = false;
+  const joinChannelInDB = async (channelName, userName) => {
+    const response = await joinChannel(channelName, userName);
+
+    if (response && response.success) {
+      joinChannelSuccess.value = true;
+      setTimeout(() => {
+        joinChannelSuccess.value = false;
+      }, 3000);
+    } else {
+      joinChannelFailed.value = true;
+      setTimeout(() => {
+        joinChannelFailed.value = false;
+      }, 3000);
+    }
+    channels.value = await getAllChannelsFromUser(userName);
+    allChannels = await getAllNewChannels(userName);
   };
 
   const removeFriendFromDB = async (userName, friendName) => {
@@ -147,7 +160,7 @@
         removeChannelFailed.value = false;
       }, 3000);
     }
-    channels.value = await getAllChannels(userName);
+    channels.value = await getAllChannelsFromUser(userName);
   };
 
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
@@ -175,14 +188,22 @@
         friendsData[index].imageSrc = image.default;
       });
     });
-
+    allChannels = await getAllNewChannels(user.value.userName);
+    channels.value.splice(0, channels.value.length, ...(await getAllChannelsFromUser(user.value.userName)));
     friends.value.splice(0, friends.value.length, ...friendsData);
-    channels.value.splice(0, channels.value.length, ...(await getAllChannels(user.value.userName)));
   });
 
   let activeTab = ref('friends');
 
   const showContent = (tab) => { activeTab.value = tab; };
+
+  const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
+    if (passwordCheckBox)
+      setPassword(channelName, sha256(password));
+    else
+      unsetPassword(channelName, sha256(password));
+    modalManageChannel.value = false;
+  };
 
 </script>
 
@@ -339,7 +360,33 @@
         </div>
         <!--Suggestions-->
         <div v-if="activeTab === 'suggestions'" class="p-4">
-          Contenu C
+          <table class="table">
+            <caption>Suggestions</caption>
+            <tbody>
+              <tr class="dark-row" v-for="(channel, index) in allChannels" :key="index">
+                <div class="channelSecurity" v-if="!channel.password && !channel.isPrivate">
+                  <td>
+                    <label tabindex="0" class="btn btn-ghost btn-circle">
+                      <div class="avatar">
+                        <div class="w-15 mask mask-squircle">
+                          <!--A fix-->
+                          <!-- <img :src="getUserByUserId(channel.channelAdmin).image" /> -->
+                        </div>
+                      </div>
+                    </label>
+                  </td>
+                  <td>
+                    <router-link :to="'/channel/' + channel.channelName">
+                      <button class="btn no-animation">{{ channel.channelName }}</button>
+                    </router-link>
+                  </td>
+                  <td>
+                    <button class="btn" @click="joinChannelInDB(channel.channelName, userName)">Join Channel</button>
+                  </td>
+                </div>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -348,11 +395,14 @@
       :addChannelSuccess="addChannelSuccess"
       :addFriendSuccess="addFriendSuccess"
       :addMessageSuccess="addMessageSuccess"
+      :joinChannelSuccess="joinChannelSuccess"
       :removeChannelSuccess="removeChannelSuccess"
       :removeFriendSuccess="removeFriendSuccess"
+
       :addChannelFailed="addChannelFailed"
       :addFriendFailed="addFriendFailed"
       :addMessageFailed="addMessageFailed"
+      :joinChannelFailed="joinChannelFailed"
       :removeChannelFailed="removeChannelFailed"
       :removeFriendFailed="removeFriendFailed"
     />
@@ -364,7 +414,6 @@
   .buttons { text-align: center; }
   .dark-row:hover { background-color: #364e6e; }
   .stats { border-radius: unset; }
-
 
   .requestTable {
     max-height: 34vh;
