@@ -375,7 +375,8 @@ export class UserService {
         displayName: true,
         image: true,
         gamePlayed: true,
-        gameWon: true
+        gameWon: true,
+        matchmakingScore: true
       },
     });
   }
