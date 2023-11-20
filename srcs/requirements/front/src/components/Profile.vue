@@ -1,5 +1,6 @@
 <script setup>
   import Alert from './Alert.vue';
+  import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';

@@ -1,5 +1,6 @@
 <script setup>
   import Alert from "./Alert.vue";
+  import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
 	import sha256 from 'js-sha256';
   import { onMounted, ref } from "vue";
@@ -208,35 +209,7 @@
 </script>
 
 <template>
-  <div class="stats shadow">
-    <div class="stat">
-      <div class="stat-figure text-primary">
-      </div>
-      <div class="stat-title">Username</div>
-      <div class="stat-value">{{ userName }}</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-figure text-primary">
-      </div>
-      <div class="stat-title">Games Total</div>
-      <div class="stat-value">0</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-figure text-secondary">
-      </div>
-      <div class="stat-title">Games won</div>
-      <div class="stat-value">0</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-figure text-secondary">
-      </div>
-      <div class="stat-title">Winrate</div>
-      <div class="stat-value">0%</div>
-    </div>
-  </div>
+  <UserStatHeader :userName="userName" />
   <body>
     <div class="overflow-x-auto">
       <div class="buttons">
