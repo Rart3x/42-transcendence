@@ -206,14 +206,14 @@
       <div class="stat-figure text-primary">
       </div>
       <div class="stat-title">Games Total</div>
-      <div class="stat-va lue">0</div>
+      <div class="stat-va lue">{{ actualUser.gamePlayed }} </div>
     </div>
     
     <div class="stat">
       <div class="stat-figure text-secondary">
       </div>
       <div class="stat-title">Games won</div>
-      <div class="stat-value">0</div>
+      <div class="stat-value">{{ actualUser.gameWon }}</div>
     </div>
   </div>
   <div class="stats shadow">

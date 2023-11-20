@@ -85,10 +85,16 @@
           <li>
             <router-link to="/game"> Game </router-link>
           </li>
+           <li>
+            <router-link to="/leaderboard"> Leaderboard </router-link>
+          </li>
           <li>
             <router-link to="/about"> About </router-link>
           </li>
         </ul>
+      </div>
+      <div class="flex-1">
+        <h1 class="capitalize text-2xl">{{ this.$route.name }} </h1>
       </div>
     </div>
     <div class="navbar-center">
@@ -117,9 +123,6 @@
           <li>
             <router-link to="/history"> History </router-link>
           </li>
-              <li>
-            <router-link to="/leaderboard"> Leaderboard </router-link>
-          </li>
           <li>
               <router-link to="/settings"> Settings </router-link>
           </li>
@@ -133,4 +136,5 @@
 </template>
 
 <style scoped>
+
 </style>

@@ -62,6 +62,7 @@ export default {
         <div class="stat">
           <div class="stat-title"> Winrate </div>
           <div v-if="user.gamePlayed != 0" class="stat-value"> {{ (user.gameWon / user.gamePlayed) * 100}}  % </div>
+          <div v-else class="stat-value">{{ 100 }} % </div>
         </div>
       </div>
     </div>

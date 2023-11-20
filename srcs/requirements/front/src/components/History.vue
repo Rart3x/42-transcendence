@@ -20,60 +20,61 @@
 </script>
 
 <template>
-  <UserStatHeader v-if="user" :userName="user.userName" />
-  <div class="overflow-x-auto">
-    <div class="grid-container">
-      <div class="table">
-        <table class="table">
-          <tbody>
-            <tr>
-              <td>
-                <div class="collapse bg-base-200">
-                  <label for="collapse1" class="collapse-title text-xl font-medium">
-                    <span class="text-before">Keny</span>
-                    <div class="avatar">
-                      <label tabindex="0" class="btn btn-ghost btn-circle">
-                        <div class="w-15 mask mask-squircle">
-                          <img :src="versusImage" class="versus-image" />
-                        </div>
-                      </label>
+  <div>
+    <UserStatHeader v-if="user" :userName="user.userName" />
+    <div class="overflow-x-auto">
+      <div class="grid-container">
+        <div class="table">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>
+                  <div class="collapse bg-base-200">
+                    <label for="collapse1" class="collapse-title text-xl font-medium">
+                      <span class="text-before">Keny</span>
+                      <div class="avatar">
+                        <label tabindex="0" class="btn btn-ghost btn-circle">
+                          <div class="w-15 mask mask-squircle">
+                            <img :src="versusImage" class="versus-image" />
+                          </div>
+                        </label>
+                      </div>
+                      <span class="text-after">Dams</span>
+                    </label>
+                    <input type="checkbox" id="collapse1" class="collapse-checkbox" />
+                    <div class="collapse-content">
+                      <p class="dark-row">Contenu 1</p>
+                      <p class="dark-row">Contenu 2</p>
+                      <p class="dark-row">Contenu 3</p>
                     </div>
-                    <span class="text-after">Dams</span>
-                  </label>
-                  <input type="checkbox" id="collapse1" class="collapse-checkbox" />
-                  <div class="collapse-content">
-                    <p class="dark-row">Contenu 1</p>
-                    <p class="dark-row">Contenu 2</p>
-                    <p class="dark-row">Contenu 3</p>
                   </div>
-                </div>
 
-                <div class="collapse bg-base-200">
-                  <label for="collapse1" class="collapse-title text-xl font-medium">
-                    <span class="text-before">Keny</span>
-                    <div class="avatar">
-                      <label tabindex="0" class="btn btn-ghost btn-circle">
-                        <div class="w-15 mask mask-squircle">
-                          <img :src="versusImage" class="versus-image" />
-                        </div>
-                      </label>
+                  <div class="collapse bg-base-200">
+                    <label for="collapse1" class="collapse-title text-xl font-medium">
+                      <span class="text-before">Keny</span>
+                      <div class="avatar">
+                        <label tabindex="0" class="btn btn-ghost btn-circle">
+                          <div class="w-15 mask mask-squircle">
+                            <img :src="versusImage" class="versus-image" />
+                          </div>
+                        </label>
+                      </div>
+                      <span class="text-after">Nico</span>
+                    </label>
+                    <input type="checkbox" id="collapse1" class="collapse-checkbox" />
+                    <div class="collapse-content">
+                      <p class="dark-row">Contenu 1</p>
                     </div>
-                    <span class="text-after">Nico</span>
-                  </label>
-                  <input type="checkbox" id="collapse1" class="collapse-checkbox" />
-                  <div class="collapse-content">
-                    <p class="dark-row">Contenu 1</p>
                   </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <br>
       </div>
-      <br>
     </div>
   </div>
-
 </template>
 
 <style scoped>
