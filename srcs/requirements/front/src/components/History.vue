@@ -20,8 +20,8 @@
 </script>
 
 <template>
+  <UserStatHeader v-if="user" :userName="user.userName" />
   <div>
-    <UserStatHeader v-if="user" :userName="user.userName" />
     <div class="overflow-x-auto">
       <div class="grid-container">
         <div class="table">

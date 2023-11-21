@@ -165,12 +165,7 @@
   };
 
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
-
-  const openChannelModal = (userName) => {
-    modalStates.modalChannel.value = true;
-    currentUserName = userName;
-  };
-
+  const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName = userName; };
   const openManageChannelModal = () => { modalStates.modalManageChannel.value = true; };
   const openMessageModal = () => { modalStates.modalMessage.value = true; };
 
@@ -183,14 +178,27 @@
     adminImage = "src/assets/userImages/" + user.value.image;
 
     let friendsData = await getAllFriends(user.value.userName);
-    friendsData.forEach(async (friend, index) => {
-      let imagePath = "../assets/userImages/" + friend.image;
-      await import(/* @vite-ignore */ imagePath).then((image) => {
-        friendsData[index].imageSrc = image.default;
-      });
-    });
+    channels = await getAllChannelsFromUser(user.value.userName);
     allChannels = await getAllNewChannels(user.value.userName);
-    channels.value.splice(0, channels.value.length, ...(await getAllChannelsFromUser(user.value.userName)));
+
+    for (let i = 0; i < friendsData.length; i++) {
+      const imagePath = "../assets/userImages/" + friendsData[i].image;
+      const image = await import(/* @vite-ignore */ imagePath);
+      friendsData[i].imageSrc = image.default;
+    }
+
+    for (let i = 0; i < channels.length; i++) {
+      const imagePath = "../assets/userImages/" + channels[i].channelAdminImage;
+      const image = await import(/* @vite-ignore */ imagePath);
+      channels[i].imageSrc = image.default;
+    }
+
+    for (let i = 0; i < allChannels.length; i++) {
+      const imagePath = "../assets/userImages/" + allChannels[i].channelAdminImage;
+      const image = await import(/* @vite-ignore */ imagePath);
+      allChannels[i].imageSrc = image.default;
+    }
+
     friends.value.splice(0, friends.value.length, ...friendsData);
   });
 
@@ -294,7 +302,7 @@
                   <label tabindex="0" class="btn btn-ghost btn-circle">
                     <div class="avatar">
                       <div class="w-15 mask mask-squircle">
-                        <img :src="adminImage" />
+                        <img :src="channel.imageSrc" />
                       </div>
                     </div>
                   </label>
@@ -343,7 +351,7 @@
                       <div class="avatar">
                         <div class="w-15 mask mask-squircle">
                           <!--A fix-->
-                          <!-- <img :src="getUserByUserId(channel.channelAdmin).image" /> -->
+                          <img :src="channel.imageSrc" />
                         </div>
                       </div>
                     </label>

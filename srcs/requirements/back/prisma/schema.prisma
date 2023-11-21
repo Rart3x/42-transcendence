@@ -11,6 +11,7 @@ model Channel {
   channelId         Int         @id @default(autoincrement())
   channelName       String      @unique
   channelAdmin      Int
+  channelAdminImage String      @default("default_pic.jpg")
 
   channelPassword   String?     @default("")  
 

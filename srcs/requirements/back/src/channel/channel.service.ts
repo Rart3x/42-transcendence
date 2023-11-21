@@ -77,7 +77,7 @@ export class ChannelService {
     const existingChannel = await this.getChannelByName(channelName);
   
     if (existingChannel) {
-      if (await !this.isUserAdminOfChannel(existingChannel, user)) {
+      if (!this.isUserAdminOfChannel(existingChannel, user)) {
         console.error("error: user is not admin of this channel");
         return null;
       }
@@ -108,7 +108,8 @@ export class ChannelService {
       data: {
         channelName: channelName,
         channelAdmin: user.userId,
-        channelUsers: {
+        channelAdminImage: user.image,
+          channelUsers: {
           connect: [
             { userId: user.userId },
             { userId: invitedUser.userId },
@@ -140,6 +141,7 @@ export class ChannelService {
       data: {
         channelName: channelName,
         channelAdmin: user.userId,
+        channelAdminImage: user.image,
         channelUsers: {
           connect: [
             { userId: user.userId },
