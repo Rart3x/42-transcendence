@@ -280,10 +280,10 @@
     </div>
     <!-- <div class="chat-input"> -->
       <!-- {{ isUserMuteInChannelInDB() }} -->
-      <!-- <div class="userMutedOrNot" v-if="!actualUserMuted"> -->
+      <div style="position: absolute; bottom: 15vh; left: 50%; transform: translateX(-50%);">
         <input  type="text" class="input input-bordered w-full max-w-xs" id="message_text" placeholder="Send Message" v-model="message_text"/>
         <button class="btn btn-primary" @click="createPrivateMessageInDB(user.userName, $route.params.userName, message_text)">Send</button>
-      <!-- </div> -->
+      </div>
       <!-- <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/> -->
     </div>
 <!-- </div> -->

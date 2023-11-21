@@ -25,6 +25,7 @@
   let muteFailed = ref(false);
 
   let actualUserMuted = ref(false);
+  let actualUserOperator = ref(false);
 
   const banUserFromChannelInDB = async (channelName, userName) => {
     const response = await banUserFromChannel(channelName, userName);
@@ -46,7 +47,7 @@
 
   const isOperatorInDB = async (channelName, userName) => {
     const response = await isOperator(channelName, userName);
-    return response.success;
+    actualUserOperator.value = response.success;
   };
 
   const isUserMuteInChannelInDB = async () => {
@@ -155,9 +156,12 @@
       }
     }
     users.value.splice(0, users.value.length, ...usersData);
+
+    await isUserMuteInChannelInDB();
+    await isOperatorInDB(route.params.channelName, actualUser.value.userName);
   });
 </script>
-
+ 
 <template>
   <div class="navbar bg-base-100">
     <div class="navbar-end">
@@ -191,13 +195,13 @@
                   <button v-if="user.status === 'ingame'" class="btn no-animation text-blue-500">{{ user.userName }}</button>
                 </router-link>
               </td>
-              <td v-if="channel.channelAdmin == actualUser.userId || isOperatorInDB($route.params.channelName, user.userName)">
-                <div class="isAdmin" v-if="user.userId != channel.channelAdmin">
+              <td v-if="channel.channelAdmin == actualUser.userId || isOperatorInDB($route.params.channelName, user.userName).success">
+                <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
                   <button class="btn btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
                   <button class="btn btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
-                  <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button> 
-                  <button class="btn btn-success" @click="addOperator($route.params.channelName, user.userName)" v-if="user && !isOperatorInDB($route.params.channelName, user.userName)">Promote</button>
-                  <button class="btn btn-error" @click="removeOperator($route.params.channelName, user.userName)" v-else>Depreciate</button>
+                  <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
+                  <button v-if="user && !actualUserOperator" class="btn btn-success" @click="addOperator($route.params.channelName, user.userName)" >Promote</button>
+                  <button v-else-if="user && actualUserOperator" class="btn btn-error" @click="removeOperator($route.params.channelName, user.userName)">Depreciate</button>
                 </div>
               </td>
             </tr>
@@ -239,13 +243,11 @@
         </div>
       </div>
       <div class="chat-input">
-        {{ isUserMuteInChannelInDB() }}
-        <div class="userMutedOrNot" v-if="!actualUserMuted" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
+        <div class="userMutedOrNot" v-if="!actualUserMuted.valueOf()" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
           <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
           <button class="btn btn-primary" @click="sendMessage">Send</button>
         </div>
         <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/>
-
       </div>
     </div>
   </div>
@@ -260,27 +262,14 @@
 </template>
 
 <style scoped>
-  .chat-messages {
-    max-height: 55vh;
-    overflow-x: auto;
-  }
+  .chat-messages { max-height: 55vh; overflow-x: auto; }
   .chat-messages::-webkit-scrollbar-thumb { background: #888; }
   .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }
-
-  .friend-list {
-    max-height: 85vh;
-    overflow-x: auto;
-  }
+  .friend-list { max-height: 85vh; overflow-x: auto; }
   .friend-list::-webkit-scrollbar-thumb { background: #888; }
   .friend-list::-webkit-scrollbar-thumb:hover { background: #555; }
   .friend-list::-webkit-scrollbar-track { background: #ddd; }
-  
   .dark-row:hover { background-color: #364e6e; }
-  .grid-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    height: 85vh;
-  }
-  tbody tr:hover { background-color: #efefef; }
+  .grid-container { display: grid; grid-template-columns: 1fr 1fr; height: 85vh; }
 </style>

@@ -398,24 +398,13 @@
   body { min-height: 82.2vh; }
   .buttons { text-align: center; }
   .dark-row:hover { background-color: #364e6e; }
+  .dialogModal { text-align:center; }
   .stats { border-radius: unset; }
+  .underStat { display: center; text-align: center; }
 
-  .requestTable {
-    max-height: 34vh;
-    overflow-x: auto;
-  }
+  .requestTable { overflow-x: auto; }
   .requestTable::-webkit-scrollbar { width: 10px; }
-  .requestTable::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 5px;
-  }
+  .requestTable::-webkit-scrollbar-thumb { background: #888; border-radius: 5px; }
   .requestTable::-webkit-scrollbar-thumb:hover {  background: #555; }
   .requestTable::-webkit-scrollbar-track { background: #ddd; }
-
-  .dialogModal { text-align:center; }
-
-  .underStat {
-    display: center;
-    text-align: center;
-  }
 </style>
