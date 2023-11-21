@@ -20,7 +20,11 @@
 </script>
 
 <template>
-  <UserStatHeader v-if="user" :userName="user.userName" />
+  <UserStatHeader v-if="user"
+    :userName="user.userName"
+    :gamePlayed="user.gamePlayed"
+    :gameWon="user.gameWon"
+    />
   <div>
     <div class="overflow-x-auto">
       <div class="grid-container">

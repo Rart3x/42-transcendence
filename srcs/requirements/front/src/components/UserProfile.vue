@@ -217,7 +217,11 @@
 </script>
 
 <template>
-  <UserStatHeader :userName="userName" />
+  <UserStatHeader v-if="user"
+    :userName="userName"
+    :gamePlayed="user.gamePlayed"
+    :gameWon="user.gameWon"
+  />
   <body>
     <div class="overflow-x-auto">
       <div class="buttons">
