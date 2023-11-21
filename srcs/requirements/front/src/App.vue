@@ -20,9 +20,5 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-body {
-  display: flex;
-  flex-direction: column;
-  background-color: #423e3e;
-}
+
 </style>

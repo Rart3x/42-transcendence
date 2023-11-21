@@ -17,19 +17,27 @@ const signInWithIntra = () => {
 </script>
 
 <template>
-  <body>
-    <div class="hero min-h-screen the-background-image ">
-      <div class="hero-overlay bg-opacity-60"></div>
-      <div class="hero-content text-center text-neutral-content" v-if="!user">
-        <div class="max-w-md">
-          <button class="btn btn-glass" @click="signInWithIntra">
-            Sign in with 42
-          </button>
+ <body>
+   <div class="hero min-h-screen bg-base-200">
+     <div class="hero-content text-center">
+       <div class="max-w-md">
+         <h1 class="text-7xl flex justify-center font-mono font-bold bg-clip-text bg-gradient-to-r from-primary to-secondary">
+           ft_transcendence
+         </h1>
+         <ul class="list-disc py-6 font-mono space-y-3 marker:text-secondary">
+           <li>Pong game with normal and custom game in multiplayer</li>
+           <li>Chat with clients, channels, ...</li>
+           <li>Profile customization, friends list, 2FA authentication</li>
+         </ul>
+         <button v-if="!user" class="btn btn-glass flex-grow w-64 bg-primary text-white opacity-70" @click="signInWithIntra">
+          Sign in with 42
+        </button>
         </div>
-      </div>
-    </div>
-  </body>
+     </div>
+   </div>
+ </body>
 </template>
+
 
 <style scoped>
 .the-background-image {
@@ -41,4 +49,7 @@ const signInWithIntra = () => {
 body{
   min-height: 100%;
 }
+
+
+
 </style>

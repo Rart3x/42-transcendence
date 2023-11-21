@@ -31,9 +31,8 @@ export default {
 </script>
 
 <template>
-  <div>
       <div v-for="(user,index) in users" :key="user">
-      <div class="stats shadow flex">
+      <div class="stats shadow flex flex-row">
         <div class="stat">
           <div class="stat-title"> Rank </div>
           <div v-if="user" class="stat-value"> {{ index + 1 }} </div>
@@ -66,13 +65,7 @@ export default {
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <style scoped>
-
-.stats{
-  width: 100%;
-  border-radius: unset;
-}
 </style>

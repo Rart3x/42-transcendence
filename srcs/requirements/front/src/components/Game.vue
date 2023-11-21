@@ -10,7 +10,8 @@ import GameConfig from "@/components/GameConfig.vue";
 
 <style scoped>
 #game{
-  position: absolute;
-  top: 70px;
+ position: absolute;
+ max-height: 90vh;
 }
+
 </style>
