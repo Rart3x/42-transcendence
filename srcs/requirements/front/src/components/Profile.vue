@@ -29,9 +29,7 @@
   const route = useRoute();
 
   const channelName = ref(null);
-  let   currentUserName = null;
   const modalChannel = ref(false);
-  const userName = ref(null);
 
   let messages = ref([]);
   let message_text = ref(null);
@@ -151,12 +149,12 @@
 
     let imagePath = "../assets/userImages/" + actualUser.value.image;
     await import(/* @vite-ignore */ imagePath).then((image) => {
-      actualUser.value.image = image.default;
+      actualUser.value.imageSrc = image.default;
     });
 
     let imagePathUser = "../assets/userImages/" + user.value.image;
     await import(/* @vite-ignore */ imagePathUser).then((image) => {
-      user.value.image = image.default;
+      user.value.imageSrc = image.default;
     });
 
   });
@@ -188,7 +186,7 @@
       <label tabindex="0" class="btn btn-ghost btn-circle">
         <div class="avatar">
           <div class="w-20 mask mask-squircle" v-if="actualUser">
-            <img :src="actualUser.image" />
+            <img :src="actualUser.imageSrc" />
           </div>
         </div>
       </label>
@@ -206,14 +204,14 @@
       <div class="stat-figure text-primary">
       </div>
       <div class="stat-title">Games Total</div>
-      <div class="stat-va lue">{{ actualUser.gamePlayed }} </div>
+      <div v-if="actualUser" class="stat-value">{{ actualUser.gamePlayed }} </div>
     </div>
     
     <div class="stat">
       <div class="stat-figure text-secondary">
       </div>
       <div class="stat-title">Games won</div>
-      <div class="stat-value">{{ actualUser.gameWon }}</div>
+      <div v-if="actualUser" class="stat-value">{{ actualUser.gameWon }}</div>
     </div>
   </div>
   <div class="stats shadow">
