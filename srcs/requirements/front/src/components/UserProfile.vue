@@ -9,10 +9,7 @@
   import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, joinChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
   import { io } from 'socket.io-client';
 
-
-  //Create and bind our socket to the server
   const socket = io('http://localhost:3000');
-
 
   let adminImage = ref(null);
   let currentUserName = ref(null);
@@ -31,6 +28,7 @@
   let addChannelSuccess = ref(false);
   let addFriendSuccess = ref(false);
   let addMessageSuccess = ref(false);
+  let inviteInGameSuccess = ref(false);
   let joinChannelSuccess = ref(false);
   let removeChannelSuccess = ref(false);
   let removeFriendSuccess = ref(false);
@@ -38,6 +36,7 @@
   let addChannelFailed = ref(false);
   let addFriendFailed = ref(false);
   let addMessageFailed = ref(false);
+  let inviteInGameFailed = ref(false);
   let joinChannelFailed = ref(false);
   let removeChannelFailed = ref(false);
   let removeFriendFailed = ref(false);
@@ -152,9 +151,24 @@
     friends.value = await getAllFriends(userName);
   };
 
-  const inviteFriendInGame = (userSocket) => {
-    console.log(`invite friend with socket id ${userSocket} in a local game`);
+  const inviteFriendInGame = (userName, userSocket, userStatus) => {
     socket.emit('localGame');
+    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
+    socket.emit('invitationInGame', { userName, sock, userStatus });
+
+    socket.on('invitationInGameSuccess', () => {
+      inviteInGameSuccess = true;
+      setTimeout(() => {
+        inviteInGameSuccess = false;
+      }, 30000);
+    });
+
+    socket.on('invitationInGameFailed', () => {
+      inviteInGameFailed = true;
+      setTimeout(() => {
+        inviteInGameFailed = false;
+      }, 3000);
+    });
   }
 
   const removeChannelFromDB = async (channelName) => {
@@ -234,24 +248,23 @@
     :gameWon="user.gameWon"
   />
   <body>
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto min-h-screen bg-base-200">
       <div class="buttons">
-        <button class="btn" @click="showContent('friends')">Friends</button>
-        <button class="btn" @click="showContent('channels')">Channels</button>
-        <button class="btn" @click="showContent('suggestions')">Suggestions</button>
+        <button class="btn glass" @click="showContent('friends')">Friends</button>
+        <button class="btn glass" @click="showContent('channels')">Channels</button>
+        <button class="btn glass" @click="showContent('suggestions')">Suggestions</button>
       </div>
       <div class="content">
         <!--FriendList-->
         <div v-if="activeTab === 'friends'" class="p-4">
           <div class="underStat">
             <form @submit.prevent="addFriendFromDB(userName, friendName)">
-              <button class="btn">Add Friend</button>
+              <button class="btn glass">Add Friend</button>
               <input type="text" id="friendName" v-model="friendName" class="input input-bordered w-full max-w-xs" />
             </form>
           </div>
         <div class="requestTable table-border">
           <table class="table">
-            <caption>Friends</caption>
             <tbody>
               <tr class="dark-row" v-for="(user, index) in friends" :key="index">
                 <td>
@@ -265,28 +278,26 @@
                 </td>
                 <td>
                   <router-link :to="'/profile/' + user.userName">
-                    <button v-if="user.status === 'offline'" class="btn no-animation text-red-500">{{ user.userName }}</button>
-                    <button v-if="user.status === 'online'" class="btn no-animation text-green-500">{{ user.userName }}</button>
-                    <button v-if="user.status === 'ingame'" class="btn no-animation text-blue-500">{{ user.userName }}</button>
+                    <button v-if="user.status === 'offline'" class="btn glass no-animation text-red-500">{{ user.userName }}</button>
+                    <button v-if="user.status === 'online'" class="btn glass no-animation text-green-500">{{ user.userName }}</button>
+                    <button v-if="user.status === 'ingame'" class="btn glass no-animation text-blue-500">{{ user.userName }}</button>
                   </router-link>
                 </td>
+                <td> <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Friend</button> </td>
+                <td> <button class="btn glass" @click="inviteFriendInGame(user.userName, user.socket, user.status)">Invite in a Game</button> </td>
                 <td>
-                  <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Friend</button>
-                </td>
-                <td> <button class="btn" @click="inviteFriendInGame(user.socket)">Invite in a Game</button> </td>
-                <td>
-                  <button class="btn" @click="openChannelModal(user.userName)">Invite in Channel</button>
+                  <button class="btn glass" @click="openChannelModal(user.userName)">Invite in Channel</button>
                   <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel.value" @keydown.esc="closeModal('modalChannel')">
                     <div class="modal-box w-11/12 max-w-5xl">
                       <form class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, userName, currentUserName)">
                         <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
-                        <button class="btn">Send Invitation</button>
+                        <button class="btn glass">Send Invitation</button>
                       </form>
                     </div>
                   </dialog>
                 </td>
                 <td>
-                  <button class="btn" @click="openMessageModal(user.userName)">Send Message</button>
+                  <button class="btn glass" @click="openMessageModal(user.userName)">Send Message</button>
                   <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalMessage.value" @keydown.esc="closeModal('modalMessage')">
                     <div class="modal-box w-11/12 max-w-5xl">
                       <form class ="dialogModal" method="dialog" @submit.prevent="createPrivateMessageInDB(userName, user.userName, message_text)">
@@ -304,17 +315,16 @@
         <div v-if="activeTab === 'channels'" class="p-4">
           <div class="underStat">
             <form @submit.prevent="createEmptyChannelInDB(channelName, userName)">
-              <button class="btn">Create Channel</button>
+              <button class="btn glass">Create Channel</button>
               <input type="text" id="channelName" v-model="channelName" class="input input-bordered w-full max-w-xs" />
             </form>
           </div>
           <div class="requestTable table-border">
           <table class="table">
-            <caption>Channels</caption>
             <tbody>
               <tr class="dark-row" v-for="(channel, index) in channels" :key="index">
                 <td>
-                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                  <label tabindex="0" class="btn glass btn-ghost btn-circle">
                     <div class="avatar">
                       <div class="w-15 mask mask-squircle">
                         <img :src="channel.imageSrc" />
@@ -324,19 +334,19 @@
                 </td>
                 <td v-if="!channel.password">
                   <router-link :to="'/channel/' + channel.channelName">
-                    <button class="btn no-animation">{{ channel.channelName }}</button>
+                    <button class="btn glass no-animation">{{ channel.channelName }}</button>
                   </router-link>
                 </td>
                 <td v-else>
                   <router-link :to="'/checkPass/' + channel.channelName">
-                    <button class="btn no-animation">{{ channel.channelName }}</button>
+                    <button class="btn glass no-animation">{{ channel.channelName }}</button>
                   </router-link>
                 </td>
                 <td v-if="user && channel && channel.channelAdmin.userId == user.userId">
-                  <button class="btn btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
+                  <button class="btn glass btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
                 </td>
                 <td v-if="user && channel && channel.channelAdmin == user.userId">
-                  <button class="btn" @click="openManageChannelModal(user.userName)">Manage Channel</button>
+                  <button class="btn glass" @click="openManageChannelModal(user.userName)">Manage Channel</button>
                   <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalManageChannel.value" @keydown.esc="closeModal('modalManageChannel')">
                     <div class="modal-box w-11/12 max-w-5xl">
                       <form class="dialogModal" @submit.prevent="togglePasswordInput(channel.channelName, password, passwordCheckBox)">
@@ -344,7 +354,7 @@
                         <input type="checkbox" class="checkbox" v-model="passwordCheckBox"><br><br>
                         <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
                         <br>
-                        <button class="btn">Apply changes</button>
+                        <button class="btn glass">Apply changes</button>
                       </form>
                     </div>
                   </dialog>
@@ -357,12 +367,11 @@
         <!--Suggestions-->
         <div v-if="activeTab === 'suggestions'" class="p-4">
           <table class="table">
-            <caption>Suggestions</caption>
             <tbody>
               <tr class="dark-row" v-for="(channel, index) in allChannels" :key="index">
                 <div class="channelSecurity" v-if="!channel.password && !channel.isPrivate">
                   <td>
-                    <label tabindex="0" class="btn btn-ghost btn-circle">
+                    <label tabindex="0" class="btn glass btn-ghost btn-circle">
                       <div class="avatar">
                         <div class="w-15 mask mask-squircle">
                           <!--A fix-->
@@ -373,11 +382,11 @@
                   </td>
                   <td>
                     <router-link :to="'/channel/' + channel.channelName">
-                      <button class="btn no-animation">{{ channel.channelName }}</button>
+                      <button class="btn glass no-animation">{{ channel.channelName }}</button>
                     </router-link>
                   </td>
                   <td>
-                    <button class="btn" @click="joinChannelInDB(channel.channelName, userName)">Join Channel</button>
+                    <button class="btn glass" @click="joinChannelInDB(channel.channelName, userName)">Join Channel</button>
                   </td>
                 </div>
               </tr>
@@ -391,6 +400,7 @@
       :addChannelSuccess="addChannelSuccess"
       :addFriendSuccess="addFriendSuccess"
       :addMessageSuccess="addMessageSuccess"
+      :inviteInGameSuccess="inviteInGameSuccess"
       :joinChannelSuccess="joinChannelSuccess"
       :removeChannelSuccess="removeChannelSuccess"
       :removeFriendSuccess="removeFriendSuccess"
@@ -398,6 +408,7 @@
       :addChannelFailed="addChannelFailed"
       :addFriendFailed="addFriendFailed"
       :addMessageFailed="addMessageFailed"
+      :inviteInGameFailed="inviteInGameFailed"
       :joinChannelFailed="joinChannelFailed"
       :removeChannelFailed="removeChannelFailed"
       :removeFriendFailed="removeFriendFailed"

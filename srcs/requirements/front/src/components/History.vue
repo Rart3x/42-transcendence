@@ -26,7 +26,7 @@
     :gameWon="user.gameWon"
     />
   <div>
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto min-h-screen bg-base-200">
       <div class="grid-container">
         <div class="table">
           <table class="table">

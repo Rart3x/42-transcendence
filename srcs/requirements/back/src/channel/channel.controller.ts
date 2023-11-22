@@ -58,9 +58,9 @@ export class ChannelController {
   }
 
   @Get(':channelName/isOperator/:userName')
-  async isOperator(@Param('channelName') channelName: string, @Param('userName') userName: string): Promise<{ success: boolean }> {
+  async isOperator(@Param('channelName') channelName: string, @Param('userName') userName: string): Promise<User> | null {
     const result = await this.channelService.isOperator(channelName, userName);
-    return { success: result };
+    return result;
   }
 
   @Get(':channelName/isUser/:userName')

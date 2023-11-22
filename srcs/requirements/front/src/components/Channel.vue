@@ -46,8 +46,8 @@
   };
 
   const isOperatorInDB = async (channelName, userName) => {
-    const response = await isOperator(channelName, userName);
-    actualUserOperator.value = response.success;
+    actualUserOperator.value =  await isOperator(channelName, userName);
+    return true;
   };
 
   const isUserMuteInChannelInDB = async () => {
@@ -174,7 +174,7 @@
     </div>
   </div>
   <div class="grid-container">
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto min-h-screen bg-base-200">
       <div class="friend-list">
         <table class="table table-zebra">
           <tbody v-for="user in filteredUsers" :key="user.userName">
@@ -190,18 +190,18 @@
               </td>
               <td>
                 <router-link :to="'/profile/' + user.userName">
-                  <button v-if="user.status === 'offline'" class="btn no-animation text-red-500">{{ user.userName }}</button>
-                  <button v-if="user.status === 'online'" class="btn no-animation text-green-500">{{ user.userName }}</button>
-                  <button v-if="user.status === 'ingame'" class="btn no-animation text-blue-500">{{ user.userName }}</button>
+                  <button v-if="user.status === 'offline'" class="btn glass no-animation text-red-500">{{ user.userName }}</button>
+                  <button v-if="user.status === 'online'" class="btn glass no-animation text-green-500">{{ user.userName }}</button>
+                  <button v-if="user.status === 'ingame'" class="btn glass no-animation text-blue-500">{{ user.userName }}</button>
                 </router-link>
               </td>
-              <td v-if="channel.channelAdmin == actualUser.userId || isOperatorInDB($route.params.channelName, user.userName).success">
+              <td v-if="channel.channelAdmin == actualUser.userId">
                 <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
-                  <button class="btn btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
-                  <button class="btn btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
-                  <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
-                  <button v-if="user && !actualUserOperator" class="btn btn-success" @click="addOperator($route.params.channelName, user.userName)" >Promote</button>
-                  <button v-else-if="user && actualUserOperator" class="btn btn-error" @click="removeOperator($route.params.channelName, user.userName)">Depreciate</button>
+                  <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
+                  <button class="btn glass btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
+                  <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
+                  <button v-if="!actualUserOperator" class="btn glass btn-success" @click="addOperator($route.params.channelName, user.userName)" >Promote</button>
+                  <button v-else-if="actualUserOperator" class="btn glass btn-error" @click="removeOperator($route.params.channelName, user.userName)">Depreciate</button>
                 </div>
               </td>
             </tr>
@@ -211,7 +211,7 @@
     </div>
     <!--Chat-->
     <!-- Penser a ajouter lhoraire denvoi et aussi le focus de la navabar en bas de la box-->
-    <div class="chat-box" style="text-align: center">
+    <div class="overflow-x-auto min-h-screen bg-base-200 chat-box" style="text-align: center">
       <div class="chat-messages">
         <div v-for="(message, index) in messages" :key="index" class="message">
           <div class="message-row">
@@ -225,7 +225,8 @@
                   </div>
                 </label>
                 <div class="chat-bubble">{{ message.message_text }}</div>
-              </div>
+                <div class="message-timestamp"> {{ message.message_date }} </div>
+                </div>
             </div>
             <div v-else-if="message.message_text">
               <div class="chat chat-end">
@@ -237,6 +238,7 @@
                     </div>
                   </div>
                 </label>
+                <div class="message-timestamp"> {{ message.message_date }} </div>
               </div>
             </div>
           </div>
@@ -245,7 +247,7 @@
       <div class="chat-input">
         <div class="userMutedOrNot" v-if="!actualUserMuted.valueOf()" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
           <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
-          <button class="btn btn-primary" @click="sendMessage">Send</button>
+          <button class="btn glass btn-primary" @click="sendMessage">Send</button>
         </div>
         <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/>
       </div>
