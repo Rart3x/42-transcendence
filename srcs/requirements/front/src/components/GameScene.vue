@@ -36,14 +36,11 @@ function Between(min : number, max : number){
 const token = await Cookies.get("_authToken");
 const user = await getUserByCookie(token);
 //Create and bind our socket to the server
-//     console.log(socket.id);
 
 //Initialize snapshot library
 const SI = new SnapshotInterpolation();
 // const socket = user.socket;
 const socket = io('http://localhost:3000');
-
-setClientSocket(user.userName, socket.id);
 
 
 //GAME CLASS
@@ -58,6 +55,9 @@ export default class Game extends Phaser.Scene {
 
 	constructor(){
 		super("game");
+		setClientSocket(user.userName, socket.id);
+
+		console.log(socket.id);
 	}
 
 	preload(){
@@ -226,7 +226,6 @@ export default class Game extends Phaser.Scene {
 		});
 	
 		socket.on('localGameCreated', (data) => {
-			console.log("inside local game");
 			this.UIElement.destroy();
 			this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 			<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \

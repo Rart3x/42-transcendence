@@ -64,7 +64,7 @@ export async function getChannelByName(channelName : string) {
   return null;
 }
 
-export async function isOperator(channelName: string, userName: string): Promise<boolean> {
+export async function isOperator(channelName: string, userName: string) {
   try { 
     const response = await fetch(`http://localhost:3000/channel/${channelName}/isOperator/${userName}`, {
       method: "GET",
@@ -72,16 +72,12 @@ export async function isOperator(channelName: string, userName: string): Promise
         "Content-Type": "application/json",
       },
     });
-    
-    if (response.ok) {
-      const responseData = await response.json();
-      return responseData;
-    }
-  } catch (error) {
+    if (response)
+      return await response.json();
+  }
+  catch (error) {
     console.error('error: sending GET request', error);
   }
-  
-  return false;
 }
 
 export async function isUserInChannel(channelName : string, userName : string) {

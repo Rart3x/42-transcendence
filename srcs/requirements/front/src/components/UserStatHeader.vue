@@ -28,7 +28,7 @@
 
 		<div class="stat">
 			<div class="stat-title">Winrate</div>
-			<div v-if="gamePlayed != 0" class="stat-value"> {{ (gameWon / gamePlayed) * 100}}  % </div>
+			<div v-if="gamePlayed != 0" class="stat-value"> {{ ((gameWon / gamePlayed) * 100).toPrecision(4) }}  % </div>
 			<div v-else class="stat-value">{{ 100 }} % </div>        
 		</div>
 	</div>

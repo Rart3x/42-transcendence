@@ -12,6 +12,8 @@
 			banFailed: Boolean,
 			blockSuccess: Boolean,
 			blockFailed: Boolean,
+			inviteInGameSuccess: Boolean,
+			inviteInGameFailed: Boolean,
 			joinChannelSuccess: Boolean,
 			joinChannelFailed: Boolean,
 			kickSuccess: Boolean,
@@ -87,6 +89,17 @@
 	<div v-if="blockFailed" class="toast toast-start">
 		<div class="alert alert-error">
 		<span>Failed to block User</span>
+		</div>
+	</div>
+
+	<div v-if="inviteInGameSuccess" class="toast toast-start">
+		<div class="alert alert-success">
+			<span>User Invite in Game successfully.</span>
+		</div>
+	</div>
+	<div v-if="inviteInGameFailed" class="toast toast-start">
+		<div class="alert alert-error">
+		<span>Failed to Invite in Game</span>
 		</div>
 	</div>
 

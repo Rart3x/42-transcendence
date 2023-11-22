@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
+import { IoAdapter } from '@nestjs/platform-socket.io';
+import { SocketIoAdapter } from './socket-io.adapter';
+
+import { AppGateway } from './app.gateway';
 
 import { ChannelModule } from './channel/channel.module';
 import { EventsModule } from './events/events.module';
@@ -25,8 +29,33 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 
 @Module({
-  imports: [ChannelModule, EventsModule, GameRoomModule, MessageModule, PrivateMessageModule, UserModule],
-  controllers: [],
-  providers: [],
+  imports: [
+    ChannelModule,
+    EventsModule,
+    GameRoomModule,
+    MessageModule,
+    PrivateMessageModule,
+    UserModule,
+  ],
+  controllers: [
+    ChannelController,
+    MessageController,
+    PrivateMessageController,
+    QueueListController,
+    UserController,
+  ],
+  providers: [
+    AppGateway,
+    ChannelService,
+    MessageService,
+    PrismaService,
+    PrivateMessageService,
+    QueueListService,
+    UserService,
+    {
+      provide: IoAdapter,
+      useClass: SocketIoAdapter,
+    },
+  ],
 })
 export class AppModule {}

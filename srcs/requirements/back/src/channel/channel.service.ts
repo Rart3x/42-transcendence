@@ -282,12 +282,12 @@ export class ChannelService {
     return channel;
   }
 
-  async isOperator(channelName: string, userName: string): Promise<boolean> {
+  async isOperator(channelName: string, userName: string): Promise<User> {
     const channel = await this.getChannelByName(channelName);
     const user = await this.userService.getUserByName(userName);
 
     if (!channel || !user)
-      return false;
+      return null;
 
     const channelUsers = await this.prisma.channel.findFirst({
       where: { channelId: channel.channelId },
@@ -298,8 +298,8 @@ export class ChannelService {
       },
     });
     if (channelUsers && channelUsers.channelOperators.length > 0)
-      return true;
-    return false;
+      return user;
+    return null;
   }
 
   async isUserInChannel(channelName: string, userName: string): Promise<boolean> {

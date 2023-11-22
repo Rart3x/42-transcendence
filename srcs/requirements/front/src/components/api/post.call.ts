@@ -401,6 +401,7 @@ export async function insertIntoQueueList(clientSocket : string) {
 /*-----------------------------------------------UTILS-----------------------------------------------*/
 export async function setClientSocket(userName : string, socket : string) {
   try {
+    console.log(`change socket id to ${socket}`);
     const response = await fetch(`http://localhost:3000/user/socket/${socket}`, {
       method: "POST",
       headers: {
