@@ -8,8 +8,9 @@
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserId, getGameRoomByRoomId } from "./api/get.call";
   import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, joinChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
   import { io } from 'socket.io-client';
+  import { useRouter } from "vue-router";
+  import { setClientSocket } from './api/post.call';
 
-  const socket = io('http://localhost:3000');
 
   let adminImage = ref(null);
   let currentUserName = ref(null);
@@ -24,6 +25,8 @@
   let channels = ref([]);
   let friends = ref([]);
   let user = ref(null);
+  let socket = ref(null);
+
 
   let addChannelSuccess = ref(false);
   let addFriendSuccess = ref(false);
@@ -151,8 +154,11 @@
     friends.value = await getAllFriends(userName);
   };
 
-  const inviteFriendInGame = (userName, userSocket, userStatus) => {
-    socket.emit('localGame');
+
+  const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
+    router.push('/game');
+    socket.emit('localGame', user.value.userId);
+  
     let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
     socket.emit('invitationInGame', { userName, sock, userStatus });
 
@@ -194,9 +200,16 @@
   const openManageChannelModal = () => { modalStates.modalManageChannel.value = true; };
   const openMessageModal = () => { modalStates.modalMessage.value = true; };
 
+  var router;
   onMounted(async () => {
+    router = useRouter();
+
+    //Create and bind our socket to the server
+    socket = io('http://localhost:3000');
+
+  
     user.value = await getUserByCookie(Cookies.get("_authToken"));
-    
+
     if (!user.value) window.location.href = "/";
 
     userName.value = user.value.displayName;
@@ -284,7 +297,7 @@
                   </router-link>
                 </td>
                 <td> <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Friend</button> </td>
-                <td> <button class="btn glass" @click="inviteFriendInGame(user.userName, user.socket, user.status)">Invite in a Game</button> </td>
+                <td> <button class="btn glass" @click="inviteFriendInGame(user.userName, user.userId, user.socket, user.status)">Invite in a Game</button> </td>
                 <td>
                   <button class="btn glass" @click="openChannelModal(user.userName)">Invite in Channel</button>
                   <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel.value" @keydown.esc="closeModal('modalChannel')">
