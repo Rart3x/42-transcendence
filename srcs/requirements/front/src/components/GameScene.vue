@@ -655,18 +655,18 @@ export default class Game extends Phaser.Scene {
 			}
 		}
 
-		if (this.gameRoom.customGameMode){
-			const obstaclesSnapshot = SI.calcInterpolation('delta', 'obstacles');
-			if (obstaclesSnapshot){
-				const { state } = obstaclesSnapshot;
-				if (state){
-					const delta = state[0];
-					for (let i = 0; i < 2; i++){
-						this.gameRoom.entities?.obstacles[i].rotate(delta);
-					}
-				}
-			}
-		}
+		// if (this.gameRoom.customGameMode){
+		// 	const obstaclesSnapshot = SI.calcInterpolation('delta', 'obstacles');
+		// 	if (obstaclesSnapshot){
+		// 		const { state } = obstaclesSnapshot;
+		// 		if (state){
+		// 			const delta = state[0];
+		// 			for (let i = 0; i < 2; i++){
+		// 				this.gameRoom.entities?.obstacles[i].rotate(delta);
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 		const playerSnapshot = SI.calcInterpolation('x y', 'players');
 		if (playerSnapshot){

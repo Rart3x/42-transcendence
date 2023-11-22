@@ -68,7 +68,7 @@ export default class GameRoom {
         socketPlayer1: string,
         player1UserId: number,
         player1UserName: string): GameRoom {
-        return new GameRoom(game, roomId, socketPlayer1, player1UserId, player1UserName, undefined, undefined, undefined, true);
+        return new GameRoom(game, roomId, false, socketPlayer1, player1UserId, player1UserName, undefined, undefined, undefined, true);
     }
 
     static createRegularGameRoom(

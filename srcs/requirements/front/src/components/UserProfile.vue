@@ -7,6 +7,12 @@
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserId, getGameRoomByRoomId } from "./api/get.call";
   import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, joinChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
+  import { io } from 'socket.io-client';
+
+
+  //Create and bind our socket to the server
+  const socket = io('http://localhost:3000');
+
 
   let adminImage = ref(null);
   let currentUserName = ref(null);
@@ -146,6 +152,11 @@
     friends.value = await getAllFriends(userName);
   };
 
+  const inviteFriendInGame = (userSocket) => {
+    console.log(`invite friend with socket id ${userSocket} in a local game`);
+    socket.emit('localGame');
+  }
+
   const removeChannelFromDB = async (channelName) => {
     const response = await removeChannel(channelName);
     
@@ -262,7 +273,7 @@
                 <td>
                   <button class="btn btn-error" @click="removeFriendFromDB(userName, user.userName)">Delete Friend</button>
                 </td>
-                <td> <button class="btn">Invite in a Game</button> </td>
+                <td> <button class="btn" @click="inviteFriendInGame(user.socket)">Invite in a Game</button> </td>
                 <td>
                   <button class="btn" @click="openChannelModal(user.userName)">Invite in Channel</button>
                   <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel.value" @keydown.esc="closeModal('modalChannel')">

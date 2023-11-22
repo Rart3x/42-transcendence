@@ -54,6 +54,7 @@ import { takeCoverage } from 'v8';
 //Server
 import { Server } from 'ws';
 import { isArray } from 'class-validator';
+import { GameRoomModule } from '../gameRoom/gameRoom.module';
 
 
 //-------------------------------------------------------------------------------------------------------------------------------------------
@@ -343,6 +344,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				intersectionDeltaY = player.gameObject.position.y  - gameRoom.entities.ball.gameObject.position.y;
 
 				//Normalized intersect
+
+				// console.log(theta);
 				theta = intersectionDeltaY / PADDLE_HEIGHT / 2;
 				
 				//Get speed of incoming ball and saving it
@@ -376,12 +379,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			if (gameRoom.player1Disconnected == false && (gameRoom.player2Disconnected == false || gameRoom.botGame)){
 				if (pair.bodyA.label == "left"){
 					scorerId = gameRoom.player2UserId;
-					if (gameRoom.botGame){
+					if (gameRoom && gameRoom.botGame){
 						// gameRoom.scoreActual.set("bot", ++scorePlayer2);
 					}
 					else{
 						gameRoom.scoreActual.set(gameRoom.player2SocketId, ++scorePlayer2);
-
 					}
 				}
 				else{
@@ -389,6 +391,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					gameRoom.scoreActual.set(gameRoom.player1SocketId, ++scorePlayer1);
 				}
 
+				gameRoom.entities.players[1].gameObject.position.x = 940;
+				gameRoom.entities.players[1].gameObject.position.y = 400;
 				let scoreDate = new Date();
 	
 				let timeDiff = (scoreDate.valueOf() - gameRoom.startDate.valueOf()) / 1000;
@@ -770,8 +774,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				this.gameRooms.splice(indexGameRoom, 1);
 
 				this.gameRooms.push(localRoom);
-					
-				console.log(user1.userName, user2.userName);
+
+				// console.log(user1.userName, user2.userName);
 
 				this.server.to(localRoom.player1SocketId).emit('lobby', {
 					roomId: localRoom.roomId,
@@ -793,6 +797,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				});
 			}
 		}
+	}
+
+	@SubscribeMessage('localGame')
+	handleInvitation(
+		@ConnectedSocket() socket: Socket): void {
+		console.log(`${socket.id} wants to create a local game`);
 	}
 
 	@SubscribeMessage('playAgain')
@@ -867,9 +877,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 		var obstaclesState: any;
 
-		obstaclesState = [{
-			delta: gameRoom.entities.obstacles[0].angle
-		}];
+		if (gameRoom.customGame){
+			obstaclesState = [{
+				delta: gameRoom.entities.obstacles[0].angle
+			}];
+		}
 
 		var playerState : any;
 
