@@ -6,6 +6,11 @@
 			gamePlayed: Number,
 			gameWon: Number,
 		},
+		computed: {
+			winrate() {
+				return this.gamePlayed !== 0 ? (this.gameWon / this.gamePlayed) * 100 : 100;
+			},
+		},
 	};
 </script>
 
@@ -28,7 +33,11 @@
 
 		<div class="stat">
 			<div class="stat-title">Winrate</div>
-			<div v-if="gamePlayed != 0" class="stat-value"> {{ (gameWon / gamePlayed) * 100}}  % </div>
+			<div v-if="gamePlayed != 0" class="stat-value">
+				<div v-if="winrate.toFixed(0) >= 50" class="stat-value text-green-500"> {{ winrate.toFixed(2) }} % </div>
+				<div v-if="(winrate.toFixed(0) < 50 && winrate.toFixed(0) >= 30)" class="stat-value text-yellow-500"> {{ winrate.toFixed(2) }} % </div>
+				<div v-if="(winrate.toFixed(0) < 30)" class="stat-value text-red-500"> {{ winrate.toFixed(2) }} % </div>
+			</div>
 			<div v-else class="stat-value">{{ 100 }} % </div>        
 		</div>
 	</div>

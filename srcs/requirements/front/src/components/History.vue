@@ -3,8 +3,9 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
-  import { getUserByCookie } from "./api/get.call";
+  import { getGameRoomByUserId, getUserByCookie } from "./api/get.call";
 
+  let games = ref([]);
   let user = ref(null);
 
   let versusImage;
@@ -15,6 +16,8 @@
     if (!user.value) window.location.href = "/";
     
     versusImage = "src/assets/vs.png";
+    games.value = await getGameRoomByUserId(user.value.userId);
+    
   });
 
 </script>
@@ -31,11 +34,11 @@
         <div class="table">
           <table class="table">
             <tbody>
-              <tr>
+              <tr v-for="(game, index) in games" :key="index">
                 <td>
                   <div class="collapse bg-base-200">
                     <label for="collapse1" class="collapse-title text-xl font-medium">
-                      <span class="text-before">Keny</span>
+                      <span class="text-before">{{ game.users[0].userName }}</span>
                       <div class="avatar">
                         <label tabindex="0" class="btn btn-ghost btn-circle">
                           <div class="w-15 mask mask-squircle">
@@ -43,31 +46,13 @@
                           </div>
                         </label>
                       </div>
-                      <span class="text-after">Dams</span>
+                      <span class="text-after">{{ game.users[1].userName }}</span>
                     </label>
                     <input type="checkbox" id="collapse1" class="collapse-checkbox" />
                     <div class="collapse-content">
-                      <p class="dark-row">Contenu 1</p>
+                      <p class="dark-row">{{ game.users[1] }}</p>
                       <p class="dark-row">Contenu 2</p>
                       <p class="dark-row">Contenu 3</p>
-                    </div>
-                  </div>
-
-                  <div class="collapse bg-base-200">
-                    <label for="collapse1" class="collapse-title text-xl font-medium">
-                      <span class="text-before">Keny</span>
-                      <div class="avatar">
-                        <label tabindex="0" class="btn btn-ghost btn-circle">
-                          <div class="w-15 mask mask-squircle">
-                            <img :src="versusImage" class="versus-image" />
-                          </div>
-                        </label>
-                      </div>
-                      <span class="text-after">Nico</span>
-                    </label>
-                    <input type="checkbox" id="collapse1" class="collapse-checkbox" />
-                    <div class="collapse-content">
-                      <p class="dark-row">Contenu 1</p>
                     </div>
                   </div>
                 </td>

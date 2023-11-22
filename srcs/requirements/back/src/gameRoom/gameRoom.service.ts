@@ -19,6 +19,7 @@ export class GameRoomService {
           player1SocketId: player1[1],
           botGame: isBotGame,
           customGame: isCustomGame,
+          score : JSON.stringify([]),
           startDate: new Date(),
           users: {
             connect: [
@@ -35,6 +36,7 @@ export class GameRoomService {
           player2SocketId: player2[1],
           botGame: isBotGame,
           customGame: isCustomGame,
+          score : JSON.stringify([]),
           startDate: new Date(),
           users: {
             connect: [
@@ -84,6 +86,23 @@ export class GameRoomService {
   async getGameRoomById(id: number) {
     return await this.prisma.gameRoom.findUnique({
       where: { id: id - 0 },
+    });
+  }
+
+  async getGameRoomByUserId(userId: number) {
+    const id = typeof userId === 'string' ? parseInt(userId) : userId;
+
+    return await this.prisma.gameRoom.findMany({
+      where: {
+        users: {
+          some: {
+            userId: id,
+          },
+        },
+      },
+      include : {
+        users: true,
+      },
     });
   }
 }

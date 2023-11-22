@@ -12,4 +12,10 @@ export class GameRoomController {
     const gameRoom = await this.gameRoomService.getGameRoomById(id);
     return (gameRoom);
   }
+
+  @Get('get/:userId')
+  async getGameRoomByUserId(@Param('userId') userId: number): Promise<GameRoom[]> {
+    const gameRoom = await this.gameRoomService.getGameRoomByUserId(userId);
+    return (gameRoom);
+  }
 }

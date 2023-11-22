@@ -33,7 +33,7 @@ model GameRoom {
   player1Ready Boolean @default(false)
   player2Ready Boolean @default(false)
 
-  score        Json?
+  score        Json
 
   nbBounces    Int      @default(0)
 
