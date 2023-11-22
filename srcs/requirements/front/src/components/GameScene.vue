@@ -216,6 +216,7 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('lobby', (data) => {
+			console.log("inside lobby");
 			this.UIElement.destroy();
 			this.startLobby(data);
 		});
@@ -646,27 +647,25 @@ export default class Game extends Phaser.Scene {
 				const { id, x, y, velX, velY } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
 					//get rid of old snapshot not rendered when the ball scored and then respawn
-					if (Math.abs(Number(new Date().valueOf()) - SI.vault.getById(ballSnapshot.newer).time) < 100){
-						this.gameRoom.entities.ball.gameObject.x = x;
-						this.gameRoom.entities.ball.gameObject.y = y;
-						this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
-					}
+					this.gameRoom.entities.ball.gameObject.x = x;
+					this.gameRoom.entities.ball.gameObject.y = y;
+					this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
 				}
 			}
 		}
 
-		// if (this.gameRoom.customGameMode){
-		// 	const obstaclesSnapshot = SI.calcInterpolation('delta', 'obstacles');
-		// 	if (obstaclesSnapshot){
-		// 		const { state } = obstaclesSnapshot;
-		// 		if (state){
-		// 			const delta = state[0];
-		// 			for (let i = 0; i < 2; i++){
-		// 				this.gameRoom.entities?.obstacles[i].rotate(delta);
-		// 			}
-		// 		}
-		// 	}
-		// }
+		if (this.gameRoom && this.gameRoom.customGameMode){
+			const obstaclesSnapshot = SI.calcInterpolation('delta', 'obstacles');
+			if (obstaclesSnapshot){
+				const { state } = obstaclesSnapshot;
+				if (state){
+					const delta = state[0];
+					for (let i = 0; i < 2; i++){
+						this.gameRoom.entities.obstacles[i].gameObject.rotation += 0.05;
+					}
+				}
+			}
+		}
 
 		const playerSnapshot = SI.calcInterpolation('x y', 'players');
 		if (playerSnapshot){

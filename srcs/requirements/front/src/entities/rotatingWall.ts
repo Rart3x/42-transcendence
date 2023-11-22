@@ -12,7 +12,7 @@ export default class RotatingWall{
 
     constructor(game: Phaser.Scene, x : number, y : number, width: number, height: number){
         const wallOptions = {
-			isStatic: false,
+			isStatic: true,
             render: {
                 visible: false
             }
