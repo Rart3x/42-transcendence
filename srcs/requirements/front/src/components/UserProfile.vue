@@ -8,11 +8,8 @@
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserId, getGameRoomByRoomId } from "./api/get.call";
   import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, joinChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
   import { io } from 'socket.io-client';
-
-
-  //Create and bind our socket to the server
-  const socket = io('http://localhost:3000');
-
+  import { useRouter } from "vue-router";
+  import { setClientSocket } from './api/post.call';
 
   let adminImage = ref(null);
   let currentUserName = ref(null);
@@ -27,6 +24,8 @@
   let channels = ref([]);
   let friends = ref([]);
   let user = ref(null);
+  let socket = ref(null);
+
 
   let addChannelSuccess = ref(false);
   let addFriendSuccess = ref(false);
@@ -153,8 +152,15 @@
   };
 
   const inviteFriendInGame = (userSocket) => {
+    // console.log(`socket is ${socket.id}`);
+    // setClientSocket(user.userName, socket.id);
     console.log(`invite friend with socket id ${userSocket} in a local game`);
-    socket.emit('localGame');
+    router.push('/game');
+    socket.emit('localGame', {
+      data:{
+        userId: user.userId
+      }
+    });
   }
 
   const removeChannelFromDB = async (channelName) => {
@@ -180,9 +186,16 @@
   const openManageChannelModal = () => { modalStates.modalManageChannel.value = true; };
   const openMessageModal = () => { modalStates.modalMessage.value = true; };
 
+  var router;
   onMounted(async () => {
+    router = useRouter();
+
+    //Create and bind our socket to the server
+    socket = io('http://localhost:3000');
+
+  
     user.value = await getUserByCookie(Cookies.get("_authToken"));
-    
+
     if (!user.value) window.location.href = "/";
 
     userName.value = user.value.displayName;

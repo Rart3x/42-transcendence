@@ -25,6 +25,7 @@ import Entities from '../entities/entities';
 import GameRoom from "../gameRoom/gameRoom";
 
 import Player from "../player/player";
+  import { setClientSocket } from './api/post.call';
 
 //UTILS
 function Between(min : number, max : number){
@@ -34,12 +35,16 @@ function Between(min : number, max : number){
 //Get user
 const token = await Cookies.get("_authToken");
 const user = await getUserByCookie(token);
-
 //Create and bind our socket to the server
-const socket = io('http://localhost:3000');
+//     console.log(socket.id);
 
 //Initialize snapshot library
 const SI = new SnapshotInterpolation();
+// const socket = user.socket;
+const socket = io('http://localhost:3000');
+
+setClientSocket(user.userName, socket.id);
+
 
 //GAME CLASS
 export default class Game extends Phaser.Scene {
@@ -58,8 +63,6 @@ export default class Game extends Phaser.Scene {
 	preload(){
 		this.load.setPath('src/assets');
 	}
-
-
 
 	gamePage(self : any){
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
@@ -220,6 +223,60 @@ export default class Game extends Phaser.Scene {
 		socket.on('lobby', (data) => {
 			this.UIElement.destroy();
 			this.startLobby(data);
+		});
+	
+		socket.on('localGameCreated', (data) => {
+			console.log("inside local game");
+			this.UIElement.destroy();
+			this.UIElement = this.add.dom(450, 400).createFromHTML(' \
+			<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
+				<div class="avatar row-start-2"> \
+					<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+					</div> \
+				</div> \
+				<div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
+				<div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
+					<div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+					</div> \
+				</div> \
+				<div class="row-start-3 ..."> \
+					<h1 id="player1Name" class="text-4xl font-bold dark:text-white ..."></h1> \
+				</div> \
+				<div class="row-start-3 col-start-3 col-end-4 ..."> \
+					<h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
+				</div> \
+				<div class="row-start-4 col-start-1 col-end-2"> \
+					<button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready  </button> \
+				</div> \
+				<div class="row-start-4 col-start-3 col-end-4"> \
+					<button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready  </button> \
+				</div> \
+				<div class="row-start-5 col-start-2  ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
+				<div class="row-start-6 col-start-2 ..."><button id="leaveButton"class="btn btn-error ml-5 ...">LEAVE</button></div> \
+			</div>');
+
+
+			// let userProfile1 = this.UIElement.node.querySelector("#userProfile1");
+
+			// let userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
+
+			// userProfile1Name.innerText = data.player1UserName;
+
+			// let imagePathPlayer1 = "userImages/" + data.player1Image;
+
+			// this.load.image('userImage1', imagePathPlayer1);
+
+			// this.load.once(Phaser.Loader.Events.COMPLETE, () => {
+			// 	Phaser.DOM.AddToDOM(this.textures.get('userImage1').getSourceImage() as HTMLElement, 'userProfile1');
+			// });
+
+			// this.load.start();
+
+			// let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
+			// let leaveButton = this.UIElement.node.querySelector('#leaveButton') as HTMLElement;
+
+			// let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
+			// let isReadyButtonPlayer2 = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
 		});
 	
 		socket.on('botReady', (data) => {

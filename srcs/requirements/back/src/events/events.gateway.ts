@@ -804,13 +804,23 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	@SubscribeMessage('localGame')
-	handleInvitation(
-		@ConnectedSocket() socket: Socket): void {
+	async handleInvitation(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() userId: number) {
 		console.log(`${socket.id} wants to create a local game`);
+		setTimeout(async () => {
+			const user1 = await this.UserService.getUserById(userId);
+			// const user = aw
+			this.server.to(user1.socket).emit('localGameCreated', {
+				// player1SocketId: socket.id,
+				// player1UserName: user1.userName,
+				// player1Image: user1.image,
+			});
+		}, 5000);
 	}
 
 	@SubscribeMessage('playAgain')
-	handle(
+	handlePlayAgain(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() roomId: number): void {
 		let gameRoom = this.findCorrespondingGame(roomId);
