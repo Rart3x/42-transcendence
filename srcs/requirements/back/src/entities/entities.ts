@@ -1,16 +1,23 @@
 import Player  from './player';
 import Wall  from './wall';
 import Ball  from './ball';
+import RotatingWall from './rotatingWall';
 
 export default class Entities {
     ball: Ball;
     walls: Wall[] = []
     players : Player[] = []
+    obstacles: RotatingWall[] = [];
 
-    constructor(player1SocketId: string, player2SocketId: string){
+    constructor(customGame: Boolean, player1SocketId: string, player2SocketId: string){
 
         this.players.push(new Player(60, 400, 10, 80, player1SocketId, "player1"));
         this.players.push(new Player(940, 400, 10, 80, player2SocketId, "player2"));
+
+        if (customGame){
+            this.obstacles.push(new RotatingWall(500, 250, 10, 80));
+            this.obstacles.push(new RotatingWall(500, 650, 10, 80));
+        }
 
         this.walls.push(new Wall(20, 400, 10, 770, "left"));
         this.walls.push(new Wall(980, 400, 10, 770, "right"));

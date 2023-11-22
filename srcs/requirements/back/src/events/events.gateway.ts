@@ -68,7 +68,7 @@ const Engine = Matter.Engine,
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //DEFINES------------------------------------------------------------------------------------------------------------------------------------
-const SERVER_REFRESH_RATE = 1000 / 30;
+const SERVER_REFRESH_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 80;
 const MAX_BOUNCING_ANGLE = Math.PI/2;
 //-------------------------------------------------------------------------------------------------------------------------------------------
@@ -185,6 +185,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								this.gameRooms[i].nbBounces);
 						}
 						if (this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
+							if (this.gameRooms[i].customGame){
+								for (let i=0; i < 2; i++){
+									this.gameRooms[i].entities.obstacles[i].rotate(0.1);
+								}
+							}
 							this.saveGameState(this.gameRooms[i]);
 							Engine.update(this.gameRooms[i].engine);
 						}
@@ -260,7 +265,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		gameRoom.scoreActual.set(player1[1], 0);
 		gameRoom.scoreActual.set("bot", 0);
 
-		gameRoom.entities = this.createEntities(player1[1], "bot");
+		gameRoom.entities = this.createEntities(false, player1[1], "bot");
 		gameRoom.world = gameRoom.engine.world;
 
 		return gameRoom;
@@ -279,15 +284,15 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		gameRoom.scoreActual.set(player1[1], 0);
 		gameRoom.scoreActual.set(player2[1], 0);
 
-		gameRoom.entities = this.createEntities(player1[1], player2[1]);
+		gameRoom.entities = this.createEntities(customGame, player1[1], player2[1]);
 		gameRoom.world = gameRoom.engine.world;
 
 		return gameRoom;
 	}
 
-	createEntities(player1SocketId: string, player2SocketId: string) : Entities{
+	createEntities(customGame: Boolean, player1SocketId: string, player2SocketId: string) : Entities{
 		//Entities
-		return new Entities(player1SocketId, player2SocketId);
+		return new Entities(customGame, player1SocketId, player2SocketId);
 	}
 
 	createGameWorld(gameRoom: GameRoomType, engine: Matter.Engine, world: Matter.World, entities: Entities){
@@ -576,6 +581,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 			this.server.to(localRoom.player1SocketId).emit('lobby', {
 				roomId: localRoom.roomId,
+				customGameMode: false,
 				player1SocketId: localRoom.player1SocketId,
 				player2SocketId: localRoom.player2SocketId,
 				player1UserName: user1.userName,
@@ -586,6 +592,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			this.server.to(localRoom.player2SocketId).emit('lobby', {
 				roomId: localRoom.roomId,
+				customGameMode: false,
 				player1SocketId: localRoom.player1SocketId,
 				player2SocketId: localRoom.player2SocketId,
 				player1UserName: user1.userName,
@@ -625,12 +632,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			const gameRoom = await this.GameRoomService.createGameRoom(first, second, false, true);
 	
-			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
+			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, true);
 
 			this.gameRooms.push(localRoom);
 
 			this.server.to(localRoom.player1SocketId).emit('lobby', {
 				roomId: localRoom.roomId,
+				customGameMode: true,
 				player1SocketId: localRoom.player1SocketId,
 				player2SocketId: localRoom.player2SocketId,
 				player1UserName: user1.userName,
@@ -641,6 +649,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			this.server.to(localRoom.player2SocketId).emit('lobby', {
 				roomId: localRoom.roomId,
+				customGameMode: true,
 				player1SocketId: localRoom.player1SocketId,
 				player2SocketId: localRoom.player2SocketId,
 				player1UserName: user1.userName,
@@ -649,9 +658,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				player2Image: user2.image
 			});
 		}
-		
-
-		this.server.to(socket.id).emit('matchmaking', {});
+		else{
+			this.server.to(socket.id).emit('matchmaking', {});
+		}
 	}
 
 	@SubscribeMessage('playerReconnection')
@@ -850,13 +859,18 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 
 		const ballState = [{
-			id : '0',
 			x : gameRoom.entities.ball.gameObject.position.x,
 			y : gameRoom.entities.ball.gameObject.position.y,
 			velX: velocity.x,
 			velY: velocity.y
 		}];
 	
+		var obstaclesState: any;
+
+		obstaclesState = [{
+			delta: gameRoom.entities.obstacles[0].angle
+		}];
+
 		var playerState : any;
 
 		if (gameRoom.botGame == false){
@@ -884,10 +898,20 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}]
 		}
 
+		var globalState;
 		//Better use JSON stringify function to do this
-		const globalState = {
-			players : playerState,
-			ball: ballState
+		if (gameRoom.customGame == false){
+			globalState = {
+				players : playerState,
+				ball: ballState
+			}
+		}
+		else{
+			globalState = {
+				players: playerState,
+				ball: ballState,
+				obstacles: obstaclesState
+			}
 		}
 
 		const snapshot = SI.snapshot.create(globalState);

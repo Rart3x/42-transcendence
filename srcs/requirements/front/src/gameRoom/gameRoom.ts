@@ -9,6 +9,7 @@ import Entities  from '../entities/entities';
 
 export default class GameRoom {
     id: number;
+    customGameMode: boolean;
     player1SocketId: string;
     player1UserName: string;
     player2UserName: string | undefined;
@@ -29,6 +30,7 @@ export default class GameRoom {
     constructor(
         game: Phaser.Scene,
         roomId: number,
+        customGameMode: boolean,
         socketPlayer1: string,
         player1UserId: number,
         player1UserName: string,
@@ -38,6 +40,7 @@ export default class GameRoom {
         botGame: boolean = false
       ) {
             this.id = roomId;
+            this.customGameMode = customGameMode;
             this.player1SocketId = socketPlayer1;
             this.player2SocketId = socketPlayer2;
             this.player1UserName = player1UserName;
@@ -67,10 +70,11 @@ export default class GameRoom {
         player1UserName: string): GameRoom {
         return new GameRoom(game, roomId, socketPlayer1, player1UserId, player1UserName, undefined, undefined, undefined, true);
     }
- 
+
     static createRegularGameRoom(
         game: Phaser.Scene,
         roomId: number,
+        customGameMode: boolean,
         socketPlayer1: string,
         socketPlayer2: string,
         player1UserId: number,
@@ -78,6 +82,6 @@ export default class GameRoom {
         player1UserName: string, 
         player2UserName: string): GameRoom {
  
-        return new GameRoom(game, roomId, socketPlayer1, player1UserId, player1UserName, socketPlayer2, player2UserId, player2UserName, false);
+        return new GameRoom(game, roomId, customGameMode, socketPlayer1, player1UserId, player1UserName, socketPlayer2, player2UserId, player2UserName, false);
     }
 }

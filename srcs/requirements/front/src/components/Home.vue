@@ -20,7 +20,7 @@ const signInWithIntra = () => {
  <body>
    <div class="hero min-h-screen bg-base-200">
      <div class="hero-content text-center">
-       <div class="max-w-md">
+       <div class="max-w-4xl">
          <h1 class="text-7xl flex justify-center font-mono font-bold bg-clip-text bg-gradient-to-r from-primary to-secondary">
            ft_transcendence
          </h1>
@@ -38,18 +38,10 @@ const signInWithIntra = () => {
  </body>
 </template>
 
-
 <style scoped>
-.the-background-image {
-  width: 92vw;
-  height: 92vh;
-  background-image: url("./images/kramjatt.jpg");
-  align-self: center;
-}
+
 body{
   min-height: 100%;
 }
-
-
 
 </style>

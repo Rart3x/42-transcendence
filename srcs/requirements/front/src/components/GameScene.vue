@@ -472,6 +472,7 @@ export default class Game extends Phaser.Scene {
 		this.gameRoom = GameRoom.createRegularGameRoom(
 			this,
 			data.roomId,
+			data.customGameMode,
 			data.player1SocketId,
 			data.player2SocketId,
 			data.player1UserId,
@@ -569,13 +570,13 @@ export default class Game extends Phaser.Scene {
 	}
 
 	updateUIScore(){
-		if (this.gameRoom.score){
+		if (this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
 			let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1SocketId);
 			let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2SocketId);
 
 			let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
 			let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
-			if ( scorePlayer1 <= 3 && scorePlayer2 <= 3){
+			if ( scorePlayer1 && scorePlayer2 && scorePlayer1 <= 3 && scorePlayer2 <= 3){
 				scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
 				scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
 			}
@@ -599,7 +600,7 @@ export default class Game extends Phaser.Scene {
 		this.UIElement.destroy();
 
 		this.createUIScore();
-        this.gameRoom.entities = new Entities(this, this.gameRoom.player1SocketId, this.gameRoom.player2SocketId);
+        this.gameRoom.entities = new Entities(this, this.gameRoom.customGameMode, this.gameRoom.player1SocketId, this.gameRoom.player2SocketId);
 
 		let countdown = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
 			<span id="countdown" style="--value:3;"></span> \
@@ -644,6 +645,7 @@ export default class Game extends Phaser.Scene {
 			if (state){
 				const { id, x, y, velX, velY } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
+					//get rid of old snapshot not rendered when the ball scored and then respawn
 					if (Math.abs(Number(new Date().valueOf()) - SI.vault.getById(ballSnapshot.newer).time) < 100){
 						this.gameRoom.entities.ball.gameObject.x = x;
 						this.gameRoom.entities.ball.gameObject.y = y;
@@ -653,7 +655,19 @@ export default class Game extends Phaser.Scene {
 			}
 		}
 
-		//Interpolate x y coordinates on players object
+		if (this.gameRoom.customGameMode){
+			const obstaclesSnapshot = SI.calcInterpolation('delta', 'obstacles');
+			if (obstaclesSnapshot){
+				const { state } = obstaclesSnapshot;
+				if (state){
+					const delta = state[0];
+					for (let i = 0; i < 2; i++){
+						this.gameRoom.entities?.obstacles[i].rotate(delta);
+					}
+				}
+			}
+		}
+
 		const playerSnapshot = SI.calcInterpolation('x y', 'players');
 		if (playerSnapshot){
 			const { state } = playerSnapshot;
