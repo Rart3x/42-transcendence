@@ -67,74 +67,54 @@
 
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <div>
-          <router-link to="/">
-            <img src="./images/icon-pmt.png" class="w-10 h-10 rounded-xl" />
-          </router-link>
-      </div>
-      <div class="dropdown" @click="picToggleDropdown">
-        <label tabindex="0" class="btn btn-ghost btn-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-          </svg>
-        </label>
-        <ul v-if="picDropdownOpen" tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-          <li>
-            <router-link to="/"> Home </router-link>
-          </li>
-          <li>
-            <router-link to="/game"> Game </router-link>
-          </li>
-           <li>
-            <router-link to="/leaderboard"> Leaderboard </router-link>
-          </li>
-          <li>
-            <router-link to="/about"> About </router-link>
-          </li>
-        </ul>
-      </div>
-      <div class="flex-1">
-        <h1 class="capitalize text-2xl">{{ this.$route.name }} </h1>
-      </div>
-    </div>
-    <div class="navbar-center">
-      <div class="dropdown">
-        <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" v-model="searchInput"/>
-        <div v-show="searchInput" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-          <router-link v-for="user in filteredUsers" :key="user.id" :to="'/profile/' + user.userName" class="dropdown-item" >
-            {{ user.userName }}
-          </router-link>
+      <div class="drawer">
+        <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content">
+          <label for="my-drawer" tabindex="0" class="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+          </label>
+        </div> 
+        <div class="drawer-side">
+          <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+          <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+            <li> <router-link to="/"> Home </router-link> </li>
+            <li> <router-link to="/game"> Game </router-link> </li>
+            <li> <router-link to="/leaderboard"> Leaderboard </router-link> </li>
+            <li> <router-link to="/about"> About </router-link> </li>
+          </ul>
         </div>
       </div>
     </div>
+    <div class="navbar-center">
+      <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" v-model="searchInput"/>
+      <div v-show="searchInput" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+        <router-link v-for="user in filteredUsers" :key="user.id" :to="'/profile/' + user.userName" class="dropdown-item">{{ user.userName }}</router-link>
+      </div>
+    </div>
     <div class="navbar-end">
-      <div class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-circle" @click="toggleDropdown">
-          <div class="avatar">
-            <div class="w- mask mask-squircle">
-              <img :src="imageSrc" />
+      <div class="drawer-end">
+        <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content">
+          <label for="my-drawer-4" tabindex="0" class="btn btn-ghost btn-circle">
+            <div class="avatar">
+              <div class="w-15 mask mask-squircle">
+                <img :src="imageSrc" />
+              </div>
             </div>
-          </div>
-        </label>
-        <ul v-if="dropdownOpen" tabindex="1" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-          <li>
-            <router-link to="/profile"> Profile </router-link>
-          </li>
-          <li>
-            <router-link to="/history"> History </router-link>
-          </li>
-          <li>
-              <router-link to="/settings"> Settings </router-link>
-          </li>
-          <li>
-            <button @click="logout">Logout</button>
-          </li>
-        </ul>
+          </label>
+        </div> 
+        <div class="drawer-side">
+          <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
+          <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+            <li> <router-link to="/profile"> Profile </router-link> </li>
+            <li> <router-link to="/history"> History </router-link> </li>
+            <li> <router-link to="/settings"> Settings </router-link> </li>
+            <li> <button @click="logout">Logout</button> </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-
-</style>
