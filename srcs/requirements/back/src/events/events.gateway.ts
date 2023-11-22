@@ -694,6 +694,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 			this.server.to(socket.id).emit('informOnReconnection',{
 				roomId: gameRoom.roomId,
+				customGameMode: gameRoom.customGame,
 				player1SocketId: gameRoom.player1SocketId,
 				player2SocketId: gameRoom.player2SocketId,
 				player1UserId: gameRoom.player1UserId,
@@ -818,6 +819,21 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 		else if (gameRoom?.player2SocketId == socket.id){
 			this.server.to(gameRoom.player1SocketId).emit('playAgain');
+		}
+	}
+
+	@SubscribeMessage('playerLeaveLobby')
+	handlePlayerLeaveLobby(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() roomId: number): void {
+		var gameRoom : GameRoomType = this.findCorrespondingGame(roomId);
+		if (socket.id == gameRoom.player1SocketId){
+			gameRoom.player1Ready = true;
+			this.server.to(gameRoom.player2SocketId).emit('otherPlayerLeaveLobby', {});
+		}
+		else{
+			gameRoom.player2Ready = true;
+			this.server.to(gameRoom.player1SocketId).emit('otherPlayerLeaveLobby', {});
 		}
 	}
 

@@ -60,6 +60,7 @@ export default class Game extends Phaser.Scene {
 	}
 
 
+
 	gamePage(self : any){
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
 			<div class="row-start-1 col-span-2 ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
@@ -196,6 +197,7 @@ export default class Game extends Phaser.Scene {
 			this.gameRoom = new GameRoom(
 				this,
 				data.roomId,
+				data.customGameMode,
 				data.player1SocketId,
 				data.player2SocketId,
 				data.player1UserId,
@@ -216,7 +218,6 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('lobby', (data) => {
-			console.log("inside lobby");
 			this.UIElement.destroy();
 			this.startLobby(data);
 		});
@@ -461,8 +462,10 @@ export default class Game extends Phaser.Scene {
 
 	destroyUI(){
 		this.UIElement.destroy();
-		this.UIScorePlayer1.destroy();
-		this.UIScorePlayer2.destroy();
+		if (this.UIScorePlayer1 && this.UIScorePlayer2){
+			this.UIScorePlayer1.destroy();
+			this.UIScorePlayer2.destroy();
+		}
 	}
 
 	startLobby(data : any){
@@ -482,7 +485,7 @@ export default class Game extends Phaser.Scene {
 			data.player2UserName);
 
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
-		<div class="grid grid-rows-5 grid-cols-3 justify-items-center  gap-y-8 gap-x-32"> \
+		<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
 			<div class="avatar row-start-2"> \
 				<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
 				</div> \
@@ -504,7 +507,8 @@ export default class Game extends Phaser.Scene {
 			<div class="row-start-4 col-start-3 col-end-4"> \
 				<button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready  </button> \
 			</div> \
-			<div class="row-start-5 col-start-2 col-end-3 ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
+			<div class="row-start-5 col-start-2  ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
+			<div class="row-start-6 col-start-2 ..."><button id="leaveButton"class="btn btn-error ml-5 ...">LEAVE</button></div> \
 		</div>');
 
 		let userProfile1 = this.UIElement.node.querySelector("#userProfile1");
@@ -536,11 +540,32 @@ export default class Game extends Phaser.Scene {
 		this.load.start();
 
 		let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
+		let leaveButton = this.UIElement.node.querySelector('#leaveButton') as HTMLElement;
 
 		let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
 		let isReadyButtonPlayer2 = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
 
 		var self = this;
+
+		leaveButton.addEventListener('click', function() {
+			socket.emit('playerLeaveLobby', self.gameRoom.id);
+			self.UIElement.destroy();
+			self.gamePage(self);
+		});
+
+		socket.on('otherPlayerLeaveLobby', () => {
+			self.UIElement.destroy();
+			self.UIElement = self.add.dom(500, 400).createFromHTML(' \
+				<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
+					<div class="row-start-1 col-start-2 col-end-3 ..."> \
+						<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
+					</div> \
+					<div class="row-start-2 col-start-2 col-end-3 ..."> \
+						<span class=" loading loading-dots loading-lg"></span> \
+					</div> \
+				</div>');
+			socket.emit('playerJoinNormalQueue', user.userId);
+		});
 
 		startButton.addEventListener('click', function() {
 			if (socket.id == self.gameRoom.player2SocketId){
