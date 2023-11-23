@@ -204,10 +204,8 @@
   onMounted(async () => {
     router = useRouter();
 
-    //Create and bind our socket to the server
     socket = io('http://localhost:3000');
 
-  
     user.value = await getUserByCookie(Cookies.get("_authToken"));
 
     if (!user.value) window.location.href = "/";

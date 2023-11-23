@@ -163,10 +163,10 @@
 </script>
  
 <template>
-  <div class="navbar bg-base-100">
+  <div class="navbar bg-base-100 overflow-x-auto bg-base-200">
     <div class="navbar-end">
       <details class="dropdown">
-        <summary class="m-1 btn">{{ $route.params.channelName }}</summary>
+        <summary class="m-1 btn glass">{{ $route.params.channelName }}</summary>
         <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
           <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName)">Quit</li>
         </ul>
