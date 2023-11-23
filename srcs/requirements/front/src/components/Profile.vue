@@ -181,39 +181,11 @@
 
 <template>
   <!--Stats-->
-  <div class="stats shadow">
-    <div class="stat">
-      <label tabindex="0" class="btn btn-ghost btn-circle">
-        <div class="avatar">
-          <div class="w-20 mask mask-squircle" v-if="actualUser">
-            <img :src="actualUser.imageSrc" />
-          </div>
-        </div>
-      </label>
-    </div>
-
-    <div class="stat">
-      <div class="stat-figure text-primary"></div>
-      <div class="stat-title">Username</div>
-      <div v-if="actualUser && actualUser.status === 'offline'" class="stat-value text-red-500">{{ $route.params.userName }}</div>
-      <div v-if="actualUser && actualUser.status === 'online'" class="stat-value  text-green-500">{{ $route.params.userName }}</div>
-      <div v-if="actualUser && actualUser.status === 'ingame'" class="stat-value  text-blue-500">{{ $route.params.userName }}</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-figure text-primary">
-      </div>
-      <div class="stat-title">Games Total</div>
-      <div v-if="actualUser" class="stat-value">{{ actualUser.gamePlayed }} </div>
-    </div>
-    
-    <div class="stat">
-      <div class="stat-figure text-secondary">
-      </div>
-      <div class="stat-title">Games won</div>
-      <div v-if="actualUser" class="stat-value">{{ actualUser.gameWon }}</div>
-    </div>
-  </div>
+  <UserStatHeader v-if="user"
+    :userName="userName"
+    :gamePlayed="user.gamePlayed"
+    :gameWon="user.gameWon"
+  />
   <div class="stats shadow">
     <div class="stat" v-if="!isBlockBool">
       <button class="btn" v-if="user && !isFriendBool" @click="addFriendFromDB(user.userName, $route.params.userName)">

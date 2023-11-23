@@ -1,5 +1,6 @@
 <script setup>
   import Alert from "./Alert.vue";
+  import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
 	import sha256 from 'js-sha256';
@@ -10,7 +11,6 @@
   import { io } from 'socket.io-client';
   import { useRouter } from "vue-router";
   import { setClientSocket } from './api/post.call';
-
 
   let adminImage = ref(null);
   let currentUserName = ref(null);
@@ -26,7 +26,6 @@
   let friends = ref([]);
   let user = ref(null);
   let socket = ref(null);
-
 
   let addChannelSuccess = ref(false);
   let addFriendSuccess = ref(false);
@@ -298,24 +297,9 @@
                 <td> <button class="btn glass" @click="inviteFriendInGame(user.userName, user.userId, user.socket, user.status)">Invite in a Game</button> </td>
                 <td>
                   <button class="btn glass" @click="openChannelModal(user.userName)">Invite in Channel</button>
-                  <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel.value" @keydown.esc="closeModal('modalChannel')">
-                    <div class="modal-box w-11/12 max-w-5xl">
-                      <form class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, userName, currentUserName)">
-                        <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
-                        <button class="btn glass">Send Invitation</button>
-                      </form>
-                    </div>
-                  </dialog>
                 </td>
                 <td>
                   <button class="btn glass" @click="openMessageModal(user.userName)">Send Message</button>
-                  <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalMessage.value" @keydown.esc="closeModal('modalMessage')">
-                    <div class="modal-box w-11/12 max-w-5xl">
-                      <form class ="dialogModal" method="dialog" @submit.prevent="createPrivateMessageInDB(userName, user.userName, message_text)">
-                        <input type="text" v-model="message_text" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
-                      </form>
-                    </div>
-                  </dialog>
                 </td>
               </tr>
             </tbody>
@@ -358,17 +342,6 @@
                 </td>
                 <td v-if="user && channel && channel.channelAdmin == user.userId">
                   <button class="btn glass" @click="openManageChannelModal(user.userName)">Manage Channel</button>
-                  <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalManageChannel.value" @keydown.esc="closeModal('modalManageChannel')">
-                    <div class="modal-box w-11/12 max-w-5xl">
-                      <form class="dialogModal" @submit.prevent="togglePasswordInput(channel.channelName, password, passwordCheckBox)">
-                        <label>Set password</label><br><br>
-                        <input type="checkbox" class="checkbox" v-model="passwordCheckBox"><br><br>
-                        <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
-                        <br>
-                        <button class="btn glass">Apply changes</button>
-                      </form>
-                    </div>
-                  </dialog>
                 </td>
               </tr>
             </tbody>
@@ -385,7 +358,6 @@
                     <label tabindex="0" class="btn glass btn-ghost btn-circle">
                       <div class="avatar">
                         <div class="w-15 mask mask-squircle">
-                          <!--A fix-->
                           <img :src="channel.imageSrc" />
                         </div>
                       </div>
@@ -424,6 +396,26 @@
       :removeChannelFailed="removeChannelFailed"
       :removeFriendFailed="removeFriendFailed"
     />
+    <!--Modals-->
+    <Modal
+      :modalStates="modalStates"
+      :channelName="channelName"
+      :friendName="friendName"
+      :userName="userName"
+      :currentUserName="currentUserName"
+      :user="user"
+      :message_text="message_text"
+      :passwordCheckBox="passwordCheckBox"
+      :password="password"
+
+      :addFriendFromDB="addFriendFromDB"
+      :createEmptyChannelInDB="createEmptyChannelInDB"
+      :createChannelInDB="createChannelInDB"
+      :createPrivateMessageInDB="createPrivateMessageInDB"
+      :joinChannelInDB="joinChannelInDB"
+      :removeFriendFromDB="removeFriendFromDB"
+      :togglePasswordInput="togglePasswordInput"
+    />  
   </body>
 </template>
 

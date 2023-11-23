@@ -61,7 +61,7 @@
           <div v-if="((user.gameWon / user.gamePlayed) * 100).toFixed(0) < 50 && ((user.gameWon / user.gamePlayed) * 100).toFixed(0) >= 30" class="stat-value text-yellow-500"> {{ ((user.gameWon / user.gamePlayed) * 100).toFixed(2) }} % </div>
           <div v-if="((user.gameWon / user.gamePlayed) * 100).toFixed(0) < 30" class="stat-value text-red-500"> {{ ((user.gameWon / user.gamePlayed) * 100).toFixed(2) }} % </div>
         </div>
-        <div v-else class="stat-value">{{ 100 }} % </div>
+        <div v-else class="stat-value text-green-500">{{ 100 }} % </div>
       </div>
     </div>
   </div>
