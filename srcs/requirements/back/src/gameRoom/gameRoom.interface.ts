@@ -1,5 +1,4 @@
 import { User } from '../user/user.interface';
-import { Score } from '../score/score.interface';
 
 import {
     Engine,
@@ -24,8 +23,7 @@ export interface GameRoom {
     engine: Engine | null ;
     entities: Entities | null;
     nbBounces: number;
-    scoreActual: Map<string, number>;
-    score: Score[];
+    score: Map<string, number>;
     running: boolean;
     started: boolean;
     paused: boolean;

@@ -1,5 +1,4 @@
 import { User } from '../user/user.interface';
-import { Score } from '../score/score.interface';
 import { GameRoom } from './gameRoom.interface';
 
 import {
@@ -38,8 +37,7 @@ export type BotGameRoom = Omit<GameRoom, 'player2UserId' | 'player2SocketId' | '
           engine: null,
           entities: null,
           nbBounces: 0,
-          scoreActual: new Map<string, number>(),
-          score: [],
+          score: new Map<string, number>(),
           running: false,
           started: false,
           paused: false,
@@ -64,8 +62,7 @@ export type BotGameRoom = Omit<GameRoom, 'player2UserId' | 'player2SocketId' | '
           engine: null,
           entities: null,
           nbBounces: 0,
-          scoreActual: new Map<string, number>(),
-          score: [],
+          score: new Map<string, number>(),
           running: false,
           started: false,
           paused: false,

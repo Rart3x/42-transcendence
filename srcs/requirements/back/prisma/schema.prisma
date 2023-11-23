@@ -33,7 +33,7 @@ model GameRoom {
   player1Ready Boolean @default(false)
   player2Ready Boolean @default(false)
 
-  score        Json
+  score       Score?
 
   nbBounces    Int      @default(0)
 
@@ -95,35 +95,54 @@ model Stat {
   users       User[]    @relation("UserStats")
 }
 
+model Score {
+ id         Int @id @default(autoincrement())
+ score     UserScore[]
+ gameRoomId Int @unique
+ gameRoom  GameRoom @relation(fields: [gameRoomId], references: [id])
+}
+
+model UserScore {
+  id        Int @id @default(autoincrement())
+  time     DateTime
+  scoreA   Int @default(0)
+  scoreB   Int @default(0)
+  scorerId Int
+  scorer   User @relation(fields: [scorerId], references: [userId])
+  score    Score @relation(fields: [id], references: [id])
+}
+
 model User {
-  userId        Int        @id @unique @default(autoincrement())
-  userName      String?    @unique
+  userId       Int       @id @unique @default(autoincrement())
+  userName     String?   @unique
 
-  blockUsers    User[]     @relation("BlockUser")
-  blockOf       User[]     @relation("BlockUser")
+  blockUsers   User[]    @relation("BlockUser")
+  blockOf      User[]    @relation("BlockUser")
 
-  matchmakingScore   Int   @default(1000)
+  matchmakingScore  Int  @default(1000)
 
-  channels      Channel[]  @relation("ChannelUser")
-  channelsOp    Channel[]  @relation("ChannelOperator")
-  channelsBan   Channel[]  @relation("ChannelUserBan")
-  channelsMute  Channel[]  @relation("ChannelUserMute")
+  channels     Channel[] @relation("ChannelUser")
+  channelsOp   Channel[] @relation("ChannelOperator")
+  channelsBan  Channel[] @relation("ChannelUserBan")
+  channelsMute Channel[] @relation("ChannelUserMute")
   
-  friends       User[]     @relation("Friendship")
-  friendOf      User[]     @relation("Friendship")
+  friends      User[]    @relation("Friendship")
+  friendOf     User[]    @relation("Friendship")
 
-  gameRoomId    Int?
-  gameRoom      GameRoom?  @relation(fields: [gameRoomId], references: [id])
-  gamePlayed    Int        @default(0)
-  gameWon       Int        @default(0)
+  gameRoomId   Int?
+  gameRoom     GameRoom? @relation(fields: [gameRoomId], references: [id])
+  gamePlayed   Int       @default(0)
+  gameWon      Int       @default(0)
 
-  messages      Message[]
+  messages     Message[]
 
-  privateMessagesSent      PrivateMessage[] @relation("PrivateMessageSender")
-  privateMessagesReceived  PrivateMessage[] @relation("PrivateMessageReceiver")
+  privateMessagesSent     PrivateMessage[] @relation("PrivateMessageSender")
+  privateMessagesReceived PrivateMessage[] @relation("PrivateMessageReceiver")
 
-  queueId       Int?
-  queue         QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
+  queueId      Int?
+  queue        QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
+
+  scorer       UserScore[]
 
   stat          Stat[]     @relation("GameStats")
   stats         Stat[]     @relation("UserStats")

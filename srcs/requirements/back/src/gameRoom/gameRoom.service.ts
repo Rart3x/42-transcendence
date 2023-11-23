@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
-import { GameRoom, Prisma } from '@prisma/client';
-import { Score } from '../score/score.interface';
+import { GameRoom, Prisma, Score } from '@prisma/client';
 
 @Injectable()
 export class GameRoomService {
@@ -19,7 +18,6 @@ export class GameRoomService {
           player1SocketId: player1[1],
           botGame: isBotGame,
           customGame: isCustomGame,
-          score : JSON.stringify([]),
           startDate: new Date(),
           users: {
             connect: [
@@ -36,7 +34,6 @@ export class GameRoomService {
           player2SocketId: player2[1],
           botGame: isBotGame,
           customGame: isCustomGame,
-          score : JSON.stringify([]),
           startDate: new Date(),
           users: {
             connect: [
@@ -53,10 +50,8 @@ export class GameRoomService {
     gameRoomId: number,
     player1SocketId: string,
     player2SocketId: string,
-    score: Score[],
     nbBounces: number): Promise<GameRoom> {
-    const scoreJson = JSON.stringify(score);
-  
+    
     return await this.prisma.gameRoom.update({
       where: {
         id: gameRoomId,
@@ -67,7 +62,6 @@ export class GameRoomService {
         running: false,
         endDate: new Date(),
         nbBounces: nbBounces,
-        score: scoreJson
       },
     });
   }

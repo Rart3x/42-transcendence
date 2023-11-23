@@ -32,12 +32,12 @@ import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import { QueueListService } from '../queueList/queueList.service';
 import { UserService } from '../user/user.service';
 import { GameRoomService } from '../gameRoom/gameRoom.service';
+import { ScoreService } from '../score/score.service';
 
 //ORM
 import { Prisma } from '@prisma/client';
 
 //Interfaces
-import { Score } from '../score/score.interface';
 import { GameRoom } from '../gameRoom/gameRoom.interface';
 
 //Initialize the snapshot library
@@ -46,10 +46,8 @@ const SI = new SnapshotInterpolation();
 //Entities
 import Entities from '../entities/entities';
 import Ball from '../entities/ball';
-import Player from '../entities/player';
+import Player from '../entities/player';        
 
-//???
-import { takeCoverage } from 'v8';
 
 //Server
 import { Server } from 'ws';
@@ -104,7 +102,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	constructor(
 		private readonly QueueListService: QueueListService,
 		private readonly GameRoomService: GameRoomService,
-		private readonly UserService: UserService
+		private readonly UserService: UserService,
+		private readonly ScoreService: ScoreService
 	){}
 
 	handleConnection(){}
@@ -144,10 +143,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					//If the game was launch then save her state every SERVER_REFRESH_RATE ms and sending it to game both players of the game.
 					//If it wasnt then launch the game engine
 					if (this.gameRooms[i].botGame == false){
+						const scorePlayer1 = this.gameRooms[i].score.get(this.gameRooms[i].player1SocketId);
+						const scorePlayer2 = this.gameRooms[i].score.get(this.gameRooms[i].player2SocketId)
 						this.checkWinConditionMultiGame(this.gameRooms[i]);
 						if (this.gameRooms[i].finish){
 
-							if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
+							if (scorePlayer1 > scorePlayer2){
 								
 								this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
 								this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
@@ -176,13 +177,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
 							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 	
+							//faut rajouter le score
 							this.gameRooms[i].finish = true;
 							this.gameRooms[i].endDate = new Date();
 							this.GameRoomService.updateGameRoom(
 								this.gameRooms[i].roomId,
 								this.gameRooms[i].player1SocketId,
 								this.gameRooms[i].player2SocketId,
-								this.gameRooms[i].score,
 								this.gameRooms[i].nbBounces);
 						}
 						if (this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
@@ -198,9 +199,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						}
 					}
 					else if (this.gameRooms[i].botGame == true){
+						const scorePlayer1 = this.gameRooms[i].score.get(this.gameRooms[i].player1SocketId);
+						const scorePlayer2 = this.gameRooms[i].score.get(this.gameRooms[i].player2SocketId)
 						this.checkWinConditionBotGame(this.gameRooms[i]);
 						if (this.gameRooms[i].finish){
-							if (this.gameRooms[i].score[this.gameRooms[i].score.length - 1].scorerId == this.gameRooms[i].player1UserId){
+							if (scorePlayer1 > scorePlayer2){
 								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 									winUserId: this.gameRooms[i].player1UserId
 								});
@@ -240,17 +243,17 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	checkWinConditionMultiGame(gameRoom: GameRoomType){
-		const scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
+		const scorePlayer1 = gameRoom.score.get(gameRoom.player1SocketId);
 
-		const scorePlayer2 = gameRoom.scoreActual.get(gameRoom.player2SocketId);
+		const scorePlayer2 = gameRoom.score.get(gameRoom.player2SocketId);
 
 		(scorePlayer1 >= 3 || scorePlayer2 >= 3) ? gameRoom.finish = true : gameRoom.finish = false;
 	}
 
 	checkWinConditionBotGame(gameRoom: GameRoomType){
-		const scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
+		const scorePlayer1 = gameRoom.score.get(gameRoom.player1SocketId);
 
-		const scorePlayer2 = gameRoom.scoreActual.get("bot");
+		const scorePlayer2 = gameRoom.score.get("bot");
 
 		(scorePlayer1 >= 3 || scorePlayer2 >= 3) ? gameRoom.finish = true : gameRoom.finish = false;
 	}
@@ -265,8 +268,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		gameRoom.engine.gravity.y = 0;
 
 		//Default score
-		gameRoom.scoreActual.set(player1[1], 0);
-		gameRoom.scoreActual.set("bot", 0);
+		gameRoom.score.set(player1[1], 0);
+		gameRoom.score.set("bot", 0);
 
 		gameRoom.entities = new Entities(false, player1[1], "bot");
 		gameRoom.world = gameRoom.engine.world;
@@ -284,8 +287,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		gameRoom.engine.gravity.y = 0;
 
 		//Default score
-		gameRoom.scoreActual.set(player1[1], 0);
-		gameRoom.scoreActual.set(player2[1], 0);
+		gameRoom.score.set(player1[1], 0);
+		gameRoom.score.set(player2[1], 0);
 
 		gameRoom.entities = new Entities(customGame, player1[1], player2[1])
 		gameRoom.world = gameRoom.engine.world;
@@ -370,50 +373,29 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoomType) => {
 			let scorerId : number;
-			let scorePlayer1 = gameRoom.scoreActual.get(gameRoom.player1SocketId);
-			var scorePlayer2 : number;
-			if (gameRoom.botGame){
-				scorePlayer2  = gameRoom.scoreActual.get("bot");
-			}
-			else{
-				scorePlayer2  = gameRoom.scoreActual.get(gameRoom.player2SocketId);
-			}
+			let scorePlayer1 = gameRoom.score.get(gameRoom.player1SocketId);
+			var scorePlayer2  = gameRoom.score.get(gameRoom.player2SocketId);
 
-			if (gameRoom.player1Disconnected == false && (gameRoom.player2Disconnected == false || gameRoom.botGame)){
+			if (gameRoom.finish == false && gameRoom.player1Disconnected == false && (gameRoom.player2Disconnected == false || gameRoom.botGame)){
 				if (pair.bodyA.label == "left"){
 					scorerId = gameRoom.player2UserId;
-					if (gameRoom && gameRoom.botGame){
-						// gameRoom.scoreActual.set("bot", ++scorePlayer2);
-					}
-					else{
-						gameRoom.scoreActual.set(gameRoom.player2SocketId, ++scorePlayer2);
-					}
+					gameRoom.score.set(gameRoom.player2SocketId, ++scorePlayer2);
+					this.ScoreService.updateGameRoomScore(
+						gameRoom.roomId,
+						scorerId,
+						scorePlayer1,
+						scorePlayer2);
 				}
 				else{
 					scorerId = gameRoom.player1UserId;
-					gameRoom.scoreActual.set(gameRoom.player1SocketId, ++scorePlayer1);
+					gameRoom.score.set(gameRoom.player1SocketId, ++scorePlayer1);
+					this.ScoreService.updateGameRoomScore(
+						gameRoom.roomId,
+						scorerId,
+						scorePlayer1,
+						scorePlayer2);
 				}
 
-				// gameRoom.entities.players[1].gameObject.position.x = 940;
-				// gameRoom.entities.players[1].gameObject.position.y = 400;
-				let scoreDate = new Date();
-	
-				let timeDiff = (scoreDate.valueOf() - gameRoom.startDate.valueOf()) / 1000;
-				let newScore : Score = {
-					time: timeDiff,
-					scorerId: scorerId,
-					score: [
-						{
-							userId: gameRoom.player1UserId,
-							score: scorePlayer1 
-						},
-						{
-							userId: gameRoom.player2UserId,
-							score: scorePlayer2 
-						}
-					]
-				}
-				gameRoom.score.push(newScore);
 			}
 		}
 
@@ -440,8 +422,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
-					player1: gameRoom.scoreActual.get(gameRoom.player1SocketId),
-					player2: gameRoom.scoreActual.get(gameRoom.player2SocketId)
+					player1: gameRoom.score.get(gameRoom.player1SocketId),
+					player2: gameRoom.score.get(gameRoom.player2SocketId)
 				},
 				ball: {
 					y: randY,
@@ -449,8 +431,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			});
 			this.server.to(gameRoom.player2SocketId).emit('scorePoint', {
 				score : {
-					player1: gameRoom.scoreActual.get(gameRoom.player1SocketId),
-					player2: gameRoom.scoreActual.get(gameRoom.player2SocketId)
+					player1: gameRoom.score.get(gameRoom.player1SocketId),
+					player2: gameRoom.score.get(gameRoom.player2SocketId)
 				},
 				ball: {
 					y: randY,
