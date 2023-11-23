@@ -6,7 +6,6 @@
   import { getUserByCookie, getAllUsers } from "./api/get.call.ts";
   import { setStatus } from "./api/post.call.ts";
 
-
   const userName = ref("");
   let user = ref(null);
   let imageSrc = ref(null);
@@ -56,7 +55,7 @@
 
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <div class="drawer">
+      <div class="drawer z-[1]">
         <input id="my-drawer" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content">
           <label for="my-drawer" tabindex="0" class="btn btn-ghost btn-circle">
@@ -94,7 +93,7 @@
             </div>
           </label>
         </div> 
-        <div class="drawer-side">
+        <div class="drawer-side z-[1]">
           <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
           <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
             <li> <router-link to="/profile"> Profile </router-link> </li>
