@@ -1,4 +1,3 @@
-
 <script setup>
   import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
@@ -19,7 +18,6 @@
     games.value = await getGameRoomByUserId(user.value.userId);
     
   });
-
 </script>
 
 <template>

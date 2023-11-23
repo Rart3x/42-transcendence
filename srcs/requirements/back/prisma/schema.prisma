@@ -33,7 +33,7 @@ model GameRoom {
   player1Ready Boolean @default(false)
   player2Ready Boolean @default(false)
 
-  score       Score?
+  score        Score?
 
   nbBounces    Int      @default(0)
 
@@ -96,14 +96,14 @@ model Stat {
 }
 
 model Score {
- id         Int @id @default(autoincrement())
- score     UserScore[]
- gameRoomId Int @unique
- gameRoom  GameRoom @relation(fields: [gameRoomId], references: [id])
+  id         Int @id @default(autoincrement())
+  score      UserScore[]
+  gameRoomId Int @unique
+  gameRoom   GameRoom @relation(fields: [gameRoomId], references: [id])
 }
 
 model UserScore {
-  id        Int @id @default(autoincrement())
+  id       Int @id @default(autoincrement())
   time     DateTime
   scoreA   Int @default(0)
   scoreB   Int @default(0)

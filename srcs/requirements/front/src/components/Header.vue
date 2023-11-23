@@ -50,17 +50,6 @@
     users.value = allUsers;
   });
 
-  const dropdownOpen = ref(false);
-  const picDropdownOpen = ref(false);
-
-  const toggleDropdown = () => {
-    dropdownOpen.value = !dropdownOpen.value;
-  };
-
-  const picToggleDropdown = () => {
-    picDropdownOpen.value = !picDropdownOpen.value;
-  };
-
 </script>
 
 <template>
