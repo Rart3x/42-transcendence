@@ -6,6 +6,8 @@
   let text = ' ft_transcendence';
   let currentIndex = ref(-1);
 
+  const user = ref(null);
+
   const signInWithIntra = () => {
     window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${
       import.meta.env.VITE_CLIENT_ID
@@ -13,19 +15,17 @@
   };
 
   onMounted(async () => {
-    const user = await getUserByCookie(Cookies.get("_authToken"));
-    if (user) {
+    user.value = await getUserByCookie(Cookies.get("_authToken"));
+    if (user)
       animateText();
-    }
   });
 
   const animateText = () => {
     const interval = setInterval(() => {
-      if (currentIndex.value < text.length) {
+      if (currentIndex.value < text.length)
         currentIndex.value++;
-      } else {
+      else
         clearInterval(interval);
-      }
     }, 200);
   };
 </script>
@@ -60,15 +60,7 @@
 
 
 <style scoped>
-  body {
-    min-height: 100%;
-  }
-
-  .highlight {
-    background-color: #f0f0f0;
-  }
-
-  .visible {
-    background-color: transparent;
-  }
+  body { min-height: 100%; }
+  .highlight { background-color: #f0f0f0; }
+  .visible { background-color: transparent; }
 </style>
