@@ -64,22 +64,6 @@ export async function getChannelByName(channelName : string) {
   return null;
 }
 
-export async function isOperator(channelName: string, userName: string) {
-  try { 
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/isOperator/${userName}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response)
-      return await response.json();
-  }
-  catch (error) {
-    console.error('error: sending GET request', error);
-  }
-}
-
 export async function isUserInChannel(channelName : string, userName : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/isUser/${userName}`, {
@@ -102,23 +86,6 @@ export async function isUserInChannel(channelName : string, userName : string) {
 export async function isUserBanInChannel(channelName : string, userName : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/isBan/${userName}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok)
-      return await response.json();
-  }
-  catch (error) {
-    console.error('error: sending GET request', error);
-  }
-  return null;
-}
-
-export async function isUserMuteInChannel(channelName : string, userName : string) {
-  try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/isMute/${userName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

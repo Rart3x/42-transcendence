@@ -269,13 +269,13 @@ export class ChannelService {
   async getChannelByName(channelName: string): Promise<Channel> {
     const channel = await this.prisma.channel.findUnique({
       where: { channelName: channelName },
-       include: {
+      include: {
         channelUsers: true,
         channelUsersBan: true,
         channelUsersMute: true,
         channelOperators: true,
         channelMessages: true,
-       }, 
+      }, 
     });
     if (!channel)
       console.error("error: channel not found");

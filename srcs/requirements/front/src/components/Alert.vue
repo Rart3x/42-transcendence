@@ -12,6 +12,7 @@
 			banFailed: Boolean,
 			blockSuccess: Boolean,
 			blockFailed: Boolean,
+			checkPassFailed: Boolean,
 			inviteInGameSuccess: Boolean,
 			inviteInGameFailed: Boolean,
 			joinChannelSuccess: Boolean,
@@ -89,6 +90,12 @@
 	<div v-if="blockFailed" class="toast toast-start">
 		<div class="alert alert-error">
 		<span>Failed to block User</span>
+		</div>
+	</div>
+
+	<div v-if="checkPassFailed" class="toast toast-start">
+		<div class="alert alert-error">
+			<span>Invalid Password</span>
 		</div>
 	</div>
 

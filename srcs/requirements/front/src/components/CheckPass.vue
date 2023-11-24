@@ -1,5 +1,7 @@
 <script setup>
 	import sha256 from 'js-sha256';
+  import Alert from './Alert.vue';
+  import Modal from './Modal.vue';
   import { onMounted, ref } from 'vue'
 	import { checkPass } from './api/post.call';
 	import { useRoute, useRouter } from 'vue-router';
@@ -17,7 +19,7 @@
     const response = await checkPass(route.params.channelName, hashedPassword);
     
     if (response && response.success){
-      modalManageChannel.value.open = false;
+      modalCheckPass.value.open = false;
       router.push(`/channel/${route.params.channelName}`);
     }
     else { 
@@ -26,34 +28,29 @@
         checkPassFailed.value = false;
       }, 3000);
     }
-  };	
+  };
+  
+  const closeModal = () => { modalCheckPass.value.open = false;};
 
   onMounted(() => {
-    if (modalManageChannel.value) {
-      modalManageChannel.value.show();
-    }
+    if (modalCheckPass.value)
+      modalCheckPass.value.show();
   });
 </script>
 
 <template>
-  <dialog ref="modalManageChannel" class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box w-11/12 max-w-5xl">
-		<form class="dialogModalChannel" @submit.prevent="checkPassInDB(password)">
-			<label>Enter <b>{{ $route.params.channelName }}</b> password</label><br><br>
-			<input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
-			<br><br>
-			<button class="btn">Submit</button>
-		</form>
-	</div>
-	</dialog>
 
   <div class="background"></div>
 
-  <div v-if="checkPassFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Invalid Password</span>
-    </div>
-  </div>
+  <!--Alerts-->
+  <Alert
+    checkPassFailed="checkPassFailed"
+  />
+
+  <!--Modals-->
+  <Modal
+    checkPassInDB="checkPassInDB"
+  />  
 
 </template>
 

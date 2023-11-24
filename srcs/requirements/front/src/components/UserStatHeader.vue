@@ -15,7 +15,7 @@
 </script>
 
 <template>
-	<div class="stats shadow flex flex-row">
+	<div class="stats shadow flex flex-row font-mono">
 		<div class="stat">
 			<div class="stat-title">Username</div>
 			<div class="stat-value">{{ userName }}</div>
