@@ -130,8 +130,7 @@ model User {
   friends      User[]    @relation("Friendship")
   friendOf     User[]    @relation("Friendship")
 
-  gameRoomId   Int?
-  gameRoom     GameRoom? @relation(fields: [gameRoomId], references: [id])
+  gameRoom     GameRoom[]
   gamePlayed   Int       @default(0)
   gameWon      Int       @default(0)
 

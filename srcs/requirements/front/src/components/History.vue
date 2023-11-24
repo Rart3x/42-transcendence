@@ -26,7 +26,7 @@
     :gamePlayed="user.gamePlayed"
     :gameWon="user.gameWon"
     />
-  <!-- <div>
+  <div>
     <div class="overflow-x-auto min-h-screen bg-base-200">
       <div class="grid-container">
         <div class="table">
@@ -61,7 +61,7 @@
         <br>
       </div>
     </div>
-  </div> -->
+  </div>
 </template>
 
 <style scoped>
