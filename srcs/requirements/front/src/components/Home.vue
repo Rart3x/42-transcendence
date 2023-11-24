@@ -5,6 +5,7 @@
 
   let text = ' ft_transcendence';
   let currentIndex = ref(-1);
+  let listItemIndex = ref(-1); // Index pour animer chaque élément de la liste
 
   const user = ref(null);
 
@@ -21,12 +22,33 @@
   });
 
   const animateText = () => {
-    const interval = setInterval(() => {
+    const textInterval = setInterval(() => {
       if (currentIndex.value < text.length)
         currentIndex.value++;
-      else
-        clearInterval(interval);
+      else {
+        clearInterval(textInterval);
+        animateList();
+      }
     }, 200);
+  };
+
+  const animateList = () => {
+    const listItems = document.querySelectorAll('.list-disc li');
+
+    const listInterval = setInterval(() => {
+      if (listItemIndex.value < listItems.length) {
+        animateListItem(listItems[listItemIndex.value]);
+        listItemIndex.value++;
+      }
+      else
+        clearInterval(listInterval);
+    }, 250);
+  };
+
+  const animateListItem = (element) => {
+    setTimeout(() => {
+      element.classList.add('animate');
+    }, 100);
   };
 </script>
 
@@ -39,9 +61,7 @@
             <span v-if="index === 0 || (index <= currentIndex && currentIndex !== -1)" :class="{ 'highlight': currentIndex === index, 'visible': currentIndex > index }">
               {{ letter }}
             </span>
-            <span v-else>
-              &nbsp;
-            </span>
+            <span v-else> &nbsp; </span>
           </template>
         </h1>
         <ul class="list-disc py-6 font-mono space-y-3 marker:text-secondary">
@@ -49,9 +69,13 @@
            <li>Chat with clients, channels, ...</li>
            <li>Profile customization, friends list, 2FA authentication</li>
          </ul>
-         <button v-if="!user" class="btn btn-glass flex-grow w-64 bg-primary text-white opacity-70" @click="signInWithIntra">
-          Sign in with 42
-        </button>
+         <ul class="list-disc" style="list-style-type: none;">
+          <li>
+            <button v-if="!user" class="btn btn-glass flex-grow w-64 bg-primary text-white opacity-70" @click="signInWithIntra">
+              Sign in with 42
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -61,4 +85,14 @@
   body { min-height: 100%; }
   .highlight { background-color: #f0f0f0; }
   .visible { background-color: transparent; }
+
+  .list-disc li {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  }
+  .list-disc li.animate {
+    opacity: 1;
+    transform: translateY(0);
+  }
 </style>
