@@ -1,5 +1,6 @@
 <script setup>
   import Cookies from "js-cookie";
+  import Drawer from "./Drawer.vue";
   import { computed } from "vue";
   import { onMounted, ref, unref } from "vue";
   import { RouterLink, RouterView } from "vue-router";
@@ -55,25 +56,7 @@
 
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <div class="drawer z-[1]">
-        <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-        <div class="drawer-content">
-          <label for="my-drawer" tabindex="0" class="btn btn-ghost btn-circle">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-            </svg>
-          </label>
-        </div> 
-        <div class="drawer-side font-mono">
-          <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-          <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-            <li> <router-link to="/"> Home </router-link> </li>
-            <li> <router-link to="/game"> Game </router-link> </li>
-            <li> <router-link to="/leaderboard"> Leaderboard </router-link> </li>
-            <li> <router-link to="/about"> About </router-link> </li>
-          </ul>
-        </div>
-      </div>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false"/>
     </div>
     <div class="navbar-center">
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
@@ -82,27 +65,7 @@
       </div>
     </div>
     <div class="navbar-end">
-      <div class="drawer-end">
-        <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
-        <div class="drawer-content">
-          <label for="my-drawer-4" tabindex="0" class="btn btn-ghost btn-circle">
-            <div class="avatar">
-              <div class="w-15 mask mask-squircle">
-                <img :src="imageSrc" />
-              </div>
-            </div>
-          </label>
-        </div> 
-        <div class="drawer-side z-[1] font-mono">
-          <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
-          <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-            <li> <router-link to="/profile"> Profile </router-link> </li>
-            <li> <router-link to="/history"> History </router-link> </li>
-            <li> <router-link to="/settings"> Settings </router-link> </li>
-            <li> <button @click="logout">Logout</button> </li>
-          </ul>
-        </div>
-      </div>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="true"/>
     </div>
   </div>
 </template>

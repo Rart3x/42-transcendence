@@ -2,7 +2,7 @@
   import Alert from './Alert.vue';
   import Cookies from "js-cookie";
   import { removeOperator, removeUserFromChannel } from "./api/delete.call";
-  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie, isUserMuteInChannel } from "./api/get.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie } from "./api/get.call";
   import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
@@ -51,7 +51,6 @@
   };
 
   const isUserMuteInChannelInDB = async (channelName, userId) => {
-    console.log(channelName, userId)
     const channel = await getChannelByName(channelName);
     if (channel && channel.channelUsersMute)
       return channel.channelUsersMute.some(operator => operator.userId === userId);
