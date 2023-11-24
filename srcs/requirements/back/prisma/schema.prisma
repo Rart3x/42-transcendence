@@ -96,9 +96,9 @@ model Stat {
 }
 
 model Score {
-  id         Int @id @default(autoincrement())
+  id    Int @id @default(autoincrement())
   score      UserScore[]
-  gameRoomId Int @unique
+  gameRoomId  Int @unique
   gameRoom   GameRoom @relation(fields: [gameRoomId], references: [id])
 }
 
@@ -108,8 +108,9 @@ model UserScore {
   scoreA   Int @default(0)
   scoreB   Int @default(0)
   scorerId Int
+  scoreId  Int
   scorer   User @relation(fields: [scorerId], references: [userId])
-  score    Score @relation(fields: [id], references: [id])
+  score    Score @relation(fields: [scoreId], references: [gameRoomId])
 }
 
 model User {
