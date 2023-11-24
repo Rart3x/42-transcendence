@@ -153,7 +153,6 @@
     friends.value = await getAllFriends(userName);
   };
 
-
   const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
     router.push('/game');
     socket.emit('localGame', user.value.userId);

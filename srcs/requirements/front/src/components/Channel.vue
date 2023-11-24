@@ -2,7 +2,7 @@
   import Alert from './Alert.vue';
   import Cookies from "js-cookie";
   import { removeOperator, removeUserFromChannel } from "./api/delete.call";
-  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie, isUserBanInChannel, isOperator, isUserMuteInChannel } from "./api/get.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie, isUserMuteInChannel } from "./api/get.call";
   import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
@@ -25,7 +25,6 @@
   let muteFailed = ref(false);
 
   let actualUserMuted = ref(false);
-  let actualUserOperator = ref(false);
 
   const banUserFromChannelInDB = async (channelName, userName) => {
     const response = await banUserFromChannel(channelName, userName);
@@ -45,14 +44,17 @@
     users.value = await getUsersFromChannel(route.params.channelName);
   };
 
-  const isOperatorInDB = async (channelName, userName) => {
-    actualUserOperator.value =  await isOperator(channelName, userName);
-    return true;
+  const isOperatorInDB = async (channelName, userId) => {
+    const channel = await getChannelByName(channelName);
+    if (channel && channel.channelOperators)
+      return channel.channelOperators.some(operator => operator.userId === userId);
   };
 
-  const isUserMuteInChannelInDB = async () => {
-    const response = await isUserMuteInChannel(route.params.channelName, actualUser.  userName);
-    actualUserMuted.value = response.success;
+  const isUserMuteInChannelInDB = async (channelName, userId) => {
+    console.log(channelName, userId)
+    const channel = await getChannelByName(channelName);
+    if (channel && channel.channelUsersMute)
+      return channel.channelUsersMute.some(operator => operator.userId === userId);
   };
 
   const muteUserFromChannelInDB = async (channelName, userName) => {
@@ -135,6 +137,7 @@
         actualUser.value.image = userImage.default;
       });
     }
+    actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId);
 
     let usersData = await getUsersFromChannel(route.params.channelName);
     for (let user of usersData) {
@@ -142,6 +145,7 @@
       await import(/* @vite-ignore */ imagePath).then((image) => {
         user.imageSrc = image.default;
       });
+      user.isOperator = await isOperatorInDB(route.params.channelName, user.userId);
     }
 
     messages.value = await getMessagesFromChannel(route.params.channelName);
@@ -156,9 +160,6 @@
       }
     }
     users.value.splice(0, users.value.length, ...usersData);
-
-    await isUserMuteInChannelInDB();
-    await isOperatorInDB(route.params.channelName, actualUser.value.userName);
   });
 </script>
  
@@ -200,8 +201,8 @@
                   <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
                   <button class="btn glass btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
                   <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
-                  <button v-if="!actualUserOperator" class="btn glass btn-success" @click="addOperator($route.params.channelName, user.userName)" >Promote</button>
-                  <button v-else-if="actualUserOperator" class="btn glass btn-error" @click="removeOperator($route.params.channelName, user.userName)">Depreciate</button>
+                  <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperator($route.params.channelName, user.userName)" >Promote</button>
+                  <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperator($route.params.channelName, user.userName)">Depreciate</button>
                 </div>
               </td>
             </tr>
@@ -210,7 +211,6 @@
       </div>
     </div>
     <!--Chat-->
-    <!-- Penser a ajouter lhoraire denvoi et aussi le focus de la navabar en bas de la box-->
     <div class="overflow-x-auto min-h-screen bg-base-200 chat-box" style="text-align: center">
       <div class="chat-messages">
         <div v-for="(message, index) in messages" :key="index" class="message">
@@ -245,7 +245,7 @@
         </div>
       </div>
       <div class="chat-input">
-        <div class="userMutedOrNot" v-if="!actualUserMuted.valueOf()" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
+        <div class="userMutedOrNot" v-if="!actualUserMuted" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
           <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
           <button class="btn glass btn-primary" @click="sendMessage">Send</button>
         </div>
