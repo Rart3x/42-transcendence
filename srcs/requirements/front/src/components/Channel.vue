@@ -163,7 +163,7 @@
 </script>
  
 <template>
-  <div class="navbar bg-base-100 overflow-x-auto bg-base-200">
+  <div class="navbar bg-base-100 overflow-x-auto bg-base-200 font-mono">
     <div class="navbar-end">
       <details class="dropdown">
         <summary class="m-1 btn glass">{{ $route.params.channelName }}</summary>
@@ -173,7 +173,7 @@
       </details>
     </div>
   </div>
-  <div class="grid-container">
+  <div class="grid-container font-mono">
     <div class="overflow-x-auto min-h-screen bg-base-200">
       <div class="friend-list">
         <table class="table table-zebra">

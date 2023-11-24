@@ -64,7 +64,7 @@
             </svg>
           </label>
         </div> 
-        <div class="drawer-side">
+        <div class="drawer-side font-mono">
           <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
           <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
             <li> <router-link to="/"> Home </router-link> </li>
@@ -76,7 +76,7 @@
       </div>
     </div>
     <div class="navbar-center">
-      <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" v-model="searchInput"/>
+      <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
       <div v-show="searchInput" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
         <router-link v-for="user in filteredUsers" :key="user.id" :to="'/profile/' + user.userName" class="dropdown-item">{{ user.userName }}</router-link>
       </div>
@@ -93,7 +93,7 @@
             </div>
           </label>
         </div> 
-        <div class="drawer-side z-[1]">
+        <div class="drawer-side z-[1] font-mono">
           <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
           <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
             <li> <router-link to="/profile"> Profile </router-link> </li>

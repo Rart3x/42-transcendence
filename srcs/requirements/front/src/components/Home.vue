@@ -5,7 +5,7 @@
 
   let text = ' ft_transcendence';
   let currentIndex = ref(-1);
-  let listItemIndex = ref(-1); // Index pour animer chaque élément de la liste
+  let listItemIndex = ref(-1);
 
   const user = ref(null);
 
@@ -91,8 +91,5 @@
     transform: translateY(20px);
     transition: opacity 0.3s ease-out, transform 0.3s ease-out;
   }
-  .list-disc li.animate {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  .list-disc li.animate { opacity: 1; transform: translateY(0); }
 </style>

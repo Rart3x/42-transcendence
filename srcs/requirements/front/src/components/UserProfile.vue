@@ -13,7 +13,7 @@
   import { setClientSocket } from './api/post.call';
 
   let adminImage = ref(null);
-  let currentUserName = ref(null);
+  let currentUserName = ref("");
 
   let channelName = ref("");
   const friendName = ref("");
@@ -44,7 +44,7 @@
   let removeFriendFailed = ref(false);
 
   let message_text = ref("");
-  let passwordCheckBox = false;
+  let passwordCheckBox = ref(false);
   let password = ref("");
 
   const addFriendFromDB = async (userName, friendName) => {
@@ -195,9 +195,9 @@
   };
 
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
-  const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName = userName; };
+  const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName.value = userName; };
   const openManageChannelModal = () => { modalStates.modalManageChannel.value = true; };
-  const openMessageModal = () => { modalStates.modalMessage.value = true; };
+  const openMessageModal = (userName) => { modalStates.modalMessage.value = true; currentUserName.value = userName; };
 
   var router;
   onMounted(async () => {
@@ -258,7 +258,7 @@
     :gameWon="user.gameWon"
   />
   <body>
-    <div class="overflow-x-auto min-h-screen bg-base-200">
+    <div class="overflow-x-auto min-h-screen bg-base-200 font-mono">
       <div class="buttons">
         <button class="btn glass" @click="showContent('friends')">Friends</button>
         <button class="btn glass" @click="showContent('channels')">Channels</button>
@@ -398,17 +398,14 @@
     />
     <!--Modals-->
     <Modal
-      :modalStates="modalStates"
-      :channelName="channelName"
-      :friendName="friendName"
-      :userName="userName"
       :currentUserName="currentUserName"
+      :friendName="friendName"
+      :modalStates="modalStates"
       :user="user"
-      :message_text="message_text"
-      :passwordCheckBox="passwordCheckBox"
-      :password="password"
+      :userName="userName"
 
       :addFriendFromDB="addFriendFromDB"
+      :closeModal="closeModal"
       :createEmptyChannelInDB="createEmptyChannelInDB"
       :createChannelInDB="createChannelInDB"
       :createPrivateMessageInDB="createPrivateMessageInDB"
