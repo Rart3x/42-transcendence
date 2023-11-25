@@ -20,6 +20,9 @@ model Channel {
   channelUsers      User[]      @relation("ChannelUser")
   channelUsersBan   User[]      @relation("ChannelUserBan")
   channelUsersMute  User[]      @relation("ChannelUserMute")
+  
+  channelUsersMuted  UserChannelMute[]
+
 
   isPrivate         Boolean     @default(false)
 }
@@ -135,6 +138,8 @@ model User {
   channelsOp   Channel[] @relation("ChannelOperator")
   channelsBan  Channel[] @relation("ChannelUserBan")
   channelsMute Channel[] @relation("ChannelUserMute")
+
+  mutedChannels   UserChannelMute[]
   
   friends      User[]    @relation("Friendship")
   friendOf     User[]    @relation("Friendship")
@@ -169,4 +174,14 @@ model User {
   A2F           Boolean    @default(false)
   A2FSecret     String?
   A2FUrl        String?
+}
+
+model UserChannelMute {
+  id              Int       @id @default(autoincrement())
+  mutedUntil      DateTime
+
+  user            User      @relation(fields: [userId], references: [userId])
+  userId          Int
+  channel         Channel   @relation(fields: [channelId], references: [channelId])
+  channelId       Int
 }

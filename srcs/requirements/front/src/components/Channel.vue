@@ -1,5 +1,6 @@
 <script setup>
   import Alert from './Alert.vue';
+  import Modal from './Modal.vue';
   import Cookies from "js-cookie";
   import { removeOperator, removeUserFromChannel } from "./api/delete.call";
   import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie } from "./api/get.call";
@@ -11,6 +12,8 @@
   let channel = ref(null);
   let messages = ref([]);
   let users = ref([]);
+
+  let channelNameMute = ref("");
 
   let message_text = ref("");
 
@@ -25,6 +28,14 @@
   let muteFailed = ref(false);
 
   let actualUserMuted = ref(false);
+
+  let modalMuteUser = ref(false);
+  let userMuted = ref("");
+
+  let selectedDuration = ref(1);
+
+  const closeMuteModal = () => { modalMuteUser.value = false; };
+  const openMuteModal = (userMutedName) => { modalMuteUser.value = true; userMuted.value = userMutedName};
 
   const banUserFromChannelInDB = async (channelName, userName) => {
     const response = await banUserFromChannel(channelName, userName);
@@ -56,8 +67,8 @@
       return channel.channelUsersMute.some(operator => operator.userId === userId);
   };
 
-  const muteUserFromChannelInDB = async (channelName, userName) => {
-    const response = await muteUserFromChannel(channelName, userName);
+  const muteUserFromChannelInDB = async (channelNameMute, userName, selectedDuration) => {
+    const response = await muteUserFromChannel(channelNameMute, userName, selectedDuration);
 
     if (response && response.success) {
       muteSuccess.value = true;
@@ -124,6 +135,7 @@
     if (!actualUser.value) window.location.href = "/";
 
     channel.value = await getChannelByName(route.params.channelName);
+    channelNameMute.value = route.params.channelName;
 
     if (channel.value && channel.value.channelUsers) {
       const userWithSameId = channel.value.channelUsers.find(user => user.userId === actualUser.value.userId);
@@ -198,7 +210,7 @@
               <td v-if="channel.channelAdmin == actualUser.userId">
                 <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
                   <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
-                  <button class="btn glass btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
+                  <button class="btn glass btn-warning" @click="openMuteModal(user.userName)">Mute</button>
                   <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
                   <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperator($route.params.channelName, user.userName)" >Promote</button>
                   <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperator($route.params.channelName, user.userName)">Depreciate</button>
@@ -259,6 +271,14 @@
     :muteFailed="muteFailed"
     :banSuccess="banSuccess"
     :banFailed="banFailed"
+  />
+  <Modal
+    :muteUserFromChannelInDB="muteUserFromChannelInDB"
+    :closeMuteModal="closeMuteModal"
+    :modalMuteUser="modalMuteUser" :parent="'channel'"
+    :channelNameMute="channelNameMute"
+    :userMuted="userMuted"
+
   />
 </template>
 

@@ -314,15 +314,16 @@ export async function insertUser(userName: string, image: string, cookie: string
   }
 }
 
-export async function muteUserFromChannel(channelName : string, userName : string) {
+export async function muteUserFromChannel(channelName : string, userName : string, duration : number) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/mute/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ channelName: channelName, userName: userName }),
+      body: JSON.stringify({ channelName: channelName, userName: userName, duration: duration }),
     });
+    console.log(channelName, userName, duration); 
     if (response.ok) {
       const responseData = await response.json();
       return responseData;

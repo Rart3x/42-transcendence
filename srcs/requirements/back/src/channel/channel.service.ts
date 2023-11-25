@@ -385,30 +385,25 @@ export class ChannelService {
     return false;
   }
 
-  async muteUserFromChannel(channelName: string, userName: string): Promise<boolean> {
+  async muteUserFromChannel(channelName: string, userName: string, duration: number): Promise<boolean> {
     const channel = await this.getChannelByName(channelName);
     const user = await this.userService.getUserByName(userName);
   
-    if (!channel || !user)
+    if (!channel || !user) {
       return false;
+    }
   
-    await this.prisma.channel.update({
-      where: { channelId: channel.channelId },
+    const mutedUntil = new Date();
+    mutedUntil.setMinutes(mutedUntil.getMinutes() + duration);
+  
+    await this.prisma.userChannelMute.create({
       data: {
-        channelUsersMute: {
-          connect: { userId: user.userId },
-        },
+        mutedUntil: mutedUntil,
+        user: { connect: { userId: user.userId } },
+        channel: { connect: { channelId: channel.channelId } },
       },
     });
-
-    await this.prisma.user.update({
-      where: { userId: user.userId },
-      data: {
-        channelsMute: {
-          connect: { channelId: channel.channelId },
-        },
-      },
-    });
+  
     return true;
   }
 

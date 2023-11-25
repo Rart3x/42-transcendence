@@ -402,6 +402,7 @@
       :modalStates="modalStates"
       :user="user"
       :userName="userName"
+      :parent="'userProfile'"
 
       :addFriendFromDB="addFriendFromDB"
       :closeModal="closeModal"
