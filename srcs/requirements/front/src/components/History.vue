@@ -2,11 +2,11 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
   import { onMounted, ref } from "vue";
-  import { getGameRoomByUserId, getUserByCookie } from "./api/get.call";
+  import { getGameRoomByUserId, getUserByCookie, getAllScore } from "./api/get.call";
 
   let games = ref([]);
   let user = ref(null);
-
+  let scores = ref([]);
   let versusImage;
 
   onMounted(async () => {
@@ -15,9 +15,13 @@
     if (!user.value) window.location.href = "/";
     
     versusImage = "src/assets/vs.png";
-    // games.value = await getGameRoomByUserId(user.value.userId);
-    
+    games.value = await getGameRoomByUserId(user.value.userId);
+
+    for (let i = 0; i < games.value.length; i++){
+      scores.value.push(await getAllScore(games.value[i].score.id));
+    }
   });
+
 </script>
 
 <template>
@@ -26,6 +30,7 @@
     :gamePlayed="user.gamePlayed"
     :gameWon="user.gameWon"
     />
+
   <div>
     <div class="overflow-x-auto min-h-screen bg-base-200">
       <div class="grid-container">
@@ -36,7 +41,10 @@
                 <td>
                   <div class="collapse bg-base-200">
                     <label for="collapse1" class="collapse-title text-xl font-medium">
-                      <span class="text-before">{{ game.users[0].userName }}</span>
+                      <span v-if="game.customGame" class="text-before"> CUSTOM </span>
+                      <span v-else class="text-before"> NORMAL </span>
+                      <span class="text-before" >  {{ 1 }} </span>
+                      <span>{{ game.users[0].userName }}</span>
                       <div class="avatar">
                         <label tabindex="0" class="btn btn-ghost btn-circle">
                           <div class="w-15 mask mask-squircle">
@@ -44,13 +52,15 @@
                           </div>
                         </label>
                       </div>
-                      <span class="text-after">{{ game.users[1].userName }}</span>
+                      <span >{{ game.users[1].userName }}</span>
+                      <span class="text-after"> {{ 1 }} </span>
                     </label>
                     <input type="checkbox" id="collapse1" class="collapse-checkbox" />
                     <div class="collapse-content">
-                      <p class="dark-row">{{ game.users[1] }}</p>
-                      <p class="dark-row">Contenu 2</p>
-                      <p class="dark-row">Contenu 3</p>
+                      <p v-for="score in scores[index]" class="dark-row flex flex-row">
+                        <span class="ml-auto">  {{ score.scoreA }} </span>
+                        <span class="mr-auto"> {{ score.scoreB }} </span>
+                      </p>
                     </div>
                   </div>
                 </td>

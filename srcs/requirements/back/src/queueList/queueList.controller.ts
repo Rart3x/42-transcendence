@@ -22,4 +22,3 @@ export class QueueListController {
     return this.QueueListService.sumQueueList();
   }
 }
-

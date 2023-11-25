@@ -96,6 +96,7 @@ export class GameRoomService {
       },
       include : {
         users: true,
+        score: true,
       },
     });
   }

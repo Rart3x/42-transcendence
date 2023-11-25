@@ -266,6 +266,26 @@ export async function getPrivateMessages(userName1 : string, userName2 : string)
   return null;
 }
 
+/*-----------------------------------------------SCORE-----------------------------------------------*/
+
+export async function getAllScore(gameRoomId: number) {
+  try {
+    console.log(gameRoomId);
+    const response = await fetch(`http://localhost:3000/score/getAllScore/${gameRoomId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
 /*-----------------------------------------------USERS-----------------------------------------------*/
 export async function isBlock(userName : string, blockedUserName : string){
   try {
