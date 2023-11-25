@@ -308,16 +308,12 @@ export async function getPrivateMessagesByUserName(userName : string) {
 
 export async function getAllScore(gameRoomId: number) {
   try {
-    console.log(gameRoomId);
     const response = await fetch(`http://localhost:3000/score/getAllScore/${gameRoomId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if (response.ok){
-      return await response.json();
-    }
     if (response.ok)
       return await response.json();
   }

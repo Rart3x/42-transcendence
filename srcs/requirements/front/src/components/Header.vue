@@ -65,7 +65,8 @@
 
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :notifs="notifs"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :notifs="notifs"
+      />
     </div>
     <div class="navbar-center">
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
@@ -74,7 +75,8 @@
       </div>
     </div>
     <div class="navbar-end">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="true" :privateMessages="privateMessages" :notifs="notifs"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="true" :privateMessages="privateMessages" :notifs="notifs"
+      />
     </div>
   </div>
 </template>

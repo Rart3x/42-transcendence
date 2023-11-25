@@ -7,18 +7,23 @@
   let games = ref([]);
   let user = ref(null);
   let scores = ref([]);
-  let versusImage;
+  let versusImage = ref(null);
 
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
 
     if (!user.value) window.location.href = "/";
     
-    versusImage = "src/assets/vs.png";
+    versusImage.value = "src/assets/vs.png";
     games.value = await getGameRoomByUserId(user.value.userId);
 
-    for (let i = 0; i < games.value.length; i++){
-      scores.value.push(await getAllScore(games.value[i].score.id));
+    for (let i = 0; i < games.value.length; i++) {
+      for (let j = 0; j < games.value[i].users.length; j++) {
+        const imagePath = "../assets/userImages/" + games.value[i].users[j].image;
+        const image = await import(/* @vite-ignore */ imagePath);
+        games.value[i].users[j].imageSrc = image.default;
+      }
+      scores.value.push(await getAllScore(games.value[i].id));
     }
   });
 
@@ -41,25 +46,45 @@
                 <td>
                   <div class="collapse bg-base-200">
                     <label for="collapse1" class="collapse-title text-xl font-medium">
-                      <span v-if="game.customGame" class="text-before"> CUSTOM </span>
-                      <span v-else class="text-before"> NORMAL </span>
-                      <span class="text-before" >  {{ 1 }} </span>
-                      <span>{{ game.users[0].userName }}</span>
+                      <!-- <span v-if="game.customGame" class="text-before"> CUSTOM </span>
+                      <span v-else class="text-before"> NORMAL </span> -->
+                      <span class="text-before">
+                        <label tabindex="0" class="btn glass btn-ghost btn-circle">
+                          <div class="avatar">
+                            <div class="w-20 mask mask-squircle">
+                              <img :src="game.users[0].imageSrc" />
+                            </div>
+                          </div>
+                        </label>
+                      </span>
                       <div class="avatar">
                         <label tabindex="0" class="btn btn-ghost btn-circle">
-                          <div class="w-15 mask mask-squircle">
+                          <div class="w-20 mask mask-squircle">
                             <img :src="versusImage" class="versus-image" />
                           </div>
                         </label>
                       </div>
-                      <span >{{ game.users[1].userName }}</span>
-                      <span class="text-after"> {{ 1 }} </span>
+                      <span class="text-after">
+                        <label tabindex="0" class="btn glass btn-ghost btn-circle">
+                          <div class="avatar">
+                            <div class="w-20 mask mask-squircle">
+                              <img :src="game.users[1].imageSrc" />
+                            </div>
+                          </div>
+                        </label>
+                      </span>
                     </label>
                     <input type="checkbox" id="collapse1" class="collapse-checkbox" />
                     <div class="collapse-content">
-                      <p v-for="score in scores[index]" class="dark-row flex flex-row">
-                        <span class="ml-auto">  {{ score.scoreA }} </span>
-                        <span class="mr-auto"> {{ score.scoreB }} </span>
+                      <p v-for="score in scores[index]" class="dark-row">
+                        <div class="avatar">
+                        <span class="text-before">
+                          <span class="ml-auto text-lg font-bold">  {{ score.scoreA }} </span>
+                        </span>
+                        <span class="text-after">
+                          <span class="mr-auto text-lg font-bold"> {{ score.scoreB }} </span>
+                        </span>
+                        </div>
                       </p>
                     </div>
                   </div>
