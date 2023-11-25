@@ -75,12 +75,6 @@ export class ChannelController {
     return { success: result };
   }
 
-  @Get(':channelName/isMute/:userName')
-  async isUserMuteInChannel(@Param('channelName') channelName: string, @Param('userName') userName: string): Promise<{ success: boolean }> {
-    const result = await this.channelService.isUserMuteInChannel(channelName, userName);
-    return { success: result };
-  }
-
   @Post(':channelName')
   async createChannel(@Body('channelName') channelName: string, @Body('userName') userName: string, @Body('invitedUserName') invitedUserName: string): Promise<{ success: boolean }> {
     const result = await this.channelService.createChannel(channelName, userName, invitedUserName);

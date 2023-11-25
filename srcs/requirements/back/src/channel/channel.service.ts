@@ -428,21 +428,38 @@ export class ChannelService {
   async removeUserFromChannel(channelName: string, friendName: string): Promise<boolean> {
     const channel = await this.getChannelByName(channelName);
     const friend = await this.userService.getUserByName(friendName);
-
-    if (!channel || !friend)
+  
+    if (!channel || !friend) {
       return false;
-
+    }
+  
+    const userChannelMutes = await this.prisma.userChannelMute.findMany({
+      where: {
+        channelId: channel.channelId,
+        userId: friend.userId,
+      },
+    });
+  
+    for (const userChannelMute of userChannelMutes) {
+      await this.prisma.userChannelMute.delete({
+        where: {
+          id: userChannelMute.id,
+        },
+      });
+    }
+  
     await this.prisma.channel.update({
       where: { channelId: channel.channelId },
       data: {
         channelUsers: {
           disconnect: { userId: friend.userId },
         },
-        channelUsersMute: {
+        channelOperators: {
           disconnect: { userId: friend.userId },
         },
       },
     });
+  
     return true;
   }
 

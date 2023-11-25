@@ -19,10 +19,7 @@ model Channel {
   channelOperators  User[]      @relation("ChannelOperator")
   channelUsers      User[]      @relation("ChannelUser")
   channelUsersBan   User[]      @relation("ChannelUserBan")
-  channelUsersMute  User[]      @relation("ChannelUserMute")
-  
-  channelUsersMuted  UserChannelMute[]
-
+  channelUsersMute  UserChannelMute[]
 
   isPrivate         Boolean     @default(false)
 }
@@ -53,7 +50,7 @@ model GameRoom {
   users        User[]
 
   statId       Int?    @unique
-  stat         Stat?   @relation("GameRoomStat", fields: [statId], references: [statId])
+  stat         Stat?   @relation("GameRoomStat", fields: [statId], references: [statId] , onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Message {
@@ -137,9 +134,8 @@ model User {
   channels     Channel[] @relation("ChannelUser")
   channelsOp   Channel[] @relation("ChannelOperator")
   channelsBan  Channel[] @relation("ChannelUserBan")
-  channelsMute Channel[] @relation("ChannelUserMute")
 
-  mutedChannels   UserChannelMute[]
+  mutedChannels UserChannelMute[]
   
   friends      User[]    @relation("Friendship")
   friendOf     User[]    @relation("Friendship")
@@ -180,8 +176,8 @@ model UserChannelMute {
   id              Int       @id @default(autoincrement())
   mutedUntil      DateTime
 
-  user            User      @relation(fields: [userId], references: [userId])
+  user            User      @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   userId          Int
-  channel         Channel   @relation(fields: [channelId], references: [channelId])
+  channel         Channel   @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
   channelId       Int
 }
