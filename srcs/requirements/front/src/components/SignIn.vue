@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { insertUser, setStatus} from './api/post.call.ts';
-import { getUserByName, checkA2F } from './api/get.call.ts';
+import { getUserByUserName, checkA2F } from './api/get.call.ts';
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 
@@ -68,7 +68,7 @@ onMounted(async () => {
       user.value = await userResponse.json();
       userInfo.value = user.value;
 
-      user.value = await getUserByName(userInfo.value.login);
+      user.value = await getUserByUserName(userInfo.value.login);
 
       if (user.value && user.value.A2F) {
         userA2F.value = true;

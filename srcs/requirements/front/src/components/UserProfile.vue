@@ -6,7 +6,7 @@
 	import sha256 from 'js-sha256';
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserId, getGameRoomByRoomId } from "./api/get.call";
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId } from "./api/get.call";
   import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, joinChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
   import { io } from 'socket.io-client';
   import { useRouter } from "vue-router";

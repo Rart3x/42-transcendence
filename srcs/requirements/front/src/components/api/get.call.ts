@@ -248,6 +248,25 @@ export async function getMessage() {
   }
 }
 
+/*-----------------------------------------------NOTIFICATIONS-----------------------------------------------*/
+export async function getNotifs(userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/notif/getNotif/${userName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok){
+      return await response.json();
+    }
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
 /*-----------------------------------------------PRIVATEMESSAGES-----------------------------------------------*/
 export async function getPrivateMessages(userName1 : string, userName2 : string) {
   try {
@@ -259,6 +278,24 @@ export async function getPrivateMessages(userName1 : string, userName2 : string)
     });
     if (response.ok)
       return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
+export async function getPrivateMessagesByUserName(userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/privateMessage/${userName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok){
+      return await response.json();
+    }
   }
   catch (error) {
     console.error('error: sending GET request', error);
@@ -346,7 +383,7 @@ export async function getUserByUserId(userId : number) {
   }
 }
 
-export async function getUserByName(username : string) {
+export async function getUserByUserName(username : string) {
   try {
     const response = await fetch(`http://localhost:3000/user/getUsername/${username}`, {
       method: "GET",

@@ -72,7 +72,6 @@ export class UserService {
         }
       }
     });
-
     return true;
   }
 
@@ -264,9 +263,9 @@ export class UserService {
 
   async getUserById(userId: number) {
     return await this.prisma.user.findUnique({
-      where: { userId: userId },
+     where: { userId: userId },
     });
-  }
+   }
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {

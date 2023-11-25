@@ -1,17 +1,22 @@
 <script setup>
   import Cookies from "js-cookie";
   import Drawer from "./Drawer.vue";
-  import { computed } from "vue";
-  import { onMounted, ref, unref } from "vue";
-  import { RouterLink, RouterView } from "vue-router";
-  import { getUserByCookie, getAllUsers } from "./api/get.call.ts";
+  import { computed, onMounted, ref, unref } from "vue";
+  import { RouterLink } from "vue-router";
+  import { getAllUsers, getNotifs, getPrivateMessagesByUserName, getUserByCookie } from "./api/get.call.ts";
   import { setStatus } from "./api/post.call.ts";
 
-  const userName = ref("");
-  let user = ref(null);
   let imageSrc = ref(null);
-  let users = ref([]);
+
   let searchInput = ref("");
+
+  const userName = ref("");
+
+  let notifs = ref([]);
+  let privateMessages = ref([]);
+  let users = ref([]);
+
+  let user = ref(null);
 
   const filteredUsers = computed(() => {
     if (!users.value)
@@ -26,7 +31,7 @@
       );
     }
     catch (error) {
-      console.error("Error filtering users:", error);
+      console.error("error filtering users:", error);
       return [];
     }
   });
@@ -42,6 +47,10 @@
       return;
     user.value = await getUserByCookie(Cookies.get("_authToken"));
     userName.value = user.value.displayName;
+
+    privateMessages.value = await getPrivateMessagesByUserName(user.value.userName);
+    notifs.value = await getNotifs(user.value.userName);
+
     let imagePath = "../assets/userImages/" + user.value.image;
     import(/* @vite-ignore */ imagePath).then((image) => {
       imageSrc.value = image.default;
@@ -56,7 +65,7 @@
 
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :notifs="notifs"/>
     </div>
     <div class="navbar-center">
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
@@ -65,7 +74,7 @@
       </div>
     </div>
     <div class="navbar-end">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="true"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="true" :privateMessages="privateMessages" :notifs="notifs"/>
     </div>
   </div>
 </template>

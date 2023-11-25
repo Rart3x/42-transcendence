@@ -8,6 +8,7 @@ import { ChannelModule } from './channel/channel.module';
 import { EventsModule } from './events/events.module';
 import { GameRoomModule } from './gameRoom/gameRoom.module';
 import { MessageModule } from './message/message.module';
+import { NotifModule } from './notif/notif.module';
 import { PrivateMessageModule } from './privateMessage/privateMessage.module';
 import { UserModule } from './user/user.module';
 
@@ -16,6 +17,9 @@ import { ChannelService } from './channel/channel.service';
 
 import { MessageController } from './message/message.controller';
 import { MessageService } from './message/message.service';
+
+import { NotifController } from './notif/notif.controller';
+import { NotifService } from './notif/notif.service';
 
 import { PrismaService } from './prisma.service';
 
@@ -34,11 +38,13 @@ import { UserService } from './user/user.service';
     EventsModule,
     GameRoomModule,
     MessageModule,
+    NotifModule,
     PrivateMessageModule,
     UserModule,
   ],
   controllers: [
     ChannelController,
+    NotifController,
     MessageController,
     PrivateMessageController,
     QueueListController,
@@ -48,6 +54,7 @@ import { UserService } from './user/user.service';
     AppGateway,
     ChannelService,
     MessageService,
+    NotifService,
     PrismaService,
     PrivateMessageService,
     QueueListService,

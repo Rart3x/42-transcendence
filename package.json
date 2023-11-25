@@ -6,6 +6,8 @@
   "dependencies": {
     "@nestjs/cache-manager": "^2.1.1",
     "cache-manager": "^5.2.4",
+    "data-fns": "^1.1.0",
+    "date-fns": "^2.30.0",
     "vuex": "^4.1.0"
   }
 }
