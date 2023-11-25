@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
-import { GameRoom, Prisma, Score } from '@prisma/client';
+import { GameRoom, Prisma, Score, UserScore } from '@prisma/client';
 
 @Injectable()
 export class ScoreService {
@@ -53,5 +53,15 @@ export class ScoreService {
             });
             return score
         }
+    }
+
+    async getAllUserScore(gameRoomId: string) : Promise<UserScore[]>
+    {
+        var id = Number(gameRoomId);
+        return await this.prisma.userScore.findMany({
+            where: {
+                scoreId: id
+            }
+        })
     }
 }
