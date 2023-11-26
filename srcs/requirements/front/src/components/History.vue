@@ -9,6 +9,25 @@
   let scores = ref([]);
   let versusImage = ref(null);
 
+
+  const timeAgo = (timestamp) => {
+    console.log(timestamp)
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diff = now.getTime() - past.getTime();
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days} days ago`;
+    if (hours > 0) return `${hours} hours ago`;
+    if (minutes > 0) return `${minutes} minutes ago`;
+    if (seconds > 0) return `${seconds} seconds ago`;
+    return "Just now";
+  }
+  
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
 
@@ -26,7 +45,6 @@
       scores.value.push(await getAllScore(games.value[i].id));
     }
   });
-
 </script>
 
 <template>
@@ -36,13 +54,13 @@
     :gameWon="user.gameWon"
     />
 
-  <div class="overflow-x-auto min-h-screen bg-base-primary grid grid-cols-4 ">
+  <div class="overflow-x-auto min-h-screen bg-base-200 grid grid-cols-4 ">
     <div class="col-start-1">
       <table class="table-fixed w-full">
         <tbody>
-          <tr v-for="(game, index) in games" :key="index" >
+          <tr v-for="(game, index) in games.slice().reverse()" :key="index" >
             <td> 
-              <div :class="user.userId == scores[index][scores.length - 1].scorerId ? 'bg-green-700 h-36' : 'bg-red-700 h-36'">
+              <div :class="user.userId == scores[index][scores.length - 1].scorerId ? 'bg-green-700 h-36 bg-opacity-50' : 'bg-red-700 h-36 bg-opacity-50'">
                 <label class="text-xl font-medium font-bold">
                   <span v-if="game.customGame" class="text-before"> CUSTOM </span>
                   <span v-else class="text-before font-bold"> NORMAL</span>
@@ -54,7 +72,7 @@
                 </label>
                 <br/> <br/> <br/>
                 <label class="text-xl font-light">
-                  <span>{{ game.startDate }}</span>
+                  <span>{{ timeAgo( Date.parse(game.startDate)) }}</span>
                 </label>
               </div>
             </td>
@@ -67,7 +85,7 @@
           <table class="table">
             <tbody>
               <tr v-for="(game, index) in games" :key="index">
-                <td :class="user.userId == scores[index][scores.length - 1].scorerId ? 'bg-green-700' : 'bg-red-700'">
+                <td :class="user.userId == scores[index][scores.length - 1].scorerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
                   <div class="collapse">
                     <label for="collapse1" class="collapse-title text-xl font-medium">
                       <span class="text-before">
