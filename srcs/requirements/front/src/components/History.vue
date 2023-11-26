@@ -36,18 +36,40 @@
     :gameWon="user.gameWon"
     />
 
-  <div>
-    <div class="overflow-x-auto min-h-screen bg-base-200">
-      <div class="grid-container">
-        <div class="table">
+  <div class="overflow-x-auto min-h-screen bg-base-primary grid grid-cols-4 ">
+    <div class="col-start-1">
+      <table class="table-fixed w-full">
+        <tbody>
+          <tr v-for="(game, index) in games" :key="index" >
+            <td> 
+              <div :class="user.userId == scores[index][scores.length - 1].scorerId ? 'bg-green-700 h-36' : 'bg-red-700 h-36'">
+                <label class="text-xl font-medium font-bold">
+                  <span v-if="game.customGame" class="text-before"> CUSTOM </span>
+                  <span v-else class="text-before font-bold"> NORMAL</span>
+                </label>
+                <br/>
+                <label class="text-xl font-medium">
+                  <span v-if="user.userId == scores[index][scores.length - 1].scorerId">WIN 😎</span>
+                  <span v-else>DEFEAT 😢</span>
+                </label>
+                <br/> <br/> <br/>
+                <label class="text-xl font-light">
+                  <span>{{ game.startDate }}</span>
+                </label>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid col-start-2 col-span-3">
+      <div class="table">
           <table class="table">
             <tbody>
               <tr v-for="(game, index) in games" :key="index">
-                <td>
-                  <div class="collapse bg-base-200">
+                <td :class="user.userId == scores[index][scores.length - 1].scorerId ? 'bg-green-700' : 'bg-red-700'">
+                  <div class="collapse">
                     <label for="collapse1" class="collapse-title text-xl font-medium">
-                      <!-- <span v-if="game.customGame" class="text-before"> CUSTOM </span>
-                      <span v-else class="text-before"> NORMAL </span> -->
                       <span class="text-before">
                         <label tabindex="0" class="btn glass btn-ghost btn-circle">
                           <div class="avatar">
@@ -55,6 +77,7 @@
                               <img :src="game.users[0].imageSrc" />
                             </div>
                           </div>
+                        <span class="font-medium font-bold">{{ game.users[0].userName }}</span>
                         </label>
                       </span>
                       <div class="avatar">
@@ -71,6 +94,7 @@
                               <img :src="game.users[1].imageSrc" />
                             </div>
                           </div>
+                          <span class="font-medium font-bold">{{ game.users[1].userName }}</span>
                         </label>
                       </span>
                     </label>
@@ -95,7 +119,6 @@
         </div>
         <br>
       </div>
-    </div>
   </div>
 </template>
 
@@ -123,4 +146,5 @@
     max-width: 100%;
     max-height: 100%;
   }
+
 </style>
