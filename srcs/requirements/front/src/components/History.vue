@@ -54,35 +54,36 @@
     :gameWon="user.gameWon"
     />
 
-  <div class="overflow-x-auto min-h-screen bg-base-200 grid grid-cols-4 ">
-    <div class="col-start-1">
-      <table class="table-fixed w-full">
-        <tbody>
-          <tr v-for="(game, index) in games.slice().reverse()" :key="index" >
-            <td> 
-              <div :class="user.userId == scores[index][scores.length - 1].scorerId ? 'bg-green-700 h-36 bg-opacity-50' : 'bg-red-700 h-36 bg-opacity-50'">
-                <label class="text-xl font-medium font-bold">
-                  <span v-if="game.customGame" class="text-before"> CUSTOM </span>
-                  <span v-else class="text-before font-bold"> NORMAL</span>
-                </label>
-                <br/>
-                <label class="text-xl font-medium">
-                  <span v-if="user.userId == scores[index][scores.length - 1].scorerId">WIN 😎</span>
-                  <span v-else>DEFEAT 😢</span>
-                </label>
-                <br/> <br/> <br/>
-                <label class="text-xl font-light">
-                  <span>{{ timeAgo( Date.parse(game.startDate)) }}</span>
-                </label>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="grid col-start-2 col-span-3">
-      <div class="table">
-          <table class="table">
+  <div class="overflow-x-auto min-h-screen bg-base-200 ">
+    <!-- <div class="col-start-1">
+      
+      </table> -->
+    <!-- </div> -->
+      <div class="table grid grid-cols-4">
+        <table class="table-fixed w-full">
+          <tbody>
+            <tr v-for="(game, index) in games.slice().reverse()" :key="index" >
+              <td :class="user.userId == scores[index][scores.length - 1].scorerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
+                <div >
+                  <label class="text-xl font-medium font-bold">
+                    <span v-if="game.customGame" class="text-before"> CUSTOM </span>
+                    <span v-else class="text-before font-bold"> NORMAL</span>
+                  </label>
+                  <br/>
+                  <label class="text-xl font-medium">
+                    <span v-if="user.userId == scores[index][scores.length - 1].scorerId">WIN 😎</span>
+                    <span v-else>DEFEAT 😢</span>
+                  </label>
+                  <br/> <br/> <br/>
+                  <label class="text-xl font-light">
+                    <span>{{ timeAgo( Date.parse(game.startDate)) }}</span>
+                  </label>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+          <table class="table col-start-2 col-span-3">
             <tbody>
               <tr v-for="(game, index) in games" :key="index">
                 <td :class="user.userId == scores[index][scores.length - 1].scorerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
@@ -123,6 +124,7 @@
                         <span class="text-before">
                           <span class="ml-auto text-lg font-bold">  {{ score.scoreA }} </span>
                         </span>
+                        <span>{{  ((Date.parse(score.time) - Date.parse(games[index].startDate)) / 1000).toFixed(2)}} </span>
                         <span class="text-after">
                           <span class="mr-auto text-lg font-bold"> {{ score.scoreB }} </span>
                         </span>
@@ -135,8 +137,6 @@
             </tbody>
           </table>
         </div>
-        <br>
-      </div>
   </div>
 </template>
 
