@@ -429,9 +429,8 @@ export class ChannelService {
     const channel = await this.getChannelByName(channelName);
     const friend = await this.userService.getUserByName(friendName);
   
-    if (!channel || !friend) {
+    if (!channel || !friend)
       return false;
-    }
   
     const userChannelMutes = await this.prisma.userChannelMute.findMany({
       where: {

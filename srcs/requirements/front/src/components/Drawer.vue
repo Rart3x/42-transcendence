@@ -56,14 +56,16 @@
       <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
         <li v-for="(messageObject, index) in privateMessages" :key="index" class="message_boxes">
-          <div class="flex justify-between items-center">
-            <div class="flex flex-col items-start">
-              <span class="font-semibold">{{ messageObject.senderName }}</span>
-              <span v-if="messageObject.messageHistory[messageObject.messageHistory.length - 1].length <= 20" class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}</span>
-              <span v-else class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}..</span>
+          <router-link :to="'/privateMessage/' + messageObject.senderName + '/' + messageObject.receiverName">
+            <div class="flex justify-between items-center">
+              <div class="flex flex-col items-start">
+                <span class="font-semibold">{{ messageObject.senderName }}</span>
+                <span v-if="messageObject.messageHistory[messageObject.messageHistory.length - 1].length <= 20" class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}</span>
+                <span v-else class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}..</span>
+              </div>
+              <span>{{ messageObject.privateMessageDate.substring(11, 16) }} </span>
             </div>
-            <span>{{ messageObject.privateMessageDate.substring(11, 16) }} </span>
-          </div>
+          </router-link>
         </li>
       </ul>
     </div>
