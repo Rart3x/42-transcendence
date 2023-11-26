@@ -42,3 +42,7 @@
 		</div>
 	</div>
 </template>
+
+<style scoped>
+  .stats { border-radius: unset; }
+</style>

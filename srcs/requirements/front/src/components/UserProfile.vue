@@ -421,7 +421,6 @@
   .buttons { text-align: center; }
   .dark-row:hover { background-color: #364e6e; }
   .dialogModal { text-align:center; }
-  .stats { border-radius: unset; }
   .underStat { display: center; text-align: center; }
 
   .requestTable { overflow-x: auto; }

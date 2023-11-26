@@ -24,7 +24,7 @@ const router = createRouter({
       component: () => import("@/components/Game.vue"),
     },
     {
-      path: "/privateMessage/:userName/:userName",
+      path: "/privateMessage/:senderName/:receiverName",
       name: "privateMessage",
       component: () => import("@/components/PrivateMessage.vue"),
     },
