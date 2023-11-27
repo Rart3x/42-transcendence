@@ -51,7 +51,7 @@ const router = createRouter({
     {
       path: "/history",
       name: "history",
-      component: () => import("@/components/History.vue"),
+      component: () => import("@/components/GameHistory.vue"),
     },
     {
       path: "/leaderboard",

@@ -262,11 +262,12 @@ export class UserService {
   }
 
   async getUserById(userId: number) {
+    const userIdNumber = Number(userId);
     return await this.prisma.user.findUnique({
-     where: { userId: userId },
+      where: { userId: userIdNumber },
     });
    }
-
+   
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {
       return this.prisma.user.findUnique({
@@ -364,7 +365,6 @@ export class UserService {
       });
     }
     var user = this.getUserById(userId);
-    console.log(`updated matchmaking score: ${(await user).matchmakingScore}`);
   }
   
   async getAllUsers(): Promise<PartialUserDTO[]> {

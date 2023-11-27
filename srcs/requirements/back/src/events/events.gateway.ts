@@ -351,7 +351,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				//Normalized intersect
 
-				// console.log(theta);
 				theta = intersectionDeltaY / PADDLE_HEIGHT / 2;
 				
 				//Get speed of incoming ball and saving it
@@ -761,8 +760,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				this.gameRooms.push(localRoom);
 
-				// console.log(user1.userName, user2.userName);
-
 				this.server.to(localRoom.player1SocketId).emit('lobby', {
 					roomId: localRoom.roomId,
 					player1SocketId: localRoom.player1SocketId,
@@ -789,10 +786,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	async handleInvitation(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() userId: number) {
-		console.log("localGame");
 		setTimeout(async () => {
 			const user1 = await this.UserService.getUserById(userId);
-			console.log(user1.socket);
+			(user1.socket);
 			this.server.to(user1.socket).emit('localGameCreated', {
 				// player1SocketId: socket.id,
 				// player1UserName: user1.userName,

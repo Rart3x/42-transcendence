@@ -1,6 +1,7 @@
 <script setup>
   import Alert from './Alert.vue';
   import UserStatHeader from "./UserStatHeader.vue";
+  import History from "./History.vue";
   import Cookies from "js-cookie";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
@@ -179,6 +180,7 @@
     :gamePlayed="user.gamePlayed"
     :gameWon="user.gameWon"
   />
+
   <div class="overflow-x-auto min-h-screen bg-base-200 font-mono">
     <div class="stats shadow flex justify-center">
       <div class="stat" v-if="!isBlockBool">
@@ -212,7 +214,9 @@
         </button>
       </div>
     </div>
+    <History v-if="user" :userName="$route.params.userName"/>
   </div>
+
   <!--Alerts-->
   <Alert
     :addChannelSuccess="addChannelSuccess"

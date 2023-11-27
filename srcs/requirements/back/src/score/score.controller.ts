@@ -10,7 +10,6 @@ export class ScoreController {
 
   @Get('getAllScore/:gameRoomId')
   async getAllScore(@Param('gameRoomId') gameRoomId: string): Promise<UserScore[]> {
-    console.log(`Controller: ${gameRoomId}`);
     return await this.ScoreService.getAllUserScore(gameRoomId);
   }
 }
