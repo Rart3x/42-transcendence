@@ -44,5 +44,5 @@
 </template>
 
 <style scoped>
-  .stats { border-radius: unset; }
+  .stats { border-radius: unset; position: sticky;}
 </style>

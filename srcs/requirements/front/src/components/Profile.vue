@@ -4,7 +4,7 @@
   import Cookies from "js-cookie";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isBlock, isFriend, getPrivateMessages, getUserByCookie, getUserByName } from './api/get.call';
+  import { isBlock, isFriend, getPrivateMessages, getUserByCookie, getUserByUserName } from './api/get.call';
   import { addFriend, blockUser, createChannel, createPrivateMessage, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
 
@@ -140,7 +140,7 @@
 
   onMounted(async () => {
     user.value = await getUserByCookie(Cookies.get("_authToken"));
-    actualUser.value = await getUserByName(route.params.userName);
+    actualUser.value = await getUserByUserName(route.params.userName);
     
     isFriendBool.value = isFriendFromDB(user.value.userName, actualUser.value.userName).sucess;
     isBlockBool.value = isBlockFromDB(user.value.userName, actualUser.value.userName).sucess;

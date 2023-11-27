@@ -46,30 +46,30 @@
           <div class="message-row">
             <div v-if="message.senderName === user.userName">
               <div class="chat chat-start">
-                <label tabindex="0" class="btn btn-ghost btn-circle">
-                  <div class="avatar">
-                    <div class="w-15 mask mask-squircle">
-                      <img :src="messages.receiver.imageSrc" />
+                <router-link :to="`/profile/` + messages.receiver.userName">
+                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                    <div class="avatar">
+                      <div class="w-15 mask mask-squircle">
+                        <img :src="messages.receiver.imageSrc" />
+                      </div>
                     </div>
-                  </div>
-                </label>
-                <div class="chat-bubble chat-bubble-primary">
-                  {{ message }}
-                </div>
+                  </label>
+                </router-link>
+                <div class="chat-bubble chat-bubble-primary"> {{ message }} </div>
               </div>
             </div>
             <div v-else>
               <div class="chat chat-end">
-                <div class="chat-bubble chat-bubble-primary">
-                  {{ message }}
-                </div>
-                <label tabindex="0" class="btn btn-ghost btn-circle">
-                  <div class="avatar">
-                    <div class="w-15 mask mask-squircle">
-                      <img :src="user.imageSrc" />
+                <div class="chat-bubble chat-bubble-primary"> {{ message }} </div>
+                <router-link :to="`/profile/` + user.userName">
+                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                    <div class="avatar">
+                      <div class="w-15 mask mask-squircle">
+                        <img :src="user.imageSrc" />
+                      </div>
                     </div>
-                  </div>
-                </label>
+                  </label>
+                </router-link>
               </div>
             </div>
           </div>

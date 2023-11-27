@@ -112,8 +112,5 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.title {
-  text-align: center;
-  font-size: 50px;
-}
+  .title { text-align: center; font-size: 50px; }
 </style>
