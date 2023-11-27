@@ -50,6 +50,7 @@ export async function createChannel(channelName : string, userName : string, inv
       body: JSON.stringify({ channelName: channelName, userName: userName, invitedUserName: invitedUserName }),
     });
 
+    console.log(channelName, userName, invitedUserName);
     if (response.ok) {
       const responseData = await response.json();
       return responseData;

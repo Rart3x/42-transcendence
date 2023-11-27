@@ -34,6 +34,16 @@
 
   let selectedDuration = ref(1);
 
+  const addOperatorInDB = async (channelName, userName) => {
+    const response = await addOperator(channelName, userName);
+    updateOperator(users.value, route.params.channelName);
+  };
+
+  const removeOperatorInDB = async (channelName, userName) => {
+    const response = await removeOperator(channelName, userName);
+    updateOperator(users.value, route.params.channelName);
+  };
+
   const closeMuteModal = () => { modalMuteUser.value = false; };
   const openMuteModal = (userMutedName) => { modalMuteUser.value = true; userMuted.value = userMutedName};
 
@@ -52,7 +62,7 @@
         banFailed.value = false;
       }, 3000);
     }
-    users.value = await getUsersFromChannel(route.params.channelName);
+    updateBan(users.value, route.params.channelName);
   };
 
   const isOperatorInDB = async (channelName, userId) => {
@@ -135,10 +145,48 @@
       container.scrollTop = container.scrollHeight;
   };
 
+  async function updateBan(users, channelName) {
+    for (let user of users) {
+      user.isBan = await isUserBanInChannelInDB(channelName, user.userId);
+    }
+  }
+
+  async function updateOperator(users, channelName) {
+    for (let user of users) {
+      user.isOperator = await isOperatorInDB(channelName, user.userId);
+    }
+    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
+  }
+
+  async function updateMessageSenders(messages) {
+    for (let message of messages) {
+      if (message.sender) {
+        let imagePath = `../assets/userImages/${message.sender.image}`;
+        await import(/* @vite-ignore */ imagePath).then((image) => {
+          message.sender.image = image.default;
+        });
+        message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId);
+      }
+    }
+  }
+
+  async function updateUserImages(users) {
+    for (let user of users) {
+      let imagePath = `../assets/userImages/${user.image}`;
+      await import(/* @vite-ignore */ imagePath).then((image) => {
+        user.imageSrc = image.default;
+      });
+      user.isOperator = await isOperatorInDB(route.params.channelName, user.userId);
+    }
+  }
+
+
   onMounted(async () => {
     actualUser.value = await getUserByCookie(Cookies.get("_authToken"));
 
     if (!actualUser.value) window.location.href = "/";
+
+    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
 
     channel.value = await getChannelByName(route.params.channelName);
     channelNameMute.value = route.params.channelName;
@@ -157,26 +205,12 @@
     actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId);
 
     let usersData = await getUsersFromChannel(route.params.channelName);
-    for (let user of usersData) {
-      let imagePath = "../assets/userImages/" + user.image;
-      await import(/* @vite-ignore */ imagePath).then((image) => {
-        user.imageSrc = image.default;
-      });
-      user.isOperator = await isOperatorInDB(route.params.channelName, user.userId);
-    }
+    await updateUserImages(usersData);
 
     messages.value = await getMessagesFromChannel(route.params.channelName);
 
     scrollToBottom();
-    for (let message of messages.value) {
-      if (message.sender) {
-        let imagePath = "../assets/userImages/" + message.sender.image;
-        await import(/* @vite-ignore */ imagePath).then((image) => {
-          message.sender.image = image.default;
-        });
-      }
-      message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId);
-    }
+    await updateMessageSenders(messages.value);
     users.value.splice(0, users.value.length, ...usersData);
   });
 </script>
@@ -214,13 +248,13 @@
                   <button v-if="user.status === 'ingame'" class="btn glass no-animation text-blue-500">{{ user.userName }}</button>
                 </router-link>
               </td>
-              <td v-if="channel.channelAdmin == actualUser.userId">
+              <td v-if="channel.channelAdmin == actualUser.userId || actualUser.isOperator">
                 <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
                   <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
                   <button class="btn glass btn-warning" @click="openMuteModal(user.userName)">Mute</button>
                   <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
-                  <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperator($route.params.channelName, user.userName)" >Promote</button>
-                  <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperator($route.params.channelName, user.userName)">Depreciate</button>
+                  <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperatorInDB($route.params.channelName, user.userName)" >Promote</button>
+                  <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperatorInDB($route.params.channelName, user.userName)">Depreciate</button>
                 </div>
               </td>
             </tr>
@@ -232,7 +266,7 @@
     <div class="overflow-x-auto min-h-screen bg-base-200 chat-box" style="text-align: center">
       <div class="chat-messages">
         <div v-for="(message, index) in messages" :key="index" class="message">
-          <div v-if="!message.sender.isBan" class="message-row">
+          <div v-if="message.sender && !message.sender.isBan" class="message-row">
             <div v-if="message.userId != actualUser.userId && message.message_text">
               <div class="chat chat-start">
                 <label tabindex="0" class="btn btn-ghost btn-circle">

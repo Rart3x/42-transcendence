@@ -73,8 +73,8 @@
         <!--Channel Modal-->
         <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel.value" @keydown.esc="closeModal('modalChannel')">
             <div class="modal-box w-11/12 max-w-5xl">
-                <form class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, currentUserName, currentUserName)">
-                    <input type="text" placeholder="Channel's name" :value="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
+                <form class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, user.userName, currentUserName)">
+                    <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" />
                     <button class="btn glass">Send Invitation to {{ currentUserName }}</button>
                 </form>
             </div>
