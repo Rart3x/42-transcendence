@@ -91,7 +91,6 @@ onMounted(async () => {
     }
     }
   catch (error) {
-    console.log(error);
     router.push('/');
   }
 });
@@ -99,15 +98,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="userA2F">
-    <h1 class="title">Sign In with A2F</h1>
-    <div class="flex justify-center">
-      <form @submit.prevent="verifyToken">
-        <!-- Number only in the text -->
-        <input class="input input-bordered" type="text" v-model="userToken" placeholder="Enter your token" required pattern="\d{6}" />
-        <button class="btn" type="submit">Sign In</button>
-      </form>
-    </div>
+  <div v-if="userA2F" class="overflow-x-auto min-h-screen bg-base-200 font-mono flex flex-col items-center justify-center">
+    <h1 class="title mb-8">Sign In with A2F</h1>
+    <form @submit.prevent="verifyToken" class="flex flex-col items-center">
+      <input class="input input-bordered mb-4" type="text" v-model="userToken" placeholder="Enter your token" required pattern="\d{6}" />
+      <button class="btn glass" type="submit">Sign In</button>
+    </form>
   </div>
 </template>
 
