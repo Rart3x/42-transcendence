@@ -61,6 +61,12 @@
       return channel.channelOperators.some(operator => operator.userId === userId);
   };
 
+  const isUserBanInChannelInDB = async (channelName, userId) => {
+    const channel = await getChannelByName(channelName);
+    if (channel && channel.channelUsersMute)
+      return channel.channelUsersBan.some(user => user.userId === userId);
+  };
+
   const isUserMuteInChannelInDB = async (channelName, userId) => {
     const channel = await getChannelByName(channelName);
     if (channel && channel.channelUsersMute)
@@ -169,6 +175,7 @@
           message.sender.image = image.default;
         });
       }
+      message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId);
     }
     users.value.splice(0, users.value.length, ...usersData);
   });
@@ -225,7 +232,7 @@
     <div class="overflow-x-auto min-h-screen bg-base-200 chat-box" style="text-align: center">
       <div class="chat-messages">
         <div v-for="(message, index) in messages" :key="index" class="message">
-          <div class="message-row">
+          <div v-if="!message.sender.isBan" class="message-row">
             <div v-if="message.userId != actualUser.userId && message.message_text">
               <div class="chat chat-start">
                 <label tabindex="0" class="btn btn-ghost btn-circle">
