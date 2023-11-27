@@ -269,13 +269,15 @@
           <div v-if="message.sender && !message.sender.isBan" class="message-row">
             <div v-if="message.userId != actualUser.userId && message.message_text">
               <div class="chat chat-start">
-                <label tabindex="0" class="btn btn-ghost btn-circle">
-                  <div class="avatar">
-                    <div class="w-15 mask mask-squircle" v-if="message.sender">
-                      <img :src="message.sender.image" />
+                <router-link :to="`/profile/` + message.sender.userName">
+                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                    <div class="avatar">
+                      <div class="w-15 mask mask-squircle" v-if="message.sender">
+                        <img :src="message.sender.image" />
+                      </div>
                     </div>
-                  </div>
-                </label>
+                  </label>
+                </router-link>
                 <div class="chat-bubble">{{ message.message_text }}</div>
                 <div class="message-timestamp"> {{ message.message_date }} </div>
                 </div>
@@ -283,13 +285,15 @@
             <div v-else-if="message.message_text">
               <div class="chat chat-end">
                 <div class="chat-bubble">{{ message.message_text }}</div>
-                <label tabindex="0" class="btn btn-ghost btn-circle">
-                  <div class="avatar">
-                    <div class="w-15 mask mask-squircle">
-                      <img :src="actualUser.image" />
+                <router-link :to="`/profile/` + actualUser.userName">
+                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                    <div class="avatar">
+                      <div class="w-15 mask mask-squircle">
+                        <img :src="actualUser.image" />
+                      </div>
                     </div>
-                  </div>
-                </label>
+                  </label>
+                </router-link>
                 <div class="message-timestamp"> {{ message.message_date }} </div>
               </div>
             </div>

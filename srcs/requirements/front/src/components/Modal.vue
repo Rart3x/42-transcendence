@@ -84,7 +84,7 @@
             <div class="modal-box w-11/12 max-w-5xl">
                 <form class="dialogModalChannel" @submit.prevent="checkPassInDB(password)">
                     <label>Enter <b>{{ $route.params.channelName }}</b> password</label><br><br>
-                    <input type="text" placeholder="Password" :value="password" class="input input-bordered input-sm w-full max-w-xs" />
+                    <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
                     <br><br>
                     <button class="btn">Submit</button>
                 </form>
