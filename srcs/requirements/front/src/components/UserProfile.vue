@@ -2,6 +2,7 @@
   import Alert from "./Alert.vue";
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
+  import History from "./History.vue";
   import Cookies from "js-cookie";
 	import sha256 from 'js-sha256';
   import { onMounted, ref } from "vue";
@@ -262,6 +263,7 @@
         <button class="btn glass" @click="showContent('friends')">Friends</button>
         <button class="btn glass" @click="showContent('channels')">Channels</button>
         <button class="btn glass" @click="showContent('suggestions')">Suggestions</button>
+        <button class="btn glass" @click="showContent('history')">Game History</button>
       </div>
       <div class="content">
         <!--FriendList-->
@@ -374,6 +376,9 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <div v-if="activeTab === 'history'" class="p-4">
+          <History :userName="user.userName"/>
         </div>
       </div>
     </div>

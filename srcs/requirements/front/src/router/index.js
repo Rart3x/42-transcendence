@@ -49,11 +49,6 @@ const router = createRouter({
       component: () => import("@/components/SignIn.vue"),
     },
     {
-      path: "/history",
-      name: "history",
-      component: () => import("@/components/GameHistory.vue"),
-    },
-    {
       path: "/leaderboard",
       name: "leaderboard",
       component: () => import("@/components/Leaderboard.vue"),

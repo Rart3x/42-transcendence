@@ -13,5 +13,4 @@ import GameConfig from "@/components/GameConfig.vue";
  position: absolute;
  max-height: 90vh;
 }
-
-</style>``
+</style>

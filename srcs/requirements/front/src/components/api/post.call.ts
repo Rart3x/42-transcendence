@@ -323,7 +323,6 @@ export async function muteUserFromChannel(channelName : string, userName : strin
       },
       body: JSON.stringify({ channelName: channelName, userName: userName, duration: duration }),
     });
-    console.log(channelName, userName, duration); 
     if (response.ok) {
       const responseData = await response.json();
       return responseData;
@@ -402,7 +401,6 @@ export async function insertIntoQueueList(clientSocket : string) {
 /*-----------------------------------------------UTILS-----------------------------------------------*/
 export async function setClientSocket(userName : string, socket : string) {
   try {
-    console.log(`change socket id to ${socket}`);
     const response = await fetch(`http://localhost:3000/user/socket/${socket}`, {
       method: "POST",
       headers: {

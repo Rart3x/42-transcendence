@@ -11,7 +11,6 @@ import { Socket } from 'socket.io';
 export class AppGateway {
   @SubscribeMessage('invitationInGame')
   handleInvitation(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
-    console.log('Received invitation data:', data);
     if (data.userStatus === 'online')
       client.emit('invitationInGameSuccess', { message: 'Invitation received successfully' });
     else

@@ -151,7 +151,6 @@ export class UserController {
     const user = await this.userService.getUserByName(userName);
 
     try {
-      console.log(`Calling setSocket with userId: ${user.userId} and socket: ${socket}`);
       return await this.userService.setSocket(user.userId, socket);
     } catch (error) {
       console.warn('Error in setSocket:', error);

@@ -34,7 +34,6 @@
         <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
           <li> <router-link to="/"> Home </router-link> </li>
           <li> <router-link to="/game"> Game </router-link> </li>
-          <li> <router-link to="/history"> Game History </router-link> </li>
           <li> <router-link to="/leaderboard"> Leaderboard </router-link> </li>
         </ul>
     </div>
