@@ -82,7 +82,7 @@
                   </label>
                   <br/>
                   <label class="text-xl font-medium">
-                    <span v-if="user.userId == scores[index][scores.length - 1].scorerId">WIN 😎</span>
+                    <span v-if="user.userId == item.winner.winnerId">WIN 😎</span>
                     <span v-else>DEFEAT 😢</span>
                   </label>
                   <br/> <br/> <br/>
