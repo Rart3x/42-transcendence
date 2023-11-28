@@ -130,4 +130,10 @@ export class ChannelController {
     const response = await this.channelService.removeOperator(channelName, operatorName);
     return { success: response };
   }
+
+  @Delete('unmute/:channelName/:userName')
+  async unmuteUserFromChannel(@Body('channelName') channelName: string, @Body('userName') userName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.unmuteUserFromChannel(channelName, userName);
+    return { success: result };
+  }
 }

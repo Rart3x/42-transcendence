@@ -233,6 +233,9 @@
 </template>
 
 <style>
+  .addingFriend { text-align: center; }
+  .dialogModalChannel {  text-align:center; }
+
   .chat-messages {
     max-height: 55vh;
     overflow-x: auto;
@@ -241,27 +244,18 @@
   .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }
 
-  .stats{
-  border-radius: unset;
-  }
-  .addingFriend {
-    text-align: center;
-  }
-
-  .dialogModalChannel { 
-    text-align:center;
-  }
   .rounded-image {
     width: 150px;
     height: 150px;
     border-radius: 50%;
     overflow: hidden;
   }
-
   .rounded-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
+
+  .stats{ border-radius: unset; }
 </style>

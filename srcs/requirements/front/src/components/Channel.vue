@@ -2,7 +2,7 @@
   import Alert from './Alert.vue';
   import Modal from './Modal.vue';
   import Cookies from "js-cookie";
-  import { removeOperator, removeUserFromChannel } from "./api/delete.call";
+  import { removeOperator, removeUserFromChannel, unmuteUser} from "./api/delete.call";
   import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie } from "./api/get.call";
   import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
@@ -180,6 +180,29 @@
     }
   }
 
+  const checkMuteStatus = async () => {
+    const currentTime = new Date();
+
+    for (const user of users.value) {
+      if (user.userId !== actualUser.value.userId) {
+        const isMuted = await isUserMuteInChannelInDB(route.params.channelName, user.userId);
+        
+        if (isMuted) {
+          const muteDetails = channel.value.channelUsersMute.find(user => user.userId === user.userId).mutedUntil;
+          const muteUntil = new Date(muteDetails);
+
+          if (currentTime > muteUntil) {  
+            await unmuteUser(route.params.channelName, user.userName);
+            user.isMuted = false;
+          }
+        }
+      }
+    }
+    users.value = await getUsersFromChannel(route.params.channelName);
+    updateUserImages(users.value);
+  };
+
+  setInterval(checkMuteStatus, 30000);
 
   onMounted(async () => {
     actualUser.value = await getUserByCookie(Cookies.get("_authToken"));

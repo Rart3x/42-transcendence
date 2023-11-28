@@ -482,6 +482,27 @@ export class ChannelService {
     }
   }
 
+  async unmuteUserFromChannel(channelName: string, userName: string): Promise<boolean> {
+    try {
+      const channel = await this.getChannelByName(channelName);
+      const user = await this.userService.getUserByName(userName);
+    
+      if (!channel || !user)
+        return false;
+   
+      await this.prisma.userChannelMute.deleteMany({
+        where: {
+          channelId: channel.channelId,
+          userId: user.userId,
+        },
+      });
+      return true;
+    }
+    catch (error) {
+      return false;
+    }
+  }
+
   async unsetPassword(channelName: string): Promise<Channel> {
     try {
       const channel = await this.getChannelByName(channelName);
