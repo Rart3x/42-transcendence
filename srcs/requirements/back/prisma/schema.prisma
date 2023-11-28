@@ -108,6 +108,8 @@ model Score {
     id          Int @id @default(autoincrement())
     score       UserScore[]
     gameRoomId  Int @unique
+    winnerId    Int?
+    winner      User? @relation(fields: [winnerId], references: [userId])
     gameRoom    GameRoom @relation(fields: [gameRoomId], references: [id])
 }
 
@@ -156,6 +158,7 @@ model User {
 
   scorer       UserScore[]
 
+  winner       Score[]
   stat          Stat[]     @relation("GameStats")
   stats         Stat[]     @relation("UserStats")
 

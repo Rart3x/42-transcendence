@@ -55,6 +55,21 @@ export class ScoreService {
         }
     }
 
+    async setWinner(
+        gameRoomId: number,
+        winnerId: number) : Promise<Score> {
+        return await this.prisma.score.update({
+            where: { gameRoomId: gameRoomId },
+            data: { 
+                winner: {
+                    connect:{
+                        userId: winnerId
+                    }
+                }
+            }
+        })
+    }
+
     async getAllUserScore(gameRoomId: string) : Promise<UserScore[]>
     {
         var id = Number(gameRoomId);
@@ -64,4 +79,16 @@ export class ScoreService {
             }
         })
     }
-}
+
+    async getGameWinner(gameRoomId: string) : Promise<Score>
+    {
+        var id = Number(gameRoomId);
+        return await this.prisma.score.findFirst({
+            where: {
+                gameRoomId: id
+            },
+            include: {
+                winner: true
+            }
+        })
+    }}

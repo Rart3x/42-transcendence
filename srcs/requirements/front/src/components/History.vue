@@ -1,13 +1,14 @@
 <script setup>
   import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
-  import { onMounted, ref } from "vue";
-  import { getGameRoomByUserId, getUserByCookie, getAllScore, getUserByUserName } from "./api/get.call";
+  import { onMounted, ref, computed } from "vue";
+  import { getGameRoomByUserId, getUserByCookie, getAllScore, getUserByUserName, getGameWinner } from "./api/get.call";
 
   let games = ref([]);
   let user = ref(null);
   let scores = ref([]);
   let versusImage = ref(null);
+  let winners = ref([]);
 
   const props = defineProps({
     userName: {
@@ -33,6 +34,15 @@
     return "Just now";
   }
 
+  const combinedData = computed(() => {
+   return games.value.map((game, index) => {
+     return {
+       game: game,
+       winner: winners.value[index]
+     };
+   });
+  });
+
   onMounted(async () => {
     user.value = await getUserByUserName(props.userName);
 
@@ -50,6 +60,7 @@
         games.value[i].users[j].imageSrc = image.default;
       }
       scores.value.push(await getAllScore(games.value[i].id));
+      winners.value.push(await getGameWinner(games.value[i].id));
     }
   });
 </script>
@@ -59,21 +70,21 @@
     <div class="table grid grid-cols-4">
       <table class="table-fixed w-full">
         <tbody>
-          <tr v-for="(game, index) in games.slice().reverse()" :key="index">
-            <td v-if="scores[index]" :class="user.userId == scores[index][scores[index].length - 1].scorerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
+          <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index">
+            <td v-if="item.winner" :class="user.userId == item.winner.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
               <div>
-                <label class="text-xl font-medium font-bold">
-                 <span v-if="game.customGame" class="text-before"> CUSTOM </span>
+                <label class="text-xl font-medium font-bold"> 
+                 <span v-if="item.game.customGame" class="text-before"> CUSTOM </span>
                  <span v-else class="text-before font-bold"> NORMAL</span>
                 </label>
                 <br/>
                 <label class="text-xl font-medium">
-                 <span v-if="user.userId == scores[index][scores.length - 1].scorerId">WIN 😎</span>
+                 <span v-if="item.winner && user.userId == item.winner.winnerId">WIN 😎</span>
                  <span v-else>DEFEAT 😢</span>
                 </label>
                 <br/> <br/> <br/>
                 <label class="text-xl font-light">
-                 <span>{{ timeAgo(Date.parse(game.startDate)) }}</span>
+                 <span>{{ timeAgo(Date.parse(item.game.startDate)) }}</span>
                 </label>
               </div>
             </td>
@@ -82,20 +93,20 @@
       </table>
       <table class="table col-start-2 col-span-3">
         <tbody>
-          <tr v-for="(game, index) in games" :key="index">
-            <td v-if="scores[index]" :class="user.userId == scores[index][scores[index].length - 1].scorerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
+          <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index">
+            <td v-if="item.winner" :class="user.userId == item.winner.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
               <div class="collapse">
                 <label for="collapse1" class="collapse-title text-xl font-medium">
                  <span class="text-before">
                    <label tabindex="0" class="btn glass btn-ghost btn-circle">
                      <div class="avatar">
                        <div class="w-20 mask mask-squircle">
-                         <img v-if="user.userName == game.users[0].userName" :src="game.users[0].imageSrc" />
-                         <img v-if="user.userName == game.users[1].userName" :src="game.users[1].imageSrc" />
+                         <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[0].imageSrc" />
+                         <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[1].imageSrc" />
                        </div>
                      </div>
-                     <span v-if="user.userName == game.users[0].userName" class="font-medium font-bold">{{ game.users[0].userName }}</span>
-                     <span v-if="user.userName == game.users[1].userName" class="font-medium font-bold">{{ game.users[1].userName }}</span>
+                     <span v-if="user.userName == item.game.users[0].userName" class="font-medium font-bold">{{ item.game.users[0].userName }}</span>
+                     <span v-if="user.userName == item.game.users[1].userName" class="font-medium font-bold">{{ item.game.users[1].userName }}</span>
                    </label>
                  </span>
                  <div class="avatar">
@@ -109,12 +120,12 @@
                    <label tabindex="0" class="btn glass btn-ghost btn-circle">
                      <div class="avatar">
                        <div class="w-20 mask mask-squircle">
-                         <img v-if="user.userName == game.users[0].userName" :src="game.users[1].imageSrc" />
-                         <img v-if="user.userName == game.users[1].userName" :src="game.users[0].imageSrc" />
+                         <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[1].imageSrc" />
+                         <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[0].imageSrc" />
                        </div>
                      </div>
-                     <span v-if="user.userName == game.users[0].userName" class="font-medium font-bold">{{ game.users[1].userName }}</span>
-                     <span v-if="user.userName == game.users[1].userName" class="font-medium font-bold">{{ game.users[0].userName }}</span>
+                     <span v-if="user.userName == item.game.users[0].userName" class="font-medium font-bold">{{ item.game.users[1].userName }}</span>
+                     <span v-if="user.userName == item.game.users[1].userName" class="font-medium font-bold">{{ item.game.users[0].userName }}</span>
                    </label>
                  </span>
                  <input type="checkbox" id="collapse1" class="collapse-checkbox" />

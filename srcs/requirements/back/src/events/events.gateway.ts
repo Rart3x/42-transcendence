@@ -153,6 +153,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
 								this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
 
+								this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
+
 								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 									winUserId: this.gameRooms[i].player1UserId
 								});
@@ -165,6 +167,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
 								this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
 
+								this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
 								this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 									winUserId: this.gameRooms[i].player2UserId
 								});
@@ -406,17 +409,17 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			var coinFlip = randomInt(0, 1);
 
 			if (coinFlip == 1){
-				vecY = -3;
+				vecY = -4;
 			}
 			else{
-				vecY = 3;
+				vecY = 4;
 			}
 
 			if (pair.bodyA.label == "left"){
-				vecX = -3;
+				vecX = -4;
 			}
 			else{
-				vecX = 3;
+				vecX = 4;
 			}
 
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
@@ -864,8 +867,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			setTimeout(() => {
 				gameRoom.started = true;
 				Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
-					x: 3,
-					y: 3
+					x: 4,
+					y: 4
 				});
 				gameRoom.player2Ready = false;
 				gameRoom.player1Ready = false;

@@ -323,6 +323,23 @@ export async function getAllScore(gameRoomId: number) {
   return null;
 }
 
+export async function getGameWinner(gameRoomId: number) {
+  try {
+    const response = await fetch(`http://localhost:3000/score/getGameWinner/${gameRoomId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
 /*-----------------------------------------------USERS-----------------------------------------------*/
 export async function isBlock(userName : string, blockedUserName : string){
   try {
