@@ -195,6 +195,7 @@ export default class Game extends Phaser.Scene {
 			this.time.delayedCall(4000, self.spawnSceneProps, [], self);
 		});
 
+
 		socket.on('informOnReconnection', (data) => {
 
 			this.gameRoom = new GameRoom(
@@ -369,9 +370,30 @@ export default class Game extends Phaser.Scene {
 			this.matter.world.setBounds();
 	
         	this.gameRoom.world = this.gameRoom.engine.world;
+			
+			this.spawnSceneProps();
 
-			this.time.delayedCall(4000, self.spawnSceneProps, [], self);
+			socket.emit('readyAfterInit', { roomId: this.gameRoom.id, socketId: socket.id });
 		});
+
+		
+		socket.on('gameStart', () => {
+			let countdown = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
+			<span id="countdown" style="--value:3;"></span> \
+			</span>');
+			let counter = 3;
+			const refreshID = setInterval(() => {
+				if(counter > 0){
+					counter--;
+				}
+				let countdownUI = countdown.node.querySelector('#countdown') as HTMLElement;
+				countdownUI.style.setProperty('--value', counter.toString());
+				if (counter == 0){
+					countdown.destroy();
+					clearInterval(refreshID);
+				}
+			}, 1000);
+		})
 
 		//Mouse hook for movement
 		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
@@ -658,7 +680,8 @@ export default class Game extends Phaser.Scene {
 
 			let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
 			let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
-			if ( scorePlayer1 && scorePlayer2 && scorePlayer1 <= 3 && scorePlayer2 <= 3){
+			if ( scorePlayer1 <= 3 && scorePlayer2 <= 3){
+				console.log("update UI score");
 				scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
 				scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
 			}
@@ -672,7 +695,6 @@ export default class Game extends Phaser.Scene {
 			}
 			for (let i = 0; i < 2; i++){
 				this.gameRoom.entities.players[i].gameObject.setVisible(false);
-
 			}
 			this.gameRoom.entities.ball.gameObject.setVisible(false);
 		}
@@ -684,24 +706,7 @@ export default class Game extends Phaser.Scene {
 		this.createUIScore();
         this.gameRoom.entities = new Entities(this, this.gameRoom.customGameMode, this.gameRoom.player1SocketId, this.gameRoom.player2SocketId);
 
-		let countdown = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
-			<span id="countdown" style="--value:3;"></span> \
-		</span>');
-		let counter = 3;
-		const refreshID = setInterval(() => {
-			if(counter > 0){
-				counter--;
-			}
-			let countdownUI = countdown.node.querySelector('#countdown') as HTMLElement;
-			countdownUI.style.setProperty('--value', counter.toString());
-			if (counter == 0){
-				countdown.destroy();
-				clearInterval(refreshID);
-				// if (this.gameRoom.entities){
-					// this.gameRoom.entities.ball.gameObject.setVelocity(3, 3);
-				// }
-			}
-		}, 1000);
+
 		this.graphics = this.add.graphics({ fillStyle: { color: 0xffffffff } });
 		const point = new Phaser.Math.Vector2(500, 20);
 		for (let offset = 100; offset < 680; offset+=40)
@@ -720,10 +725,10 @@ export default class Game extends Phaser.Scene {
 
 		//Interpolate x y coordinates on ball object
 		const ballSnapshot = SI.calcInterpolation('x y velX velY', 'ball');
-	
+
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;
-	
+
 			if (state){
 				const { id, x, y, velX, velY } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {

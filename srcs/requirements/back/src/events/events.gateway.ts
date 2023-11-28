@@ -68,8 +68,8 @@ const Engine = Matter.Engine,
 
 //DEFINES------------------------------------------------------------------------------------------------------------------------------------
 const SERVER_REFRESH_RATE = 1000 / 60;
-const PADDLE_HEIGHT = 80;
-const MAX_BOUNCING_ANGLE = Math.PI/2;
+const PADDLE_HEIGHT = 94;
+const MAX_BOUNCING_ANGLE = 5 * Math.PI/ 12;
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
 //UTILS--------------------------------------------------------------------------------------------------------------------------------------
@@ -348,10 +348,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				//Relative intersect (between -40 and 40)
 
 				intersectionDeltaY = player.gameObject.position.y  - gameRoom.entities.ball.gameObject.position.y;
-
+			
 				//Normalized intersect
 
-				theta = intersectionDeltaY / PADDLE_HEIGHT / 2;
+				theta = (intersectionDeltaY / (PADDLE_HEIGHT / 2));
 				
 				//Get speed of incoming ball and saving it
 				let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
@@ -532,8 +532,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		setTimeout(() => {
 			gameRoom.started = true;
 			Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-				x: 3,
-				y: 3
+				x: 4,
+				y: 4
 			});
 		}, 3000);
 	}
@@ -841,6 +841,25 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (gameRoom.player1Ready == true && gameRoom.player2Ready == true){
 			this.server.to(gameRoom.player1SocketId).emit('init', {});
 			this.server.to(gameRoom.player2SocketId).emit('init', {});
+		}
+	}
+
+	@SubscribeMessage('readyAfterInit')
+	handleGameStart(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() data: {roomId: number, socketId: string }) : void {
+
+		var gameRoom : GameRoomType = this.findCorrespondingGame(data.roomId);
+
+		if (gameRoom && socket.id == gameRoom.player1SocketId){
+			gameRoom.player1Spawn = true;
+		}
+		else if (gameRoom){
+			gameRoom.player2Spawn = true;
+		}
+		if (gameRoom && gameRoom.player1Spawn == true && gameRoom.player2Spawn == true){
+			this.server.to(gameRoom.player1SocketId).emit('gameStart');
+			this.server.to(gameRoom.player2SocketId).emit('gameStart');
 
 			setTimeout(() => {
 				gameRoom.started = true;
@@ -850,9 +869,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				});
 				gameRoom.player2Ready = false;
 				gameRoom.player1Ready = false;
-			}, 7000);
+			}, 3000);
 		}
 	}
+	
 
 	botPlay(gameRoom: GameRoomType){
 		//IA Thinking

@@ -15,6 +15,8 @@ export interface GameRoom {
     player2SocketId: string;
     player1Ready: boolean;
     player2Ready: boolean;
+    player1Spawn: boolean;
+    player2Spawn: boolean;
     player1Disconnected: boolean;
     player2Disconnected: boolean;
     customGame: boolean;
