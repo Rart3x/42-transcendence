@@ -69,9 +69,8 @@
 <template>
 
   <div class="overflow-x-auto min-h-screen bg-base-200 ">
-
       <div class="table grid grid-cols-4">
-        <table class="table-fixed w-full">
+        <table class="table table-fixed w-full">
           <tbody>
             <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index" >
               <td :class="user.userId == item.winner.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
@@ -135,13 +134,13 @@
                     <input type="checkbox" id="collapse1" class="collapse-checkbox" />
                     <div class="collapse-content flex flex-col items-center justify-center">
                       <p v-for="(score, idx) in item.scores" :key="idx" class="dark-row">
-                        <span>
+                        <span>  
                           <span  v-if="user.userName == item.game.users[0].userName && idx == item.scores.length - 1" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
                           <span  v-else-if="user.userName == item.game.users[1].userName && idx == item.scores.length - 1" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
                           <span  v-else-if="user.userName == item.game.users[0].userName" class="ml-auto text-lg font-bold">  {{ score.scoreA }}  / {{ score.scoreB }}<span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
                           <span  v-else class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
                         </span>
-                        </p>
+                      </p>
                     </div>
                   </div>
                 </td>

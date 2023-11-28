@@ -47,7 +47,7 @@ const socket = io('http://localhost:3000');
 export default class Game extends Phaser.Scene {
 
 	startButton !: Phaser.GameObjects.BitmapText;
-	gameRoom : GameRoom;
+	gameRoom : GameRoom | undefined;
 	UIElement : Phaser.GameObjects.DOMElement;
 	UIScorePlayer1: Phaser.GameObjects.DOMElement;
 	UIScorePlayer2: Phaser.GameObjects.DOMElement;
@@ -57,7 +57,6 @@ export default class Game extends Phaser.Scene {
 		super("game");
 		setClientSocket(user.userName, socket.id);
 
-		console.log(socket.id);
 	}
 
 	preload(){
@@ -428,6 +427,7 @@ export default class Game extends Phaser.Scene {
 		}, this);
 
 		socket.on('scorePoint', (data) => {
+			console.log(data.score.player1, data.score.player2);
 			if (this.gameRoom.entities){
 				if (!this.gameRoom.player1Disconnected && !this.gameRoom.player2Disconnected){
 					//Reset ball to the middle
@@ -484,14 +484,14 @@ export default class Game extends Phaser.Scene {
 			')
 
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
-
-			if (user.userId == data.winUserId){
+			
+			if (this.gameRoom && user.userId == data.winUserId){
 				if (user.userId == this.gameRoom.player1UserId)
 					winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
 				else
 					winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
 			}
-			else{
+			else if (this.gameRoom){
 				if (user.userId == this.gameRoom.player1UserId)
 					winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName;
 				else
@@ -511,7 +511,7 @@ export default class Game extends Phaser.Scene {
 						playAgainButton.innerText = "Play again 1/2";
 					}
 				}
-				else{
+				else if (this.gameRoom){
 					this.gameRoom.player2PlayAgain = true;
 					if (this.gameRoom.player1PlayAgain){
 						playAgainButton.innerText = "Play again 2/2";
@@ -520,12 +520,17 @@ export default class Game extends Phaser.Scene {
 						playAgainButton.innerText = "Play again 1/2";
 					}
 				}
-				socket.emit('playAgain', this.gameRoom.id);
+				if (this.gameRoom){
+					socket.emit('playAgain', this.gameRoom.id);
+				}
 			});
 
 			stopButton.addEventListener('click', () => {
-				socket.emit('stopPlay', this.gameRoom.id);
+				if (this.gameRoom){
+					socket.emit('stopPlay', this.gameRoom.id);
+				}
 				this.destroyUI();
+				this.gameRoom = undefined;
 				this.children.removeAll();
 				this.gamePage(this);
 			});
@@ -681,7 +686,6 @@ export default class Game extends Phaser.Scene {
 			let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
 			let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
 			if ( scorePlayer1 <= 3 && scorePlayer2 <= 3){
-				console.log("update UI score");
 				scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
 				scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
 			}

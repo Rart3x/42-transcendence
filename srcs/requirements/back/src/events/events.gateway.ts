@@ -144,7 +144,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					//If it wasnt then launch the game engine
 					if (this.gameRooms[i].botGame == false){
 						const scorePlayer1 = this.gameRooms[i].score.get(this.gameRooms[i].player1SocketId);
-						const scorePlayer2 = this.gameRooms[i].score.get(this.gameRooms[i].player2SocketId)
+						const scorePlayer2 = this.gameRooms[i].score.get(this.gameRooms[i].player2SocketId);
+
+						// console.log(scorePlayer1, scorePlayer2);
 						this.checkWinConditionMultiGame(this.gameRooms[i]);
 						if (this.gameRooms[i].finish){
 
@@ -197,6 +199,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							// 		console.log(this.gameRooms[i].entities.obstacles[i].rotate(0.1));
 							// 	}
 							// }
+							// console.log(this.gameRooms[i], new Date());
 							this.saveGameState(this.gameRooms[i]);
 							Engine.update(this.gameRooms[i].engine);
 						}
@@ -318,6 +321,15 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		Matter.Body.setPosition(ball.gameObject, {x: 500, y: 400});
 
 	}
+	
+	removeCollisionsEvent(engine: Matter.Engine, gameRoom: GameRoomType){
+		// Remove 'collisionStart' event
+		Matter.Events.off(engine, 'collisionStart');
+	 
+		// Remove 'collisionEnd' event
+		Matter.Events.off(engine, 'collisionEnd');
+	 }
+	 
 
 	initCollisions(customGameMode: Boolean, entities: Entities, world: Matter.World){
 		Matter.World.add(world, entities.ball.gameObject);
@@ -376,8 +388,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoomType) => {
 			let scorerId : number;
 			let scorePlayer1 = gameRoom.score.get(gameRoom.player1SocketId);
-			var scorePlayer2  = gameRoom.score.get(gameRoom.player2SocketId);
+			let scorePlayer2  = gameRoom.score.get(gameRoom.player2SocketId);
 
+			// console.log(gameRoom.roomId, scorePlayer1, scorePlayer2);
 			if (gameRoom.finish == false && gameRoom.player1Disconnected == false && (gameRoom.player2Disconnected == false || gameRoom.botGame)){
 				if (pair.bodyA.label == "left"){
 					scorerId = gameRoom.player2UserId;
@@ -397,7 +410,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						scorePlayer1,
 						scorePlayer2);
 				}
-
 			}
 		}
 
@@ -596,6 +608,16 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		this.server.to(socket.id).emit('matchmaking', {});
 	}
 
+	@SubscribeMessage('stopPlay')
+	async handleStopPlay(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() roomId: number) {
+		var gameRoom = this.findCorrespondingGame(roomId);
+		gameRoom.finish = true;
+	
+		this.removeCollisionsEvent(gameRoom.engine, gameRoom);
+
+	}
 
 	@SubscribeMessage('playerJoinCustomQueue')
 	async handleJoinQueueCustom(
