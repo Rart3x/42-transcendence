@@ -39,7 +39,7 @@
     </div>
   </div>
   <!--Messages Drawer-->
-  <div v-if="display" class="drawer-end">
+  <div v-if="display" class="drawer-end z-[1]">
     <input id="my-drawer-1" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
       <button class="btn btn-ghost btn-circle">
