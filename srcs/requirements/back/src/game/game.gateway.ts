@@ -487,11 +487,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			const first = this.queueListNormalGame.entries().next().value;
 
 			this.queueListNormalGame.delete(first[0]);
-	
+
 			const second = this.queueListNormalGame.entries().next().value;
-	
+
 			user1 = await this.UserService.getUserById(first[0]);
-	
+
 			user2 = await this.UserService.getUserById(second[0]);
 	
 			this.queueListNormalGame.delete(second[0]);
@@ -499,8 +499,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			//Database service
 			const gameRoom = await this.GameRoomService.createGameRoom(first, second, false);
 
-			// console.log(`player1 is ${gameRoom.player1SocketId} and player2 is ${gameRoom.player2SocketId}`);
-	
 			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
 
 			this.gameRooms.push(localRoom);
@@ -536,7 +534,18 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@MessageBody() roomId: number) {
 		var gameRoom = this.findCorrespondingGame(roomId);
 		gameRoom.finish = true;
-	
+		if (socket.id == gameRoom.player1SocketId){
+			if (gameRoom.player1Ready == true){
+				this.server.to(gameRoom.player2SocketId).emit('playStop');
+			}
+			gameRoom.player1Ready = false;
+		}
+		else{
+			if (gameRoom.player2Ready == true){
+				this.server.to(gameRoom.player1SocketId).emit('playStop');
+			}
+			gameRoom.player2Ready = false;
+		}
 		this.removeCollisionsEvent(gameRoom.engine, gameRoom);
 	}
 
@@ -607,6 +616,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (!gameRoom){
 			return ;
 		}
+
 		const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
 		const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
 
@@ -660,7 +670,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}, 3000);
 		}
 	}
-	
 
 	@SubscribeMessage('playAgain')
 	async handleReplay(
@@ -791,6 +800,21 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (gameRoom.player1Ready == true && gameRoom.player2Ready == true){
 			this.server.to(gameRoom.player1SocketId).emit('init', {});
 			this.server.to(gameRoom.player2SocketId).emit('init', {});
+		}
+	}
+
+	@SubscribeMessage('playerNotReady')
+	handlePlayerNotReady(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() roomId: number): void {
+		var gameRoom : GameRoom = this.findCorrespondingGame(roomId);
+		if (socket.id == gameRoom.player1SocketId){
+			gameRoom.player1Ready = false;
+			this.server.to(gameRoom.player2SocketId).emit('otherPlayerNotReady', {});
+		}
+		else{
+			gameRoom.player2Ready = false;
+			this.server.to(gameRoom.player1SocketId).emit('otherPlayerNotReady', {});
 		}
 	}
 
