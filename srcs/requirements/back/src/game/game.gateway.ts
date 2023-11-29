@@ -147,7 +147,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					const scorePlayer1 = this.gameRooms[i].score.get(this.gameRooms[i].player1SocketId);
 					const scorePlayer2 = this.gameRooms[i].score.get(this.gameRooms[i].player2SocketId);
 
-					// console.log(scorePlayer1, scorePlayer2);
 					this.checkWinConditionMultiGame(this.gameRooms[i]);
 					if (this.gameRooms[i].finish){
 
@@ -335,7 +334,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			let scorePlayer1 = gameRoom.score.get(gameRoom.player1SocketId);
 			let scorePlayer2  = gameRoom.score.get(gameRoom.player2SocketId);
 
-			// console.log(gameRoom.roomId, scorePlayer1, scorePlayer2);
 			if (gameRoom.finish == false && gameRoom.player1Disconnected == false){
 				if (pair.bodyA.label == "left"){
 					scorerId = gameRoom.player2UserId;
@@ -501,6 +499,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			//Database service
 			const gameRoom = await this.GameRoomService.createGameRoom(first, second, false);
 
+			// console.log(`player1 is ${gameRoom.player1SocketId} and player2 is ${gameRoom.player2SocketId}`);
+	
 			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, false);
 
 			this.gameRooms.push(localRoom);
@@ -669,6 +669,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 		let gameRoom = this.findCorrespondingGame(roomId);
 
+		this.removeCollisionsEvent(gameRoom.engine, gameRoom);
+
 		if (gameRoom){
 			const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
 			const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
@@ -684,6 +686,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				
 				const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
 				const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
+				var customGameMode = gameRoom.customGame;
 
 				//Db service
 				var newGameRoom = await this.GameRoomService.createGameRoom(
@@ -707,6 +710,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				this.server.to(localRoom.player1SocketId).emit('lobby', {
 					roomId: localRoom.roomId,
+					customGameMode: customGameMode,
 					player1SocketId: localRoom.player1SocketId,
 					player2SocketId: localRoom.player2SocketId,
 					player1UserName: user1.userName,
@@ -716,6 +720,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				});
 				this.server.to(localRoom.player2SocketId).emit('lobby', {
 					roomId: localRoom.roomId,
+					customGameMode: customGameMode,
 					player1SocketId: localRoom.player1SocketId,
 					player2SocketId: localRoom.player2SocketId,
 					player1UserName: user1.userName,

@@ -2,8 +2,11 @@
 
 //IMPORTS
 
+import { computed, onMounted, ref } from "vue";
+
 //Linear interpolation
 import '@geckos.io/snapshot-interpolation';
+import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
 //Socket communication
 import { io } from 'socket.io-client';
@@ -11,39 +14,35 @@ import { io } from 'socket.io-client';
 //Game library
 import Phaser from 'phaser';
 
+//Game Physics library
 import * as Matter from 'matter-js';
 
-import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-import { computed, onMounted, ref } from "vue";
-
+//Post and Get Methods
 import { getGameRoomByRoomId, getUserByCookie } from './api/get.call';
+import { setClientSocket } from './api/post.call';
 
+//Cookie
 import Cookies from "js-cookie";
 
+//Interfaces
 import Entities from '../entities/entities';
 
 import GameRoom from "../gameRoom/gameRoom";
 
 import Player from "../player/player";
-  import { setClientSocket } from './api/post.call';
 
-//UTILS
-function Between(min : number, max : number){
-	return (Math.random() * (max - min) + min)
-}
 
-//Get user
+//Get user by cookie
 const token = await Cookies.get("_authToken");
 const user = await getUserByCookie(token);
-//Create and bind our socket to the server
 
 //Initialize snapshot library
 const SI = new SnapshotInterpolation();
-// const socket = user.socket;
+
+//Create and bind our socket to the server
 const socket = io('http://localhost:3000');
 
 
-//GAME CLASS
 export default class Game extends Phaser.Scene {
 
 	startButton !: Phaser.GameObjects.BitmapText;
@@ -65,7 +64,7 @@ export default class Game extends Phaser.Scene {
 
 	gamePage(self : any){
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
-			<div class="row-start-1 col-span-2 ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
+			<div class="row-start-1  ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
 			<div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
 			</div> \
 		');
@@ -411,7 +410,6 @@ export default class Game extends Phaser.Scene {
 		}, this);
 
 		socket.on('scorePoint', (data) => {
-			console.log(data.score.player1, data.score.player2);
 			if (this.gameRoom.entities){
 				if (!this.gameRoom.player1Disconnected && !this.gameRoom.player2Disconnected){
 					//Reset ball to the middle
@@ -584,26 +582,40 @@ export default class Game extends Phaser.Scene {
 		let userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
 		let userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
 
+
+		var imagePathPlayer1;
+		var imagePathPlayer2;
+
 		if (socket.id == this.gameRoom.player1SocketId){
 			userProfile1Name.innerText = data.player1UserName;
 			userProfile2Name.innerText = data.player2UserName;
+			
 		}
 		else{
 			userProfile2Name.innerText = data.player2UserName;
 			userProfile1Name.innerText = data.player1UserName;
 		}
 
-		let imagePathPlayer1 = "userImages/" + data.player1Image;
-		let imagePathPlayer2 = "userImages/" + data.player2Image;
+		// console.log(data.player1UserName, data.player1Image);
+		// console.log(data.player2UserName, data.player2Image);
+
+		imagePathPlayer1 = "userImages/" + data.player1Image;
+		imagePathPlayer2 = "userImages/" + data.player2Image;
+
+		this.load.image('userImage2', imagePathPlayer2);
 
 		this.load.image('userImage1', imagePathPlayer1);
-		this.load.image('userImage2', imagePathPlayer2);
+
+		console.log(imagePathPlayer1);
+		console.log(imagePathPlayer2);
+
 
 		this.load.once(Phaser.Loader.Events.COMPLETE, () => {
 			Phaser.DOM.AddToDOM(this.textures.get('userImage1').getSourceImage() as HTMLElement, 'userProfile1');
 			Phaser.DOM.AddToDOM(this.textures.get('userImage2').getSourceImage() as HTMLElement, 'userProfile2');
 		});
 
+	
 		this.load.start();
 
 		let startButton = this.UIElement.node.querySelector('#startButton') as HTMLElement;
@@ -617,11 +629,16 @@ export default class Game extends Phaser.Scene {
 		leaveButton.addEventListener('click', function() {
 			socket.emit('playerLeaveLobby', self.gameRoom.id);
 			self.UIElement.destroy();
+			self.textures.remove('userImage2')
+			self.textures.remove('userImage1')
 			self.gamePage(self);
 		});
 
 		socket.on('otherPlayerLeaveLobby', () => {
-			self.UIElement.destroy();
+			// self.UIElement.destroy();
+			self.destroyUI();
+			self.textures.remove('userImage2')
+			self.textures.remove('userImage1')
 			self.UIElement = self.add.dom(500, 400).createFromHTML(' \
 				<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
 					<div class="row-start-1 col-start-2 col-end-3 ..."> \
@@ -692,7 +709,12 @@ export default class Game extends Phaser.Scene {
 		this.UIElement.destroy();
 
 		this.createUIScore();
-        this.gameRoom.entities = new Entities(this, this.gameRoom.customGameMode, this.gameRoom.player1SocketId, this.gameRoom.player2SocketId);
+        this.gameRoom.entities = new Entities(
+			this,
+			this.gameRoom.customGameMode,
+			this.gameRoom.player1SocketId,
+			this.gameRoom.player2SocketId
+		);
 
 
 		this.graphics = this.add.graphics({ fillStyle: { color: 0xffffffff } });
