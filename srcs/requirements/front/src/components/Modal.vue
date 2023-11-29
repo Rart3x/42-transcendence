@@ -1,10 +1,15 @@
 <script>
-import { getUserByUserName } from './api/get.call';
-
+    import { getUserByUserName } from './api/get.call';
     export default {
     name: 'UserStatHeader',
+    created() {
+        getUserByUserName(this.currentUserName).then(user => {
+            this.currentUser = user;
+        });
+    },
     data() {
         return {
+            currentUser: null,
             message_text: '',
             channelName: '',
             password: '',
@@ -72,7 +77,7 @@ import { getUserByUserName } from './api/get.call';
 </script>
 
 <template>
-    <div v-if="parent === 'userProfile'">
+    <div v-if="parent === 'userProfile' && currentUserName">
         <!--Channel Modal-->
         <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel.value" @keydown.esc="closeModal('modalChannel')">
             <div class="modal-box w-11/12 max-w-5xl">
@@ -106,28 +111,24 @@ import { getUserByUserName } from './api/get.call';
             </div>
         </dialog>
         <!--Private Message Modal-->
-        <dialog v-if="user" id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalMessage" @keydown.esc="closeModal('modalMessage')">
+        <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalMessage.value" @keydown.esc="closeModal('modalMessage')">
             <div class="chat">
                 <div class="chat-title">
-                    <h1>{{ currentUserName}}</h1>
+                    <h1>{{ currentUserName }}</h1>
                     <figure class="avatar">
-                        <img src="https://3.bp.blogspot.com/-SkCpQ54YfbA/WB3aD_kQMiI/AAAAAAAAKlE/w-6wZTBhdXUbPl-ziauSgBoPqw72qFnygCK4B/s1600/media-20160723.jpg" alt="JdB"/>
+                        <!-- <img :src="currentImageSrc"/> -->
                     </figure>
                 </div>
                 <div class="messages">
                     <div class="messages-content"></div>
                 </div>
                 <div class="message-box">
-                    <form class="dialogModal" method="dialog" @submit.prevent="createPrivateMessageInDB(userName, currentUserName, message_text)">
-                        <input type="text" v-model="message_text" class="message-input" placeholder="Send a message..." @input="updateValue('message_text', $event.target.value)" />
-                        <button type="submit" class="message-submit">Send</button>
-                    </form>
+                    <textarea type="text" class="message-input" placeholder="Type message..."></textarea>
+                    <button type="submit" class="message-submit">Send</button>
                 </div>
-                </div>
-                <div class="bg"></div>
+            </div>
+            <div class="bg"></div>
         </dialog>
-    </div>
-    <div>
     <!--Mute User Modal-->
         <dialog id="modalMuteUser" class="modal modal-bottom sm:modal-middle" :open="modalMuteUser" @keydown.esc="closeMuteModal()">
             <div class="modal-box w-11/12 max-w-5xl">

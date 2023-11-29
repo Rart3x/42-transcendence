@@ -24,6 +24,7 @@
 
   let allChannels;
   let channels = ref([]);
+  let currentUser = ref(null);
   let friends = ref([]);
   let user = ref(null);
   let socket = ref(null);

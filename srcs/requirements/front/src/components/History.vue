@@ -67,7 +67,6 @@
 </script>
 
 <template>
-
   <div class="overflow-x-auto min-h-screen bg-base-200 ">
       <div class="table grid grid-cols-4">
         <table class="table table-fixed w-full">
