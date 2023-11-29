@@ -9,30 +9,12 @@ export class GameRoomService {
   async createGameRoom(
     player1: any,
     player2: any | undefined,
-    isBotGame: boolean,
     isCustomGame: boolean): Promise<GameRoom> {
 
-    if (isBotGame){
-      return  await this.prisma.gameRoom.create({
-        data: {
-          player1SocketId: player1[1],
-          botGame: isBotGame,
-          customGame: isCustomGame,
-          startDate: new Date(),
-          users: {
-            connect: [
-              { userId: player1[0] },
-            ],
-          }
-        },
-      });
-    }
-    else{
       return  await this.prisma.gameRoom.create({
         data: {
           player1SocketId: player1[1],
           player2SocketId: player2[1],
-          botGame: isBotGame,
           customGame: isCustomGame,
           startDate: new Date(),
           users: {
@@ -43,7 +25,6 @@ export class GameRoomService {
           }
         },
       });
-    }
   }
 
   async updateGameRoom(

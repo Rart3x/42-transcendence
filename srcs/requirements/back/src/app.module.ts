@@ -5,7 +5,7 @@ import { SocketIoAdapter } from './socket-io.adapter';
 import { AppGateway } from './app.gateway';
 
 import { ChannelModule } from './channel/channel.module';
-import { EventsModule } from './events/events.module';
+import { EventsModule } from './game/game.module';
 import { GameRoomModule } from './gameRoom/gameRoom.module';
 import { MessageModule } from './message/message.module';
 import { NotifModule } from './notif/notif.module';

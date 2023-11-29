@@ -37,7 +37,6 @@ export default class GameRoom {
         socketPlayer2: string,
         player2UserId: number,
         player2UserName: string,
-        botGame: boolean = false
       ) {
             this.id = roomId;
             this.customGameMode = customGameMode;
@@ -57,21 +56,11 @@ export default class GameRoom {
             this.running = false;
             this.score = new Map<string, number>();
             this.score.set(socketPlayer1, 0);
-            if (!botGame && socketPlayer2) {
-                this.score.set(socketPlayer2, 0);
-            }
+            this.score.set(socketPlayer2, 0);
         }
 
-    static createBotGameRoom(
-        game: Phaser.Scene,
-        roomId: number,
-        socketPlayer1: string,
-        player1UserId: number,
-        player1UserName: string): GameRoom {
-        return new GameRoom(game, roomId, false, socketPlayer1, player1UserId, player1UserName, undefined, undefined, undefined, true);
-    }
 
-    static createRegularGameRoom(
+    static createGameRoom(
         game: Phaser.Scene,
         roomId: number,
         customGameMode: boolean,

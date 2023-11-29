@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
+    "@types/socket.io": "^3.0.2",
     "daisyui": "^3.9.4"
   },
   "dependencies": {

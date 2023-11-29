@@ -51,7 +51,7 @@ export default class Game extends Phaser.Scene {
 	UIElement : Phaser.GameObjects.DOMElement;
 	UIScorePlayer1: Phaser.GameObjects.DOMElement;
 	UIScorePlayer2: Phaser.GameObjects.DOMElement;
-	graphics : any;
+	graphics : Phaser.GameObjects.Graphics;
 
 	constructor(){
 		super("game");
@@ -66,7 +66,6 @@ export default class Game extends Phaser.Scene {
 	gamePage(self : any){
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
 			<div class="row-start-1 col-span-2 ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
-			<div class="row-start-3 col-span-2 ..."><button id="botButton" class="btn btn-primary ml-5 ...">Bot</button></div> \
 			<div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
 			</div> \
 		');
@@ -83,21 +82,6 @@ export default class Game extends Phaser.Scene {
 				}
 			}, this);
 		}
-
-		let botButton = this.UIElement.node.querySelector('#botButton') as HTMLElement;
-
-		botButton.addEventListener('click', function() {
-			socket.emit('botGame', user.userId);
-			self.UIElement.destroy();
-			self.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
-			<div class="row-start-1 col-start-2 col-end-3 ..."> \
-				<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
-			</div> \
-			<div class="row-start-2 col-start-2 col-end-3 ..."> \
-				<span class=" loading loading-dots loading-lg"></span> \
-			</div> \
-			</div>');
-		});
 
 
 		let multiplayerButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
@@ -556,7 +540,7 @@ export default class Game extends Phaser.Scene {
 			this.destroyUI();
 		}
 
-		this.gameRoom = GameRoom.createRegularGameRoom(
+		this.gameRoom = GameRoom.createGameRoom(
 			this,
 			data.roomId,
 			data.customGameMode,
@@ -749,9 +733,11 @@ export default class Game extends Phaser.Scene {
 			if (obstaclesSnapshot){
 				const { state } = obstaclesSnapshot;
 				if (state){
-					const delta = state[0];
-					for (let i = 0; i < 2; i++){
-						this.gameRoom.entities.obstacles[i].gameObject.rotation += 0.05;
+					const {id, delta} = state[0];
+					if (id != undefined){
+						for (let i = 0; i < 2; i++){
+							this.gameRoom.entities.obstacles[i].gameObject.setAngle(delta);
+						}
 					}
 				}
 			}

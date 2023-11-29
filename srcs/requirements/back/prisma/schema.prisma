@@ -37,7 +37,6 @@ model GameRoom {
 
   nbBounces    Int      @default(0)
 
-  botGame      Boolean @default(false)
   customGame   Boolean @default(false)
   running      Boolean @default(false)
   started      Boolean @default(false)
