@@ -45,7 +45,7 @@
       <button class="btn btn-ghost btn-circle">
         <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
           <div class="indicator">
-            <img src="src/assets/messages.png" />
+            <img src="../assets/messages.png" />
             <span class="badge badge-xs badge-error indicator-item"></span>
           </div>
         </label>

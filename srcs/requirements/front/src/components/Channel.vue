@@ -99,6 +99,8 @@
       }, 3000);
     }
     users.value = await getUsersFromChannel(route.params.channelName);
+    updateUserImages(users.value);
+    channel.value = await getChannelByName(route.params.channelName);
   };
 
   const removeUserFromChannelInDB = async (channelName, userName) => {
@@ -117,6 +119,7 @@
       }, 3000);
     }
     users.value = await getUsersFromChannel(route.params.channelName);
+    updateUserImages(users.value);
   };
 
   const filteredUsers = computed(() => {

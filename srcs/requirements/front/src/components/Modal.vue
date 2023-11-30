@@ -1,12 +1,6 @@
 <script>
-    import { getUserByUserName } from './api/get.call';
     export default {
     name: 'UserStatHeader',
-    created() {
-        getUserByUserName(this.currentUserName).then(user => {
-            this.currentUser = user;
-        });
-    },
     data() {
         return {
             currentUser: null,
@@ -14,10 +8,7 @@
             channelName: '',
             password: '',
             passwordCheckBox: false,
-            selectedDuration1: 1,
-            selectedDuration2: 1,
-            selectedDuration3: 1,
-            selectedDuration4: 1,
+            selectedDuration: 1,
         };
     },
     methods: {
@@ -30,18 +21,7 @@
             updateValue('message_text', value);
         },
 
-        submitMuteForm() {
-            let selectedDuration = 1;
-            
-            if (this.selectedDuration1 === true)
-            selectedDuration = 1;
-            else if (this.selectedDuration2 === true)
-                selectedDuration = 3;
-            else if (this.selectedDuration3 === true)
-                selectedDuration = 5;
-            else if (this.selectedDuration4 === true)
-                selectedDuration = 10;
-
+        submitMuteForm(selectedDuration) {
             this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration);
             this.closeMuteModal();
         }
@@ -129,19 +109,18 @@
             </div>
             <div class="bg"></div>
         </dialog>
+    </div>
     <!--Mute User Modal-->
+    <div v-if="parent === 'channel'">
         <dialog id="modalMuteUser" class="modal modal-bottom sm:modal-middle" :open="modalMuteUser" @keydown.esc="closeMuteModal()">
             <div class="modal-box w-11/12 max-w-5xl">
-                <form class="dialogModal" @submit.prevent="submitMuteForm()">
-                    <label> <input type="checkbox" value="1" v-model="selectedDuration1" class="checkbox checkbox-xs" /> 1 minute </label>
-                    <label> <input type="checkbox" value="3" v-model="selectedDuration2" class="checkbox checkbox-sm" /> 3 minutes </label>
-                    <label> <input type="checkbox" value="5" v-model="selectedDuration3" class="checkbox checkbox-md" /> 5 minutes </label>
-                    <label> <input type="checkbox" value="10" v-model="selectedDuration4" class="checkbox checkbox-lg" /> 10 minutes</label>
+                <form class="dialogModal" @submit.prevent="submitMuteForm(selectedDuration)">
+                    <label> <input type="number" v-model="selectedDuration" class="input input-bordered input-sm w-full max-w-xs" /></label>
                     <br><br>
                     <input type="submit" value="Mute" class="btn glass btn-warning">
                 </form>
-        </div>
-    </dialog>
+            </div>
+        </dialog>
     </div>
 </template>
 
