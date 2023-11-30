@@ -22,7 +22,7 @@ re: down
 #-------------------------------------FRONT/BACK-------------------------------------#
 back:
 	@printf "Running Nest in $(NAME) on localhost:3000...\n"
-	@cd ./srcs/requirements/back/ && npm install && npm start
+	@cd ./srcs/requirements/back/ && npm install && npm run start:dev
 
 front:
 	@printf "Running Vue in ${NAME}...\n"

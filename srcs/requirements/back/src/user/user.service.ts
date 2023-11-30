@@ -1,9 +1,12 @@
+import { authenticator } from 'otplib';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
-import { User, Prisma } from '@prisma/client';
+import { Channel, User, Prisma } from '@prisma/client';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as path from 'path';
+import { get } from 'http';
+import { PartialUserDTO } from './dto/partial-user.dto';
 
 async function downloadImage (url, filename) {
   if (!fs.existsSync(path.join(__dirname, '../../../front/src/assets/userImages')))
@@ -24,80 +27,224 @@ async function downloadImage (url, filename) {
 @Injectable()
 export class UserService {
   constructor (private prisma: PrismaService) {}
-
-  async addFriend(userName: string, friendName: string) {
-    const user = await this.prisma.user.findFirst({
-      where: { userName: userName },
-      include: {
-        friends: true // Inclure les amis de l'utilisateur
-      }
+/*-----------------------------------------------CHANNELS-----------------------------------------------*/
+  async getAllChannelsFromUser(userName: string): Promise<Channel[]> {
+    const user = await this.getUserByName(userName);
+    const userChannels = user.channels;
+    const channels = await this.prisma.channel.findMany({
+      where: {
+        channelId: {
+          in: userChannels.map((channel) => channel.channelId),
+        },
+      },
     });
+    return channels;
+  }
 
-    if (!user) {
-      throw new Error("error: user not found");
-    }
-  
-    const friend = await this.prisma.user.findFirst({
-      where: { userName: friendName },
-    });
-  
-    if (!friend) {
-      throw Error("error: friend not found");
-    }
+/*-----------------------------------------------FRIENDS-----------------------------------------------*/
+  async addFriend(userName: string, friendName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const friend = await this.getUserByName(friendName);
 
-    // Mettez à jour l'entrée de l'utilisateur actuel pour ajouter l'ami au tableau friends.
-    const updatedUser = await this.prisma.user.update({
+    if (!user || !friend)
+      return false;
+
+    await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
         friends: {
-          connect: { friendId: user.userId } // Connectez l'ami
+          connect: { userId: friend.userId }
+        },
+        friendOf: {
+          connect: { userId: friend.userId }
         }
       }
     });
 
-    return updatedUser; // Vous pouvez retourner l'utilisateur mis à jour si nécessaire.
+    await this.prisma.user.update({
+      where: { userId: friend.userId },
+      data: {
+        friends: {
+          connect: { userId: user.userId }
+        },
+        friendOf: {
+          connect: { userId: user.userId }
+        }
+      }
+    });
+    return true;
   }
 
-  async  setSocket(userId: number, socket: string): Promise<User> {
-    return this.prisma.user.update({
-      where : { userId: userId },
-      data : { socket: socket }
+  async isFriend(userName: string, friendName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const friend = await this.getUserByName(friendName);
+  
+    if (!user || !friend)
+      return false;
+  
+    const friendOf = await this.prisma.user.findMany({
+      where: {
+        userId: user.userId,
+        friendOf: {
+          some: {
+            userId: friend.userId,
+          },
+        },
+      },
+    });
+  
+    const friends = await this.prisma.user.findMany({
+      where: {
+        userId: friend.userId,
+        friends: {
+          some: {
+            userId: user.userId,
+          },
+        },
+      },
+    });
+  
+    if (friendOf.length > 0 && friends.length > 0)
+      return true;
+    return false;
+  }
+
+  async getAllFriends(userId: number): Promise<User[]> {
+    const friends = await this.prisma.user.findMany({
+      where: {
+        friendOf: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+    });
+    return friends;
+  }
+
+  async removeFriend(userName: string, friendName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const friend = await this.getUserByName(friendName);
+
+    if (!user || !friend)
+      return false;
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        friends: {
+          disconnect: { userId: friend.userId },
+        },
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { userId: friend.userId },
+      data: {
+        friendOf: {
+          disconnect: { userId: user.userId },
+        },
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        friendOf: {
+          disconnect: { userId: friend.userId },
+        },
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { userId: friend.userId },
+      data: {
+        friends: {
+          disconnect: { userId: user.userId },
+        },
+      },
+    });
+    return true;
+  }
+/*-----------------------------------------------USERS-----------------------------------------------*/
+  async blockUser(userName: string, blockedUserName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const blockedUser = await this.getUserByName(blockedUserName);
+
+    if (!user || !blockedUser)
+      return false;
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        blockUsers: {
+          connect: { userId: blockedUser.userId },
+        },
+        blockOf: {
+          connect: { userId: blockedUser.userId },
+        }
+      },
+    });
+    return true;
+  }
+
+  async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
+    const user = await this.getUserByName(data.userName);
+    
+    if (user != null)
+      return await this.updateCookie(user.userId, data.cookie);
+
+    // Download the profile picture in a folder and save the path in the database
+    const imagePath = `${data.userName}.jpg`;
+    await downloadImage(data.image, imagePath);
+    data.image = imagePath;
+    data.displayName = data.userName;
+
+    const createUserInput: Prisma.UserCreateInput = {
+      ...data,
+    };
+
+    return this.prisma.user.create({
+      data: createUserInput,
     });
   }
 
-  // async getFriendUserNames(userId : number) {
-  //   try {
-  //     const user = await this.prisma.user.findUnique({
-  //       where: { userId: userId },
-  //     });
-  
-  //     if (!user) {
-  //       throw new Error("error: user not found");
-  //     }
-  
-  //     const friendUserNames = await this.prisma.user.findMany({
-  //       where: {
-  //         userId: { in: user.friendsId },
-  //       },
-  //       select: {
-  //         userName: true,
-  //       },
-  //     });
-  //     return friendUserNames.map((friend) => friend.userName);
-  //   }
-  //   catch (error) {
-  //     console.error(error);
-  //   }
-  // }
+  async isBlock(userName: string, blockedUserName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const blockedUser = await this.getUserByName(blockedUserName);
 
-  async getUserByUserName(userName: string) {
-    return await this.prisma.user.findFirst({
-      where: { userName: userName },
+    if (!user || !blockedUser)
+      return false;
+
+    const blockOf = await this.prisma.user.findMany({
+      where: {
+        userId: user.userId,
+        blockOf: {
+          some: {
+            userId: blockedUser.userId,
+          },
+        },
+      },
     });
+
+    const blockUsers = await this.prisma.user.findMany({
+      where: {
+        userId: blockedUser.userId,
+        blockUsers: {
+          some: {
+            userId: user.userId,
+          },
+        },
+      },
+    });
+
+    if (blockOf.length > 0 && blockUsers.length > 0)
+      return true;
+    return false;
   }
 
   async getUserByCookie(cookie: string) {
-  
+    
     const user = await this.prisma.user.findFirst({
       where: { cookie: cookie },
     });
@@ -105,43 +252,22 @@ export class UserService {
     return user;
   }
 
-  async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
-    const user = await this.getUserByUserName(data.userName);
-    
-    if (user != null) {
-      await this.updateCookie(user.userId, data.cookie);
-      return user;
-    }
-  
-    // Download the profile picture in a folder and save the path in the database
-    const imagePath = `${data.userName}.jpg`;
-    await downloadImage(data.image, imagePath);
-    data.image = imagePath;
-    data.displayName = data.userName;
-  
-    const createUserInput: Prisma.UserCreateInput = {
-      ...data,
-    };
-  
-    // If a friend's name is provided, create a Friend record during user creation
-    if (friendName) {
-      createUserInput.friends = {
-        create: [{
-          friend: {
-            create: {
-              userName: friendName,
-            },
-          },
-        }],
-      };
-    }
-  
-    return this.prisma.user.create({
-      data: createUserInput,
+  async getUserByName(userName: string) {
+    return await this.prisma.user.findFirst({
+      where: { userName: userName },
+      include: {
+        channels: true,
+      },
     });
   }
-  
 
+  async getUserById(userId: number) {
+    const userIdNumber = Number(userId);
+    return await this.prisma.user.findUnique({
+      where: { userId: userIdNumber },
+    });
+   }
+   
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {
       return this.prisma.user.findUnique({
@@ -149,10 +275,131 @@ export class UserService {
     });
   }
 
+  async setStatus(userName: string, status : string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    if (!user)
+      return false;
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: { status: status },
+    });
+    return true;
+  }
+
+  async unblockUser(userName: string, blockedUserName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const blockedUser = await this.getUserByName(blockedUserName);
+
+    if (!user || !blockedUser)
+      return false;
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        blockUsers: {
+          disconnect: { userId: blockedUser.userId },
+        },
+        blockOf: {
+          disconnect: { userId: blockedUser.userId },
+        }
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { userId: blockedUser.userId },
+      data: {
+        blockOf: {
+          disconnect: { userId: user.userId },
+        },
+        blockUsers: {
+          disconnect: { userId: user.userId },
+        }
+      },
+    });
+    return true;
+  }
+
   async updateUserName(userId: number, newUserName: string): Promise<User> {
     return this.prisma.user.update({
       where: { userId: userId },
       data: { displayName: newUserName },
+    });
+  }
+
+  async updateStatus(userId: number, newStatus: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId: userId },
+      data: { status: newStatus },
+    });
+  }
+
+  async updateUserGame(userId: number, win: boolean) {
+    if (win){
+       await this.prisma.user.update({
+        where: { userId: userId },
+        data: {
+          matchmakingScore: {
+            increment: 10
+          },
+          gamePlayed: {
+            increment: 1
+          },
+          gameWon: {
+            increment: 1
+          }
+        }
+      });
+    }
+    else{
+      await this.prisma.user.update({
+        where: { userId: userId },
+        data: {
+          matchmakingScore: {
+            decrement: 10
+          },
+          gamePlayed: {
+            increment: 1
+          },
+        }
+      });
+    }
+    var user = this.getUserById(userId);
+  }
+  
+  async getAllUsers(): Promise<PartialUserDTO[]> {
+    return await this.prisma.user.findMany({
+      select: {
+        userName: true,
+        displayName: true,
+        image: true,
+        gamePlayed: true,
+        gameWon: true,
+        matchmakingScore: true
+      },
+    });
+  }
+/*-----------------------------------------------UTILS-----------------------------------------------*/
+  async  setSocket(userId: number, socket: string): Promise<User> {
+    return this.prisma.user.update({
+      where : { userId: userId },
+      data : { socket: socket }
+    });
+  }
+
+  async updateA2F(userName: string, A2F: boolean): Promise<User> {
+    if (!A2F) {
+      return this.prisma.user.update({
+        where: { userName: userName },
+        data: { A2FSecret: null, A2F: false },
+      });
+    }
+    authenticator.resetOptions();
+    const secret = authenticator.generateSecret();
+    const otpAuthUrl = authenticator.keyuri(userName, 'PMU', secret);
+    return this.prisma.user.update({
+      where: { userName: userName },
+      data: { A2FUrl: otpAuthUrl, A2F: true, A2FSecret: secret },
     });
   }
 
@@ -167,6 +414,6 @@ export class UserService {
     const imagePath = path.join(__dirname, '../../../front/src/assets/userImages', `${userName}.jpg`);
     fs.writeFileSync(imagePath, imageFile.buffer);
 
-    return ;
+    return await this.getUserByName(userName);
   }
 }

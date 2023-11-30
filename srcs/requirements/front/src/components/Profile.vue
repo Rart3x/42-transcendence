@@ -1,148 +1,261 @@
 <script setup>
+  import Alert from './Alert.vue';
+  import UserStatHeader from "./UserStatHeader.vue";
+  import History from "./History.vue";
   import Cookies from "js-cookie";
-  import { onMounted, ref } from "vue";
-  import { getUserByCookie, getUserByUserId } from "./api/get.call";
-  import { addFriend, updateUsername, updateImage } from './api/post.call';
+  import { ref, onMounted } from 'vue';
+  import { removeFriend } from './api/delete.call';
+  import { isBlock, isFriend, getPrivateMessages, getUserByCookie, getUserByUserName } from './api/get.call';
+  import { addFriend, blockUser, createChannel, createPrivateMessage, unblockUser } from './api/post.call';
+  import { useRoute } from 'vue-router';
 
-  const friendName = ref("");
-  const newUserName = ref("");
-  const userName = ref("");
-
-  let imageSrc = ref(null);
-  let selectedFile = ref(null);
+  let actualUser = ref(null);
   let user = ref(null);
 
-  const handleFileChange = (event) => {
-    selectedFile.value = event.target.files[0];
-  }
+  let addChannelSuccess = ref(false);
+  let addFriendSuccess = ref(false);
+  let blockSuccess = ref(false);
+  let removeFriendSuccess = ref(false);
+  let unblockSuccess = ref(false);
 
-  const handleSubmit = async () => {
-    await updateUsername(user.userName, newUserName.value);
-    window.location.href = "/Profile";
-  }
+  let addChannelFailed = ref(false);
+  let addFriendFailed = ref(false);
+  let blockFailed = ref(false);
+  let removeFriendFailed = ref(false);
+  let unblockFailed = ref(false);
+
+  let isFriendBool = ref(false);
+  let isBlockBool = ref(false);
+
+  const route = useRoute();
+
+  const channelName = ref(null);
+  const modalChannel = ref(false);
+
+  let messages = ref([]);
+  let message_text = ref(null);
+
+  const addFriendFromDB = async (userName, friendName) => {
+    const response = await addFriend(userName, friendName);
+
+    if (response && response.success) {
+      addFriendSuccess.value = true;
+      setTimeout(() => {
+        addFriendSuccess.value = false;
+      }, 3000);
+      isFriendBool.value = true;
+    } 
+    else {
+      addFriendFailed.value = true;
+      setTimeout(() => {
+        addFriendFailed.value = false;
+      }, 3000);
+    }
+  };
+
+  const blockFromDB = async (userName, blockedUserName) => {
+    const response = await blockUser(userName, blockedUserName);
+
+    if (response && response.success) {
+      blockSuccess.value = true;
+      setTimeout(() => {
+        blockSuccess.value = false;
+      }, 3000);
+      isBlockBool.value = true;
+      await removeFriendFromDB(userName, blockedUserName);
+    } 
+    else {
+      blockFailed.value = true;
+      setTimeout(() => {
+        blockFailed.value = false;
+      }, 3000);
+      isBlockBool.value = false;
+    }
+  };
+
+  const createChannelInDB = async (channelName, userName, currentUserName) => {
+    const response = await createChannel(channelName, userName, currentUserName);
+    modalChannel.value = false;
+
+    if (response && response.success) {
+      addChannelSuccess.value = true;
+      setTimeout(() => {
+        addChannelSuccess.value = false;
+      }, 3000);
+    } 
+    else {
+      addChannelFailed.value = true;
+      setTimeout(() => {
+        addChannelFailed.value = false;
+      }, 3000);
+    }
+  };
+
+  const isBlockFromDB = async (userName, blockedUserName) => {
+    const response = await isBlock(userName, blockedUserName);
+
+    if (response && response.success)
+      isBlockBool.value = true;
+    else
+      isBlockBool.value = false;
+  };
+
+  const isFriendFromDB = async (userName, friendName) => {
+    const response = await isFriend(userName, friendName);
+
+    if (response && response.success)
+      isFriendBool.value = true;
+    else
+      isFriendBool.value = false;
+  };
+
+  const openChannelModal = (userName) => {
+    modalChannel.value = true;
+    currentUserName = userName;
+  };
+
+  const removeFriendFromDB = async (userName, friendName) => {
+    const response = await removeFriend(userName, friendName);
+    
+    if (response && response.success) {
+      removeFriendSuccess.value = true;
+      setTimeout(() => {
+        removeFriendSuccess.value = false;
+      }, 3000);
+      isFriendBool.value = false;
+    } 
+    else {
+      removeFriendFailed.value = true;
+      setTimeout(() => {
+        removeFriendFailed.value = false;
+      }, 3000);
+    }
+  };
 
   onMounted(async () => {
-    user = await getUserByCookie(Cookies.get("_authToken"));
-    if (!user)
-      window.location.href = "/";
-    userName.value = user.displayName;
-    let imagePath = "../assets/userImages/" + user.image;
-    import(/* @vite-ignore */imagePath).then((image) => {
-      imageSrc.value = image.default;
+    user.value = await getUserByCookie(Cookies.get("_authToken"));
+    actualUser.value = await getUserByUserName(route.params.userName);
+    
+    isFriendBool.value = isFriendFromDB(user.value.userName, actualUser.value.userName).sucess;
+    isBlockBool.value = isBlockFromDB(user.value.userName, actualUser.value.userName).sucess;
+    
+    messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName);
+
+    let imagePath = "../assets/userImages/" + actualUser.value.image;
+    await import(/* @vite-ignore */ imagePath).then((image) => {
+      actualUser.value.imageSrc = image.default;
     });
+
+    let imagePathUser = "../assets/userImages/" + user.value.image;
+    await import(/* @vite-ignore */ imagePathUser).then((image) => {
+      user.value.imageSrc = image.default;
+    });
+
   });
 
-  const uploadImage = async () => {
-    if (!selectedFile.value) {
-      alert('Please select an image file.');
-      return;
-    }
-    await updateImage(user.userName, selectedFile.value);
-    window.location.href = "/Profile";
-  }
+  const unblockFromDB = async (userName, unblockedUserName) => {
+    const response = await unblockUser(userName, unblockedUserName);
 
-</script>
+    if (response && response.success) {
+      unblockSuccess.value = true;
+      setTimeout(() => {
+        unblockSuccess.value = false;
+      }, 3000);
+      isBlockBool.value = false;
+    } 
+    else {
+      unblockFailed.value = true;
+      setTimeout(() => {
+        unblockFailed.value = false;
+      }, 3000);
+      isBlockBool.value = true;
+    }
+  };
+</script> 
 
 <template>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
   <!--Stats-->
-  <div class="stats shadow">
-    <div class="stat">
-      <div class="stat-figure text-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+  <UserStatHeader v-if="user"
+    :userName="$route.params.userName"
+    :gamePlayed="user.gamePlayed"
+    :gameWon="user.gameWon"
+  />
+
+  <div class="overflow-x-auto min-h-screen bg-base-200 font-mono">
+    <div class="stats shadow flex justify-center">
+      <div class="stat" v-if="!isBlockBool">
+        <button class="btn" v-if="user && !isFriendBool" @click="addFriendFromDB(user.userName, $route.params.userName)">
+          Add {{ $route.params.userName }}
+        </button>
+        <button class="btn btn-error" v-else="user && isFriendFromDB(user.userName, $route.params.userName)" @click="removeFriendFromDB(user.userName, $route.params.userName)">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          Remove {{ $route.params.userName }}
+        </button>
       </div>
-      <div class="stat-title">Total Games</div>
-      <div class="stat-value">0</div><!-- Requete pour le nombre de games -->
-    </div>
-    
-    <div class="stat">
-      <div class="stat-figure text-secondary">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+      <div class="stat" v-if="!isBlockBool">
+        <button class="btn" @click="openChannelModal(user.userName)"> Invite {{ $route.params.userName }} in Channel </button>
+        <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
+          <div class="modal-box w-11/12 max-w-5xl">
+            <form class ="dialogModalChannel" method="dialog" @submit.prevent="createChannelInDB(channelName, user.userName, $route.params.userName)">
+              <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" /><br><br>
+              <button class="btn">Send Invitation</button>
+            </form>
+          </div>
+        </dialog>
       </div>
-      <div class="stat-title">Total Victorys</div>
-      <div class="stat-value">0</div><!-- Requete pour le nombre de victoire -->
-    </div>
-    
-    <div class="stat">
-      <div class="stat-figure text-secondary">
-        <div class="rounded-image">
-          <img :src="imageSrc" alt="User Image" />
-        </div>
+      <div class="stat">
+        <button class="btn btn-error" v-if="user && !isBlockBool" @click="blockFromDB(user.userName, $route.params.userName)">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          Block {{ $route.params.userName }}
+        </button>
+        <button class="btn" v-else="user && isBlockBool" @click="unblockFromDB(user.userName, $route.params.userName)">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          Unblock {{ $route.params.userName }}
+        </button>
       </div>
-      <div class="stat-title">% Victorys</div>
-      <div class="stat-value">0%</div><!-- Calcul victoire, une fois le calcul fait, rouge si -50, jaune -70 sinon vert%-->
     </div>
-  </div>
-  <div class="form-control w-full max-w-xs">
-    <form @submit.prevent="handleSubmit">
-      <label>New username : </label>
-      <input type="text" id="newUserName" v-model="newUserName" :placeholder="userName">
-      <button class="btn">Send</button>
-    </form>
-  </div>
-  <br>
-  <div class="form-control w-full max-w-xs">
-    <label>Upload image : </label>
-    <input type="file" class="file-input file-input-bordered w-full max-w-xs" />
-    <button class="btn" @click="uploadImage">Upload</button>
+    <History v-if="user" :userName="$route.params.userName"/>
   </div>
 
-
-  <!-- <div id="addFriend">
-    <form @submit.prevent="addFriend(userName, friendName)">
-      <label for="friendName">Add Friend</label>
-      <br>
-      <input type="text" id="friendName" v-model="friendName">
-      <button class="btn btn-default">Send</button>
-    </form>
-  </div> -->
-
-  <!--Friends List (faire boucle de generation du tableau avec requetes recuperant tout les user de la FriendList)-->
-  <div class="overflow-x-auto">
-    <table class="table">
-      <!-- head -->
-      <thead>
-        <tr>
-          <th>
-          </th>
-          <th></th>
-          <th>Name</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>
-            <label>
-              <input type="checkbox" class="checkbox" /><!--On click redirige vers le profile avec une route dediee-->
-            </label>
-          </th>
-          <td>
-            <div class="flex items-center space-x-3">
-              <div class="rounded-image">
-                <img :src="imageSrc" alt="User Image" />
-              </div>
-            </div>
-          </td>
-          <td> {{ userName }} </td><!--Voir si userName saffiche pas pck l'API fonctionne pas atm-->
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <!--Alerts-->
+  <Alert
+    :addChannelSuccess="addChannelSuccess"
+    :addChannelFailed="addChannelFailed"
+    :addFriendSuccess="addFriendSuccess"
+    :addFriendFailed="addFriendFailed"
+    :blockSuccess="blockSuccess"
+    :blockFailed="blockFailed"
+    :removeFriendSuccess="removeFriendSuccess"
+    :removeFriendFailed="removeFriendFailed"
+    :unblockSuccess="unblockSuccess"
+    :unblockFailed="unblockFailed"  
+  />
 </template>
 
 <style>
-.rounded-image {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  overflow: hidden;
-}
+  .addingFriend { text-align: center; }
+  .dialogModalChannel {  text-align:center; }
 
-.rounded-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
+  .chat-messages {
+    max-height: 55vh;
+    overflow-x: auto;
+  }
+  .chat-messages::-webkit-scrollbar-thumb { background: #888; }
+  .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
+  .chat-messages::-webkit-scrollbar-track { background: #ddd; }
+
+  .rounded-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  .rounded-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .stats{ border-radius: unset; }
 </style>

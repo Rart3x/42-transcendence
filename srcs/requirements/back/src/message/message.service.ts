@@ -1,29 +1,61 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
-import { Message, Prisma } from '@prisma/client';
+import { Channel, Message, User, Prisma } from '@prisma/client';
 
 @Injectable()
 export class MessageService {
   constructor(private prisma: PrismaService) {}
 
-  async insertMessage(data: Prisma.MessageCreateInput): Promise<Message | null> {
-    return this.prisma.message.create({
+  async createMessage(channel: Channel): Promise<Message> {
+    return await this.prisma.message.create({
       data: {
-        message_text: String(data.message_text),
-      }
+        channelId: channel.channelId,
+      },
     });
   }
 
-async getMessage(): Promise<{ message_text: string; message_date: Date }[]> {
-  const messages = await this.prisma.message.findMany({
-    select: {
-      message_text: true,
-      message_date: true
-    }
-  });
-  return messages.map((message) => ({
-    message_text: message.message_text,
-    message_date: message.message_date
+  async getMessage(): Promise<{ message_text: string; message_date: Date }[]> {
+    const messages = await this.prisma.message.findMany({
+      select: {
+        message_text: true,
+        message_date: true
+      }
+    });
+    return messages.map((message) => ({
+      message_text: message.message_text,
+      message_date: message.message_date
     }));
+  }
+
+  async insertMessageToChannel(channelName: string, message_text: string, user: User): Promise<Message> {
+    const channel = await this.prisma.channel.findUnique({
+      where: {
+        channelName: channelName,
+      },
+    });
+  
+    const message = await this.createMessage(channel);
+  
+    return await this.prisma.message.update({
+      where: { messageId: message.messageId },
+      data: {
+        message_text: message_text,
+        sender: {
+          connect: {
+            userId: user.userId,
+          },
+        },
+        message_date: new Date(),
+        Channel: {
+          connect: {
+            channelId: channel.channelId,
+          },
+        },
+      },
+      include: {
+        sender: true,
+        Channel: true,
+      },
+    });
   }
 }
