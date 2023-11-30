@@ -22,7 +22,7 @@ export default class Player {
         this.width = width;
         this.height = height;
 
-        this.gameObject = this.game.add.rectangle(x, y, width, height, 0xdb2e94ff);
+        this.gameObject = this.game.add.rectangle(x, y, width, height, 0xfffffff);
         this.game.matter.add.gameObject(this.gameObject, playerOptions);
     }
 }

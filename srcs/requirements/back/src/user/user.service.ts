@@ -28,11 +28,14 @@ async function downloadImage (url, filename) {
 export class UserService {
   constructor (private prisma: PrismaService) {}
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
-  async getAllChannels(userName: string): Promise<Channel[]> {
+  async getAllChannelsFromUser(userName: string): Promise<Channel[]> {
     const user = await this.getUserByName(userName);
+    const userChannels = user.channels;
     const channels = await this.prisma.channel.findMany({
       where: {
-        channelAdmin: user.userId,
+        channelId: {
+          in: userChannels.map((channel) => channel.channelId),
+        },
       },
     });
     return channels;
@@ -69,7 +72,6 @@ export class UserService {
         }
       }
     });
-
     return true;
   }
 
@@ -165,6 +167,27 @@ export class UserService {
     return true;
   }
 /*-----------------------------------------------USERS-----------------------------------------------*/
+  async blockUser(userName: string, blockedUserName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const blockedUser = await this.getUserByName(blockedUserName);
+
+    if (!user || !blockedUser)
+      return false;
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        blockUsers: {
+          connect: { userId: blockedUser.userId },
+        },
+        blockOf: {
+          connect: { userId: blockedUser.userId },
+        }
+      },
+    });
+    return true;
+  }
+
   async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
     const user = await this.getUserByName(data.userName);
     
@@ -186,6 +209,40 @@ export class UserService {
     });
   }
 
+  async isBlock(userName: string, blockedUserName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const blockedUser = await this.getUserByName(blockedUserName);
+
+    if (!user || !blockedUser)
+      return false;
+
+    const blockOf = await this.prisma.user.findMany({
+      where: {
+        userId: user.userId,
+        blockOf: {
+          some: {
+            userId: blockedUser.userId,
+          },
+        },
+      },
+    });
+
+    const blockUsers = await this.prisma.user.findMany({
+      where: {
+        userId: blockedUser.userId,
+        blockUsers: {
+          some: {
+            userId: user.userId,
+          },
+        },
+      },
+    });
+
+    if (blockOf.length > 0 && blockUsers.length > 0)
+      return true;
+    return false;
+  }
+
   async getUserByCookie(cookie: string) {
     
     const user = await this.prisma.user.findFirst({
@@ -198,20 +255,69 @@ export class UserService {
   async getUserByName(userName: string) {
     return await this.prisma.user.findFirst({
       where: { userName: userName },
+      include: {
+        channels: true,
+      },
     });
   }
 
   async getUserById(userId: number) {
-    return await this.prisma.user.findFirst({
-      where: { userId: userId },
+    const userIdNumber = Number(userId);
+    return await this.prisma.user.findUnique({
+      where: { userId: userIdNumber },
     });
-  }
-
+   }
+   
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {
       return this.prisma.user.findUnique({
         where: userWhereUniqueInput,
     });
+  }
+
+  async setStatus(userName: string, status : string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    if (!user)
+      return false;
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: { status: status },
+    });
+    return true;
+  }
+
+  async unblockUser(userName: string, blockedUserName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const blockedUser = await this.getUserByName(blockedUserName);
+
+    if (!user || !blockedUser)
+      return false;
+
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: {
+        blockUsers: {
+          disconnect: { userId: blockedUser.userId },
+        },
+        blockOf: {
+          disconnect: { userId: blockedUser.userId },
+        }
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { userId: blockedUser.userId },
+      data: {
+        blockOf: {
+          disconnect: { userId: user.userId },
+        },
+        blockUsers: {
+          disconnect: { userId: user.userId },
+        }
+      },
+    });
+    return true;
   }
 
   async updateUserName(userId: number, newUserName: string): Promise<User> {
@@ -220,6 +326,46 @@ export class UserService {
       data: { displayName: newUserName },
     });
   }
+
+  async updateStatus(userId: number, newStatus: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId: userId },
+      data: { status: newStatus },
+    });
+  }
+
+  async updateUserGame(userId: number, win: boolean) {
+    if (win){
+       await this.prisma.user.update({
+        where: { userId: userId },
+        data: {
+          matchmakingScore: {
+            increment: 10
+          },
+          gamePlayed: {
+            increment: 1
+          },
+          gameWon: {
+            increment: 1
+          }
+        }
+      });
+    }
+    else{
+      await this.prisma.user.update({
+        where: { userId: userId },
+        data: {
+          matchmakingScore: {
+            decrement: 10
+          },
+          gamePlayed: {
+            increment: 1
+          },
+        }
+      });
+    }
+    var user = this.getUserById(userId);
+  }
   
   async getAllUsers(): Promise<PartialUserDTO[]> {
     return await this.prisma.user.findMany({
@@ -227,6 +373,9 @@ export class UserService {
         userName: true,
         displayName: true,
         image: true,
+        gamePlayed: true,
+        gameWon: true,
+        matchmakingScore: true
       },
     });
   }

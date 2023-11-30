@@ -24,6 +24,11 @@ const router = createRouter({
       component: () => import("@/components/Game.vue"),
     },
     {
+      path: "/privateMessage/:senderName/:receiverName",
+      name: "privateMessage",
+      component: () => import("@/components/PrivateMessage.vue"),
+    },
+    {
       path: "/profile",
       name: "userProfile",
       component: () => import("@/components/UserProfile.vue"),
@@ -44,10 +49,15 @@ const router = createRouter({
       component: () => import("@/components/SignIn.vue"),
     },
     {
-      path: "/history",
-      name: "history",
-      component: () => import("@/components/History.vue"),
+      path: "/leaderboard",
+      name: "leaderboard",
+      component: () => import("@/components/Leaderboard.vue"),
     },
+    {
+      path: "/checkPass/:channelName",
+      name: "checkPass",
+      component: () => import("@/components/CheckPass.vue"),
+    }
   ],
 });
 

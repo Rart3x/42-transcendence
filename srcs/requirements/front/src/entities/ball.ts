@@ -18,7 +18,7 @@ export default class Ball{
         this.game = game;
         this.x = x;
         this.y = y;
-        this.gameObject = this.game.add.rectangle(500, 400, 10, 10, 0xdb2e94ff);
+        this.gameObject = this.game.add.rectangle(500, 400, 15, 15, 0xffffffff);
 		//Default ball velocity
         this.game.matter.add.gameObject(this.gameObject, ballOptions);
         this.gameObject.setVelocity(0, 0);

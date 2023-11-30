@@ -1,5 +1,37 @@
 /*-----------------------------------------------CHANNEL-----------------------------------------------*/
-export async function getAllChannels(userName : string) {
+export async function getAllChannels() { 
+  try {
+    const response = await fetch("http://localhost:3000/channel/getAllChannels", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
+export async function getAllNewChannels(userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/getAllNewChannels/${userName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
+export async function getAllChannelsFromUser(userName : string) {
   try {
     const response = await fetch(`http://localhost:3000/user/${userName}/channels`, {
       method: "GET",
@@ -13,7 +45,6 @@ export async function getAllChannels(userName : string) {
   catch (error) {
     console.error('error: sending GET request', error);
   }
-  return null;
 }
 
 export async function getChannelByName(channelName : string) {
@@ -33,26 +64,28 @@ export async function getChannelByName(channelName : string) {
   return null;
 }
 
-export async function isUserBanInChannel(channelName : string, userName : string) {
+export async function isUserInChannel(channelName : string, userName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/isBan/${userName}`, {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/isUser/${userName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if (response.ok)
-      return await response.json();
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
   }
   catch (error) {
     console.error('error: sending GET request', error);
   }
-  return null;
+  return false;
 }
 
-export async function isUserMuteInChannel(channelName : string, userName : string) {
+export async function isUserBanInChannel(channelName : string, userName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/isMute/${userName}`, {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/isBan/${userName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -143,6 +176,41 @@ export async function getUserFriends(userId : number) {
   }
 }
 
+/*-----------------------------------------------GAMEROOM--------------------------------------------*/
+export async function getGameRoomByRoomId(id : number) {
+  try {
+    const response = await fetch(`http://localhost:3000/gameroom/id/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
+export async function getGameRoomByUserId(userId : number) {
+  try {
+    const response = await fetch(`http://localhost:3000/gameroom/get/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
 /*-----------------------------------------------MESSAGES-----------------------------------------------*/
 export async function getMessagesFromChannel(channelName : string) {
   try {
@@ -198,7 +266,81 @@ export async function getPrivateMessages(userName1 : string, userName2 : string)
   return null;
 }
 
+export async function getPrivateMessagesByUserName(userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/privateMessage/${userName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok){
+      return await response.json();
+    }
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+/*-----------------------------------------------SCORE-----------------------------------------------*/
+
+export async function getAllScore(gameRoomId: number) {
+  try {
+    const response = await fetch(`http://localhost:3000/score/getAllScore/${gameRoomId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
+export async function getGameWinner(gameRoomId: number) {
+  try {
+    const response = await fetch(`http://localhost:3000/score/getGameWinner/${gameRoomId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
 /*-----------------------------------------------USERS-----------------------------------------------*/
+export async function isBlock(userName : string, blockedUserName : string){
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/isBlock/${blockedUserName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
 export async function getUsersFromChannel(channelName : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/users`, {
@@ -243,7 +385,7 @@ export async function getUserByCookie(cookie : string) {
 
 export async function getUserByUserId(userId : number) {
   try {
-    const response = await fetch(`http://localhost:3000/user/userId/${userId}`, {
+    const response = await fetch(`http://localhost:3000/user/getUser/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -259,7 +401,7 @@ export async function getUserByUserId(userId : number) {
   }
 }
 
-export async function getUserByName(username : string) {
+export async function getUserByUserName(username : string) {
   try {
     const response = await fetch(`http://localhost:3000/user/getUsername/${username}`, {
       method: "GET",
@@ -286,25 +428,6 @@ export async function getAllUsers() {
     if (response.ok) {
       const responseData = await response.json();
       return responseData;
-    }
-  } 
-  catch (error) {
-    console.error('error: sending GET request', error);
-  }
-}
-
-/*-----------------------------------------------GAMEROOM--------------------------------------------*/
-
-export async function getGameRoomByRoomId(id : number) {
-  try {
-    const response = await fetch(`http://localhost:3000/gameroom/id/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      return await response.json();
     }
   } 
   catch (error) {

@@ -1,6 +1,45 @@
 import { User } from '../../../../back/node_modules/@prisma/client';
 
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
+export async function addOperator(channelName : string, operatorName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/add/operator/${operatorName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ channelName: channelName, operatorName: operatorName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error("error: sending POST request", error);
+  }
+}
+
+export async function checkPass(channelName: string, password: string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/checkPass`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password: password }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request:', error);
+  }
+}
+
 export async function createChannel(channelName : string, userName : string, invitedUserName : string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}`, {
@@ -9,6 +48,46 @@ export async function createChannel(channelName : string, userName : string, inv
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ channelName: channelName, userName: userName, invitedUserName: invitedUserName }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
+export async function createEmptyChannel(channelName : string, userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/create/${channelName}/empty`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ channelName: channelName, userName: userName }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
+export async function joinChannel(channelName : string, userName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/join/${userName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ channelName: channelName, userName: userName }),
     });
 
     if (response.ok) {
@@ -174,6 +253,45 @@ export async function banUserFromChannel(channelName : string, userName : string
   }
 }
 
+export async function blockUser(userName : string, blockedUserName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/block/${blockedUserName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: userName, blockedUserName: blockedUserName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
+export async function unblockUser(userName : string, unblockedUserName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/unblock/${unblockedUserName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: userName, unblockedUserName: unblockedUserName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+
+}
+
 export async function insertUser(userName: string, image: string, cookie: string) {
   try {
     const response = await fetch(`http://localhost:3000/user`, {
@@ -196,14 +314,33 @@ export async function insertUser(userName: string, image: string, cookie: string
   }
 }
 
-export async function muteUserFromChannel(channelName : string, userName : string) {
+export async function muteUserFromChannel(channelName : string, userName : string, duration : number) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/mute/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ channelName: channelName, userName: userName }),
+      body: JSON.stringify({ channelName: channelName, userName: userName, duration: duration }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
+export async function setStatus(userName : string, status : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/setStatus`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: userName, status: status }),
     });
     if (response.ok) {
       const responseData = await response.json();
@@ -264,7 +401,7 @@ export async function insertIntoQueueList(clientSocket : string) {
 /*-----------------------------------------------UTILS-----------------------------------------------*/
 export async function setClientSocket(userName : string, socket : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/${socket}`, {
+    const response = await fetch(`http://localhost:3000/user/socket/${socket}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

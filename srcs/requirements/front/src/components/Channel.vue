@@ -1,16 +1,19 @@
 <script setup>
+  import Alert from './Alert.vue';
+  import Modal from './Modal.vue';
   import Cookies from "js-cookie";
-  import { removeUserFromChannel } from "./api/delete.call";
-  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie, isUserBanInChannel, isUserMuteInChannel } from "./api/get.call";
-  import { banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
-  import { computed, onMounted, ref } from "vue";
+  import { removeOperator, removeUserFromChannel, unmuteUser} from "./api/delete.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie } from "./api/get.call";
+  import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
+  import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
-  import { nextTick } from "vue";
 
   let actualUser = ref(null);
   let channel = ref(null);
   let messages = ref([]);
   let users = ref([]);
+
+  let channelNameMute = ref("");
 
   let message_text = ref("");
 
@@ -25,6 +28,24 @@
   let muteFailed = ref(false);
 
   let actualUserMuted = ref(false);
+
+  let modalMuteUser = ref(false);
+  let userMuted = ref("");
+
+  let selectedDuration = ref(1);
+
+  const addOperatorInDB = async (channelName, userName) => {
+    const response = await addOperator(channelName, userName);
+    updateOperator(users.value, route.params.channelName);
+  };
+
+  const removeOperatorInDB = async (channelName, userName) => {
+    const response = await removeOperator(channelName, userName);
+    updateOperator(users.value, route.params.channelName);
+  };
+
+  const closeMuteModal = () => { modalMuteUser.value = false; };
+  const openMuteModal = (userMutedName) => { modalMuteUser.value = true; userMuted.value = userMutedName};
 
   const banUserFromChannelInDB = async (channelName, userName) => {
     const response = await banUserFromChannel(channelName, userName);
@@ -41,17 +62,29 @@
         banFailed.value = false;
       }, 3000);
     }
-    users.value = await getUsersFromChannel(route.params.channelName);
+    updateBan(users.value, route.params.channelName);
   };
 
-  const isUserMuteInChannelInDB = async () => {
-    const response = await isUserMuteInChannel(route.params.channelName, actualUser.value.userName);
-    console.log(actualUserMuted.value);
-    actualUserMuted.value = response.success;
+  const isOperatorInDB = async (channelName, userId) => {
+    const channel = await getChannelByName(channelName);
+    if (channel && channel.channelOperators)
+      return channel.channelOperators.some(operator => operator.userId === userId);
   };
 
-  const muteUserFromChannelInDB = async (channelName, userName) => {
-    const response = await muteUserFromChannel(channelName, userName);
+  const isUserBanInChannelInDB = async (channelName, userId) => {
+    const channel = await getChannelByName(channelName);
+    if (channel && channel.channelUsersMute)
+      return channel.channelUsersBan.some(user => user.userId === userId);
+  };
+
+  const isUserMuteInChannelInDB = async (channelName, userId) => {
+    const channel = await getChannelByName(channelName);
+    if (channel && channel.channelUsersMute)
+      return channel.channelUsersMute.some(operator => operator.userId === userId);
+  };
+
+  const muteUserFromChannelInDB = async (channelNameMute, userName, selectedDuration) => {
+    const response = await muteUserFromChannel(channelNameMute, userName, selectedDuration);
 
     if (response && response.success) {
       muteSuccess.value = true;
@@ -66,6 +99,8 @@
       }, 3000);
     }
     users.value = await getUsersFromChannel(route.params.channelName);
+    updateUserImages(users.value);
+    channel.value = await getChannelByName(route.params.channelName);
   };
 
   const removeUserFromChannelInDB = async (channelName, userName) => {
@@ -84,6 +119,7 @@
       }, 3000);
     }
     users.value = await getUsersFromChannel(route.params.channelName);
+    updateUserImages(users.value);
   };
 
   const filteredUsers = computed(() => {
@@ -112,12 +148,79 @@
       container.scrollTop = container.scrollHeight;
   };
 
+  async function updateBan(users, channelName) {
+    for (let user of users) {
+      user.isBan = await isUserBanInChannelInDB(channelName, user.userId);
+    }
+  }
+
+  async function updateOperator(users, channelName) {
+    for (let user of users) {
+      user.isOperator = await isOperatorInDB(channelName, user.userId);
+    }
+    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
+  }
+
+  async function updateMessageSenders(messages) {
+    for (let message of messages) {
+      if (message.sender) {
+        let imagePath = `../assets/userImages/${message.sender.image}`;
+        await import(/* @vite-ignore */ imagePath).then((image) => {
+          message.sender.image = image.default;
+        });
+        message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId);
+      }
+    }
+  }
+
+  async function updateUserImages(users) {
+    for (let user of users) {
+      let imagePath = `../assets/userImages/${user.image}`;
+      await import(/* @vite-ignore */ imagePath).then((image) => {
+        user.imageSrc = image.default;
+      });
+      user.isOperator = await isOperatorInDB(route.params.channelName, user.userId);
+    }
+  }
+
+  const checkMuteStatus = async () => {
+    const currentTime = new Date();
+
+    for (const user of users.value) {
+      if (user.userId !== actualUser.value.userId) {
+        const isMuted = await isUserMuteInChannelInDB(route.params.channelName, user.userId);
+        
+        if (isMuted) {
+          const muteDetails = channel.value.channelUsersMute.find(user => user.userId === user.userId).mutedUntil;
+          const muteUntil = new Date(muteDetails);
+
+          if (currentTime > muteUntil) {  
+            await unmuteUser(route.params.channelName, user.userName);
+            user.isMuted = false;
+          }
+        }
+      }
+    }
+    users.value = await getUsersFromChannel(route.params.channelName);
+    updateUserImages(users.value);
+  };
+
+  setInterval(checkMuteStatus, 30000);
+
   onMounted(async () => {
     actualUser.value = await getUserByCookie(Cookies.get("_authToken"));
 
     if (!actualUser.value) window.location.href = "/";
 
+    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
+
     channel.value = await getChannelByName(route.params.channelName);
+    channelNameMute.value = route.params.channelName;
+
+    if (channel.value && channel.value.channelUsers) {
+      const userWithSameId = channel.value.channelUsers.find(user => user.userId === actualUser.value.userId);
+      if (!userWithSameId) window.location.href = "/profile";
+    }
 
     if (actualUser.value.image) {
       let userImagePath = "../assets/userImages/" + actualUser.value.image;
@@ -125,36 +228,32 @@
         actualUser.value.image = userImage.default;
       });
     }
+    actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId);
 
     let usersData = await getUsersFromChannel(route.params.channelName);
-    for (let user of usersData) {
-      let imagePath = "../assets/userImages/" + user.image;
-      await import(/* @vite-ignore */ imagePath).then((image) => {
-        user.imageSrc = image.default;
-      });
-    }
+    await updateUserImages(usersData);
 
     messages.value = await getMessagesFromChannel(route.params.channelName);
 
     scrollToBottom();
-    for (let message of messages.value) {
-      if (message.sender) {
-        let imagePath = "../assets/userImages/" + message.sender.image;
-        await import(/* @vite-ignore */ imagePath).then((image) => {
-          message.sender.image = image.default;
-        });
-      }
-    }
+    await updateMessageSenders(messages.value);
     users.value.splice(0, users.value.length, ...usersData);
   });
 </script>
-
+ 
 <template>
-  <div class="navbar bg-base-100">
-    <button class="btn btn-ghost normal-case text-xl">{{ $route.params.channelName }}</button>
+  <div class="navbar bg-base-100 overflow-x-auto bg-base-200 font-mono">
+    <div class="navbar-end">
+      <details class="dropdown">
+        <summary class="m-1 btn glass">{{ $route.params.channelName }}</summary>
+        <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+          <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName)">Quit</li>
+        </ul>
+      </details>
+    </div>
   </div>
-  <div class="grid-container">
-    <div class="overflow-x-auto">
+  <div class="grid-container font-mono">
+    <div class="overflow-x-auto min-h-screen bg-base-200">
       <div class="friend-list">
         <table class="table table-zebra">
           <tbody v-for="user in filteredUsers" :key="user.userName">
@@ -162,7 +261,7 @@
               <td>
                 <label tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
-                    <div class="w-24 mask mask-squircle">
+                    <div class="w-15 mask mask-squircle">
                       <img :src="user.imageSrc" />
                     </div>
                   </div>
@@ -170,129 +269,100 @@
               </td>
               <td>
                 <router-link :to="'/profile/' + user.userName">
-                  <button class="btn no-animation">{{ user.userName }}</button>
+                  <button v-if="user.status === 'offline'" class="btn glass no-animation text-red-500">{{ user.userName }}</button>
+                  <button v-if="user.status === 'online'" class="btn glass no-animation text-green-500">{{ user.userName }}</button>
+                  <button v-if="user.status === 'ingame'" class="btn glass no-animation text-blue-500">{{ user.userName }}</button>
                 </router-link>
               </td>
-              <td v-if="channel.channelAdmin == actualUser.userId">
-                <button class="btn btn-warning" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
-                <button class="btn btn-warning" @click="muteUserFromChannelInDB($route.params.channelName, user.userName)">Mute</button>
-                <button class="btn btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button> 
+              <td v-if="channel.channelAdmin == actualUser.userId || actualUser.isOperator">
+                <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
+                  <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
+                  <button class="btn glass btn-warning" @click="openMuteModal(user.userName)">Mute</button>
+                  <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
+                  <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperatorInDB($route.params.channelName, user.userName)" >Promote</button>
+                  <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperatorInDB($route.params.channelName, user.userName)">Depreciate</button>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    <!-- Center Chat on mid Grid -->
-    <!-- Penser a ajouter lhoraire denvoi et aussi le focus de la navabar en bas de la box-->
-    <div class="chat-box" style="text-align: center">
-      <div class="chat-messages">
+    <!--Chat-->
+    <div class="overflow-x-auto min-h-screen bg-base-200 chat-box" style="text-align: center">
+      <div v-if="messages && messages.length > 0" class="chat-messages">
         <div v-for="(message, index) in messages" :key="index" class="message">
-          <div class="message-row">
-            <div v-if="message.userId !== actualUser.userId">
+          <div v-if="message.sender && !message.sender.isBan" class="message-row">
+            <div v-if="message.userId != actualUser.userId && message.message_text">
               <div class="chat chat-start">
-                <label tabindex="0" class="btn btn-ghost btn-circle">
-                  <div class="avatar">
-                    <div class="w-24 mask mask-squircle">
-                      <!-- <img :src="message.sender.image" /> -->
+                <router-link :to="`/profile/` + message.sender.userName">
+                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                    <div class="avatar">
+                      <div class="w-15 mask mask-squircle" v-if="message.sender">
+                        <img :src="message.sender.image" />
+                      </div>
                     </div>
-                  </div>
-                </label>
-                <div class="chat-bubble" v-if="messages.message_text">{{ message.message_text }}</div>
-              </div>
+                  </label>
+                </router-link>
+                <div class="chat-bubble">{{ message.message_text }}</div>
+                <div class="message-timestamp"> {{ message.message_date }} </div>
+                </div>
             </div>
-            <div v-if="message.userId === actualUser.userId">
+            <div v-else-if="message.message_text">
               <div class="chat chat-end">
                 <div class="chat-bubble">{{ message.message_text }}</div>
-                <label tabindex="0" class="btn btn-ghost btn-circle">
-                  <div class="avatar">
-                    <div class="w-24 mask mask-squircle">
-                      <img :src="actualUser.image" />
+                <router-link :to="`/profile/` + actualUser.userName">
+                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                    <div class="avatar">
+                      <div class="w-15 mask mask-squircle">
+                        <img :src="actualUser.image" />
+                      </div>
                     </div>
-                  </div>
-                </label>
+                  </label>
+                </router-link>
+                <div class="message-timestamp"> {{ message.message_date.substring(11, 16) }} </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="No Messages" disabled/>
       <div class="chat-input">
-        {{ isUserMuteInChannelInDB() }}
-        <div class="userMutedOrNot" v-if="!actualUserMuted">
-          <input  type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
-          <button class="btn btn-primary" @click="sendMessage">Send</button>
+        <div class="userMutedOrNot" v-if="!actualUserMuted" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
+          <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
+          <button class="btn glass btn-primary" @click="sendMessage(message_text)">Send</button>
         </div>
         <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/>
-
       </div>
     </div>
   </div>
-  <!--Alerts-->
-  <div v-if="kickSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>User has been kicked successfully</span>
-    </div>
-  </div>
-  <div v-if="kickFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to kick User</span>
-    </div>
-  </div>
+  <Alert
+    :kickSuccess="kickSuccess"
+    :kickFailed="kickFailed"
+    :muteSuccess="muteSuccess"
+    :muteFailed="muteFailed"
+    :banSuccess="banSuccess"
+    :banFailed="banFailed"
+  />
+  <Modal
+    :muteUserFromChannelInDB="muteUserFromChannelInDB"
+    :closeMuteModal="closeMuteModal"
+    :modalMuteUser="modalMuteUser" :parent="'channel'"
+    :channelNameMute="channelNameMute"
+    :userMuted="userMuted"
 
-  <div v-if="muteSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>User has been muted successfully</span>
-    </div>
-  </div>
-  <div v-if="muteFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to mute User</span>
-    </div>
-  </div>
-
-  <div v-if="banSuccess" class="toast toast-start">
-    <div class="alert alert-success">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>User has been banned successfully</span>
-    </div>
-  </div>
-  <div v-if="banFailed" class="toast toast-start">
-    <div class="alert alert-error">
-      <span>Failed to ban User</span>
-    </div>
-  </div>
+  />
 </template>
 
 <style scoped>
-  .chat-messages {
-    max-height: 55vh;
-    overflow-x: auto;
-  }
+  .chat-messages { max-height: 55vh; overflow-x: auto; }
   .chat-messages::-webkit-scrollbar-thumb { background: #888; }
   .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }
-
-  .friend-list {
-    max-height: 55vh;
-    overflow-x: auto;
-  }
+  .friend-list { max-height: 85vh; overflow-x: auto; }
   .friend-list::-webkit-scrollbar-thumb { background: #888; }
   .friend-list::-webkit-scrollbar-thumb:hover { background: #555; }
   .friend-list::-webkit-scrollbar-track { background: #ddd; }
-  
   .dark-row:hover { background-color: #364e6e; }
-  .grid-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    height: 10vh;
-  }
-  tbody tr:hover { background-color: #efefef; }
+  .grid-container { display: grid; grid-template-columns: 1fr 1fr; height: 85vh; }
 </style>

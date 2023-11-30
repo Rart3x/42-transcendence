@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors, Query} from '@nestjs/common';
+import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors, Query } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { PartialUserDTO } from './dto/partial-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -14,13 +14,12 @@ export class UserController {
 
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
   @Get(':userName/channels')
-  async getAllChannels(@Param('userName') userName: string): Promise<Channel[]> | null {
+  async getAllChannelsFromUser(@Param('userName') userName: string): Promise<Channel[]> | null {
     const user = await this.userService.getUserByName(userName);
     
-    if (!user) {
+    if (!user)
       return null;
-    }
-    return this.userService.getAllChannels(user.userName);
+    return this.userService.getAllChannelsFromUser(user.userName);
   }
 
 /*-----------------------------------------------FRIENDS-----------------------------------------------*/
@@ -54,6 +53,12 @@ export class UserController {
 }
 
 /*-----------------------------------------------USERS-----------------------------------------------*/
+  @Post(':userName/block/:blockedUserName')
+  async blockUser(@Body('userName') userName: string, @Body('blockedUserName') blockedUserName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.blockUser(userName, blockedUserName);
+    return { success: result };
+  }
+
   @Post()
   async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
     try {
@@ -64,6 +69,24 @@ export class UserController {
     catch (validationErrors) {
       throw new BadRequestException(validationErrors);
     }
+  }
+
+  @Get(':userName/isBlock/:blockedUserName')
+  async isBlock(@Param('userName') userName: string, @Param('blockedUserName') blockedUserName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.isBlock(userName, blockedUserName);
+    return { success: result };
+  }
+
+  @Post(':userName/setStatus')
+  async setStatus(@Body('userName') userName: string, @Body('status') status: string): Promise<{ success: boolean }> {
+    const result = await this.userService.setStatus(userName, status);
+    return { success: result };
+  }
+
+  @Post(':userName/unblock/:unblockedUserName')
+  async unblockUser(@Body('userName') userName: string, @Body('unblockedUserName') unblockedUserName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.unblockUser(userName, unblockedUserName);
+    return { success: result };
   }
 
   @Post('updateUsername/:userName')
@@ -83,6 +106,11 @@ export class UserController {
   @Get('getUsername/:userName')
   async getUserByName(@Param('userName') userName: string): Promise<User> {
     return await this.userService.getUserByName(userName);
+  }
+
+  @Get('getUser/:userId')
+  async getUserById(@Param('userId') userId: number): Promise<User> {
+    return await this.userService.getUserById(userId);
   }
 
   @Get('getAllUsers/')
@@ -123,7 +151,6 @@ export class UserController {
     const user = await this.userService.getUserByName(userName);
 
     try {
-      console.log(`Calling setSocket with userId: ${user.userId} and socket: ${socket}`);
       return await this.userService.setSocket(user.userId, socket);
     } catch (error) {
       console.warn('Error in setSocket:', error);

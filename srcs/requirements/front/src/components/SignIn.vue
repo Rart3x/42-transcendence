@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { insertUser } from './api/post.call.ts';
-import { getUserByName, checkA2F } from './api/get.call.ts';
+import { insertUser, setStatus} from './api/post.call.ts';
+import { getUserByUserName, checkA2F } from './api/get.call.ts';
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 
@@ -68,7 +68,7 @@ onMounted(async () => {
       user.value = await userResponse.json();
       userInfo.value = user.value;
 
-      user.value = await getUserByName(userInfo.value.login);
+      user.value = await getUserByUserName(userInfo.value.login);
 
       if (user.value && user.value.A2F) {
         userA2F.value = true;
@@ -82,14 +82,15 @@ onMounted(async () => {
         secure: true,
         sameSite: "Strict",
       });
-
+      setStatus(user.value.userName, "online");
       window.location.href = "/settings";
     }
     else
+    {
       router.push('/');
-  }
+    }
+    }
   catch (error) {
-    console.log(error);
     router.push('/');
   }
 });
@@ -97,21 +98,15 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="userA2F">
-    <h1 class="title">Sign In with A2F</h1>
-    <div class="flex justify-center">
-      <form @submit.prevent="verifyToken">
-        <!-- Number only in the text -->
-        <input class="input input-bordered" type="text" v-model="userToken" placeholder="Enter your token" required pattern="\d{6}" />
-        <button class="btn" type="submit">Sign In</button>
-      </form>
-    </div>
+  <div v-if="userA2F" class="overflow-x-auto min-h-screen bg-base-200 font-mono flex flex-col items-center justify-center">
+    <h1 class="title mb-8">Sign In with A2F</h1>
+    <form @submit.prevent="verifyToken" class="flex flex-col items-center">
+      <input class="input input-bordered mb-4" type="text" v-model="userToken" placeholder="Enter your token" required pattern="\d{6}" />
+      <button class="btn glass" type="submit">Sign In</button>
+    </form>
   </div>
 </template>
 
 <style scoped>
-.title {
-  text-align: center;
-  font-size: 50px;
-}
+  .title { text-align: center; font-size: 50px; }
 </style>
