@@ -4,7 +4,7 @@
   import Modal from "./Modal.vue";
   import { computed, onMounted, ref, unref } from "vue";
   import { RouterLink } from "vue-router";
-  import { getAllUsers, getNotifs, getPrivateMessagesByUserName, getUserByCookie } from "./api/get.call.ts";
+  import { getAllUsers, getPrivateMessagesByUserName, getUserByCookie } from "./api/get.call.ts";
   import { createPrivateMessage, setStatus } from "./api/post.call.ts";
 
   let imageSrc = ref(null);
@@ -13,7 +13,6 @@
 
   const userName = ref("");
 
-  let notifs = ref([]);
   let privateMessages = ref([]);
   let users = ref([]);
 
@@ -63,7 +62,6 @@
     userName.value = user.value.displayName;
 
     privateMessages.value = await getPrivateMessagesByUserName(user.value.userName);
-    notifs.value = await getNotifs(user.value.userName);
 
     let imagePath = "../assets/userImages/" + user.value.image;
     import(/* @vite-ignore */ imagePath).then((image) => {
@@ -78,7 +76,7 @@
 <template>
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :notifs="notifs"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages"/>
     </div>
     <div class="navbar-center">
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
@@ -93,7 +91,6 @@
         :logout="logout"
         :display="true"
         :privateMessages="privateMessages"
-        :notifs="notifs"
         :createPrivateMessageInDB="createPrivateMessageInDB"
         :openMessageModal="openMessageModal"
         :currentUserName="currentUserName"

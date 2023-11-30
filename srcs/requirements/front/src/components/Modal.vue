@@ -108,17 +108,17 @@
                     </figure>
                 </div>
                 <div class="messages">
-                    <div class="messages-content"></div>
+                    <div class="messages-content">
+                    </div>
                 </div>
                 <div class="message-box">
-                    <p> {{ currentUserName, senderName }}</p>
                     <form class="message-form" @submit.prevent="createPrivateMessageInDB(currentUserName, senderName, message_text)">
                         <textarea type="text" class="message-input" placeholder="Type message..." v-model="message_text"></textarea>
                         <button type="submit" class="message-submit">Send</button>
                     </form>
                 </div>
             </div>
-            <div class="bg"></div>
+            <div class="bg">test</div>
         </dialog>
     </div>
     <!--Mute User Modal-->
@@ -135,20 +135,7 @@
     </div>
 </template>
 
-<style>
-    *, *::before, *::after {
-    box-sizing: border-box;
-    }
-    html,
-    body {height: 100%;}
-    body {
-    background: linear-gradient(135deg, #2af, #044f48, #2a7561);
-    background-size: cover;
-    font-family: 'Open Sans', sans-serif;
-    font-size: 14px;
-    line-height: 1.3;
-    overflow: hidden;
-    }
+<style scoped>
     /* Chat */
     .chat {
     position: absolute;
@@ -185,11 +172,6 @@
     font-size: 14px;
     margin: 0;
     padding: 0;
-    }
-    .chat-title h2 {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 10px;
-    letter-spacing: 1px;
     }
     .chat-title .avatar {
     position: absolute;
@@ -241,20 +223,6 @@
     position: relative;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     }
-    .messages .message .timestamp {
-    position: absolute;
-    bottom: -15px;
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.3);
-    }
-    .messages .message::before {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    border-top: 6px solid rgba(0, 0, 0, 0.3);
-    left: 0;
-    border-right: 7px solid transparent;
-    }
     .messages .message .avatar {
     position: absolute;
     z-index: 1;
@@ -292,69 +260,6 @@
     .messages .message:last-child {
     margin-bottom: 30px;
     }
-    .messages .message.new {
-    transform: scale(0);
-    transform-origin: 0 0;
-    animation: bounce 500ms linear both;
-    }
-    .messages .message.loading::before {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    content: '';
-    display: block;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    z-index: 2;
-    margin-top: 4px;
-    animation: ball 0.45s cubic-bezier(0, 0, 0.15, 1) alternate infinite;
-    border: none;
-    animation-delay: .15s;
-    }
-    .messages .message.loading span {
-    display: block;
-    font-size: 0;
-    width: 20px;
-    height: 10px;
-    position: relative;
-    }
-    .messages .message.loading span::before {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    content: '';
-    display: block;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    z-index: 2;
-    margin-top: 4px;
-    animation: ball 0.45s cubic-bezier(0, 0, 0.15, 1) alternate infinite;
-    margin-left: -7px;
-    }
-    .messages .message.loading span::after {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    content: '';
-    display: block;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    z-index: 2;
-    margin-top: 4px;
-    animation: ball 0.45s cubic-bezier(0, 0, 0.15, 1) alternate infinite;
-    margin-left: 7px;
-    animation-delay: .3s;
-    }
-
     /* Message Box */
     .message-box {
     flex: 0 1 40px;
@@ -411,26 +316,5 @@
     }
     .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
     background-color: rgba(0, 0, 0, 0.5) !important;
-    }
-
-    /* Bounce */
-    @keyframes bounce{
-        0%{transform:matrix3d(0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1)}
-        4.7%{transform:matrix3d(.45,0,0,0,0,.45,0,0,0,0,1,0,0,0,0,1)}
-    9.41%{transform:matrix3d(.883,0,0,0,0,.883,0,0,0,0,1,0,0,0,0,1)}
-    14.11%{transform:matrix3d(1.141,0,0,0,0,1.141,0,0,0,0,1,0,0,0,0,1)}
-    18.72%{transform:matrix3d(1.212,0,0,0,0,1.212,0,0,0,0,1,0,0,0,0,1)}
-    24.32%{transform:matrix3d(1.151,0,0,0,0,1.151,0,0,0,0,1,0,0,0,0,1)}
-    29.93%{transform:matrix3d(1.048,0,0,0,0,1.048,0,0,0,0,1,0,0,0,0,1)}
-    35.54%{transform:matrix3d(.979,0,0,0,0,.979,0,0,0,0,1,0,0,0,0,1)}
-    41.04%{transform:matrix3d(.961,0,0,0,0,.961,0,0,0,0,1,0,0,0,0,1)}
-    52.15%{transform:matrix3d(.991,0,0,0,0,.991,0,0,0,0,1,0,0,0,0,1)}
-    63.26%{transform:matrix3d(1.007,0,0,0,0,1.007,0,0,0,0,1,0,0,0,0,1)}
-    85.49%{transform:matrix3d(.999,0,0,0,0,.999,0,0,0,0,1,0,0,0,0,1)}
-        100%{transform:matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)}
-    }
-    @keyframes ball{
-    from{transform:translateY(0) scaleY(.8)}
-        to{transform:translateY(-10px)}
     }
 </style>

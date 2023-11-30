@@ -74,21 +74,13 @@ export class PrivateMessageService {
 	  return null;
 	}
   
-	const privateMessagesSent = await this.prisma.privateMessage.findMany({
-	  where: {
-		senderName: userName,
-	  },
-	});
-  
 	const privateMessagesReceived = await this.prisma.privateMessage.findMany({
 	  where: {
 		receiverName: userName,
 	  },
 	});
   
-	const allPrivateMessages = privateMessagesSent.concat(privateMessagesReceived);
-  
-	return allPrivateMessages;
+	return privateMessagesReceived;
   }
 
 }

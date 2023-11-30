@@ -248,25 +248,6 @@ export async function getMessage() {
   }
 }
 
-/*-----------------------------------------------NOTIFICATIONS-----------------------------------------------*/
-export async function getNotifs(userName : string) {
-  try {
-    const response = await fetch(`http://localhost:3000/notif/getNotif/${userName}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok){
-      return await response.json();
-    }
-  }
-  catch (error) {
-    console.error('error: sending GET request', error);
-  }
-  return null;
-}
-
 /*-----------------------------------------------PRIVATEMESSAGES-----------------------------------------------*/
 export async function getPrivateMessages(userName1 : string, userName2 : string) {
   try {

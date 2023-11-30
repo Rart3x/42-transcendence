@@ -290,7 +290,7 @@
     </div>
     <!--Chat-->
     <div class="overflow-x-auto min-h-screen bg-base-200 chat-box" style="text-align: center">
-      <div class="chat-messages">
+      <div v-if="messages && messages.length > 0" class="chat-messages">
         <div v-for="(message, index) in messages" :key="index" class="message">
           <div v-if="message.sender && !message.sender.isBan" class="message-row">
             <div v-if="message.userId != actualUser.userId && message.message_text">
@@ -320,16 +320,17 @@
                     </div>
                   </label>
                 </router-link>
-                <div class="message-timestamp"> {{ message.message_date }} </div>
+                <div class="message-timestamp"> {{ message.message_date.substring(11, 16) }} </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="No Messages" disabled/>
       <div class="chat-input">
         <div class="userMutedOrNot" v-if="!actualUserMuted" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
           <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
-          <button class="btn glass btn-primary" @click="sendMessage">Send</button>
+          <button class="btn glass btn-primary" @click="sendMessage(message_text)">Send</button>
         </div>
         <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/>
       </div>

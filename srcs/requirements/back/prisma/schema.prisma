@@ -64,15 +64,6 @@ model Message {
   sender        User?     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model Notif { 
-  notifId    Int       @id @default(autoincrement())
-  notif      String
-  notifDate  DateTime  @default(now()) @db.Timestamp(6)
-
-  user              User      @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  userId            Int
-}
-
 model PrivateMessage {
   privateMessageId    Int       @id @default(autoincrement())
   messageHistory      String[]
@@ -146,8 +137,6 @@ model User {
   gameWon      Int       @default(0)
 
   messages      Message[]
-
-  notifs        Notif[]
 
   privateMessagesSent     PrivateMessage[] @relation("PrivateMessageSender")
   privateMessagesReceived PrivateMessage[] @relation("PrivateMessageReceiver")
