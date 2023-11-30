@@ -1,6 +1,7 @@
 <script setup>
   import Cookies from "js-cookie";
   import Drawer from "./Drawer.vue";
+  import Modal from "./Modal.vue";
   import { computed, onMounted, ref, unref } from "vue";
   import { RouterLink } from "vue-router";
   import { getAllUsers, getNotifs, getPrivateMessagesByUserName, getUserByCookie } from "./api/get.call.ts";
@@ -19,6 +20,7 @@
   let user = ref(null);
 
   let currentUserName = ref("");
+  let senderName = ref("");
   let messageText = ref("");  
 
   let modalMessage = ref(false);
@@ -41,9 +43,8 @@
     }
   });
 
-  const createPrivateMessageInDB = async (userName, currentUserName, message_text) => {
-    const response = await createPrivateMessage(userName, currentUserName, message_text);
-    modalMessage.value = false;
+  const createPrivateMessageInDB = async (userName, senderName, message_text) => {
+    const response = await createPrivateMessage(userName, senderName, message_text);
   };
 
   const logout = () => {
@@ -51,8 +52,9 @@
     setStatus(user.value.userName, "offline");
     window.location.href = "/";
   };
+
   const closeMessageModal = () => { modalMessage.value = false; };
-  const openMessageModal = (userName) => {console.log("TEST");  modalMessage.value = true; currentUserName.value = userName; };
+  const openMessageModal = (userName, sender) => { modalMessage.value = true; currentUserName = userName; senderName.value = sender;};
 
   onMounted(async () => {
     if (Cookies.get("_authToken") == undefined)
@@ -92,12 +94,14 @@
         :display="true"
         :privateMessages="privateMessages"
         :notifs="notifs"
-        @sendMessage="createPrivateMessageInDB"
+        :createPrivateMessageInDB="createPrivateMessageInDB"
         :openMessageModal="openMessageModal"
         :currentUserName="currentUserName"
         :modalMessage="modalMessage"
         :closeMessageModal="closeMessageModal"
+        :senderName="senderName"
       />
+      <Modal :senderName="senderName" />
     </div>
   </div>
 </template>

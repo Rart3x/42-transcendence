@@ -12,12 +12,6 @@
         messageText: '',
       };
     },
-    emits: ['sendMessage'],
-    methods: {
-      sendMessage(userName, receiverName, messageText) {
-        this.$emit('sendMessage', userName, receiverName, messageText);
-      },
-    },
     props: {
       display : Boolean,
       modalMessage: Boolean,
@@ -28,6 +22,7 @@
       user: Object,
 
       currentUserName: String,
+      senderName: String,
       imageSrc: String,
 
       createPrivateMessageInDB: Function,
@@ -39,8 +34,9 @@
 </script>
 
 <template>
-  <Modal :parent="'drawer'" :modalMessage="modalMessage" :currentUserName="currentUserName"
-    :sendMessage="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" />
+  <Modal :parent="'drawer'" :modalMessage="modalMessage" :currentUserName="currentUserName" :senderName="senderName"
+    :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" 
+  />
   <!--Game Drawer-->
   <div v-if="!display" class="drawer z-[1]">
     <input id="my-drawer" type="checkbox" class="drawer-toggle" />
@@ -76,7 +72,7 @@
     <div class="drawer-side z-[1] font-mono">
       <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-        <li v-for="(messageObject, index) in privateMessages" :key="index" class="message_boxes" @click="openMessageModal(user.userName)">
+        <li v-for="(messageObject, index) in privateMessages" :key="index" class="message_boxes" @click="openMessageModal(user.userName, messageObject.senderName)">
           <div class="flex justify-between items-center">
             <div class="flex flex-col items-start">
               <span class="font-semibold">{{ messageObject.senderName }}</span>
@@ -138,7 +134,6 @@
       </ul>
     </div>
   </div>
-
 </template>
 
 <style scoped>

@@ -1,5 +1,5 @@
 <script>
-    import { ref, onMounted } from 'vue';
+    import { ref } from 'vue';
     import { getUserByUserName } from './api/get.call';
 
     export default {
@@ -39,6 +39,7 @@
         currentUserName: String,
         friendName: String,
         parent: String,
+        senderName: String,
         userName: String,
         userMuted: String,
 
@@ -101,7 +102,7 @@
         <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalMessage" @keydown.esc="closeMessageModal()">
             <div class="chat">
                 <div class="chat-title">
-                    <h1>{{ currentUserName }}</h1>
+                    <h1>{{ senderName }}</h1>
                     <figure class="avatar">
                         <!-- <img :src="currentImageSrc"/> -->
                     </figure>
@@ -110,10 +111,11 @@
                     <div class="messages-content"></div>
                 </div>
                 <div class="message-box">
-                    <form class="message-form" @submit.prevent="sendMessage(currentUserName, user.userName, message_text)">
+                    <p> {{ currentUserName, senderName }}</p>
+                    <form class="message-form" @submit.prevent="createPrivateMessageInDB(currentUserName, senderName, message_text)">
                         <textarea type="text" class="message-input" placeholder="Type message..." v-model="message_text"></textarea>
                         <button type="submit" class="message-submit">Send</button>
-                        </form>
+                    </form>
                 </div>
             </div>
             <div class="bg"></div>
