@@ -1,6 +1,6 @@
 <script>
     export default {
-    name: 'UserStatHeader',
+    name: 'Modal',
     data() {
         return {
             currentUser: null,
@@ -44,11 +44,13 @@
         addFriendFromDB: Function,
         checkPassInDB: Function,
         closeModal: Function,
+        closeMessageModal: Function,
         closeMuteModal: Function,
         createEmptyChannelInDB: Function,
         createChannelInDB: Function,
         createPrivateMessageInDB: Function,
         joinChannelInDB: Function,
+        sendMessage: Function,
         muteUserFromChannelInDB: Function,
         removeFriendFromDB: Function,
         togglePasswordInput: Function,
@@ -90,8 +92,10 @@
                 </form>
             </div>
         </dialog>
-        <!--Private Message Modal-->
-        <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalMessage.value" @keydown.esc="closeModal('modalMessage')">
+    </div>
+    <!--Private Message Modal-->
+    <div v-if="parent === 'drawer'">
+        <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalMessage" @keydown.esc="closeMessageModal()">
             <div class="chat">
                 <div class="chat-title">
                     <h1>{{ currentUserName }}</h1>

@@ -257,7 +257,7 @@ export class ChannelService {
     const channel = await this.getChannelByName(channelName);
 
     if (!channel)
-      console.error("error: channel not found");
+      return null;
 
     const users = await this.prisma.channel.findUnique({
       where: { channelId: channel.channelId },

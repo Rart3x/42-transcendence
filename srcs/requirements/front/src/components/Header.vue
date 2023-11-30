@@ -4,7 +4,7 @@
   import { computed, onMounted, ref, unref } from "vue";
   import { RouterLink } from "vue-router";
   import { getAllUsers, getNotifs, getPrivateMessagesByUserName, getUserByCookie } from "./api/get.call.ts";
-  import { setStatus } from "./api/post.call.ts";
+  import { createPrivateMessage, setStatus } from "./api/post.call.ts";
 
   let imageSrc = ref(null);
 
@@ -17,6 +17,11 @@
   let users = ref([]);
 
   let user = ref(null);
+
+  let currentUserName = ref("");
+  let messageText = ref("");  
+
+  let modalMessage = ref(false);
 
   const filteredUsers = computed(() => {
     if (!users.value)
@@ -36,11 +41,18 @@
     }
   });
 
+  const createPrivateMessageInDB = async (userName, currentUserName, message_text) => {
+    const response = await createPrivateMessage(userName, currentUserName, message_text);
+    modalMessage.value = false;
+  };
+
   const logout = () => {
     Cookies.remove("_authToken");
     setStatus(user.value.userName, "offline");
     window.location.href = "/";
   };
+  const closeMessageModal = () => { modalMessage.value = false; };
+  const openMessageModal = (userName) => {console.log("TEST");  modalMessage.value = true; currentUserName.value = userName; };
 
   onMounted(async () => {
     if (Cookies.get("_authToken") == undefined)
@@ -73,7 +85,18 @@
       </div>
     </div>
     <div class="navbar-end">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="true" :privateMessages="privateMessages" :notifs="notifs"
+      <Drawer
+        :user="user"
+        :imageSrc="imageSrc"
+        :logout="logout"
+        :display="true"
+        :privateMessages="privateMessages"
+        :notifs="notifs"
+        @sendMessage="createPrivateMessageInDB"
+        :openMessageModal="openMessageModal"
+        :currentUserName="currentUserName"
+        :modalMessage="modalMessage"
+        :closeMessageModal="closeMessageModal"
       />
     </div>
   </div>

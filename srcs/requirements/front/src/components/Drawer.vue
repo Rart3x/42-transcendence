@@ -1,24 +1,46 @@
 <script>
   import { RouterLink } from "vue-router";
+  import Modal from './Modal.vue';
 
-  export default {
+    export default {
     name: 'Drawer',
+    components: {
+      Modal
+    },
+    data() {
+      return {
+        messageText: '',
+      };
+    },
+    emits: ['sendMessage'],
+    methods: {
+      sendMessage(userName, receiverName, messageText) {
+        this.$emit('sendMessage', userName, receiverName, messageText);
+      },
+    },
     props: {
       display : Boolean,
+      modalMessage: Boolean,
 
       notifs: Array,
       privateMessages: Array,
 
       user: Object,
 
+      currentUserName: String,
       imageSrc: String,
 
+      createPrivateMessageInDB: Function,
       logout: Function,
+      openMessageModal: Function,
+      closeMessageModal: Function,
     },
   };
 </script>
 
 <template>
+  <Modal :parent="'drawer'" :modalMessage="modalMessage" :currentUserName="currentUserName"
+    :sendMessage="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" />
   <!--Game Drawer-->
   <div v-if="!display" class="drawer z-[1]">
     <input id="my-drawer" type="checkbox" class="drawer-toggle" />
@@ -54,17 +76,15 @@
     <div class="drawer-side z-[1] font-mono">
       <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-        <li v-for="(messageObject, index) in privateMessages" :key="index" class="message_boxes">
-          <router-link :to="'/privateMessage/' + messageObject.senderName + '/' + messageObject.receiverName">
-            <div class="flex justify-between items-center">
-              <div class="flex flex-col items-start">
-                <span class="font-semibold">{{ messageObject.senderName }}</span>
-                <span v-if="messageObject.messageHistory[messageObject.messageHistory.length - 1].length <= 20" class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}</span>
-                <span v-else class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}..</span>
-              </div>
-              <span>{{ messageObject.privateMessageDate.substring(11, 16) }} </span>
+        <li v-for="(messageObject, index) in privateMessages" :key="index" class="message_boxes" @click="openMessageModal(user.userName)">
+          <div class="flex justify-between items-center">
+            <div class="flex flex-col items-start">
+              <span class="font-semibold">{{ messageObject.senderName }}</span>
+              <span v-if="messageObject.messageHistory[messageObject.messageHistory.length - 1].length <= 20" class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}</span>
+              <span v-else class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}..</span>
             </div>
-          </router-link>
+            <span>{{ messageObject.privateMessageDate.substring(11, 16) }} </span>
+          </div>
         </li>
       </ul>
     </div>
@@ -118,6 +138,7 @@
       </ul>
     </div>
   </div>
+
 </template>
 
 <style scoped>
