@@ -47,7 +47,9 @@
 
   const animateListItem = (element) => {
     setTimeout(() => {
-      element.classList.add('animate');
+      if (element) {
+        element.classList.add('animate');
+      }
     }, 100);
   };
 </script>

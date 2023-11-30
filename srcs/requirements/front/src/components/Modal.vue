@@ -1,9 +1,12 @@
 <script>
+    import { ref, onMounted } from 'vue';
+    import { getUserByUserName } from './api/get.call';
+
     export default {
     name: 'Modal',
     data() {
         return {
-            currentUser: null,
+            currentUser: ref(null),
             message_text: '',
             channelName: '',
             password: '',
@@ -107,8 +110,10 @@
                     <div class="messages-content"></div>
                 </div>
                 <div class="message-box">
-                    <textarea type="text" class="message-input" placeholder="Type message..."></textarea>
-                    <button type="submit" class="message-submit">Send</button>
+                    <form class="message-form" @submit.prevent="sendMessage(currentUserName, user.userName, message_text)">
+                        <textarea type="text" class="message-input" placeholder="Type message..." v-model="message_text"></textarea>
+                        <button type="submit" class="message-submit">Send</button>
+                        </form>
                 </div>
             </div>
             <div class="bg"></div>
