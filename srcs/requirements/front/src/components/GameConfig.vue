@@ -12,20 +12,25 @@ export default {
     return {
       game: {
         type: Phaser.AUTO,
+        fullscreenTarget: 'game',
+        roundPixels: true,
         scale: {
-          parent: "game",
+          parent: 'game',
           autoCenter: Phaser.Scale.CENTER_BOTH,
           mode: Phaser.Scale.FIT,
+        },
+        dom :{
+          createContainer: true
         },
         width: 1000,
         height: 800,
         physics: {
           default: 'matter',
-          matter : {debug: true}
+          matter : {debug: false}
         },
         scene: GameScene
       },
-      initialize: true
+      initialize: true,
     }
   },
   methods: {
@@ -36,6 +41,7 @@ export default {
   },
   mounted() {
     this.createGame(this.game);
-  }
+  },
 }
+
 </script>

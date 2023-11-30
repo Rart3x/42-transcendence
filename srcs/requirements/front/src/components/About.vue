@@ -1,14 +1,14 @@
 <script setup></script>
 
 <template>
-  <body>
-    <div class="box">
-        <span style="--i:1;"><img src="./images/fsanna.jpg" alt=""></span>
-        <span style="--i:2;"><img src="./images/kramjatt.jpg" alt=""></span>
-        <span style="--i:3;"><img src="./images/nicarpen.jpg" alt=""></span>
-        <span style="--i:4;"><img src="./images/dguillau.jpg" alt=""></span>
-    </div>
-  </body>
+    <body>
+        <div class="box">
+            <span style="--i:1;"><img src="./images/fsanna.jpg" alt=""></span>
+            <span style="--i:2;"><img src="./images/kramjatt.jpg" alt=""></span>
+            <span style="--i:3;"><img src="./images/nicarpen.jpg" alt=""></span>
+            <span style="--i:4;"><img src="./images/dguillau.jpg" alt=""></span>
+        </div>
+    </body>
 </template>
 
 <style scoped>

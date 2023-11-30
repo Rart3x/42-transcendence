@@ -1,4 +1,4 @@
-import { User } from '../users/user.interface';
+import { User } from '../user/user.interface';
 
 export interface QueueList {
     queueId: number;

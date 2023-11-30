@@ -4,68 +4,171 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = "postgresql://kramjatt:123@localhost:5432/PMU"
-}
-
-model Admin {
-  adminId      Int            @id @default(autoincrement())
-  
-  ChannelAdmin ChannelAdmin[]
+  url      = "postgresql://kramjatt:123@localhost:5432/PMU"
 }
 
 model Channel {
-  channelId     Int               @id @default(autoincrement())
-  
-  ChannelAdmin  ChannelAdmin[]
-  Message       Message[]
+  channelId         Int         @id @default(autoincrement())
+  channelName       String      @unique
+  channelAdmin      Int
+  channelAdminImage String      @default("default_pic.jpg")
+
+  channelPassword   String?     @default("")  
+
+  channelMessages   Message[]
+  channelOperators  User[]      @relation("ChannelOperator")
+  channelUsers      User[]      @relation("ChannelUser")
+  channelUsersBan   User[]      @relation("ChannelUserBan")
+  channelUsersMute  UserChannelMute[]
+
+  isPrivate         Boolean     @default(false)
 }
 
-model ChannelAdmin {
-  adminId   Int
-  channelId Int
-  
-  Admin     Admin   @relation(fields: [adminId], references: [adminId], onDelete: NoAction, onUpdate: NoAction)
-  Channel   Channel @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
+model GameRoom {
+  id           Int   @id @default(autoincrement())
 
-  @@id([adminId, channelId])
-}
+  player1SocketId String
+  player2SocketId String?
 
-model Game {
-  gameId Int @id @default(autoincrement())
+  player1Ready Boolean @default(false)
+  player2Ready Boolean @default(false)
+
+  score        Score?
+
+  nbBounces    Int      @default(0)
+
+  customGame   Boolean @default(false)
+  running      Boolean @default(false)
+  started      Boolean @default(false)
+  paused       Boolean @default(false)
+  finish       Boolean @default(false)
+
+  startDate    DateTime @default(now())
+  endDate      DateTime?
+
+  users        User[]
+
+  statId       Int?    @unique
+  stat         Stat?   @relation("GameRoomStat", fields: [statId], references: [statId] , onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Message {
-  messageId    Int       @id @default(autoincrement())
-  channelId    Int?
-  message_text String
-  message_date DateTime? @default(now()) @db.Timestamp(6)
-  
-  Channel      Channel?  @relation(fields: [channelId], references: [channelId], onDelete: NoAction, onUpdate: NoAction)
+  messageId     Int       @id @default(autoincrement())
+  channelId     Int
+  userId        Int?
+
+  message_text  String?
+  message_date  DateTime? @default(now()) @db.Timestamp(6)
+
+  Channel       Channel   @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
+  sender        User?     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model User {
-  userId      Int     @id @default(autoincrement()) @unique
-  userName    String? @unique
-  displayName String? @unique
-  image       String?
-  friendsId   Int[]
-  socket      String?
-  roomId      Int?
-  room        GameRoom? @relation(fields: [roomId], references: [roomId])
-  queueId     Int?
-  queue       QueueList? @relation(fields: [queueId], references: [queueId])
-  cookie      String? @unique
+model PrivateMessage {
+  privateMessageId    Int       @id @default(autoincrement())
+  messageHistory      String[]
+
+  privateMessageDate  DateTime  @default(now()) @db.Timestamp(6)
+
+  senderName          String
+  sender              User      @relation("PrivateMessageSender", fields: [senderName], references: [userName], onDelete: Cascade, onUpdate: Cascade)
+
+  receiverName        String
+  receiver            User      @relation("PrivateMessageReceiver", fields: [receiverName], references: [userName], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model QueueList {
-  queueId Int      @id @default(autoincrement())
+  queueId Int           @id @default(autoincrement())
   users   User[]
 }
 
-model GameRoom{
-  roomId Int       @id @default(autoincrement())
-  players User[]
-  started Boolean  @default(false)
+model Stat {
+  statId      Int       @id @default(autoincrement())
+  
+  gameRoomId  Int       @unique
+  gameRoom    GameRoom? @relation("GameRoomStat")
+
+  userId      Int
+  user        User      @relation("GameStats", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  users       User[]    @relation("UserStats")
 }
 
+model Score {
+    id          Int @id @default(autoincrement())
+    score       UserScore[]
+    gameRoomId  Int @unique
+    winnerId    Int?
+    winner      User? @relation(fields: [winnerId], references: [userId])
+    gameRoom    GameRoom @relation(fields: [gameRoomId], references: [id])
+}
 
+model UserScore {
+  id       Int @id @default(autoincrement())
+  time     DateTime
+  scoreA   Int @default(0)
+  scoreB   Int @default(0)
+  scorerId Int
+  scoreId  Int
+  scorer   User @relation(fields: [scorerId], references: [userId])
+  score    Score @relation(fields: [scoreId], references: [gameRoomId])
+}
+
+model User {
+  userId       Int       @id @unique @default(autoincrement())
+  userName     String?   @unique
+
+  blockUsers   User[]    @relation("BlockUser")
+  blockOf      User[]    @relation("BlockUser")
+
+  matchmakingScore  Int  @default(1000)
+
+  channels     Channel[] @relation("ChannelUser")
+  channelsOp   Channel[] @relation("ChannelOperator")
+  channelsBan  Channel[] @relation("ChannelUserBan")
+
+  mutedChannels UserChannelMute[]
+  
+  friends      User[]    @relation("Friendship")
+  friendOf     User[]    @relation("Friendship")
+
+  gameRoom     GameRoom[]
+  gamePlayed   Int       @default(0)
+  gameWon      Int       @default(0)
+
+  messages      Message[]
+
+  privateMessagesSent     PrivateMessage[] @relation("PrivateMessageSender")
+  privateMessagesReceived PrivateMessage[] @relation("PrivateMessageReceiver")
+
+  queueId       Int?
+  queue         QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
+
+  scorer       UserScore[]
+
+  winner       Score[]
+  stat          Stat[]     @relation("GameStats")
+  stats         Stat[]     @relation("UserStats")
+
+  displayName   String?    @unique
+  image         String     @default("default_pic.jpg")
+  isChecked     Boolean    @default(false)
+
+  cookie        String?    @unique
+  socket        String?
+  status        String?    @default("offline")
+
+  A2F           Boolean    @default(false)
+  A2FSecret     String?
+  A2FUrl        String?
+}
+
+model UserChannelMute {
+  id              Int       @id @default(autoincrement())
+  mutedUntil      DateTime
+
+  user            User      @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  userId          Int
+  channel         Channel   @relation(fields: [channelId], references: [channelId], onDelete: Cascade, onUpdate: Cascade)
+  channelId       Int
+}

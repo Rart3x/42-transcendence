@@ -23,6 +23,12 @@ export class QueueListService {
   async sumQueueList(): Promise<number> {
     return this.prisma.queueList.count();
   }
-
+  
+  async getAllClients() {
+    return this.prisma.queueList.findMany({
+      include: {
+      },
+    });
+   }
 }
 

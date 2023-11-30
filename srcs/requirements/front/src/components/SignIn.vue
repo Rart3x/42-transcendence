@@ -1,17 +1,41 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
-import { insertUser } from './api/post.call.ts';
+import { ref, onMounted } from "vue";
+import { insertUser, setStatus} from './api/post.call.ts';
+import { getUserByUserName, checkA2F } from './api/get.call.ts';
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 
-const userInfo = ref(null);
+let userInfo = ref(null);
+let user = ref(null);
+let userA2F = ref(null);
+let userToken = ref(null);
 
 const code = new URL(window.location.href).searchParams.get("code");
+
+const verifyToken = async () => {
+  try {
+    const isValid = await checkA2F(user.value.userName, userToken.value);
+
+    if (isValid) {
+      await insertUser(userInfo.value.login, userInfo.value.image.link, code);
+
+      Cookies.set("_authToken", code, {
+        expires: 1,
+        secure: true,
+        sameSite: "Strict",
+      });
+      window.location.href = "/settings";
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
 
 onMounted(async () => {
   const router = useRouter();
   try {
-    if (code || Cookies.get("_authToken")) {
+    if (code) {
       const response = await fetch("https://api.intra.42.fr/oauth/token", {
         method: "POST",
         headers: {
@@ -26,9 +50,8 @@ onMounted(async () => {
         }),
       });
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
       const data = await response.json();
       const accessToken = data.access_token;
@@ -39,33 +62,51 @@ onMounted(async () => {
         },
       });
 
-      if (!userResponse.ok) {
+      if (!userResponse.ok)
         throw new Error(`HTTP error! status: ${userResponse.status}`);
-      }
 
-      const user = await userResponse.json();
-      userInfo.value = user;
+      user.value = await userResponse.json();
+      userInfo.value = user.value;
+
+      user.value = await getUserByUserName(userInfo.value.login);
+
+      if (user.value && user.value.A2F) {
+        userA2F.value = true;
+        return ;
+      }
+      
+      await insertUser(userInfo.value.login, userInfo.value.image.link, code);
 
       Cookies.set("_authToken", code, {
         expires: 1,
         secure: true,
         sameSite: "Strict",
       });
-
-      await insertUser(userInfo.value.login, userInfo.value.image.link, code);
-      window.location.href = "/Profile";
+      setStatus(user.value.userName, "online");
+      window.location.href = "/settings";
     }
-    else {
+    else
+    {
       router.push('/');
     }
-  }
+    }
   catch (error) {
-    console.log(error);
     router.push('/');
   }
-
 });
 
 </script>
 
-<template></template>
+<template>
+  <div v-if="userA2F" class="overflow-x-auto min-h-screen bg-base-200 font-mono flex flex-col items-center justify-center">
+    <h1 class="title mb-8">Sign In with A2F</h1>
+    <form @submit.prevent="verifyToken" class="flex flex-col items-center">
+      <input class="input input-bordered mb-4" type="text" v-model="userToken" placeholder="Enter your token" required pattern="\d{6}" />
+      <button class="btn glass" type="submit">Sign In</button>
+    </form>
+  </div>
+</template>
+
+<style scoped>
+  .title { text-align: center; font-size: 50px; }
+</style>
