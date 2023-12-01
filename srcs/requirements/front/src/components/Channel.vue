@@ -210,8 +210,6 @@
   onMounted(async () => {
     actualUser.value = await getUserByCookie(Cookies.get("_authToken"));
 
-    if (!actualUser.value) window.location.href = "/";
-
     actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
 
     channel.value = await getChannelByName(route.params.channelName);

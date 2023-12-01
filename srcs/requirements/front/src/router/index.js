@@ -25,12 +25,15 @@ const router = createRouter({
       component: () => import("@/components/Channel.vue"),
       beforeEnter: async (to, from, next) => {
         const channelName = to.params.channelName;
-        const channelExists = await getChannelByName(channelName);
+        const channel = await getChannelByName(channelName);
+        const actualUser = await getUserByCookie(Cookies.get("_authToken"));
 
-        if (channelExists)
+        if (channel && channel.channelUsers) {
+          if (!channel.channelUsers.find(user => user.userId === actualUser.userId) && channel.isPrivate)
+            next('/error');
+        }
+        else (channel)
           next();
-        else
-          next('/error');
       },
     },
     {
