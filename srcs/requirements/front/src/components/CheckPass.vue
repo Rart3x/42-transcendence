@@ -39,7 +39,6 @@
 </script>
 
 <template>
-
   <div class="background"></div>
 
   <!--Alerts-->
@@ -51,11 +50,8 @@
   <Modal
     checkPassInDB="checkPassInDB"
   />  
-
 </template>
 
 <style scoped>
-	.dialogModalChannel {
-		text-align: center;
-	}
+	.dialogModalChannel { text-align: center; }
 </style>

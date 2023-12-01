@@ -216,7 +216,6 @@
     </div>
     <History v-if="user" :userName="$route.params.userName"/>
   </div>
-
   <!--Alerts-->
   <Alert
     :addChannelSuccess="addChannelSuccess"

@@ -3,61 +3,61 @@
     import { getUserByUserName } from './api/get.call';
 
     export default {
-    name: 'Modal',
-    data() {
-        return {
-            currentUser: ref(null),
-            message_text: '',
-            channelName: '',
-            password: '',
-            passwordCheckBox: false,
-            selectedDuration: 1,
-        };
-    },
-    methods: {
-        updateValue(propName, newValue) {
-            this.$emit(`update:${propName}`, newValue);
+        name: 'Modal',
+        data() {
+            return {
+                currentUser: ref(null),
+                message_text: '',
+                channelName: '',
+                password: '',
+                passwordCheckBox: false,
+                selectedDuration: 1,
+            };
         },
+        methods: {
+            updateValue(propName, newValue) {
+                this.$emit(`update:${propName}`, newValue);
+            },
 
-        updateMessageText(value) {
-            message_text.value = value;
-            updateValue('message_text', value);
+            updateMessageText(value) {
+                message_text.value = value;
+                updateValue('message_text', value);
+            },
+
+            submitMuteForm(selectedDuration) {
+                this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration);
+                this.closeMuteModal();
+            }
         },
+        props: {
+            modalStates: Object,
+            user: Object,
 
-        submitMuteForm(selectedDuration) {
-            this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration);
-            this.closeMuteModal();
-        }
-    },
-    props: {
-        modalStates: Object,
-        user: Object,
+            modalMuteUser: Boolean,
+            modalMessage: Boolean,
 
-        modalMuteUser: Boolean,
-        modalMessage: Boolean,
+            currentUserName: String,
+            friendName: String,
+            parent: String,
+            senderName: String,
+            userName: String,
+            userMuted: String,
 
-        currentUserName: String,
-        friendName: String,
-        parent: String,
-        senderName: String,
-        userName: String,
-        userMuted: String,
+            channelNameMute: String,
 
-        channelNameMute: String,
-
-        addFriendFromDB: Function,
-        checkPassInDB: Function,
-        closeModal: Function,
-        closeMessageModal: Function,
-        closeMuteModal: Function,
-        createEmptyChannelInDB: Function,
-        createChannelInDB: Function,
-        createPrivateMessageInDB: Function,
-        joinChannelInDB: Function,
-        sendMessage: Function,
-        muteUserFromChannelInDB: Function,
-        removeFriendFromDB: Function,
-        togglePasswordInput: Function,
+            addFriendFromDB: Function,
+            checkPassInDB: Function,
+            closeModal: Function,
+            closeMessageModal: Function,
+            closeMuteModal: Function,
+            createEmptyChannelInDB: Function,
+            createChannelInDB: Function,
+            createPrivateMessageInDB: Function,
+            joinChannelInDB: Function,
+            sendMessage: Function,
+            muteUserFromChannelInDB: Function,
+            removeFriendFromDB: Function,
+            togglePasswordInput: Function,
         },
     };
 </script>

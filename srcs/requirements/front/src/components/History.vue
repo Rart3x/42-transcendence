@@ -155,10 +155,7 @@
   .stats { border-radius: unset; }
   .table{ border-radius: unset; }
 
-  .collapse-title {
-    display: flex;
-    align-items: center;
-  }
+  .collapse-title { display: flex; align-items: center; }
 
   .text-before { margin-right: auto; }
   .text-after { margin-left: auto; }
@@ -170,9 +167,5 @@
     margin: 0 10px;
   }
 
-  .versus-image {
-    max-width: 100%;
-    max-height: 100%;
-  }
-
+  .versus-image { max-width: 100%; max-height: 100%;  }
 </style>

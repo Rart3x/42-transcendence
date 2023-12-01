@@ -186,6 +186,4 @@
 			<span>Failed to unblock User</span>
 		</div>
   </div>
-
-
 </template>

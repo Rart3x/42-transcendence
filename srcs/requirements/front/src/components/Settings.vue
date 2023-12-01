@@ -75,11 +75,7 @@
 </script>
 
 <template>
-	<UserStatHeader v-if="user"
-		:userName="user.userName"
-		:gamePlayed="user.gamePlayed"
-		:gameWon="user.gameWon"
-	/>
+	<UserStatHeader v-if="user" :userName="user.userName" :gamePlayed="user.gamePlayed" :gameWon="user.gameWon" />
 	<div class="overflow-x-auto min-h-screen bg-base-200">
 		<div class="buttons bg-base-200">
 			<button class="btn glass" @click="showContent('username')">Change username</button>
@@ -114,20 +110,9 @@
 	form { text-align: center; }
 	label { text-align: center; }
 	
-	.button-container {
-		display: flex;
-		justify-content: center;
-	}
+	.button-container { display: flex; justify-content: center; }
 	.buttons { text-align: center; }
-	.content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
+	.content { display: flex; flex-direction: column; align-items: center; }
 	.stats { border-radius: unset; }
-	.qrcode {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
+	.qrcode { display: flex; flex-direction: column; align-items: center; }
 </style>

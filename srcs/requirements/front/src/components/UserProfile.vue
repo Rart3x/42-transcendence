@@ -183,6 +183,7 @@
   const openMessageModal = (userName) => { modalStates.modalMessage.value = true; currentUserName.value = userName; };
 
   var router;
+  
   onMounted(async () => {
     router = useRouter();
 

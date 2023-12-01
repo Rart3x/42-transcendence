@@ -94,12 +94,8 @@ export class UserController {
     
     const user = await this.userService.getUserByName(userName);
 
-    if (user) {
+    if (user)
       await this.userService.updateUserName(user.userId, newUserName); 
-    }
-    else{
-      console.warn("error: user not found");
-    }
     return user;
   }
 
