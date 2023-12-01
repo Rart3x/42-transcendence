@@ -1,8 +1,14 @@
+import Cookies from "js-cookie";
 import { createRouter, createWebHistory } from "vue-router";
+import { getChannelByName, getUserByCookie } from "../components/api/get.call";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: "/:catchAll(.*)",
+      redirect: "/error"
+    },
     {
       path: "/",
       name: "home",
@@ -17,6 +23,20 @@ const router = createRouter({
       path: "/channel/:channelName",
       name: "channel",
       component: () => import("@/components/Channel.vue"),
+      beforeEnter: async (to, from, next) => {
+        const channelName = to.params.channelName;
+        const channelExists = await getChannelByName(channelName);
+
+        if (channelExists)
+          next();
+        else
+          next('/error');
+      },
+    },
+    {
+      path: "/error",
+      name: "error",
+      component: () => import("@/components/Error.vue"),
     },
     {
       path: "/game",
@@ -59,6 +79,16 @@ const router = createRouter({
       component: () => import("@/components/CheckPass.vue"),
     }
   ],
+});
+
+router.beforeEach(async (to, from, next) => {
+  const user = await getUserByCookie(Cookies.get("_authToken"));
+  const path = to.path;
+
+  if (!user && path !== "/" && path !== "/sign-in")
+    next('/');
+  else
+    next();
 });
 
 export default router;

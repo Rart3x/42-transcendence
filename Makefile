@@ -1,10 +1,10 @@
 NAME = transcendence
 
 #-------------------------------------CLASSICS-------------------------------------#
-run:
-	@make tailwind & make front & make all
+all:
+	@make front & make run
 
-all: build
+run: build
 	@printf "Launch configuration ${NAME}...\n"
 	@docker compose -f ./srcs/docker-compose.yml up -d
 	@make prisma

@@ -190,8 +190,6 @@
 
     user.value = await getUserByCookie(Cookies.get("_authToken"));
 
-    if (!user.value) window.location.href = "/";
-
     userName.value = user.value.displayName;
     adminImage = "src/assets/userImages/" + user.value.image;
 
@@ -394,7 +392,6 @@
 
       :addFriendFromDB="addFriendFromDB"
       :closeModal="closeModal"
-      :createEmptyChannelInDB="createEmptyChannelInDB"
       :createChannelInDB="createChannelInDB"
       :createPrivateMessageInDB="createPrivateMessageInDB"
       :joinChannelInDB="joinChannelInDB"

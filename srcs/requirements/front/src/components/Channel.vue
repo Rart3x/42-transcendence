@@ -215,6 +215,7 @@
     actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
 
     channel.value = await getChannelByName(route.params.channelName);
+    if(!channel.value) window.location.href = "/profile";
     channelNameMute.value = route.params.channelName;
 
     if (channel.value && channel.value.channelUsers) {
