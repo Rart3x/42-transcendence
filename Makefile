@@ -1,6 +1,9 @@
 NAME = transcendence
 
 #-------------------------------------CLASSICS-------------------------------------#
+run:
+	@make tailwind & make front & make all
+
 all: build
 	@printf "Launch configuration ${NAME}...\n"
 	@docker compose -f ./srcs/docker-compose.yml up -d
@@ -35,9 +38,6 @@ tailwind:
 prisma:
 	@cd ./srcs/requirements/back/ && \
 	npx prisma migrate dev && npx prisma generate
-
-sql:
-	@pg_dump -U kramjatt -d "PMU" -f "srcs/requirements/postgreSQL/db.sql"
 
 studio:
 	@cd ./srcs/requirements/back/prisma && \

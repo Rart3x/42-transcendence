@@ -242,7 +242,7 @@
 </script>
  
 <template>
-  <div class="navbar bg-base-100 overflow-x-auto bg-base-200 font-mono">
+  <div class="navbar overflow-x-auto bg-base-200 font-mono">
     <div class="navbar-end">
       <details class="dropdown">
         <summary class="m-1 btn glass">{{ $route.params.channelName }}</summary>
@@ -254,39 +254,42 @@
   </div>
   <div class="grid-container font-mono">
     <div class="overflow-x-auto min-h-screen bg-base-200">
-      <div class="friend-list">
-        <table class="table table-zebra">
-          <tbody v-for="user in filteredUsers" :key="user.userName">
-            <tr class="dark-row">
-              <td>
-                <label tabindex="0" class="btn btn-ghost btn-circle">
-                  <div class="avatar">
-                    <div class="w-15 mask mask-squircle">
-                      <img :src="user.imageSrc" />
+      <div v-if="filteredUsers && filteredUsers.length > 0" class="friend-list">
+        <div class="friend-list">
+          <table class="table table-zebra">
+            <tbody v-for="user in filteredUsers" :key="user.userName">
+              <tr class="dark-row">
+                <td>
+                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                    <div class="avatar">
+                      <div class="w-15 mask mask-squircle">
+                        <img :src="user.imageSrc" />
+                      </div>
                     </div>
+                  </label>
+                </td>
+                <td>
+                  <router-link :to="'/profile/' + user.userName">
+                    <button v-if="user.status === 'offline'" class="btn glass no-animation text-red-500">{{ user.userName }}</button>
+                    <button v-if="user.status === 'online'" class="btn glass no-animation text-green-500">{{ user.userName }}</button>
+                    <button v-if="user.status === 'ingame'" class="btn glass no-animation text-blue-500">{{ user.userName }}</button>
+                  </router-link>
+                </td>
+                <td v-if="channel.channelAdmin == actualUser.userId || actualUser.isOperator">
+                  <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
+                    <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
+                    <button class="btn glass btn-warning" @click="openMuteModal(user.userName)">Mute</button>
+                    <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
+                    <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperatorInDB($route.params.channelName, user.userName)" >Promote</button>
+                    <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperatorInDB($route.params.channelName, user.userName)">Depreciate</button>
                   </div>
-                </label>
-              </td>
-              <td>
-                <router-link :to="'/profile/' + user.userName">
-                  <button v-if="user.status === 'offline'" class="btn glass no-animation text-red-500">{{ user.userName }}</button>
-                  <button v-if="user.status === 'online'" class="btn glass no-animation text-green-500">{{ user.userName }}</button>
-                  <button v-if="user.status === 'ingame'" class="btn glass no-animation text-blue-500">{{ user.userName }}</button>
-                </router-link>
-              </td>
-              <td v-if="channel.channelAdmin == actualUser.userId || actualUser.isOperator">
-                <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
-                  <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
-                  <button class="btn glass btn-warning" @click="openMuteModal(user.userName)">Mute</button>
-                  <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
-                  <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperatorInDB($route.params.channelName, user.userName)" >Promote</button>
-                  <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperatorInDB($route.params.channelName, user.userName)">Depreciate</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
+      <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="No Members" disabled />
     </div>
     <!--Chat-->
     <div class="overflow-x-auto min-h-screen bg-base-200 chat-box" style="text-align: center">

@@ -66,24 +66,6 @@
     friends.value = await getAllFriends(userName);
   };
 
-  const createEmptyChannelInDB = async (channelName, userName) => {
-    const response = await createEmptyChannel(channelName, userName);
-    modalStates.modalChannel.value = false;
-
-    if (response && response.success) {
-      addChannelSuccess.value = true;
-      setTimeout(() => {
-        addChannelSuccess.value = false;
-      }, 3000);
-    } else {
-      addChannelFailed.value = true;
-      setTimeout(() => {
-        addChannelFailed.value = false;
-      }, 3000);
-    }
-    channels.value = await getAllChannelsFromUser(userName);
-  };
-
   const createChannelInDB = async (channelName, userName, currentUserName) => {
     const response = await createChannel(channelName, userName, currentUserName);
     modalStates.modalChannel.value = false;
@@ -311,7 +293,7 @@
         <!--ChannelList-->
         <div v-if="activeTab === 'channels'" class="p-4">
           <div class="underStat">
-            <form @submit.prevent="createEmptyChannelInDB(channelName, userName)">
+            <form @submit.prevent="createChannelInDB(channelName, userName)">
               <button class="btn glass">Create Channel</button>
               <input type="text" id="channelName" v-model="channelName" class="input input-bordered w-full max-w-xs" />
             </form>

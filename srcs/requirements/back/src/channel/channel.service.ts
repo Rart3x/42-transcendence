@@ -71,32 +71,26 @@ export class ChannelService {
     const user = await this.userService.getUserByName(userName);
     const invitedUser = await this.userService.getUserByName(invitedUserName);
   
-    if (!user || !invitedUser)
+    if (!user || !invitedUser) {
       return false;
+    }
   
     const existingChannel = await this.getChannelByName(channelName);
   
     if (existingChannel) {
       if (!this.isUserAdminOfChannel(existingChannel, user)) {
-        console.error("error: user is not admin of this channel");
-        return null;
-      }
-
-      if (await this.isUserMemberOfChannel(existingChannel, invitedUser)) {
-        console.error("error: invited user is already a member of this channel");
-        return null;
+        return false;
       }
   
-      const message = await this.messageService.createMessage(existingChannel);
-
+      if (await this.isUserMemberOfChannel(existingChannel, invitedUser)) {
+        return false;
+      }
+  
       await this.prisma.channel.update({
         where: { channelId: existingChannel.channelId },
         data: {
           channelUsers: {
             connect: { userId: invitedUser.userId },
-          },
-          channelMessages: {
-            connect: { messageId: message.messageId },
           },
         },
       });
@@ -109,7 +103,7 @@ export class ChannelService {
         channelName: channelName,
         channelAdmin: user.userId,
         channelAdminImage: user.image,
-          channelUsers: {
+        channelUsers: {
           connect: [
             { userId: user.userId },
             { userId: invitedUser.userId },
@@ -117,8 +111,6 @@ export class ChannelService {
         },
       },
     });
-  
-    await this.messageService.createMessage(channel);
   
     return true;
   }
@@ -132,7 +124,7 @@ export class ChannelService {
     const existingChannel = await this.getChannelByName(channelName);
   
     if (existingChannel) {
-      if (await !this.isUserAdminOfChannel(existingChannel, user))
+      if (!this.isUserAdminOfChannel(existingChannel, user))
         return false;
       return true;
     }
