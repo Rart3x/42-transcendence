@@ -34,7 +34,7 @@
 
 <template>
   <Modal :parent="'drawer'" :modalMessage="modalMessage" :currentUserName="currentUserName" :senderName="senderName"
-    :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" 
+    :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" :privateMessages="privateMessages" 
   />
   <!--Game Drawer-->
   <div v-if="!display" class="drawer z-[1]">

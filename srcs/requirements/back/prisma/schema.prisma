@@ -67,7 +67,7 @@ model Message {
 
 model PrivateMessage {
   privateMessageId    Int       @id @default(autoincrement())
-  messageHistory      String[]
+  messageContent      String
 
   privateMessageDate  DateTime  @default(now()) @db.Timestamp(6)
 

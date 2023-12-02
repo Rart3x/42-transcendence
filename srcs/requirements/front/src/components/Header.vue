@@ -37,7 +37,6 @@
       );
     }
     catch (error) {
-      console.error("error filtering users:", error);
       return [];
     }
   });

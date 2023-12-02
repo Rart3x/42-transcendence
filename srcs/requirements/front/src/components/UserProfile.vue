@@ -7,7 +7,7 @@
 	import sha256 from 'js-sha256';
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId } from "./api/get.call";
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages } from "./api/get.call";
   import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, joinChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
   import { io } from 'socket.io-client';
   import { useRouter } from "vue-router";
@@ -18,15 +18,19 @@
 
   let channelName = ref("");
   const friendName = ref("");
+  let senderName = ref("");
   const userName = ref("");
 
-  const modalStates = { modalMessage: ref(false), modalChannel: ref(false), modalManageChannel: ref(false) };
+  const modalStates = { modalChannel: ref(false), modalManageChannel: ref(false) };
+  const modalMessage = ref(false);
 
   let allChannels;
   let channels = ref([]);
   let currentUser = ref(null);
   let friends = ref([]);
+  let privateMessages = ref([]);
   let user = ref(null);
+
   let socket = ref(null);
 
   let addChannelSuccess = ref(false);
@@ -86,7 +90,6 @@
 
   const createPrivateMessageInDB = async (userName, currentUserName, message_text) => {
     const response = await createPrivateMessage(userName, currentUserName, message_text);
-    modalStates.modalMessage.value = false;
 
     if (response && response.success) {
       addMessageSuccess.value = true;
@@ -178,9 +181,10 @@
   };
 
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
+  const closeMessageModal = () => { modalMessage.value = false; };
   const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName.value = userName; };
-  const openManageChannelModal = () => { modalStates.modalManageChannel.value = true; };
-  const openMessageModal = (userName) => { modalStates.modalMessage.value = true; currentUserName.value = userName; };
+  const openManageChannelModal = (channel) => { channelName.value = channel; modalStates.modalManageChannel.value = true; };
+  const openMessageModal = async (userName) => { modalMessage.value = true; senderName.value = userName; privateMessages.value = await getPrivateMessages(user.value.userName, userName); };
 
   var router;
   
@@ -224,11 +228,12 @@
   const showContent = (tab) => { activeTab.value = tab; };
 
   const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
+    console.log(passwordCheckBox);
     if (passwordCheckBox)
       setPassword(channelName, sha256(password));
     else
       unsetPassword(channelName, sha256(password));
-    modalManageChannel.value = false;
+    modalStates.modalManageChannel.value = false;
   };
 
 </script>
@@ -324,7 +329,7 @@
                   <button class="btn glass btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
                 </td>
                 <td v-if="user && channel && channel.channelAdmin == user.userId">
-                  <button class="btn glass" @click="openManageChannelModal(user.userName)">Manage Channel</button>
+                  <button class="btn glass" @click="openManageChannelModal(channel.channelName)">Manage Channel</button>
                 </td>
               </tr>
             </tbody>
@@ -385,20 +390,26 @@
     <!--Modals-->
     <Modal
       :currentUserName="currentUserName"
+      :currentChannelName="channelName"
       :friendName="friendName"
+      :senderName="senderName"
       :modalStates="modalStates"
+      :modalMessage="modalMessage"
       :user="user"
       :userName="userName"
       :parent="'userProfile'"
+      :privateMessages="privateMessages"
+      :passwordCheckBox="passwordCheckBox"
 
       :addFriendFromDB="addFriendFromDB"
       :closeModal="closeModal"
+      :closeMessageModal="closeMessageModal"
       :createChannelInDB="createChannelInDB"
       :createPrivateMessageInDB="createPrivateMessageInDB"
       :joinChannelInDB="joinChannelInDB"
       :removeFriendFromDB="removeFriendFromDB"
       :togglePasswordInput="togglePasswordInput"
-    />  
+    />
   </body>
 </template>
 
