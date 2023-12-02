@@ -34,10 +34,10 @@ export default class GameRoom {
         roomId: number,
         customGameMode: boolean,
         socketPlayer1: string,
-        player1UserId: number,
-        player1UserName: string,
         socketPlayer2: string,
+        player1UserId: number,
         player2UserId: number,
+        player1UserName: string,
         player2UserName: string,
       ) {
             this.id = roomId;
@@ -75,6 +75,6 @@ export default class GameRoom {
         player1UserName: string, 
         player2UserName: string): GameRoom {
  
-        return new GameRoom(game, roomId, customGameMode, socketPlayer1, player1UserId, player1UserName, socketPlayer2, player2UserId, player2UserName, false);
+        return new GameRoom(game, roomId, customGameMode, socketPlayer1, socketPlayer2, player1UserId, player2UserId, player1UserName, player2UserName, false);
     }
 }

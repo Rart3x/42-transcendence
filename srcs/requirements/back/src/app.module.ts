@@ -22,9 +22,6 @@ import { PrismaService } from './prisma.service';
 import { PrivateMessageController } from './privateMessage/privateMessage.controller';
 import { PrivateMessageService } from './privateMessage/privateMessage.service';
 
-import { QueueListController } from './queueList/queueList.controller';
-import { QueueListService } from './queueList/queueList.service';
-
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 
@@ -41,7 +38,6 @@ import { UserService } from './user/user.service';
     ChannelController,
     MessageController,
     PrivateMessageController,
-    QueueListController,
     UserController,
   ],
   providers: [
@@ -50,7 +46,6 @@ import { UserService } from './user/user.service';
     MessageService,
     PrismaService,
     PrivateMessageService,
-    QueueListService,
     UserService,
     {
       provide: IoAdapter,

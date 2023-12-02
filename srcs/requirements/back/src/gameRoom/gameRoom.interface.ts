@@ -28,6 +28,7 @@ export interface GameRoom {
     running: boolean;
     started: boolean;
     paused: boolean;
+    pausedAfk: boolean;
     finish: boolean;
     startDate: Date;
     endDate: Date | null;

@@ -74,6 +74,7 @@ export class GameRoomService {
             userId: id,
           },
         },
+        running: true
       },
       include : {
         users: true,

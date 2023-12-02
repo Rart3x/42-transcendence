@@ -18,7 +18,7 @@ import Phaser from 'phaser';
 import * as Matter from 'matter-js';
 
 //Post and Get Methods
-import { getGameRoomByRoomId, getUserByCookie } from './api/get.call';
+import { getGameRoomByRoomId, getGameRoomByUserId, getUserByCookie } from './api/get.call';
 import { setClientSocket } from './api/post.call';
 
 //Cookie
@@ -142,17 +142,24 @@ export default class Game extends Phaser.Scene {
 
 	async create(){
 		var self = this;
+    var insideARunningGame = false;
+    var whichGameRoomInsideOf : any;
 
-		if (user.gameRoomId != null){
-			let gameRoom : any = await getGameRoomByRoomId(user.gameRoomId);
-			// gameRoom.running = false;
-			if (gameRoom && gameRoom.running == true){
+		if (user.userId != null){
+			let gameRooms : any = await getGameRoomByUserId(user.userId);
+      for (let i = 0; i < gameRooms.length; i++){
+        if (gameRooms[i].running == true){
+            insideARunningGame = true; 
+            whichGameRoomInsideOf = gameRooms[i];
+        }
+      }
+			if (insideARunningGame){
 				this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
 				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Trying to reconnect to the game...</h1></div> \
 				<div class="row-start-2 ..."><span class="loading loading-spinner loading-lg"></span></div> \
 				</div>');
 				socket.emit('playerReconnection', {
-					roomId: user.gameRoomId,
+					roomId: whichGameRoomInsideOf.id,
 					userId: user.userId
 				});
 			}
@@ -165,21 +172,29 @@ export default class Game extends Phaser.Scene {
 		}
 
 		socket.on('opponentReconnection', (data) => {
+
+			this.gameRoom.engine = Matter.Engine.create();
+			this.gameRoom.engine.gravity.x = 0;
+			this.gameRoom.engine.gravity.y = 0;
+			this.matter.world.disableGravity();
+			this.matter.world.setBounds();
+      this.gameRoom.world = this.gameRoom.engine.world;
+      this.destroyUI();
+      this.spawnSceneProps();
+      this.updateUIScore();
 			if (this.gameRoom.player1UserId == data.userId){
 				this.gameRoom.player1SocketId = data.playerSocket;
+        this.gameRoom.player1Disconnected = false;
 			}
 			else{
 				this.gameRoom.player2SocketId = data.playerSocket;
+        this.gameRoom.player1Disconnected = false;
 			}
-		});
 
-		socket.on('resumeGame', (data) => {
-			this.time.delayedCall(4000, self.spawnSceneProps, [], self);
+      socket.emit('readyAfterInit', { roomId: this.gameRoom.id, socketId: socket.id })
 		});
-
 
 		socket.on('informOnReconnection', (data) => {
-
 			this.gameRoom = new GameRoom(
 				this,
 				data.roomId,
@@ -190,17 +205,21 @@ export default class Game extends Phaser.Scene {
 				data.player2UserId,
 				data.player1UserName,
 				data.player2UserName);
-		
-			this.gameRoom.engine = Matter.Engine.create();
 
+			this.gameRoom.engine = Matter.Engine.create();
 			this.gameRoom.engine.gravity.x = 0;
 			this.gameRoom.engine.gravity.y = 0;
-
+      this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
+      this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
+      this.destroyUI();
 			this.matter.world.disableGravity();
-
 			this.matter.world.setBounds();
-	
-        	this.gameRoom.world = this.gameRoom.engine.world;
+      this.gameRoom.world = this.gameRoom.engine.world;
+      this.spawnSceneProps();
+      this.updateUIScore();
+
+      //Useless to send socket.id here
+      socket.emit('readyAfterInit', { roomId: this.gameRoom.id, socketId: socket.id })
 		});
 
 		socket.on('lobby', (data) => {
@@ -269,7 +288,7 @@ export default class Game extends Phaser.Scene {
 				this.gameRoom.player1Disconnected = true;
 			}
 			this.destroyUI();
-			this.hideSceneGameObjects();
+			this.children.removeAll();
 			this.UIElement.destroy();
 			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
 				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Waiting for opponent to reconnect to the game...</h1></div> \
@@ -415,8 +434,9 @@ export default class Game extends Phaser.Scene {
 		}, this);
 
 		socket.on('scorePoint', (data) => {
+      console.log("point scored");
 			if (this.gameRoom?.entities){
-				if (!this.gameRoom.player1Disconnected && !this.gameRoom.player2Disconnected){
+				if (this.gameRoom.player1Disconnected == false && this.gameRoom.player2Disconnected == false){
 					//Reset ball to the middle
 					if (this.gameRoom.entities?.ball.gameObject) {
 						this.gameRoom.entities.ball.gameObject.x = 500;
@@ -424,9 +444,9 @@ export default class Game extends Phaser.Scene {
 						this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
 					}
 					//Update score
-					if (this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
-						this.gameRoom.score.set(this.gameRoom.player1SocketId, data.score.player1);
-						this.gameRoom.score.set(this.gameRoom.player2SocketId, data.score.player2);
+					if (this.gameRoom.score && this.gameRoom.player1UserId && this.gameRoom.player2UserId){
+						this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.score.player1);
+						this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.score.player2);
 						this.updateUIScore();
 					}
 				}
@@ -434,7 +454,7 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('restartAfterScore', (data) => {
-			this?.gameRoom?.entities?.ball.gameObject.setVelocity(data.ball.vecX, data.ball.vecY);
+			//this?.gameRoom?.entities?.ball.gameObject.setVelocity(data.ball.vecX, data.ball.vecY);
 		});
 
 		socket.on('playAgain', () => {
@@ -486,6 +506,7 @@ export default class Game extends Phaser.Scene {
 		socket.on('gameFinish', (data) => {
 			this.children.removeAll();
 			this.destroyUI();
+      console.log("game finish");
 			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
 				<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
 				<div class="row-start-1"> <h1 id="winLooseMessage" class="text-4xl font-bold dark:text-white ..."></h1> </div> \
@@ -577,6 +598,8 @@ export default class Game extends Phaser.Scene {
 			data.player2UserId,
 			data.player1UserName,
 			data.player2UserName);
+
+    
 
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 		<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
@@ -733,9 +756,9 @@ export default class Game extends Phaser.Scene {
 	}
 
 	updateUIScore(){
-		if (this.gameRoom && this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
-			let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1SocketId);
-			let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2SocketId);
+		if (this.gameRoom && this.gameRoom.score){
+			let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1UserId.toString());
+			let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2UserId.toString());
 
 			let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
 			let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
@@ -792,7 +815,6 @@ export default class Game extends Phaser.Scene {
 
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;
-
 			if (state){
 				const { id, x, y, velX, velY } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
