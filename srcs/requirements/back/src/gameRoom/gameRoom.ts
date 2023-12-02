@@ -21,6 +21,7 @@ import Entities from '../entities/entities';
           player2Disconnected: false,
           player1Spawn: false,
           player2Spawn: false,
+          playAgain: true,
           customGame: customGame,
           world: null,
           engine: null,

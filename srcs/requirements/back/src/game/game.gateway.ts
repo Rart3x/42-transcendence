@@ -14,8 +14,6 @@ import {
 
 import {  createGameRoom } from '../gameRoom/gameRoom';
 
-//Utils
-import { map } from 'rxjs/operators';
 
 //Socket
 import { io } from 'socket.io-client';
@@ -50,8 +48,7 @@ import Player from '../entities/player';
 
 //Server
 import { Server } from 'ws';
-import { isArray } from 'class-validator';
-import { GameRoomModule } from '../gameRoom/gameRoom.module';
+import { warn } from 'console';
 
 
 //-------------------------------------------------------------------------------------------------------------------------------------------
@@ -106,62 +103,71 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private readonly ScoreService: ScoreService
 	){}
 
-	handleConnection(){
-		
-	}
+	handleConnection(){}
 
-	handleDisconnect(client: Socket) {
+	handleDisconnect(socket: Socket) {
 		for (let i = 0; i < this.gameRooms.length; i++){
-			if (this.gameRooms[i].player1SocketId == client.id){
-				this.server.to(this.gameRooms[i].player2SocketId).emit('opponentDisconnection');
+      if (this.gameRooms[i].finish == false){
+        if (this.gameRooms[i].player1SocketId == socket.id){
+          this.server.to(this.gameRooms[i].player2SocketId).emit('opponentDisconnection');
+          this.gameRooms[i].player1Disconnected = true;
+          this.gameRooms[i].pausedAfk = true;
+          Matter.Body.setVelocity(this.gameRooms[i].entities.ball.gameObject, {x: 0, y: 0});
+          setTimeout(() => {
+            if (this.gameRooms[i]){
+              if (this.gameRooms[i].player1Disconnected == true){
+                this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish',{
+                  winUserId: this.gameRooms[i].player2UserId
+                });
+                this.GameRoomService.updateGameRoom(
+                    this.gameRooms[i].roomId,
+                    this.gameRooms[i].player1SocketId,
+                    this.gameRooms[i].player2SocketId,
+                    this.gameRooms[i].nbBounces);
+                this.removeCollisionsEvent(this.gameRooms[i]);
+                World.clear(this.gameRooms[i].world);
+                Engine.clear(this.gameRooms[i].engine);
+                this.gameRooms.splice(i, 1);
+              }
+            }
+          }, 10000);
+        }
+        else if (this.gameRooms[i].player2SocketId == socket.id){
+          this.server.to(this.gameRooms[i].player1SocketId).emit('opponentDisconnection');
+          this.gameRooms[i].player2Disconnected = true;
+          this.gameRooms[i].pausedAfk = true;
+          Matter.Body.setVelocity(this.gameRooms[i].entities.ball.gameObject, {x: 0, y: 0});
+          setTimeout(() => {
+            if (this.gameRooms[i]){
+              if (this.gameRooms[i].player2Disconnected == true){
+                this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish',{
+                  winUserId: this.gameRooms[i].player1UserId
+                });
+                this.GameRoomService.updateGameRoom(
+                    this.gameRooms[i].roomId,
+                    this.gameRooms[i].player1SocketId,
+                    this.gameRooms[i].player2SocketId,
+                    this.gameRooms[i].nbBounces);
+              }
+            }
+          }, 10000);
+        }
+      }
+      else {
+        console.log("test delete")
+        //If one player leave once the game is finish without clicking stop button then we delete the gameroom
+        if (socket.id == this.gameRooms[i].player1SocketId){
+          this.server.to(this.gameRooms[i].player2SocketId).emit('playStop');
+        }
+        else{
+          this.server.to(this.gameRooms[i].player1SocketId).emit('playStop');
+        }
         this.removeCollisionsEvent(this.gameRooms[i]);
         World.clear(this.gameRooms[i].world);
         Engine.clear(this.gameRooms[i].engine);
-				this.gameRooms[i].player1Disconnected = true;
-        this.gameRooms[i].pausedAfk = true;
-				setTimeout(() => {
-          if (this.gameRooms[i]){
-            if (this.gameRooms[i].player1Disconnected == true){
-              this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish',{
-                winUserId: this.gameRooms[i].player2UserId
-              })
-            }
-            this.GameRoomService.updateGameRoom(
-                this.gameRooms[i].roomId,
-                this.gameRooms[i].player1SocketId,
-                this.gameRooms[i].player2SocketId,
-                this.gameRooms[i].nbBounces);
-            this.gameRooms.splice(i, 1);
-          }
-				}, 10000);
-			}
-			else if (this.gameRooms[i].player2SocketId == client.id){
-				this.server.to(this.gameRooms[i].player1SocketId).emit('opponentDisconnection');
-        this.removeCollisionsEvent(this.gameRooms[i]);
-        World.clear(this.gameRooms[i].world);
-        Engine.clear(this.gameRooms[i].engine);
-				this.gameRooms[i].player2Disconnected = true;
-        this.gameRooms[i].pausedAfk = true;
-				setTimeout(() => {
-          if (this.gameRooms[i]){
-            if (this.gameRooms[i].player2Disconnected == true){
-              this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish',{
-                winUserId: this.gameRooms[i].player1UserId
-              })
-            }
-            this.GameRoomService.updateGameRoom(
-                this.gameRooms[i].roomId,
-                this.gameRooms[i].player1SocketId,
-                this.gameRooms[i].player2SocketId,
-                this.gameRooms[i].nbBounces);
-            this.removeCollisionsEvent(this.gameRooms[i]);
-            World.clear(this.gameRooms[i].world);
-            Engine.clear(this.gameRooms[i].engine);
-            this.gameRooms.splice(i, 1);
-          }
-				}, 10000);
-			}
-		}
+        this.gameRooms.splice(i, 1);
+      }
+    }
 	}
 
 	afterInit() {
@@ -171,8 +177,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					//Loop through every game room
 					//If the game was launch then save her state every SERVER_REFRESH_RATE ms and sending it to game both players of the game.
 					//If it wasnt then launch the game engine
-					const scorePlayer1 = this.gameRooms[i].score.get(this.gameRooms[i].player1SocketId);
-					const scorePlayer2 = this.gameRooms[i].score.get(this.gameRooms[i].player2SocketId);
+					const scorePlayer1 = this.gameRooms[i].score.get(this.gameRooms[i].player1UserId.toString());
+					const scorePlayer2 = this.gameRooms[i].score.get(this.gameRooms[i].player2UserId.toString());
 
 					this.checkWinConditionMultiGame(this.gameRooms[i]);
 					if (this.gameRooms[i].finish){
@@ -205,7 +211,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							});
 						}
 
-					
 						this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
 						this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 
@@ -215,10 +220,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.gameRooms[i].player1SocketId,
 							this.gameRooms[i].player2SocketId,
 							this.gameRooms[i].nbBounces);
-            this.removeCollisionsEvent(this.gameRooms[i]);
-            World.clear(this.gameRooms[i].world);
-            Engine.clear(this.gameRooms[i].engine);
-            continue ;
 					}
 					if (this.gameRooms[i] && this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
 						this.saveGameState(this.gameRooms[i]);
@@ -376,7 +377,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						scorePlayer1,
 						scorePlayer2);
 				}
-        console.log(scorePlayer1, scorePlayer2);
 			}
 		}
 
@@ -424,29 +424,31 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			});
 
 			setTimeout(() => {
-				Matter.Body.setPosition(gameRoom.entities.ball.gameObject, {
-					x: 500,
-					y: randY
-				});
+        if (gameRoom.pausedAfk == false){
+          Matter.Body.setPosition(gameRoom.entities.ball.gameObject, {
+            x: 500,
+            y: randY
+          });
 
-				Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-					x: vecX,
-					y: vecY
-				});
-        
-				this.server.to(gameRoom.player1SocketId).emit('restartAfterScore', {
-					ball: {
-						vecX: vecX,
-						vecY: vecY
-					}
-				});
-				this.server.to(gameRoom.player2SocketId).emit('restartAfterScore', {
-					ball: {
-						vecX: vecX,
-						vecY: vecY
-					}
-				});
-				gameRoom.paused = false;
+          Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
+            x: vecX,
+            y: vecY
+          });
+          
+          this.server.to(gameRoom.player1SocketId).emit('restartAfterScore', {
+            ball: {
+              vecX: vecX,
+              vecY: vecY
+            }
+          });
+          this.server.to(gameRoom.player2SocketId).emit('restartAfterScore', {
+            ball: {
+              vecX: vecX,
+              vecY: vecY
+            }
+          });
+          gameRoom.paused = false;
+        }
 			}, 3000);
 		}
 
@@ -456,10 +458,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "left" || pair.bodyA.label == "right")){
 					gameRoom.paused = true;
 					scorePoint(pair, gameRoom);
-
 					ballRespawn(gameRoom, pair);
-
-          
 				}
 				//Elastic physics
 				else if (pair.bodyB.label == "ball" && (pair.bodyA.label == "player1"|| pair.bodyA.label == "player2")){
@@ -563,19 +562,29 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@MessageBody() roomId: number) {
 		var gameRoom = this.findCorrespondingGame(roomId);
 		gameRoom.finish = true;
-		if (socket.id == gameRoom.player1SocketId){
-			if (gameRoom.player1Ready == true){
-				this.server.to(gameRoom.player2SocketId).emit('playStop');
-			}
-			gameRoom.player1Ready = false;
-		}
-		else{
-			if (gameRoom.player2Ready == true){
-				this.server.to(gameRoom.player1SocketId).emit('playStop');
-			}
-			gameRoom.player2Ready = false;
-		}
-		this.removeCollisionsEvent(gameRoom);
+    if (gameRoom.playAgain == false){
+      this.gameRooms.splice(this.gameRooms.indexOf(gameRoom, 1));
+    }
+    else{
+      if (socket.id == gameRoom.player1SocketId){
+          this.server.to(gameRoom.player2SocketId).emit('playStop');
+        gameRoom.playAgain = false;
+        this.removeCollisionsEvent(gameRoom);
+        World.clear(gameRoom.world);
+        Engine.clear(gameRoom.engine);
+        this.gameRooms.splice(this.gameRooms.indexOf(gameRoom), 1); 
+        gameRoom.player1Ready = false;
+      }
+      else{
+          this.server.to(gameRoom.player1SocketId).emit('playStop');
+        gameRoom.playAgain = false;
+        this.removeCollisionsEvent(gameRoom);
+        World.clear(gameRoom.world);
+        Engine.clear(gameRoom.engine);
+        this.gameRooms.splice(this.gameRooms.indexOf(gameRoom), 1); 
+        gameRoom.player2Ready = false;
+      }
+    }
 	}
 
 	@SubscribeMessage('playerJoinCustomQueue')
@@ -646,6 +655,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
       const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
       const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
 
+      var randY = Between(10, 790);
+		  Matter.Body.setPosition(gameRoom.entities.ball.gameObject, { x: 500, y: randY });
       if (gameRoom.player1UserId == data.userId){
 
         gameRoom.player1SocketId = socket.id;
@@ -654,12 +665,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
         this.server.to(gameRoom.player2SocketId).emit('opponentReconnection',{
           userId: gameRoom.player1UserId,
-          playerSocket: socket.id
+          playerSocket: socket.id,
+          ballY: randY
         });
 
         var gameRoomScore = gameRoom.score;
-
-        this.server.to(socket.id).emit('informOnReconnection',{
+    
+        this.server.to(socket.id).emit('currentGameInformation',{
           roomId: gameRoom.roomId,
           customGameMode: gameRoom.customGame,
           player1SocketId: gameRoom.player1SocketId,
@@ -671,7 +683,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
           player1Image: user1.image,
           player2Image: user2.image,
           scorePlayer1: gameRoomScore.get(gameRoom.player1UserId.toString()),
-          scorePlayer2: gameRoomScore.get(gameRoom.player2UserId.toString())
+          scorePlayer2: gameRoomScore.get(gameRoom.player2UserId.toString()),
+          ballY: randY
         });
       }
       else if (gameRoom.player2UserId == data.userId){
@@ -681,11 +694,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         gameRoom.player2Disconnected = false;
         this.server.to(gameRoom.player1SocketId).emit('opponentReconnection',{
           userId: gameRoom.player2UserId,
-          playerSocket: socket.id
+          playerSocket: socket.id,
+          ballY: randY
         });
 
         var gameRoomScore = gameRoom.score;
-        this.server.to(socket.id).emit('informOnReconnection',{
+        this.server.to(socket.id).emit('currentGameInformation',{
           roomId: gameRoom.roomId,
           player1SocketId: gameRoom.player1SocketId,
           player2SocketId: gameRoom.player2SocketId,
@@ -695,7 +709,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
           player2UserName: user2.userName,
           player1Image: user1.image,
           player2Image: user2.image,
-          gameRoomScore: gameRoomScore
+          scorePlayer1: gameRoomScore.get(gameRoom.player1UserId.toString()),
+          scorePlayer2: gameRoomScore.get(gameRoom.player2UserId.toString()),
+          ballY: randY
         });
       }
 		}
@@ -723,8 +739,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}
 			if (gameRoom.player1Ready == true && gameRoom.player2Ready == true){
 				
-				const user1 = await this.UserService.getUserById(gameRoom.player1UserId);
-				const user2 = await this.UserService.getUserById(gameRoom.player2UserId);
 				var customGameMode = gameRoom.customGame;
 
 				//Db service
@@ -742,11 +756,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					[ gameRoom.player1UserId, newGameRoom.player1SocketId ],
 					[ gameRoom.player2UserId, newGameRoom.player2SocketId ],
 					gameRoom.customGame);
-
 				this.gameRooms.splice(indexGameRoom, 1);
-
 				this.gameRooms.push(localRoom);
-
 				this.server.to(localRoom.player1SocketId).emit('lobby', {
 					roomId: localRoom.roomId,
 					customGameMode: customGameMode,
@@ -852,54 +863,38 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 	}
 
-	@SubscribeMessage('readyAfterInit')
+	@SubscribeMessage('readyAfterInitialisation')
 	handleGameStart(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() data: {roomId: number, socketId: string }) : void {
+		@MessageBody() roomId: number ) : void {
 
-		var gameRoom : GameRoom = this.findCorrespondingGame(data.roomId);
+		var gameRoom : GameRoom = this.findCorrespondingGame(roomId);
 
-		if (gameRoom && socket.id == gameRoom.player1SocketId){
-			gameRoom.player1Spawn = true;
-		}
-		else if (gameRoom){
-			gameRoom.player2Spawn = true;
-		}
-		if (gameRoom && gameRoom.player1Spawn == true && gameRoom.player2Spawn == true){
-			this.server.to(gameRoom.player1SocketId).emit('gameStart');
-			this.server.to(gameRoom.player2SocketId).emit('gameStart');
-    
-      var self = this;
-			setTimeout(() => {
-        if (gameRoom.pausedAfk == true){
-          //Recreate everything cause its simplier than to pause
-          gameRoom.engine = Matter.Engine.create();
-
-          //Desactive gravity so we got an arcade physic
-          gameRoom.engine.gravity.x = 0;
-          gameRoom.engine.gravity.y = 0;
-
-          //Default score
-          gameRoom.entities = new Entities(gameRoom.customGame, gameRoom.player1SocketId, gameRoom.player2SocketId);
-
-          gameRoom.world = gameRoom.engine.world;
-
-          self.initCollisions(gameRoom.customGame, gameRoom.entities, gameRoom.world);
-          self.initCollisionsEvent(gameRoom.engine, gameRoom);
-		      self.setBallDefaultParameters(gameRoom.entities.ball);
+    if (gameRoom){
+      if (socket.id == gameRoom.player1SocketId){
+        gameRoom.player1Spawn = true;
+      }
+      else{
+        gameRoom.player2Spawn = true;
+      }
+      if (gameRoom.player1Spawn == true && gameRoom.player2Spawn == true){
+        //to synchronize countdown on front end back
+        this.server.to(gameRoom.player1SocketId).emit('gameStart');
+        this.server.to(gameRoom.player2SocketId).emit('gameStart');
+        setTimeout(() => {
+          gameRoom.started = true;
+          Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
+            x: 4,
+            y: 4 
+          });
           gameRoom.pausedAfk = false;
-        }
-				gameRoom.started = true;
-				Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
-					x: 4,
-					y: 4 
-				});
-				gameRoom.player2Ready = false;
-				gameRoom.player1Ready = false;
-        gameRoom.player1Spawn = false;
-        gameRoom.player2Spawn = false;
-			}, 3000);
-		}
+          gameRoom.player2Ready = false;
+          gameRoom.player1Ready = false;
+          gameRoom.player1Spawn = false;
+          gameRoom.player2Spawn = false;
+        }, 3000);
+		  }
+    }
 	}
 
 	saveGameState(gameRoom: GameRoom){
@@ -909,12 +904,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (gameRoom.entities){
 			velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
 		}
-
 		if (gameRoom.customGame && gameRoom.entities){
 			Matter.Body.rotate(gameRoom.entities.obstacles[0].gameObject, 0.5);
 			Matter.Body.rotate(gameRoom.entities.obstacles[1].gameObject, 0.5);
 		}
-
 		const ballState = [{
 			id: '0',
 			x : gameRoom.entities.ball.gameObject.position.x,
@@ -922,11 +915,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			velX: velocity.x,
 			velY: velocity.y
 		}];
-
-		var obstaclesState: any;
-
 		if (gameRoom.customGame){
-			obstaclesState = [{
+			var obstaclesState = [{
 				id: '0',
 				delta: gameRoom.entities.obstacles[0].gameObject.angle
 			}];

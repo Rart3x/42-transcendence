@@ -28,7 +28,7 @@ export default class GameRoom {
     entities?: Entities | null;
     score?: Map<string, number>;
     running?: Boolean;
-
+    playAgain: Boolean;
     constructor(
         game: Phaser.Scene,
         roomId: number,
@@ -58,6 +58,7 @@ export default class GameRoom {
             this.world = null;
             this.entities = null;
             this.running = false;
+            this.playAgain = true;
             this.score = new Map<string, number>();
             this.score.set(socketPlayer1, 0);
             this.score.set(socketPlayer2, 0);
