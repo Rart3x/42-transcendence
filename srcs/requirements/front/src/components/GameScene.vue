@@ -18,7 +18,7 @@ import Phaser from 'phaser';
 import * as Matter from 'matter-js';
 
 //Post and Get Methods
-import { getGameRoomByRoomId, getGameRoomByUserId, getUserByCookie } from './api/get.call';
+import { getGameRoomByRoomId, getCurrentGameRoomByUserId, getUserByCookie } from './api/get.call';
 import { setClientSocket } from './api/post.call';
 
 //Cookie
@@ -121,23 +121,15 @@ export default class Game extends Phaser.Scene {
 
 	async create(){
 		var self = this;
-    var insideARunningGame = false;
-    var whichGameRoomInsideOf : any;
 		if (user.userId != null){
-			let gameRooms : any = await getGameRoomByUserId(user.userId);
-      for (let i = 0; i < gameRooms.length; i++){
-        if (gameRooms[i].running == true){
-            insideARunningGame = true; 
-            whichGameRoomInsideOf = gameRooms[i];
-        }
-      }
-			if (insideARunningGame){
+			let gameRoom : any = await getCurrentGameRoomByUserId(user.userId);
+			if (gameRoom){
 				this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
 				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Trying to reconnect to the game...</h1></div> \
 				<div class="row-start-2 ..."><span class="loading loading-spinner loading-lg"></span></div> \
 				</div>');
 				socket.emit('playerReconnection', {
-					roomId: whichGameRoomInsideOf.id,
+					roomId: gameRoom.id,
 					userId: user.userId
 				});
 			}

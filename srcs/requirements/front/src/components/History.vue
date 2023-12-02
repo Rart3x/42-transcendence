@@ -2,7 +2,7 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
   import { onMounted, ref, computed } from "vue";
-  import { getGameRoomByUserId, getUserByCookie, getAllScore, getUserByUserName, getGameWinner } from "./api/get.call";
+  import { getPastGameRoomsByUserId, getUserByCookie, getAllScore, getUserByUserName, getGameWinner } from "./api/get.call";
 
   let games = ref([]);
   let user = ref(null);
@@ -50,8 +50,8 @@
     if (!user.value) window.location.href = "/";
   
     versusImage.value = "../src/assets/vs.png";
-    games.value = await getGameRoomByUserId(user.value.userId);
-
+    games.value = await getPastGameRoomsByUserId(user.value.userId);
+    console.log(games.value);
     if (!games.value) window.location.href = "/";
 
     for (let i = 0; i < games.value.length; i++) {

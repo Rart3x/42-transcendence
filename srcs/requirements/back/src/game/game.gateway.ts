@@ -561,6 +561,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() roomId: number) {
 		var gameRoom = this.findCorrespondingGame(roomId);
+    if (!gameRoom)
+      return ;
 		gameRoom.finish = true;
     if (gameRoom.playAgain == false){
       this.gameRooms.splice(this.gameRooms.indexOf(gameRoom, 1));

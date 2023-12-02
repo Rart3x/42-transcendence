@@ -64,10 +64,29 @@ export class GameRoomService {
     });
   }
 
-  async getGameRoomByUserId(userId: number) {
+  async getGameRoomsByUserId(userId: number) {
     const id = typeof userId === 'string' ? parseInt(userId) : userId;
 
     return await this.prisma.gameRoom.findMany({
+      where: {
+        users: {
+          some: {
+            userId: id,
+          },
+        },
+        running: false
+      },
+      include : {
+        users: true,
+        score: true,
+      },
+    });
+  }
+
+  async getCurrentGameRoomByUserId(userId: number) {
+    const id = typeof userId === 'string' ? parseInt(userId) : userId;
+
+    return await this.prisma.gameRoom.findFirst({
       where: {
         users: {
           some: {
