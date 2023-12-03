@@ -75,7 +75,7 @@
 <template>
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :userName="userName"/>
     </div>
     <div class="navbar-center">
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
@@ -96,6 +96,7 @@
         :modalMessage="modalMessage"
         :closeMessageModal="closeMessageModal"
         :senderName="senderName"
+        :userName="userName"
       />
       <Modal :senderName="senderName" />
     </div>

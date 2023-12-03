@@ -106,7 +106,7 @@
         </dialog>
     </div>
     <!--Private Message Modal-->
-    <div v-if="parent === 'drawer' || parent === 'userProfile'" >
+    <div v-if="parent === 'drawer'" >
         <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalMessage" @keydown.esc="closeMessageModal">
             <div class="chat">
                 <div class="chat-title">
@@ -118,18 +118,18 @@
                 <div class="messages">
                 <div v-if="privateMessages && privateMessages.length > 0" class="messages-content">
                     <div v-for="(message, index) in privateMessages" :key="index">
-                    <div v-if="message.senderName === userName" class="message message-right">
-                        {{ message.messageContent }}
-                    </div>
-                    <div v-else class="message message-left">
-                        {{ message.messageContent }}
-                    </div>
+                        <div v-if="message.senderName === userName" class="message message-right">
+                            {{ message.messageContent }}
+                        </div>
+                        <div v-else class="message message-left">
+                            {{ message.messageContent }}
+                        </div>
                     </div>
                 </div>
                 </div>
                 <div class="message-box">
-                <form class="message-form" @submit.prevent="sendMessage">
-                    <textarea type="text" class="message-input" placeholder="Type message..." v-model="message_text"></textarea>
+                <form class="message-form" @submit.prevent="createPrivateMessageInDB(userName, senderName, message_text)">
+                    <input type="text" class="message-input" placeholder="Type message..." v-model="message_text" @keyup.enter="createPrivateMessageInDB(userName, senderName, message_text)">
                     <button type="submit" class="message-submit">Send</button>
                 </form>
                 </div>

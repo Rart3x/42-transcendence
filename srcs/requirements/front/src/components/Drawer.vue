@@ -1,6 +1,7 @@
 <script>
   import { RouterLink } from "vue-router";
   import Modal from './Modal.vue';
+  import { getAllUsers } from "./api/get.call";
 
     export default {
     name: 'Drawer',
@@ -9,8 +10,18 @@
     },
     data() {
       return {
+        enteredName: '',
         messageText: '',
       };
+    },
+    methods: {
+      async checkName() {
+        const users = await getAllUsers();
+
+        const nameExists = users.some(user => user.userName === this.enteredName);
+        if (nameExists)
+          this.openMessageModal(this.$props.user.userName, this.enteredName)
+      }
     },
     props: {
       display : Boolean,
@@ -22,6 +33,7 @@
 
       currentUserName: String,
       senderName: String,
+      userName: String,
       imageSrc: String,
 
       createPrivateMessageInDB: Function,
@@ -34,7 +46,7 @@
 
 <template>
   <Modal :parent="'drawer'" :modalMessage="modalMessage" :currentUserName="currentUserName" :senderName="senderName"
-    :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" :privateMessages="privateMessages" 
+    :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" :privateMessages="privateMessages" :userName="userName"
   />
   <!--Game Drawer-->
   <div v-if="!display" class="drawer z-[1]">
@@ -69,8 +81,13 @@
       </button>
     </div> 
     <div class="drawer-side z-[1] font-mono">
-      <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+        <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
+        <form @submit.prevent="checkName">
+          <div class="p-4">
+            <input v-model="enteredName" type="text" placeholder="Enter a name" class="input input-bordered w-full mb-4" @keyup.enter="checkName"/>
+          </div>
+        </form>
         <li v-for="(messageObject, index) in privateMessages" :key="index" class="message_boxes" @click="openMessageModal(user.userName, messageObject.senderName)">
           <div class="flex justify-between items-center">
             <div class="flex flex-col items-start">

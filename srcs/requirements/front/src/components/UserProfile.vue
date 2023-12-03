@@ -88,22 +88,6 @@
     channels.value = await getAllChannelsFromUser(userName);
   };
 
-  const createPrivateMessageInDB = async (userName, currentUserName, message_text) => {
-    const response = await createPrivateMessage(userName, currentUserName, message_text);
-
-    if (response && response.success) {
-      addMessageSuccess.value = true;
-      setTimeout(() => {
-        addMessageSuccess.value = false;
-      }, 3000);
-    } else {
-      addMessageFailed.value = true;
-      setTimeout(() => {
-        addMessageFailed.value = false;
-      }, 3000);
-    }
-  };
-
   const joinChannelInDB = async (channelName, userName) => {
     const response = await joinChannel(channelName, userName);
 
@@ -184,7 +168,6 @@
   const closeMessageModal = () => { modalMessage.value = false; };
   const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName.value = userName; };
   const openManageChannelModal = (channel) => { channelName.value = channel; modalStates.modalManageChannel.value = true; };
-  const openMessageModal = async (userName) => { modalMessage.value = true; senderName.value = userName; privateMessages.value = await getPrivateMessages(user.value.userName, userName); };
 
   var router;
   
@@ -285,9 +268,6 @@
                 <td> <button class="btn glass" @click="inviteFriendInGame(user.userName, user.userId, user.socket, user.status)">Invite in a Game</button> </td>
                 <td>
                   <button class="btn glass" @click="openChannelModal(user.userName)">Invite in Channel</button>
-                </td>
-                <td>
-                  <button class="btn glass" @click="openMessageModal(user.userName)">Send Message</button>
                 </td>
               </tr>
             </tbody>
@@ -398,14 +378,12 @@
       :user="user"
       :userName="userName"
       :parent="'userProfile'"
-      :privateMessages="privateMessages"
       :passwordCheckBox="passwordCheckBox"
 
       :addFriendFromDB="addFriendFromDB"
       :closeModal="closeModal"
       :closeMessageModal="closeMessageModal"
       :createChannelInDB="createChannelInDB"
-      :createPrivateMessageInDB="createPrivateMessageInDB"
       :joinChannelInDB="joinChannelInDB"
       :removeFriendFromDB="removeFriendFromDB"
       :togglePasswordInput="togglePasswordInput"
