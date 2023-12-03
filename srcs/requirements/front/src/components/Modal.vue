@@ -171,6 +171,7 @@
         display: flex;
         justify-content: space-between;
         flex-direction: column;
+        backdrop-filter: blur(5px);
     }
     .chat-title {
         flex: 0 1 45px;
@@ -242,7 +243,7 @@
     .messages .message.message-left::before { right: auto; left: 0; border-left: none; }
     .messages .message.message-right { float: right; color: #fff; text-align: right; background: linear-gradient(120deg, #a8c5b5, #257287); }
     .messages .message.message-right::before { left: auto; border-right: none; }
-    .messages .message:last-child { margin-bottom: 30px; }
+    .messages .message:last-child { margin-bottom: 8px; }
     .message-box {
         flex: 0 1 40px;
         width: 100%;

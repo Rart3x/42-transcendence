@@ -30,28 +30,22 @@
     }
   };
   
-  const closeModal = () => { modalCheckPass.value.open = false;};
+  // const closeModal = () => { modalCheckPass.value.open = false;};
 
   onMounted(() => {
-    if (modalCheckPass.value)
-      modalCheckPass.value.show();
+    // if (modalCheckPass.value)
+      // modalCheckPass.value.show();
   });
 </script>
 
 <template>
-  <div class="background"></div>
+  <Alert :checkPassFailed="checkPassFailed" />
+  <Modal :checkPassInDB="checkPassInDB" /> 
+  <body class="overflow-x-auto min-h-screen bg-base-200 pass">
+  </body>
 
-  <!--Alerts-->
-  <Alert
-    checkPassFailed="checkPassFailed"
-  />
-
-  <!--Modals-->
-  <Modal
-    checkPassInDB="checkPassInDB"
-  />  
 </template>
 
 <style scoped>
-	.dialogModalChannel { text-align: center; }
+  body { backdrop-filter: blur(5px); }
 </style>

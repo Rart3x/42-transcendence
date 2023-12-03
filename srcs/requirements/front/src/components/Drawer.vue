@@ -75,7 +75,6 @@
         <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
           <div class="indicator">
             <img src="../assets/messages.png" />
-            <span class="badge badge-xs badge-error indicator-item"></span>
           </div>
         </label>
       </button>
@@ -85,7 +84,7 @@
         <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
         <form @submit.prevent="checkName">
           <div class="p-4">
-            <input v-model="enteredName" type="text" placeholder="Enter a name" class="input input-bordered w-full mb-4" @keyup.enter="checkName"/>
+            <input v-model="enteredName" type="text" placeholder="Enter a name" class="input input-bordered w-full mb" @keyup.enter="checkName"/>
           </div>
         </form>
         <li v-for="(pairMessages, pairKey) in privateMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">

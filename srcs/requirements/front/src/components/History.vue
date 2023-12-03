@@ -51,7 +51,6 @@
   
     versusImage.value = "../src/assets/vs.png";
     games.value = await getPastGameRoomsByUserId(user.value.userId);
-    console.log(games.value);
     if (!games.value) window.location.href = "/";
 
     for (let i = 0; i < games.value.length; i++) {
@@ -67,86 +66,86 @@
 </script>
 
 <template>
-  <div class="overflow-x-auto min-h-screen bg-base-200 ">
-      <div class="table grid grid-cols-4">
-        <table class="table table-fixed w-full">
+  <div class="overflow-x-auto min-h-screen bg-base-200">
+    <div class="table grid grid-cols-4">
+      <table class="table table-fixed w-full">
+        <tbody>
+          <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index" >
+            <td :class="user.userId == item.winner.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
+              <div >
+                <label class="text-xl font-medium font-bold">
+                  <span v-if="item.game.customGame" class="text-before"> CUSTOM </span>
+                  <span v-else class="text-before font-bold"> NORMAL</span>
+                </label>
+                <br/>
+                <label class="text-xl font-medium">
+                  <span v-if="user.userId == item.winner.winnerId">WIN 😎</span>
+                  <span v-else>DEFEAT 😢</span>
+                </label>
+                <br/> <br/> <br/>
+                <label class="text-xl font-light">
+                  <span>{{ timeAgo( Date.parse(item.game.startDate)) }}</span>
+                </label>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+        <table class="table col-start-2 col-span-3">
           <tbody>
-            <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index" >
+            <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index">
               <td :class="user.userId == item.winner.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
-                <div >
-                  <label class="text-xl font-medium font-bold">
-                    <span v-if="item.game.customGame" class="text-before"> CUSTOM </span>
-                    <span v-else class="text-before font-bold"> NORMAL</span>
+                <div class="collapse">
+                  <label for="collapse1" class="collapse-title text-xl font-medium">
+                    <span class="text-before">
+                      <label tabindex="0" class="btn glass btn-ghost btn-circle">
+                        <div class="avatar">
+                          <div class="w-20 mask mask-squircle">
+                            <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[0].imageSrc" />
+                            <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[1].imageSrc" />
+                          </div>
+                        </div>
+                        <span v-if="user.userName == item.game.users[0].userName" class="font-medium font-bold">{{ item.game.users[0].userName }}</span>
+                        <span v-if="user.userName == item.game.users[1].userName" class="font-medium font-bold">{{ item.game.users[1].userName }}</span>
+                      </label>
+                    </span>
+                    <div class="avatar">
+                      <label tabindex="0" class="btn btn-ghost btn-circle">
+                        <div class="w-20 mask mask-squircle">
+                          <img :src="versusImage" class="versus-image" />
+                        </div>
+                      </label>
+                    </div>
+                    <span class="text-after">
+                      <label tabindex="0" class="btn glass btn-ghost btn-circle">
+                        <div class="avatar">
+                          <div class="w-20 mask mask-squircle">
+                            <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[1].imageSrc" />
+                            <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[0].imageSrc" />
+                          </div>
+                        </div>
+                        <span v-if="user.userName == item.game.users[0].userName" class="font-medium font-bold">{{ item.game.users[1].userName }}</span>
+                        <span v-if="user.userName == item.game.users[1].userName" class="font-medium font-bold">{{ item.game.users[0].userName }}</span>
+                      </label>
+                    </span>
                   </label>
-                  <br/>
-                  <label class="text-xl font-medium">
-                    <span v-if="user.userId == item.winner.winnerId">WIN 😎</span>
-                    <span v-else>DEFEAT 😢</span>
-                  </label>
-                  <br/> <br/> <br/>
-                  <label class="text-xl font-light">
-                    <span>{{ timeAgo( Date.parse(item.game.startDate)) }}</span>
-                  </label>
+                  <input type="checkbox" id="collapse1" class="collapse-checkbox" />
+                  <div class="collapse-content flex flex-col items-center justify-center">
+                    <p v-for="(score, idx) in item.scores" :key="idx" class="dark-row">
+                      <span>  
+                        <span  v-if="user.userName == item.game.users[0].userName && idx == item.scores.length - 1" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
+                        <span  v-else-if="user.userName == item.game.users[1].userName && idx == item.scores.length - 1" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
+                        <span  v-else-if="user.userName == item.game.users[0].userName" class="ml-auto text-lg font-bold">  {{ score.scoreA }}  / {{ score.scoreB }}<span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
+                        <span  v-else class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
-          <table class="table col-start-2 col-span-3">
-            <tbody>
-              <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index">
-                <td :class="user.userId == item.winner.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
-                  <div class="collapse">
-                    <label for="collapse1" class="collapse-title text-xl font-medium">
-                      <span class="text-before">
-                        <label tabindex="0" class="btn glass btn-ghost btn-circle">
-                          <div class="avatar">
-                            <div class="w-20 mask mask-squircle">
-                              <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[0].imageSrc" />
-                              <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[1].imageSrc" />
-                            </div>
-                          </div>
-                          <span v-if="user.userName == item.game.users[0].userName" class="font-medium font-bold">{{ item.game.users[0].userName }}</span>
-                          <span v-if="user.userName == item.game.users[1].userName" class="font-medium font-bold">{{ item.game.users[1].userName }}</span>
-                        </label>
-                      </span>
-                      <div class="avatar">
-                        <label tabindex="0" class="btn btn-ghost btn-circle">
-                          <div class="w-20 mask mask-squircle">
-                            <img :src="versusImage" class="versus-image" />
-                          </div>
-                        </label>
-                      </div>
-                      <span class="text-after">
-                        <label tabindex="0" class="btn glass btn-ghost btn-circle">
-                          <div class="avatar">
-                            <div class="w-20 mask mask-squircle">
-                              <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[1].imageSrc" />
-                              <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[0].imageSrc" />
-                           </div>
-                          </div>
-                          <span v-if="user.userName == item.game.users[0].userName" class="font-medium font-bold">{{ item.game.users[1].userName }}</span>
-                          <span v-if="user.userName == item.game.users[1].userName" class="font-medium font-bold">{{ item.game.users[0].userName }}</span>
-                        </label>
-                      </span>
-                    </label>
-                    <input type="checkbox" id="collapse1" class="collapse-checkbox" />
-                    <div class="collapse-content flex flex-col items-center justify-center">
-                      <p v-for="(score, idx) in item.scores" :key="idx" class="dark-row">
-                        <span>  
-                          <span  v-if="user.userName == item.game.users[0].userName && idx == item.scores.length - 1" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
-                          <span  v-else-if="user.userName == item.game.users[1].userName && idx == item.scores.length - 1" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
-                          <span  v-else-if="user.userName == item.game.users[0].userName" class="ml-auto text-lg font-bold">  {{ score.scoreA }}  / {{ score.scoreB }}<span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
-                          <span  v-else class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      </div>
   </div>
 </template>
 
