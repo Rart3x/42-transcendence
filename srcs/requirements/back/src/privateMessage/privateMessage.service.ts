@@ -10,38 +10,20 @@ export class PrivateMessageService {
   async createPrivateMessage(senderName: string, receiverName: string, privateMessageText: string): Promise<boolean> {
     const user1 = await this.userService.getUserByName(senderName);
     const user2 = await this.userService.getUserByName(receiverName);
-  
+    
     if (!user1 || !user2) {
       return false;
     }
-  
-    const existingPrivateMessage = await this.prisma.privateMessage.findFirst({
-      where: {
-        AND: [
-          { OR: [{ senderName }, { senderName: receiverName }] },
-          { OR: [{ receiverName }, { receiverName: senderName }] },
-        ],
+    
+    await this.prisma.privateMessage.create({
+      data: {
+        messageContent: privateMessageText,
+        privateMessageDate: new Date(),
+        senderName,
+        receiverName,
       },
     });
   
-    if (existingPrivateMessage) {
-      await this.prisma.privateMessage.update({
-        where: { privateMessageId: existingPrivateMessage.privateMessageId },
-        data: {
-          messageContent: privateMessageText,
-          privateMessageDate: new Date(),
-        },
-      });
-    } else {
-      await this.prisma.privateMessage.create({
-        data: {
-          messageContent: privateMessageText,
-          privateMessageDate: new Date(),
-          senderName,
-          receiverName,
-        },
-      });
-    }
     return true;
   }
   
@@ -67,19 +49,35 @@ export class PrivateMessageService {
     return privateMessage;
   }
   
-  async getPrivateMessagesByUserName(userName: string): Promise<PrivateMessage[]> {
+  async getPrivateMessagesByUserName(userName: string): Promise<{ [key: string]: PrivateMessage[] }> {
     const user = await this.userService.getUserByName(userName);
   
     if (!user) {
       return null;
     }
   
-    const privateMessagesReceived = await this.prisma.privateMessage.findMany({
+    const privateMessagesSent = await this.prisma.privateMessage.findMany({
       where: {
-        receiverName: userName,
+        OR: [
+          { senderName: userName },
+          { receiverName: userName },
+        ],
+      },
+      orderBy: {
+        privateMessageDate: 'asc',
       },
     });
   
-    return privateMessagesReceived;
+    const messagePairs = {};
+  
+    privateMessagesSent.forEach((message) => {
+      const pairKey = `${message.senderName}-${message.receiverName}`;
+      if (!messagePairs[pairKey]) {
+        messagePairs[pairKey] = [];
+      }
+      messagePairs[pairKey].push(message);
+    });
+  
+    return messagePairs;
   }
 }

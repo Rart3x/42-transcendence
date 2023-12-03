@@ -20,7 +20,6 @@
 
   let currentUserName = ref("");
   let senderName = ref("");
-  let messageText = ref("");  
 
   let modalMessage = ref(false);
 
@@ -43,6 +42,7 @@
 
   const createPrivateMessageInDB = async (userName, senderName, message_text) => {
     const response = await createPrivateMessage(userName, senderName, message_text);
+    privateMessages.value = await getPrivateMessagesByUserName(user.value.userName);
   };
 
   const logout = () => {
@@ -52,7 +52,7 @@
   };
 
   const closeMessageModal = () => { modalMessage.value = false; };
-  const openMessageModal = (userName, sender) => { modalMessage.value = true; currentUserName = userName; senderName.value = sender;};
+  const openMessageModal = (userName, message) => { modalMessage.value = true; currentUserName = userName; senderName.value = (message.senderName === userName) ? message.receiverName : message.senderName; };
 
   onMounted(async () => {
     if (Cookies.get("_authToken") == undefined)

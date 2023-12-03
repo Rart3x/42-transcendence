@@ -27,7 +27,7 @@
       display : Boolean,
       modalMessage: Boolean,
 
-      privateMessages: Array,
+      privateMessages: Object,
 
       user: Object,
 
@@ -68,7 +68,7 @@
     </div>
   </div>
   <!--Messages Drawer-->
-  <div v-if="display" class="drawer-end z-[1]">
+  <div v-if="display" class="drawer-end">
     <input id="my-drawer-1" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
       <button class="btn btn-ghost btn-circle">
@@ -88,14 +88,20 @@
             <input v-model="enteredName" type="text" placeholder="Enter a name" class="input input-bordered w-full mb-4" @keyup.enter="checkName"/>
           </div>
         </form>
-        <li v-for="(messageObject, index) in privateMessages" :key="index" class="message_boxes" @click="openMessageModal(user.userName, messageObject.senderName)">
+        <li v-for="(pairMessages, pairKey) in privateMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">
           <div class="flex justify-between items-center">
             <div class="flex flex-col items-start">
-              <span class="font-semibold">{{ messageObject.senderName }}</span>
-              <span v-if="messageObject.messageHistory[messageObject.messageHistory.length - 1].length <= 20" class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}</span>
-              <span v-else class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}..</span>
+              <span class="font-semibold">
+                {{ pairMessages[pairMessages.length - 1].senderName === user.userName ? pairMessages[pairMessages.length - 1].receiverName : pairMessages[pairMessages.length - 1].senderName }}
+              </span>
+              <span v-if="pairMessages[pairMessages.length - 1].messageContent.length <= 20" class="text-sm text-gray-500">
+                {{ pairMessages[pairMessages.length - 1].messageContent.substring(0, 20) }}
+              </span>
+              <span v-else class="text-sm text-gray-500">
+                {{ pairMessages[pairMessages.length - 1].messageContent.substring(0, 20) }}..
+              </span>
             </div>
-            <span>{{ messageObject.privateMessageDate.substring(11, 16) }} </span>
+            <span>{{ pairMessages[pairMessages.length - 1].privateMessageDate.substring(11, 16) }}</span>
           </div>
         </li>
       </ul>

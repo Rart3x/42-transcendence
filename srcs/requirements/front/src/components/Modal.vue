@@ -110,28 +110,32 @@
         <dialog id="modalMessage" class="modal modal-bottom sm:modal-middle" :open="modalMessage" @keydown.esc="closeMessageModal">
             <div class="chat">
                 <div class="chat-title">
-                <h1>{{ senderName }}</h1>
-                <figure class="avatar">
-                    <!-- <img :src="currentImageSrc"/> -->
-                </figure>
+                    <h1>{{ senderName }}</h1>
+                    <figure class="avatar">
+                        <!-- <img :src="currentImageSrc"/> -->
+                    </figure>
                 </div>
-                <div class="messages">
-                <div v-if="privateMessages && privateMessages.length > 0" class="messages-content">
-                    <div v-for="(message, index) in privateMessages" :key="index">
-                        <div v-if="message.senderName === userName" class="message message-right">
-                            {{ message.messageContent }}
-                        </div>
-                        <div v-else class="message message-left">
-                            {{ message.messageContent }}
+                <div class="messages" ref="messagesContent">
+                    <div class="messages-content">
+                        <div v-if="privateMessages">
+                            <div v-for="(pairMessages, pairIndex) in privateMessages" :key="pairIndex">
+                                <div v-for="(message, index) in pairMessages" :key="index">
+                                    <div v-if="message.senderName === senderName" class="message message-right">
+                                        {{ message.messageContent }}
+                                    </div>
+                                    <div v-else class="message message-left">
+                                        {{ message.messageContent }}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                </div>
+                    </div>
                 <div class="message-box">
-                <form class="message-form" @submit.prevent="createPrivateMessageInDB(userName, senderName, message_text)">
-                    <input type="text" class="message-input" placeholder="Type message..." v-model="message_text" @keyup.enter="createPrivateMessageInDB(userName, senderName, message_text)">
-                    <button type="submit" class="message-submit">Send</button>
-                </form>
+                    <form class="message-form" @submit.prevent="createPrivateMessageInDB(userName, senderName, message_text)">
+                        <input type="text" class="message-input" placeholder="Type message..." v-model="message_text" @keyup.enter="createPrivateMessageInDB(userName, senderName, message_text)">
+                        <button type="submit" class="message-submit">Send</button>
+                    </form>
                 </div>
             </div>
         </dialog>
@@ -212,6 +216,7 @@
         overflow: hidden;
         position: relative;
         width: 100%;
+        overflow-y: auto;
     }
     .messages .messages-content {
         position: absolute;
@@ -231,6 +236,8 @@
         position: relative;
         text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     }
+    .messages::-webkit-scrollbar { width: 8px; }
+    .messages::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.3); border-radius: 4px;}
     .messages .message.message-left { float: left; color: #fff; text-align: left; background: linear-gradient(120deg, #df9494, #777); }
     .messages .message.message-left::before { right: auto; left: 0; border-left: none; }
     .messages .message.message-right { float: right; color: #fff; text-align: right; background: linear-gradient(120deg, #a8c5b5, #257287); }
