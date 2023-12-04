@@ -33,4 +33,5 @@ export interface GameRoom {
     finish: boolean;
     startDate: Date;
     endDate: Date | null;
+    winnerId?: number;
 }

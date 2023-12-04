@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div id="game">
+  <div id="game" class="bg-black">
     <GameConfig/>
   </div>
 </template>

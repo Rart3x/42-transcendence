@@ -141,26 +141,32 @@ export default class Game extends Phaser.Scene {
 			this.gamePage(self);
 		}
 
+		socket.on('updateScore', (data) => {
+			this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
+			this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
+			this.updateUIScore();
+		});
+
 		socket.on('opponentReconnection', (data) => {
 			this.gameRoom.engine = Matter.Engine.create();
 			this.gameRoom.engine.gravity.x = 0;
 			this.gameRoom.engine.gravity.y = 0;
 			this.matter.world.disableGravity();
 			this.matter.world.setBounds();
-      this.gameRoom.world = this.gameRoom.engine.world;
-      this.destroyUI();
-      this.spawnSceneProps();
-      this.updateUIScore();
+			this.gameRoom.world = this.gameRoom.engine.world;
+			this.destroyUI();
+			this.spawnSceneProps();
+			this.updateUIScore();
 			this.gameRoom.entities.ball.gameObject.y = data.ballY;
 			if (this.gameRoom.player1UserId == data.userId){
 				this.gameRoom.player1SocketId = data.playerSocket;
-        this.gameRoom.player1Disconnected = false;
+				this.gameRoom.player1Disconnected = false;
 			}
 			else{
 				this.gameRoom.player2SocketId = data.playerSocket;
-        this.gameRoom.player1Disconnected = false;
+				this.gameRoom.player1Disconnected = false;
 			}
-      socket.emit('readyAfterInitialisation', this.gameRoom.id)
+			socket.emit('readyAfterInitialisation', this.gameRoom.id);
 		});
 
 		socket.on('currentGameInformation', (data) => {
@@ -177,17 +183,17 @@ export default class Game extends Phaser.Scene {
 			this.gameRoom.engine = Matter.Engine.create();
 			this.gameRoom.engine.gravity.x = 0;
 			this.gameRoom.engine.gravity.y = 0;
-      this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
-      this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
-      this.destroyUI();
+			this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
+			this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
+			this.destroyUI();
 			this.matter.world.disableGravity();
 			this.matter.world.setBounds();
-      this.gameRoom.world = this.gameRoom.engine.world;
-      this.spawnSceneProps();
-      this.updateUIScore();
+			this.gameRoom.world = this.gameRoom.engine.world;
+			this.spawnSceneProps();
+			this.updateUIScore();
 			this.gameRoom.entities.ball.gameObject.y = data.ballY;
-      //Useless to send socket.id here
-      socket.emit('readyAfterInitialisation', this.gameRoom.id);
+			//Useless to send socket.id here
+			socket.emit('readyAfterInitialisation', this.gameRoom.id);
 		});
 
 		socket.on('lobby', (data) => {
@@ -448,33 +454,34 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('playStop', () => {
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
-      this.gameRoom.playAgain = false;
+      		this.gameRoom.playAgain = false;
         
 			if (socket.id == this.gameRoom?.player1SocketId){
 				this.gameRoom.player2PlayAgain = false;
-				if (this.gameRoom.player1Again == true){
+				if (this.gameRoom.player1PlayAgain == true){
 					playAgainButton.innerText = "Play again 1/2";
-          playAgainButton.className = "btn btn-active no-animation btn-ghost";
+         			playAgainButton.className = "btn btn-active no-animation btn-ghost";
 				}
 				else{
 					playAgainButton.innerText = "Play again 0/2";
-          playAgainButton.className = "btn btn-active no-animation btn-ghost";
+          			playAgainButton.className = "btn btn-active no-animation btn-ghost";
 				}
 			}
 			else if (this.gameRoom?.player2SocketId){
 				this.gameRoom.player1PlayAgain = false;
 				if (this.gameRoom.player2PlayAgain == true){
 					playAgainButton.innerText = "Play again 1/2";
-          playAgainButton.className = "btn btn-active no-animation btn-ghost";
+          			playAgainButton.className = "btn btn-active no-animation btn-ghost";
 				}
 				else{
 					playAgainButton.innerText = "Play again 0/2";
-          playAgainButton.className = "btn btn-active no-animation btn-ghost";
+          			playAgainButton.className = "btn btn-active no-animation btn-ghost";
 				}
 			}
 		});
 
 		socket.on('gameFinish', (data) => {
+			console.log("game is finish");
 			this.children.removeAll();
 			this.destroyUI();
 			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
@@ -487,57 +494,54 @@ export default class Game extends Phaser.Scene {
 
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
 		
-			if (this.gameRoom && user.userId == data.winUserId){
-				if (user.userId == this.gameRoom.player1UserId)
-					winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
-				else
-					winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
-			}
-			else if (this.gameRoom){
-				if (user.userId == this.gameRoom.player1UserId)
-					winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName;
-				else
-					winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName;
-			}
-		
-			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
-			let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
-
-			playAgainButton.addEventListener('click', () => {
-        if (this.gameRoom.playAgain == true){
-          if (socket.id == this?.gameRoom?.player1SocketId){
-            this.gameRoom.player1PlayAgain = true;
-            if (this.gameRoom.player2PlayAgain){
-              playAgainButton.innerText = "Play again 2/2";
-            }
-            else{
-              playAgainButton.innerText = "Play again 1/2";
-            }
-          }
-          else if (this.gameRoom){
-            this.gameRoom.player2PlayAgain = true;
-            if (this.gameRoom.player1PlayAgain){
-              playAgainButton.innerText = "Play again 2/2";
-            }
-            else{
-              playAgainButton.innerText = "Play again 1/2";
-            }
-          }
-          if (this.gameRoom){
-            socket.emit('playAgain', this.gameRoom.id);
-          }
-        }
-			});
-
-			stopButton.addEventListener('click', () => {
-				if (this.gameRoom){
-					socket.emit('stopPlay', this.gameRoom.id);
+			if (this.gameRoom){
+				if (user.userId == data.winUserId){
+					if (user.userId == this.gameRoom.player1UserId)
+						winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
+					else
+						winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
 				}
-				this.destroyUI();
-				this.gameRoom = undefined;
-				this.children.removeAll();
-				this.gamePage(this);
-			});
+				else{
+					if (user.userId == this.gameRoom.player1UserId)
+						winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName;
+					else
+						winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName;
+				}
+				let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
+				let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
+				playAgainButton.addEventListener('click', () => {
+					if (this.gameRoom.playAgain == true){
+						if (socket.id == this?.gameRoom?.player1SocketId){
+							this.gameRoom.player1PlayAgain = true;
+							if (this.gameRoom.player2PlayAgain){
+								playAgainButton.innerText = "Play again 2/2";
+							}
+							else{
+								playAgainButton.innerText = "Play again 1/2";
+							}
+						}
+						else if (this.gameRoom){
+							this.gameRoom.player2PlayAgain = true;
+							if (this.gameRoom.player1PlayAgain){
+								playAgainButton.innerText = "Play again 2/2";
+							}
+							else{
+								playAgainButton.innerText = "Play again 1/2";
+							}
+						}
+						socket.emit('playAgain', this.gameRoom.id);
+					}
+				});
+				stopButton.addEventListener('click', () => {
+					if (this.gameRoom){
+						socket.emit('stopPlay', this.gameRoom.id);
+					}
+					this.destroyUI();
+					this.gameRoom = undefined;
+					this.children.removeAll();
+					this.gamePage(this);
+				});
+			}
 		});
 
 		socket.on('snapshot', (data) => {
@@ -606,32 +610,30 @@ export default class Game extends Phaser.Scene {
 		let userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
 		let userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
 
-
-		var imagePathPlayer1;
-		var imagePathPlayer2;
-
 		if (socket.id == this.gameRoom.player1SocketId){
 			userProfile1Name.innerText = data.player1UserName;
 			userProfile2Name.innerText = data.player2UserName;
-			
 		}
 		else{
 			userProfile2Name.innerText = data.player2UserName;
 			userProfile1Name.innerText = data.player1UserName;
 		}
 
-		imagePathPlayer1 = "userImages/" + data.player1Image;
-		imagePathPlayer2 = "userImages/" + data.player2Image;
+		var imagePathPlayer1 = "userImages/" + data.player1Image;
+		var imagePathPlayer2 = "userImages/" + data.player2Image;
 
-		this.load.image('userImage2', imagePathPlayer2);
+		if (!this.textures.exists('userImage2')){
+			this.load.image('userImage2', imagePathPlayer2);
+		}
 
-		this.load.image('userImage1', imagePathPlayer1);
+		if (!this.textures.exists('userImage1')){
+			this.load.image('userImage1', imagePathPlayer1);
+		}
 
 		this.load.once(Phaser.Loader.Events.COMPLETE, () => {
 			Phaser.DOM.AddToDOM(this.textures.get('userImage1').getSourceImage() as HTMLElement, 'userProfile1');
 			Phaser.DOM.AddToDOM(this.textures.get('userImage2').getSourceImage() as HTMLElement, 'userProfile2');
 		});
-
 	
 		this.load.start();
 

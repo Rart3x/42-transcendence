@@ -222,12 +222,12 @@
 </script>
 
 <template>
-  <UserStatHeader v-if="user"
+  <body>
+    <UserStatHeader v-if="user"
     :userName="userName"
     :gamePlayed="user.gamePlayed"
     :gameWon="user.gameWon"
-  />
-  <body>
+    />
     <div class="overflow-x-auto min-h-screen bg-base-200 font-mono">
       <div class="buttons">
         <button class="btn glass" @click="showContent('friends')">Friends</button>
