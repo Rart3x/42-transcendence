@@ -11,10 +11,22 @@
                 channelName: '',
                 password: '',
                 selectedDuration: 1,
+                senderImageSrc: null,
             };
         },
         emits: ['update:passwordCheckBox'],
         methods: {
+            async loadSenderImage(senderName) {
+                const user = await getUserByUserName(senderName);
+                const imagePath = "../assets/userImages/" + user.image;
+                try {
+                    const image = await import(/* @vite-ignore */ imagePath);
+                    this.senderImageSrc = image.default;
+                } catch (error) {
+                    console.error("Error loading image:", error);
+                }
+            },
+
             submitMuteForm(selectedDuration) {
                 this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration);
                 this.closeMuteModal();
@@ -42,15 +54,15 @@
             modalMessage: Boolean,
             passwordCheckBox: Boolean,
 
-            currentUserName: String,
-            friendName: String,
             parent: String,
-            senderName: String,
-            userName: String,
             userMuted: String,
 
             channelNameMute: String,
             currentChannelName: String,
+            currentUserName: String,
+            friendName: String,
+            senderName: String,
+            userName: String,
 
             addFriendFromDB: Function,
             checkPassInDB: Function,
@@ -65,6 +77,11 @@
             muteUserFromChannelInDB: Function,
             removeFriendFromDB: Function,
             togglePasswordInput: Function,
+        },
+        watch: {
+            senderName(newSenderName) {
+                this.loadSenderImage(newSenderName);
+            },
         },
     };
 </script>
@@ -112,7 +129,7 @@
                 <div class="chat-title">
                     <h1>{{ senderName }}</h1>
                     <figure class="avatar">
-                        <!-- <img :src="currentImageSrc"/> -->
+                        <img :src="senderImageSrc" />
                     </figure>
                 </div>
                 <div class="messages" ref="messagesContent">
