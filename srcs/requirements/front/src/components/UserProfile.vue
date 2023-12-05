@@ -13,8 +13,8 @@
   import { setClientSocket } from './api/post.call';
 
   let adminImage = ref(null);
+  
   let currentUserName = ref("");
-
   let channelName = ref("");
   const friendName = ref("");
   let senderName = ref("");
@@ -35,6 +35,7 @@
   let addChannelSuccess = ref(false);
   let addFriendSuccess = ref(false);
   let addMessageSuccess = ref(false);
+  let invitationInGameSuccess = ref(false);
   let inviteInGameSuccess = ref(false);
   let joinChannelSuccess = ref(false);
   let removeChannelSuccess = ref(false);
@@ -43,6 +44,7 @@
   let addChannelFailed = ref(false);
   let addFriendFailed = ref(false);
   let addMessageFailed = ref(false);
+  let invitationInGameFailed = ref(false);
   let inviteInGameFailed = ref(false);
   let joinChannelFailed = ref(false);
   let removeChannelFailed = ref(false);
@@ -122,28 +124,6 @@
     friends.value = await getAllFriends(userName);
   };
 
-  const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
-    router.push('/game');
-    socket.emit('localGame', user.value.userId);
-  
-    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
-    socket.emit('invitationInGame', { userName, sock, userStatus });
-
-    socket.on('invitationInGameSuccess', () => {
-      inviteInGameSuccess = true;
-      setTimeout(() => {
-        inviteInGameSuccess = false;
-      }, 30000);
-    });
-
-    socket.on('invitationInGameFailed', () => {
-      inviteInGameFailed = true;
-      setTimeout(() => {
-        inviteInGameFailed = false;
-      }, 3000);
-    });
-  }
-
   const removeChannelFromDB = async (channelName) => {
     const response = await removeChannel(channelName);
     
@@ -162,6 +142,56 @@
     channels.value = await getAllChannelsFromUser(userName);
   };
 
+  const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
+    // socket.value.emit('localGame', user.value.userId);
+
+    sendGameInvitation(userName, userId, userSocket, userStatus);
+
+    // const message = "Hey! Let's play a game!";
+    // socket.value.emit('invitationInGame', { userName, userId, userSocket, userStatus, message });
+
+    // let invitationAccepted = false;
+
+    // const invitationInGameSuccessHandler = () => {
+    //   invitationAccepted = true;
+    //   inviteInGameSuccess.value = true;
+    //   setTimeout(() => {
+    //     inviteInGameSuccess.value = false;
+    //     if (invitationAccepted) {
+    //       router.push('/game');
+    //     }
+    //   }, 30000);
+    // };
+
+    // const invitationInGameFailedHandler = () => {
+    //   inviteInGameFailed.value = true;
+    //   setTimeout(() => {
+    //     inviteInGameFailed.value = false;
+    //   }, 3000);
+    // };
+
+    // socket.value.on('invitationInGameSuccess', invitationInGameSuccessHandler);
+    // socket.value.on('invitationInGameFailed', invitationInGameFailedHandler);
+  };
+
+  const sendGameInvitation = (userName, userId, userSocket, userStatus) => {
+    socket.value.emit('sendGameInvitation', { userName, userId, userSocket, userStatus, message: 'Hey! Let\'s play a game!' });
+
+    // socket.value.on('invitationInGameSuccess', () => {
+    //   invitationInGameSuccess.value = true;
+    //   setTimeout(() => {
+    //     invitationInGameSuccess.value = false;
+    //   }, 3000);
+    // });
+
+    // socket.value.on('invitationInGameFailed', () => {
+    //   inviteInGameFailed.value = true;
+    //   setTimeout(() => {
+    //     inviteInGameFailed.value = false;
+    //   }, 3000);
+    // });
+  };
+
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
   const closeMessageModal = () => { modalMessage.value = false; };
   const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName.value = userName; };
@@ -172,7 +202,11 @@
   onMounted(async () => {
     router = useRouter();
 
-    socket = io('http://localhost:3000');
+    socket.value = io('http://localhost:3000');
+    socket.value.emit('message', 'zeubi');
+    socket.value.on('response', (data) => {
+      console.log(data);
+    });
 
     user.value = await getUserByCookie(Cookies.get("_authToken"));
 
@@ -343,6 +377,7 @@
       :addChannelSuccess="addChannelSuccess"
       :addFriendSuccess="addFriendSuccess"
       :addMessageSuccess="addMessageSuccess"
+      :invitationInGameSuccess="invitationInGameSuccess"
       :inviteInGameSuccess="inviteInGameSuccess"
       :joinChannelSuccess="joinChannelSuccess"
       :removeChannelSuccess="removeChannelSuccess"
@@ -351,6 +386,7 @@
       :addChannelFailed="addChannelFailed"
       :addFriendFailed="addFriendFailed"
       :addMessageFailed="addMessageFailed"
+      :invitationInGameFailed="invitationInGameFailed"
       :inviteInGameFailed="inviteInGameFailed"
       :joinChannelFailed="joinChannelFailed"
       :removeChannelFailed="removeChannelFailed"
@@ -362,11 +398,14 @@
       :currentChannelName="channelName"
       :friendName="friendName"
       :senderName="senderName"
+      :userName="userName"
+
       :modalStates="modalStates"
       :modalMessage="modalMessage"
-      :user="user"
-      :userName="userName"
+  
       :parent="'userProfile'"
+  
+      :user="user"
 
       :addFriendFromDB="addFriendFromDB"
       :closeModal="closeModal"

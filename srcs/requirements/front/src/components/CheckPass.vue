@@ -6,8 +6,8 @@
   import { checkPass } from './api/post.call';
   import { useRoute, useRouter } from 'vue-router';
   
-  const password = ref('');
   const checkPassFailed = ref(false);
+  const password = ref('');
 
   const route = useRoute();
   const router = useRouter();
@@ -38,7 +38,3 @@
   <Modal :checkPassInDB="checkPassInDB" :modalCheckPass="modalCheckPass" :parent="'checkPass'" /> 
   <body class="overflow-x-auto min-h-screen bg-base-200 pass"> </body>
 </template>
-
-<style scoped>
-  body { backdrop-filter: blur(5px); }
-</style>

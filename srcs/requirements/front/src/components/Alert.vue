@@ -13,6 +13,7 @@
 			blockSuccess: Boolean,
 			blockFailed: Boolean,
 			checkPassFailed: Boolean,
+			invitationInGameSuccess: Boolean,
 			inviteInGameSuccess: Boolean,
 			inviteInGameFailed: Boolean,
 			joinChannelSuccess: Boolean,
@@ -101,6 +102,13 @@
 	<div v-if="checkPassFailed" class="toast toast-start">
 		<div class="alert alert-error">
 			<span>Invalid Password</span>
+		</div>
+	</div>
+	<!--InvitationInGame-->
+	<div v-if="invitationInGameSuccess" class="toast toast-start">
+		<div class="alert alert-primary">
+			<button class="btn btn-success">Accept</button>
+			<button class="btn btn-error">Decline</button>
 		</div>
 	</div>
 	<!--InviteInGame-->
