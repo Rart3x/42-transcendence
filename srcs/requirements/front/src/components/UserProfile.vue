@@ -143,39 +143,29 @@
   };
 
   const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
-    // socket.value.emit('localGame', user.value.userId);
+    router.push('/game');
+    socket.value.emit('localGame', user.value.userId);
+  
+    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
+    socket.value.emit('invitationInGame', { userName, sock, userStatus });
 
-    sendGameInvitation(userName, userId, userSocket, userStatus);
+    socket.value.on('invitationInGameSuccess', () => {
+      inviteInGameSuccess = true;
+      setTimeout(() => {
+        inviteInGameSuccess = false;
+      }, 30000);
+    });
 
-    // const message = "Hey! Let's play a game!";
-    // socket.value.emit('invitationInGame', { userName, userId, userSocket, userStatus, message });
-
-    // let invitationAccepted = false;
-
-    // const invitationInGameSuccessHandler = () => {
-    //   invitationAccepted = true;
-    //   inviteInGameSuccess.value = true;
-    //   setTimeout(() => {
-    //     inviteInGameSuccess.value = false;
-    //     if (invitationAccepted) {
-    //       router.push('/game');
-    //     }
-    //   }, 30000);
-    // };
-
-    // const invitationInGameFailedHandler = () => {
-    //   inviteInGameFailed.value = true;
-    //   setTimeout(() => {
-    //     inviteInGameFailed.value = false;
-    //   }, 3000);
-    // };
-
-    // socket.value.on('invitationInGameSuccess', invitationInGameSuccessHandler);
-    // socket.value.on('invitationInGameFailed', invitationInGameFailedHandler);
-  };
+    socket.value.on('invitationInGameFailed', () => {
+      inviteInGameFailed = true;
+      setTimeout(() => {
+        inviteInGameFailed = false;
+      }, 3000);
+    });
+  }
 
   const sendGameInvitation = (userName, userId, userSocket, userStatus) => {
-    socket.value.emit('sendGameInvitation', { userName, userId, userSocket, userStatus, message: 'Hey! Let\'s play a game!' });
+    // socket.value.emit('sendGameInvitation', { userName, userId, userSocket, userStatus, message: 'Hey! Let\'s play a game!' });
 
     // socket.value.on('invitationInGameSuccess', () => {
     //   invitationInGameSuccess.value = true;
@@ -203,10 +193,10 @@
     router = useRouter();
 
     socket.value = io('http://localhost:3000');
-    socket.value.emit('message', 'zeubi');
-    socket.value.on('response', (data) => {
-      console.log(data);
-    });
+    // socket.value.emit('message', 'zeubi');
+    // socket.value.on('response', (data) => {
+    //   console.log(data);
+    // });
 
     user.value = await getUserByCookie(Cookies.get("_authToken"));
 
