@@ -17,8 +17,8 @@
     methods: {
       async checkName() {
         const users = await getAllUsers();
-
         const nameExists = users.some(user => user.userName === this.enteredName);
+
         if (nameExists)
           this.openMessageModal(this.$props.user.userName, this.enteredName)
       }

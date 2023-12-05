@@ -4,11 +4,10 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import History from "./History.vue";
   import Cookies from "js-cookie";
-	import sha256 from 'js-sha256';
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages } from "./api/get.call";
-  import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, joinChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
+  import { addFriend, createChannel, joinChannel, setStatus } from './api/post.call';
   import { io } from 'socket.io-client';
   import { useRouter } from "vue-router";
   import { setClientSocket } from './api/post.call';
@@ -50,7 +49,6 @@
   let removeFriendFailed = ref(false);
 
   let message_text = ref("");
-  let passwordCheckBox = ref(false);
   let password = ref("");
 
   const addFriendFromDB = async (userName, friendName) => {
@@ -210,23 +208,14 @@
 
   const showContent = (tab) => { activeTab.value = tab; };
 
-  const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
-    console.log(passwordCheckBox);
-    if (passwordCheckBox)
-      setPassword(channelName, sha256(password));
-    else
-      unsetPassword(channelName, sha256(password));
-    modalStates.modalManageChannel.value = false;
-  };
-
 </script>
 
 <template>
   <body>
     <UserStatHeader v-if="user"
-    :userName="userName"
-    :gamePlayed="user.gamePlayed"
-    :gameWon="user.gameWon"
+      :userName="userName"
+      :gamePlayed="user.gamePlayed"
+      :gameWon="user.gameWon"
     />
     <div class="overflow-x-auto min-h-screen bg-base-200 font-mono">
       <div class="buttons">
@@ -295,7 +284,7 @@
                     </div>
                   </label>
                 </td>
-                <td v-if="!channel.password">
+                <td v-if="!channel.channelPassword">
                   <router-link :to="'/channel/' + channel.channelName">
                     <button class="btn glass no-animation">{{ channel.channelName }}</button>
                   </router-link>
@@ -378,7 +367,6 @@
       :user="user"
       :userName="userName"
       :parent="'userProfile'"
-      :passwordCheckBox="passwordCheckBox"
 
       :addFriendFromDB="addFriendFromDB"
       :closeModal="closeModal"
@@ -386,7 +374,6 @@
       :createChannelInDB="createChannelInDB"
       :joinChannelInDB="joinChannelInDB"
       :removeFriendFromDB="removeFriendFromDB"
-      :togglePasswordInput="togglePasswordInput"
     />
   </body>
 </template>

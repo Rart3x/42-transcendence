@@ -1,17 +1,30 @@
 <script>
+    import Alert from './Alert.vue';
+    import { sha256 } from 'js-sha256';
     import { ref } from 'vue';
     import { getUserByUserName } from './api/get.call';
+    import { setPassword, unsetPassword } from './api/post.call';
 
     export default {
         name: 'Modal',
+        components: {
+            Alert,
+        },
         data() {
             return {
                 currentUser: ref(null),
                 message_text: '',
                 channelName: '',
                 password: '',
+                passwordCheckBox: false,
                 selectedDuration: 1,
                 senderImageSrc: null,
+
+                setPassSuccess: false,
+                setPassFailed: false,
+
+                unsetPassSuccess: false,
+                unsetPassFailed: false,
             };
         },
         emits: ['update:passwordCheckBox'],
@@ -32,8 +45,41 @@
                 this.closeMuteModal();
             },
 
-            updateCheckBox(value) {
-                this.$emit('update:passwordCheckBox', value);
+            async togglePasswordInput(channelName, password) {
+                if (this.passwordCheckBox) {
+                    const response = await setPassword(channelName, sha256(password));
+                    if (response) {
+                        this.setPassSuccess = true;
+                        setTimeout(() => {
+                            this.setPassSuccess = false;
+                        }, 3000);
+                    } else {
+                        this.setPassFailed = true;
+                        setTimeout(() => {
+                            this.setPassFailed = false;
+                        }, 3000);
+                    }
+                }
+                else
+                { 
+                    const response = unsetPassword(channelName);
+                    if (response) {
+                        this.unsetPassSuccess = true;
+                        setTimeout(() => {
+                            this.unsetPassSuccess = false;
+                        }, 3000);
+                    } else {
+                        this.unsetPassFailed = true;
+                        setTimeout(() => {
+                            this.unsetPassFailed = false;
+                        }, 3000);
+                    }
+                }
+                this.closeModal('modalManageChannel');
+            },
+
+            updateCheckBox(isChecked) {
+                this.passwordCheckBox = isChecked;
             },
 
             updateMessageText(value) {
@@ -50,9 +96,9 @@
             privateMessages: Object,
             user: Object,
 
-            modalMuteUser: Boolean,
+            modalCheckPass: Boolean,
             modalMessage: Boolean,
-            passwordCheckBox: Boolean,
+            modalMuteUser: Boolean,
 
             parent: String,
             userMuted: String,
@@ -76,7 +122,6 @@
             sendMessage: Function,
             muteUserFromChannelInDB: Function,
             removeFriendFromDB: Function,
-            togglePasswordInput: Function,
         },
         watch: {
             senderName(newSenderName) {
@@ -87,6 +132,25 @@
 </script>
 
 <template>
+    <Alert 
+        :setPassSuccess="setPassSuccess"
+        :setPassFailed="setPassFailed"
+        :unsetPassSuccess="unsetPassSuccess"
+        :unsetPassFailed="unsetPassFailed"
+    />
+    <div v-if="parent === 'checkPass'">
+        <!--Check Pass Modal-->
+        <dialog ref="modalCheckPass" class="modal modal-bottom sm:modal-middle" :open="modalCheckPass">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form class="dialogModalChannel" @submit.prevent="checkPassInDB(password)" style="text-align: center;">
+                    <label>Enter <b>{{ $route.params.channelName }}</b> password</label><br><br>
+                    <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
+                    <br><br>
+                    <button class="btn">Submit</button>
+                </form>
+            </div>
+        </dialog>
+    </div>
     <div v-if="parent === 'userProfile'">
         <!--Channel Modal-->
         <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel.value" @keydown.esc="closeModal('modalChannel')">
@@ -97,25 +161,13 @@
                 </form>
             </div>
         </dialog>
-        <!--Check Pass Modal-->
-        <dialog ref="modalCheckPass" class="modal modal-bottom sm:modal-middle" @keydown.esc="closeModal('modalManageChannel')">
-            <div class="modal-box w-11/12 max-w-5xl">
-                <form class="dialogModalChannel" @submit.prevent="checkPassInDB(password)">
-                    <label>Enter <b>{{ $route.params.channelName }}</b> password</label><br><br>
-                    <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
-                    <br><br>
-                    <button class="btn">Submit</button>
-                </form>
-            </div>
-        </dialog>
         <!--Manage Channel Modal-->
         <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalManageChannel.value" @keydown.esc="closeModal('modalManageChannel')">
             <div class="modal-box w-11/12 max-w-5xl">
                 <form class="dialogModal" @submit.prevent="togglePasswordInput(currentChannelName, password)">
                     <label>Set password</label><br /><br />
-                    <input type="checkbox" class="checkbox" :value="passwordCheckBox" @change="updateCheckBox($event.target.checked)" />
-                    <p>{{ passwordCheckBox }}</p>
-                    <input type="text" placeholder="Password" :value="password" @input="updateValue('password', $event.target.value)" class="input input-bordered input-sm w-full max-w-xs" />
+                    <input type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
+                    <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
                     <br/><br/>
                     <button class="btn glass">Apply changes</button>
                 </form>
@@ -201,12 +253,7 @@
         padding: 10px 10px 10px 50px;
     }
     .chat-title h1,
-    .chat-title h2 {
-        font-weight: normal;
-        font-size: 14px;
-        margin: 0;
-        padding: 0;
-    }
+    .chat-title h2 { font-weight: normal; font-size: 14px; margin: 0; padding: 0; }
     .chat-title .avatar {
         position: absolute;
         z-index: 1;
