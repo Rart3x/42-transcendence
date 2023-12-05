@@ -1,6 +1,7 @@
 <script>
   import { RouterLink } from "vue-router";
   import Modal from './Modal.vue';
+  import { getAllUsers } from "./api/get.call";
 
     export default {
     name: 'Drawer',
@@ -9,19 +10,30 @@
     },
     data() {
       return {
+        enteredName: '',
         messageText: '',
       };
+    },
+    methods: {
+      async checkName() {
+        const users = await getAllUsers();
+        const nameExists = users.some(user => user.userName === this.enteredName);
+
+        if (nameExists)
+          this.openMessageModal(this.$props.user.userName, this.enteredName)
+      }
     },
     props: {
       display : Boolean,
       modalMessage: Boolean,
 
-      privateMessages: Array,
+      privateMessages: Object,
 
       user: Object,
 
       currentUserName: String,
       senderName: String,
+      userName: String,
       imageSrc: String,
 
       createPrivateMessageInDB: Function,
@@ -34,7 +46,7 @@
 
 <template>
   <Modal :parent="'drawer'" :modalMessage="modalMessage" :currentUserName="currentUserName" :senderName="senderName"
-    :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" 
+    :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" :privateMessages="privateMessages" :userName="userName"
   />
   <!--Game Drawer-->
   <div v-if="!display" class="drawer z-[1]">
@@ -56,29 +68,39 @@
     </div>
   </div>
   <!--Messages Drawer-->
-  <div v-if="display" class="drawer-end z-[1]">
+  <div v-if="display" class="drawer-end">
     <input id="my-drawer-1" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
       <button class="btn btn-ghost btn-circle">
         <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
           <div class="indicator">
             <img src="../assets/messages.png" />
-            <span class="badge badge-xs badge-error indicator-item"></span>
           </div>
         </label>
       </button>
     </div> 
     <div class="drawer-side z-[1] font-mono">
-      <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-        <li v-for="(messageObject, index) in privateMessages" :key="index" class="message_boxes" @click="openMessageModal(user.userName, messageObject.senderName)">
+        <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
+        <form @submit.prevent="checkName">
+          <div class="p-4">
+            <input v-model="enteredName" type="text" placeholder="Enter a name" class="input input-bordered w-full mb" @keyup.enter="checkName"/>
+          </div>
+        </form>
+        <li v-for="(pairMessages, pairKey) in privateMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">
           <div class="flex justify-between items-center">
             <div class="flex flex-col items-start">
-              <span class="font-semibold">{{ messageObject.senderName }}</span>
-              <span v-if="messageObject.messageHistory[messageObject.messageHistory.length - 1].length <= 20" class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}</span>
-              <span v-else class="text-sm text-gray-500">{{ messageObject.messageHistory[messageObject.messageHistory.length - 1].substring(0, 20) }}..</span>
+              <span class="font-semibold">
+                {{ pairMessages[pairMessages.length - 1].senderName === user.userName ? pairMessages[pairMessages.length - 1].receiverName : pairMessages[pairMessages.length - 1].senderName }}
+              </span>
+              <span v-if="pairMessages[pairMessages.length - 1].messageContent.length <= 20" class="text-sm text-gray-500">
+                {{ pairMessages[pairMessages.length - 1].messageContent.substring(0, 20) }}
+              </span>
+              <span v-else class="text-sm text-gray-500">
+                {{ pairMessages[pairMessages.length - 1].messageContent.substring(0, 20) }}..
+              </span>
             </div>
-            <span>{{ messageObject.privateMessageDate.substring(11, 16) }} </span>
+            <span>{{ pairMessages[pairMessages.length - 1].privateMessageDate.substring(11, 16) }}</span>
           </div>
         </li>
       </ul>

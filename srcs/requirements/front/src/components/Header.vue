@@ -20,7 +20,6 @@
 
   let currentUserName = ref("");
   let senderName = ref("");
-  let messageText = ref("");  
 
   let modalMessage = ref(false);
 
@@ -37,13 +36,13 @@
       );
     }
     catch (error) {
-      console.error("error filtering users:", error);
       return [];
     }
   });
 
   const createPrivateMessageInDB = async (userName, senderName, message_text) => {
     const response = await createPrivateMessage(userName, senderName, message_text);
+    privateMessages.value = await getPrivateMessagesByUserName(user.value.userName);
   };
 
   const logout = () => {
@@ -53,7 +52,7 @@
   };
 
   const closeMessageModal = () => { modalMessage.value = false; };
-  const openMessageModal = (userName, sender) => { modalMessage.value = true; currentUserName = userName; senderName.value = sender;};
+  const openMessageModal = (userName, message) => { modalMessage.value = true; currentUserName = userName; senderName.value = (message.senderName === userName) ? message.receiverName : message.senderName; };
 
   onMounted(async () => {
     if (Cookies.get("_authToken") == undefined)
@@ -76,7 +75,7 @@
 <template>
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :userName="userName"/>
     </div>
     <div class="navbar-center">
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
@@ -97,6 +96,7 @@
         :modalMessage="modalMessage"
         :closeMessageModal="closeMessageModal"
         :senderName="senderName"
+        :userName="userName"
       />
       <Modal :senderName="senderName" />
     </div>

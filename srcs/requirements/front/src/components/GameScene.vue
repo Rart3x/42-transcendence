@@ -18,7 +18,7 @@ import Phaser from 'phaser';
 import * as Matter from 'matter-js';
 
 //Post and Get Methods
-import { getGameRoomByRoomId, getUserByCookie } from './api/get.call';
+import { getGameRoomByRoomId, getCurrentGameRoomByUserId, getUserByCookie } from './api/get.call';
 import { setClientSocket } from './api/post.call';
 
 //Cookie
@@ -68,10 +68,8 @@ export default class Game extends Phaser.Scene {
 			<div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
 			</div> \
 		');
-
 		if (this.input.keyboard){
 			const SPACEKey = this.input.keyboard.addKey('SPACE');
-
 			SPACEKey.on('down', function (){
 				if (this.scale.isFullscreen){
 					this.scale.stopFullscreen();
@@ -81,10 +79,7 @@ export default class Game extends Phaser.Scene {
 				}
 			}, this);
 		}
-
-
 		let multiplayerButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
-
 		multiplayerButton.addEventListener('click', function() {
 			self.UIElement.destroy();
 			self.UIElement = self.add.dom(500, 400).createFromHTML(' <div id="parent" class="grid grid-rows-3 grid-cols-5 justify-items-center ..."> \
@@ -98,11 +93,8 @@ export default class Game extends Phaser.Scene {
 					<button id="choseNormalGameMode" class="btn btn-primary ml-5 ...">Normal</button> \
 				</div> \
 			</div>');
-
 			let customGameModeButton = self.UIElement.node.querySelector("#choseCustomGameMode") as HTMLElement;
-
 			let normalGameModeButton = self.UIElement.node.querySelector("#choseNormalGameMode") as HTMLElement;
-
 			document.getElementById('parent').addEventListener('click', function(event) {
 				if (event.target.id == "choseCustomGameMode" || event.target.id == "choseNormalGameMode"){
 					if (event.target.id == "choseCustomGameMode"){
@@ -127,32 +119,17 @@ export default class Game extends Phaser.Scene {
 		});
 	}
 
-	hideSceneGameObjects(){
-		if (this.gameRoom.entities){
-			for (let i = 0; i < 2; i++){
-				this.gameRoom.entities.players[i].gameObject.visible = false;
-			}
-			for (let i = 0; i < 4; i++){
-				this.gameRoom.entities.walls[i].gameObject.visible = false;
-			}
-			this.gameRoom.entities.ball.gameObject.visible = false;
-		}
-		this.graphics.visible = false;
-	}
-
 	async create(){
 		var self = this;
-
-		if (user.gameRoomId != null){
-			let gameRoom : any = await getGameRoomByRoomId(user.gameRoomId);
-			// gameRoom.running = false;
-			if (gameRoom && gameRoom.running == true){
+		if (user.userId != null){
+			let gameRoom : any = await getCurrentGameRoomByUserId(user.userId);
+			if (gameRoom){
 				this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
 				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Trying to reconnect to the game...</h1></div> \
 				<div class="row-start-2 ..."><span class="loading loading-spinner loading-lg"></span></div> \
 				</div>');
 				socket.emit('playerReconnection', {
-					roomId: user.gameRoomId,
+					roomId: gameRoom.id,
 					userId: user.userId
 				});
 			}
@@ -164,22 +141,35 @@ export default class Game extends Phaser.Scene {
 			this.gamePage(self);
 		}
 
+		socket.on('updateScore', (data) => {
+			this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
+			this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
+			this.updateUIScore();
+		});
+
 		socket.on('opponentReconnection', (data) => {
+			this.gameRoom.engine = Matter.Engine.create();
+			this.gameRoom.engine.gravity.x = 0;
+			this.gameRoom.engine.gravity.y = 0;
+			this.matter.world.disableGravity();
+			this.matter.world.setBounds();
+			this.gameRoom.world = this.gameRoom.engine.world;
+			this.destroyUI();
+			this.spawnSceneProps();
+			this.updateUIScore();
+			this.gameRoom.entities.ball.gameObject.y = data.ballY;
 			if (this.gameRoom.player1UserId == data.userId){
 				this.gameRoom.player1SocketId = data.playerSocket;
+				this.gameRoom.player1Disconnected = false;
 			}
 			else{
 				this.gameRoom.player2SocketId = data.playerSocket;
+				this.gameRoom.player1Disconnected = false;
 			}
+			socket.emit('readyAfterInitialisation', this.gameRoom.id);
 		});
 
-		socket.on('resumeGame', (data) => {
-			this.time.delayedCall(4000, self.spawnSceneProps, [], self);
-		});
-
-
-		socket.on('informOnReconnection', (data) => {
-
+		socket.on('currentGameInformation', (data) => {
 			this.gameRoom = new GameRoom(
 				this,
 				data.roomId,
@@ -190,17 +180,20 @@ export default class Game extends Phaser.Scene {
 				data.player2UserId,
 				data.player1UserName,
 				data.player2UserName);
-		
 			this.gameRoom.engine = Matter.Engine.create();
-
 			this.gameRoom.engine.gravity.x = 0;
 			this.gameRoom.engine.gravity.y = 0;
-
+			this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
+			this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
+			this.destroyUI();
 			this.matter.world.disableGravity();
-
 			this.matter.world.setBounds();
-	
-        	this.gameRoom.world = this.gameRoom.engine.world;
+			this.gameRoom.world = this.gameRoom.engine.world;
+			this.spawnSceneProps();
+			this.updateUIScore();
+			this.gameRoom.entities.ball.gameObject.y = data.ballY;
+			//Useless to send socket.id here
+			socket.emit('readyAfterInitialisation', this.gameRoom.id);
 		});
 
 		socket.on('lobby', (data) => {
@@ -269,7 +262,7 @@ export default class Game extends Phaser.Scene {
 				this.gameRoom.player1Disconnected = true;
 			}
 			this.destroyUI();
-			this.hideSceneGameObjects();
+			this.children.removeAll();
 			this.UIElement.destroy();
 			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
 				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Waiting for opponent to reconnect to the game...</h1></div> \
@@ -358,11 +351,10 @@ export default class Game extends Phaser.Scene {
 
 				this.spawnSceneProps();
 
-				socket.emit('readyAfterInit', { roomId: this.gameRoom.id, socketId: socket.id });
+				socket.emit('readyAfterInitialisation', this.gameRoom.id);
 
 			}
 		});
-
 		
 		socket.on('gameStart', () => {
 			let countdown = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
@@ -416,7 +408,7 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('scorePoint', (data) => {
 			if (this.gameRoom?.entities){
-				if (!this.gameRoom.player1Disconnected && !this.gameRoom.player2Disconnected){
+				if (this.gameRoom.player1Disconnected == false && this.gameRoom.player2Disconnected == false){
 					//Reset ball to the middle
 					if (this.gameRoom.entities?.ball.gameObject) {
 						this.gameRoom.entities.ball.gameObject.x = 500;
@@ -424,9 +416,9 @@ export default class Game extends Phaser.Scene {
 						this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
 					}
 					//Update score
-					if (this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
-						this.gameRoom.score.set(this.gameRoom.player1SocketId, data.score.player1);
-						this.gameRoom.score.set(this.gameRoom.player2SocketId, data.score.player2);
+					if (this.gameRoom.score && this.gameRoom.player1UserId && this.gameRoom.player2UserId){
+						this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.score.player1);
+						this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.score.player2);
 						this.updateUIScore();
 					}
 				}
@@ -434,7 +426,7 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('restartAfterScore', (data) => {
-			this?.gameRoom?.entities?.ball.gameObject.setVelocity(data.ball.vecX, data.ball.vecY);
+			//this?.gameRoom?.entities?.ball.gameObject.setVelocity(data.ball.vecX, data.ball.vecY);
 		});
 
 		socket.on('playAgain', () => {
@@ -462,28 +454,34 @@ export default class Game extends Phaser.Scene {
 
 		socket.on('playStop', () => {
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
-
+      		this.gameRoom.playAgain = false;
+        
 			if (socket.id == this.gameRoom?.player1SocketId){
 				this.gameRoom.player2PlayAgain = false;
-				if (this.gameRoom.player1Again == true){
+				if (this.gameRoom.player1PlayAgain == true){
 					playAgainButton.innerText = "Play again 1/2";
+         			playAgainButton.className = "btn btn-active no-animation btn-ghost";
 				}
 				else{
 					playAgainButton.innerText = "Play again 0/2";
+          			playAgainButton.className = "btn btn-active no-animation btn-ghost";
 				}
 			}
 			else if (this.gameRoom?.player2SocketId){
 				this.gameRoom.player1PlayAgain = false;
 				if (this.gameRoom.player2PlayAgain == true){
 					playAgainButton.innerText = "Play again 1/2";
+          			playAgainButton.className = "btn btn-active no-animation btn-ghost";
 				}
 				else{
 					playAgainButton.innerText = "Play again 0/2";
+          			playAgainButton.className = "btn btn-active no-animation btn-ghost";
 				}
 			}
 		});
 
 		socket.on('gameFinish', (data) => {
+			console.log("game is finish");
 			this.children.removeAll();
 			this.destroyUI();
 			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
@@ -495,56 +493,55 @@ export default class Game extends Phaser.Scene {
 			')
 
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
-			
-			if (this.gameRoom && user.userId == data.winUserId){
-				if (user.userId == this.gameRoom.player1UserId)
-					winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
-				else
-					winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
-			}
-			else if (this.gameRoom){
-				if (user.userId == this.gameRoom.player1UserId)
-					winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName;
-				else
-					winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName;
-			}
 		
-			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
-			let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
-
-			playAgainButton.addEventListener('click', () => {
-				if (socket.id == this?.gameRoom?.player1SocketId){
-					this.gameRoom.player1PlayAgain = true;
-					if (this.gameRoom.player2PlayAgain){
-						playAgainButton.innerText = "Play again 2/2";
-					}
-					else{
-						playAgainButton.innerText = "Play again 1/2";
-					}
+			if (this.gameRoom){
+				if (user.userId == data.winUserId){
+					if (user.userId == this.gameRoom.player1UserId)
+						winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
+					else
+						winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
 				}
-				else if (this.gameRoom){
-					this.gameRoom.player2PlayAgain = true;
-					if (this.gameRoom.player1PlayAgain){
-						playAgainButton.innerText = "Play again 2/2";
+				else{
+					if (user.userId == this.gameRoom.player1UserId)
+						winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName;
+					else
+						winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName;
+				}
+				let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
+				let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
+				playAgainButton.addEventListener('click', () => {
+					if (this.gameRoom.playAgain == true){
+						if (socket.id == this?.gameRoom?.player1SocketId){
+							this.gameRoom.player1PlayAgain = true;
+							if (this.gameRoom.player2PlayAgain){
+								playAgainButton.innerText = "Play again 2/2";
+							}
+							else{
+								playAgainButton.innerText = "Play again 1/2";
+							}
+						}
+						else if (this.gameRoom){
+							this.gameRoom.player2PlayAgain = true;
+							if (this.gameRoom.player1PlayAgain){
+								playAgainButton.innerText = "Play again 2/2";
+							}
+							else{
+								playAgainButton.innerText = "Play again 1/2";
+							}
+						}
+						socket.emit('playAgain', this.gameRoom.id);
 					}
-					else{
-						playAgainButton.innerText = "Play again 1/2";
+				});
+				stopButton.addEventListener('click', () => {
+					if (this.gameRoom){
+						socket.emit('stopPlay', this.gameRoom.id);
 					}
-				}
-				if (this.gameRoom){
-					socket.emit('playAgain', this.gameRoom.id);
-				}
-			});
-
-			stopButton.addEventListener('click', () => {
-				if (this.gameRoom){
-					socket.emit('stopPlay', this.gameRoom.id);
-				}
-				this.destroyUI();
-				this.gameRoom = undefined;
-				this.children.removeAll();
-				this.gamePage(this);
-			});
+					this.destroyUI();
+					this.gameRoom = undefined;
+					this.children.removeAll();
+					this.gamePage(this);
+				});
+			}
 		});
 
 		socket.on('snapshot', (data) => {
@@ -577,6 +574,8 @@ export default class Game extends Phaser.Scene {
 			data.player2UserId,
 			data.player1UserName,
 			data.player2UserName);
+
+    
 
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 		<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
@@ -611,32 +610,30 @@ export default class Game extends Phaser.Scene {
 		let userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
 		let userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
 
-
-		var imagePathPlayer1;
-		var imagePathPlayer2;
-
 		if (socket.id == this.gameRoom.player1SocketId){
 			userProfile1Name.innerText = data.player1UserName;
 			userProfile2Name.innerText = data.player2UserName;
-			
 		}
 		else{
 			userProfile2Name.innerText = data.player2UserName;
 			userProfile1Name.innerText = data.player1UserName;
 		}
 
-		imagePathPlayer1 = "userImages/" + data.player1Image;
-		imagePathPlayer2 = "userImages/" + data.player2Image;
+		var imagePathPlayer1 = "userImages/" + data.player1Image;
+		var imagePathPlayer2 = "userImages/" + data.player2Image;
 
-		this.load.image('userImage2', imagePathPlayer2);
+		if (!this.textures.exists('userImage2')){
+			this.load.image('userImage2', imagePathPlayer2);
+		}
 
-		this.load.image('userImage1', imagePathPlayer1);
+		if (!this.textures.exists('userImage1')){
+			this.load.image('userImage1', imagePathPlayer1);
+		}
 
 		this.load.once(Phaser.Loader.Events.COMPLETE, () => {
 			Phaser.DOM.AddToDOM(this.textures.get('userImage1').getSourceImage() as HTMLElement, 'userProfile1');
 			Phaser.DOM.AddToDOM(this.textures.get('userImage2').getSourceImage() as HTMLElement, 'userProfile2');
 		});
-
 	
 		this.load.start();
 
@@ -681,43 +678,39 @@ export default class Game extends Phaser.Scene {
 					self.gameRoom.player2Ready = true;
 					isReadyButtonPlayer2.innerText = 'Ready';
 					isReadyButtonPlayer2.className = 'btn no-animation btn-active btn-accent';
-					if (userProfile2){
-						userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
-					}
+          if (userProfile2){
+					  userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+          }
 					socket.emit('playerReady', self.gameRoom.id);
 				}
 				else{
 					self.gameRoom.player2Ready = false;
 					isReadyButtonPlayer2.innerText = 'Not ready';
 					isReadyButtonPlayer2.className = 'btn no-animation  btn-secondary';
-					if (userProfile2){
-						userProfile2.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
-					}
+          if (userProfile2){
+					  userProfile2.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
+          }
 					socket.emit('playerNotReady', self.gameRoom.id);
 				}
-
 			}
 			else if (socket.id == self.gameRoom?.player1SocketId){
 				if (self.gameRoom?.player1Ready == false){
 					self.gameRoom.player1Ready = true;
 					isReadyButtonPlayer1.innerText = 'Ready';
 					isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
-					if (userProfile1){
-						userProfile1.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
-					}
+          if (userProfile1){
+					  userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2 ...';
+          }
 					socket.emit('playerReady', self.gameRoom.id);
 				}
 				else{
 					self.gameRoom.player1Ready = false;
 					isReadyButtonPlayer1.innerText = 'Not ready';
 					isReadyButtonPlayer1.className = 'btn no-animation  btn-secondary';
-					if (userProfile1){
-						userProfile1.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
-					}
+          if (userProfile1){
+					  userProfile1.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
+          }
 					socket.emit('playerNotReady', self.gameRoom.id);
-				}
-				if (userProfile1){
-					userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
 				}
 			}
 		});
@@ -733,9 +726,9 @@ export default class Game extends Phaser.Scene {
 	}
 
 	updateUIScore(){
-		if (this.gameRoom && this.gameRoom.score && this.gameRoom.player1SocketId && this.gameRoom.player2SocketId){
-			let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1SocketId);
-			let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2SocketId);
+		if (this.gameRoom && this.gameRoom.score){
+			let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1UserId.toString());
+			let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2UserId.toString());
 
 			let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
 			let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
@@ -792,7 +785,6 @@ export default class Game extends Phaser.Scene {
 
 		if (ballSnapshot) {
 			const { state } = ballSnapshot;
-
 			if (state){
 				const { id, x, y, velX, velY } = state[0];
 				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {

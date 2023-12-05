@@ -13,6 +13,7 @@
 			blockSuccess: Boolean,
 			blockFailed: Boolean,
 			checkPassFailed: Boolean,
+			invitationInGameSuccess: Boolean,
 			inviteInGameSuccess: Boolean,
 			inviteInGameFailed: Boolean,
 			joinChannelSuccess: Boolean,
@@ -25,13 +26,18 @@
 			removeChannelFailed: Boolean,
 			removeFriendSuccess: Boolean,
 			removeFriendFailed: Boolean,
+			setPassSuccess: Boolean,
+			setPassFailed: Boolean,
 			unblockSuccess: Boolean,
 			unblockFailed: Boolean,
+			unsetPassSuccess: Boolean,
+			unsetPassFailed: Boolean,
 		},
 	};
 </script>
 
 <template>
+	<!--AddChannel-->
 	<div v-if="addChannelSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 		<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -43,7 +49,7 @@
 			<span>Failed to create Channel</span>
 		</div>
 	</div>
-
+	<!--AddFriend-->
 	<div v-if="addFriendSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -55,7 +61,7 @@
 			<span>Failed to add friend.</span>
 		</div>
 	</div>
-
+	<!--AddMessage-->
 	<div v-if="addMessageSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -67,7 +73,7 @@
 			<span>Failed to send message</span>
 		</div>
 	</div>
-
+	<!--Ban-->
 	<div v-if="banSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 		<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -81,7 +87,7 @@
 			<span>Failed to ban User</span>
 		</div>
 	</div>
-
+	<!--Block-->
 	<div v-if="blockSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 			<span>User blocked successfully.</span>
@@ -92,13 +98,20 @@
 		<span>Failed to block User</span>
 		</div>
 	</div>
-
+	<!--CheckPass-->
 	<div v-if="checkPassFailed" class="toast toast-start">
 		<div class="alert alert-error">
 			<span>Invalid Password</span>
 		</div>
 	</div>
-
+	<!--InvitationInGame-->
+	<div v-if="invitationInGameSuccess" class="toast toast-start">
+		<div class="alert alert-primary">
+			<button class="btn btn-success">Accept</button>
+			<button class="btn btn-error">Decline</button>
+		</div>
+	</div>
+	<!--InviteInGame-->
 	<div v-if="inviteInGameSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 			<span>User Invite in Game successfully.</span>
@@ -109,7 +122,7 @@
 		<span>Failed to Invite in Game</span>
 		</div>
 	</div>
-
+	<!--JoinChannel-->
 	<div v-if="joinChannelSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -123,8 +136,7 @@
 			<span>Failed to join Channel</span>
 		</div>
 	</div>
-
-
+	<!--Kick-->
 	<div v-if="kickSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -138,7 +150,7 @@
 			<span>Failed to kick User</span>
 		</div>
 	</div>
-
+	<!--Mute-->
 	<div v-if="muteSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -152,11 +164,11 @@
 			<span>Failed to mute User</span>
 		</div>
 	</div>
-
+	<!--RemoveChannel-->
 	<div v-if="removeChannelSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-			<span>Channel deleted successfully.</span>
+			<span>Channel deleted successfully</span>
 		</div>
 	</div>
 	<div v-if="removeChannelFailed" class="toast toast-start">
@@ -164,10 +176,10 @@
 			<span>Failed to delete Channel</span>
 		</div>
 	</div>
-
+	<!--RemoveFriend-->
 	<div v-if="removeFriendSuccess" class="toast toast-start">
 		<div class="alert alert-success">
-			<span>Friend deleted successfully.</span>
+			<span>Friend deleted successfully</span>
 		</div>
 	</div>
 	<div v-if="removeFriendFailed" class="toast toast-start">
@@ -175,7 +187,29 @@
 			<span>Failed to delete Friend</span>
 		</div>
 	</div>
-
+	<!--SetPassword-->
+	<div v-if="setPassSuccess" class="toast toast-start">
+		<div class="alert alert-success">
+			<span>Set password successfully.</span>
+		</div>
+	</div>
+	<div v-if="setPassFailed" class="toast toast-start">
+		<div class="alert alert-error">
+			<span>Failed to set password</span>
+		</div>
+	</div>
+	<!--UnsetPassword-->
+	<div v-if="unsetPassSuccess" class="toast toast-start">
+		<div class="alert alert-success">
+			<span>Unset password successfully.</span>
+		</div>
+	</div>
+	<div v-if="unsetPassFailed" class="toast toast-start">
+		<div class="alert alert-error">
+			<span>Failed to unset password</span>
+		</div>
+	</div>
+	<!--UnblockPassword-->
     <div v-if="unblockSuccess" class="toast toast-start">
 		<div class="alert alert-success">
 			<span>User unblocked successfully.</span>
@@ -185,5 +219,5 @@
 		<div class="alert alert-error">
 			<span>Failed to unblock User</span>
 		</div>
-  </div>
+  	</div>
 </template>

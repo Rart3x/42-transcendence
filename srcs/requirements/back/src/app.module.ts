@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import { SocketIoAdapter } from './socket-io.adapter';
 
-import { AppGateway } from './app.gateway';
+import { GatewayModule } from './gateway/gateway.module';
 
 import { ChannelModule } from './channel/channel.module';
 import { EventsModule } from './game/game.module';
@@ -22,9 +21,6 @@ import { PrismaService } from './prisma.service';
 import { PrivateMessageController } from './privateMessage/privateMessage.controller';
 import { PrivateMessageService } from './privateMessage/privateMessage.service';
 
-import { QueueListController } from './queueList/queueList.controller';
-import { QueueListService } from './queueList/queueList.service';
-
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 
@@ -33,6 +29,7 @@ import { UserService } from './user/user.service';
     ChannelModule,
     EventsModule,
     GameRoomModule,
+    GatewayModule,
     MessageModule,
     PrivateMessageModule,
     UserModule,
@@ -41,21 +38,14 @@ import { UserService } from './user/user.service';
     ChannelController,
     MessageController,
     PrivateMessageController,
-    QueueListController,
     UserController,
   ],
   providers: [
-    AppGateway,
     ChannelService,
     MessageService,
     PrismaService,
     PrivateMessageService,
-    QueueListService,
     UserService,
-    {
-      provide: IoAdapter,
-      useClass: SocketIoAdapter,
-    },
   ],
 })
 export class AppModule {}
