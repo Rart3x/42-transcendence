@@ -165,11 +165,14 @@
         <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalManageChannel.value" @keydown.esc="closeModal('modalManageChannel')">
             <div class="modal-box w-11/12 max-w-5xl">
                 <form class="dialogModal" @submit.prevent="togglePasswordInput(currentChannelName, password)">
-                    <label>Set password</label><br /><br />
-                    <input type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
-                    <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
-                    <br/><br/>
-                    <button class="btn glass">Apply changes</button>
+                <label v-if="passwordCheckBox">Set password</label>
+                <label v-else > Unset password</label>
+                <br/><br/>
+                <input type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
+                <br/><br/>
+                <input v-if="passwordCheckBox" type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
+                <br/><br/>
+                <button class="btn glass">Apply changes</button>
                 </form>
             </div>
         </dialog>
