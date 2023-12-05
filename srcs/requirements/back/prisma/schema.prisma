@@ -37,6 +37,7 @@ model GameRoom {
 
   nbBounces    Int      @default(0)
 
+  botGame      Boolean @default(false)
   customGame   Boolean @default(false)
   running      Boolean @default(false)
   started      Boolean @default(false)
@@ -66,7 +67,7 @@ model Message {
 
 model PrivateMessage {
   privateMessageId    Int       @id @default(autoincrement())
-  messageHistory      String[]
+  messageContent      String
 
   privateMessageDate  DateTime  @default(now()) @db.Timestamp(6)
 
@@ -75,11 +76,6 @@ model PrivateMessage {
 
   receiverName        String
   receiver            User      @relation("PrivateMessageReceiver", fields: [receiverName], references: [userName], onDelete: Cascade, onUpdate: Cascade)
-}
-
-model QueueList {
-  queueId Int           @id @default(autoincrement())
-  users   User[]
 }
 
 model Stat {
@@ -140,9 +136,6 @@ model User {
 
   privateMessagesSent     PrivateMessage[] @relation("PrivateMessageSender")
   privateMessagesReceived PrivateMessage[] @relation("PrivateMessageReceiver")
-
-  queueId       Int?
-  queue         QueueList? @relation(fields: [queueId], references: [queueId], onDelete: Cascade, onUpdate: Cascade)
 
   scorer       UserScore[]
 

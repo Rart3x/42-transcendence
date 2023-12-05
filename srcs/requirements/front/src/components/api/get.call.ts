@@ -194,9 +194,26 @@ export async function getGameRoomByRoomId(id : number) {
   }
 }
 
-export async function getGameRoomByUserId(userId : number) {
+export async function getPastGameRoomsByUserId(userId : number) {
   try {
-    const response = await fetch(`http://localhost:3000/gameroom/get/${userId}`, {
+    const response = await fetch(`http://localhost:3000/gameroom/getPastGameRooms/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
+export async function getCurrentGameRoomByUserId(userId : number) {
+  try {
+    const response = await fetch(`http://localhost:3000/gameroom/getCurrentGameRoom/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

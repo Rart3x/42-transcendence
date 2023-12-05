@@ -4,34 +4,38 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import History from "./History.vue";
   import Cookies from "js-cookie";
-	import sha256 from 'js-sha256';
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId } from "./api/get.call";
-  import { addFriend, createChannel, createEmptyChannel, createPrivateMessage, joinChannel, setPassword, setStatus, unsetPassword } from './api/post.call';
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages } from "./api/get.call";
+  import { addFriend, createChannel, joinChannel, setStatus } from './api/post.call';
   import { io } from 'socket.io-client';
   import { useRouter } from "vue-router";
   import { setClientSocket } from './api/post.call';
 
   let adminImage = ref(null);
+  
   let currentUserName = ref("");
-
   let channelName = ref("");
   const friendName = ref("");
+  let senderName = ref("");
   const userName = ref("");
 
-  const modalStates = { modalMessage: ref(false), modalChannel: ref(false), modalManageChannel: ref(false) };
+  const modalStates = { modalChannel: ref(false), modalManageChannel: ref(false) };
+  const modalMessage = ref(false);
 
   let allChannels;
   let channels = ref([]);
   let currentUser = ref(null);
   let friends = ref([]);
+  let privateMessages = ref([]);
   let user = ref(null);
+
   let socket = ref(null);
 
   let addChannelSuccess = ref(false);
   let addFriendSuccess = ref(false);
   let addMessageSuccess = ref(false);
+  let invitationInGameSuccess = ref(false);
   let inviteInGameSuccess = ref(false);
   let joinChannelSuccess = ref(false);
   let removeChannelSuccess = ref(false);
@@ -40,13 +44,13 @@
   let addChannelFailed = ref(false);
   let addFriendFailed = ref(false);
   let addMessageFailed = ref(false);
+  let invitationInGameFailed = ref(false);
   let inviteInGameFailed = ref(false);
   let joinChannelFailed = ref(false);
   let removeChannelFailed = ref(false);
   let removeFriendFailed = ref(false);
 
   let message_text = ref("");
-  let passwordCheckBox = ref(false);
   let password = ref("");
 
   const addFriendFromDB = async (userName, friendName) => {
@@ -82,23 +86,6 @@
       }, 3000);
     }
     channels.value = await getAllChannelsFromUser(userName);
-  };
-
-  const createPrivateMessageInDB = async (userName, currentUserName, message_text) => {
-    const response = await createPrivateMessage(userName, currentUserName, message_text);
-    modalStates.modalMessage.value = false;
-
-    if (response && response.success) {
-      addMessageSuccess.value = true;
-      setTimeout(() => {
-        addMessageSuccess.value = false;
-      }, 3000);
-    } else {
-      addMessageFailed.value = true;
-      setTimeout(() => {
-        addMessageFailed.value = false;
-      }, 3000);
-    }
   };
 
   const joinChannelInDB = async (channelName, userName) => {
@@ -137,28 +124,6 @@
     friends.value = await getAllFriends(userName);
   };
 
-  const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
-    router.push('/game');
-    socket.emit('localGame', user.value.userId);
-  
-    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
-    socket.emit('invitationInGame', { userName, sock, userStatus });
-
-    socket.on('invitationInGameSuccess', () => {
-      inviteInGameSuccess = true;
-      setTimeout(() => {
-        inviteInGameSuccess = false;
-      }, 30000);
-    });
-
-    socket.on('invitationInGameFailed', () => {
-      inviteInGameFailed = true;
-      setTimeout(() => {
-        inviteInGameFailed = false;
-      }, 3000);
-    });
-  }
-
   const removeChannelFromDB = async (channelName) => {
     const response = await removeChannel(channelName);
     
@@ -177,17 +142,61 @@
     channels.value = await getAllChannelsFromUser(userName);
   };
 
+  const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
+    router.push('/game');
+    socket.value.emit('localGame', user.value.userId);
+  
+    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
+    socket.value.emit('invitationInGame', { userName, sock, userStatus });
+
+    socket.value.on('invitationInGameSuccess', () => {
+      inviteInGameSuccess = true;
+      setTimeout(() => {
+        inviteInGameSuccess = false;
+      }, 30000);
+    });
+
+    socket.value.on('invitationInGameFailed', () => {
+      inviteInGameFailed = true;
+      setTimeout(() => {
+        inviteInGameFailed = false;
+      }, 3000);
+    });
+  }
+
+  const sendGameInvitation = (userName, userId, userSocket, userStatus) => {
+    // socket.value.emit('sendGameInvitation', { userName, userId, userSocket, userStatus, message: 'Hey! Let\'s play a game!' });
+
+    // socket.value.on('invitationInGameSuccess', () => {
+    //   invitationInGameSuccess.value = true;
+    //   setTimeout(() => {
+    //     invitationInGameSuccess.value = false;
+    //   }, 3000);
+    // });
+
+    // socket.value.on('invitationInGameFailed', () => {
+    //   inviteInGameFailed.value = true;
+    //   setTimeout(() => {
+    //     inviteInGameFailed.value = false;
+    //   }, 3000);
+    // });
+  };
+
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
+  const closeMessageModal = () => { modalMessage.value = false; };
   const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName.value = userName; };
-  const openManageChannelModal = () => { modalStates.modalManageChannel.value = true; };
-  const openMessageModal = (userName) => { modalStates.modalMessage.value = true; currentUserName.value = userName; };
+  const openManageChannelModal = (channel) => { channelName.value = channel; modalStates.modalManageChannel.value = true; };
 
   var router;
   
   onMounted(async () => {
     router = useRouter();
 
-    socket = io('http://localhost:3000');
+    socket.value = io('http://localhost:3000');
+    // socket.value.emit('message', 'zeubi');
+    // socket.value.on('response', (data) => {
+    //   console.log(data);
+    // });
 
     user.value = await getUserByCookie(Cookies.get("_authToken"));
 
@@ -223,23 +232,15 @@
 
   const showContent = (tab) => { activeTab.value = tab; };
 
-  const togglePasswordInput = async (channelName, password, passwordCheckBox) => {
-    if (passwordCheckBox)
-      setPassword(channelName, sha256(password));
-    else
-      unsetPassword(channelName, sha256(password));
-    modalManageChannel.value = false;
-  };
-
 </script>
 
 <template>
-  <UserStatHeader v-if="user"
-    :userName="userName"
-    :gamePlayed="user.gamePlayed"
-    :gameWon="user.gameWon"
-  />
   <body>
+    <UserStatHeader v-if="user"
+      :userName="userName"
+      :gamePlayed="user.gamePlayed"
+      :gameWon="user.gameWon"
+    />
     <div class="overflow-x-auto min-h-screen bg-base-200 font-mono">
       <div class="buttons">
         <button class="btn glass" @click="showContent('friends')">Friends</button>
@@ -281,9 +282,6 @@
                 <td>
                   <button class="btn glass" @click="openChannelModal(user.userName)">Invite in Channel</button>
                 </td>
-                <td>
-                  <button class="btn glass" @click="openMessageModal(user.userName)">Send Message</button>
-                </td>
               </tr>
             </tbody>
           </table>
@@ -310,7 +308,7 @@
                     </div>
                   </label>
                 </td>
-                <td v-if="!channel.password">
+                <td v-if="!channel.channelPassword">
                   <router-link :to="'/channel/' + channel.channelName">
                     <button class="btn glass no-animation">{{ channel.channelName }}</button>
                   </router-link>
@@ -324,7 +322,7 @@
                   <button class="btn glass btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
                 </td>
                 <td v-if="user && channel && channel.channelAdmin == user.userId">
-                  <button class="btn glass" @click="openManageChannelModal(user.userName)">Manage Channel</button>
+                  <button class="btn glass" @click="openManageChannelModal(channel.channelName)">Manage Channel</button>
                 </td>
               </tr>
             </tbody>
@@ -369,6 +367,7 @@
       :addChannelSuccess="addChannelSuccess"
       :addFriendSuccess="addFriendSuccess"
       :addMessageSuccess="addMessageSuccess"
+      :invitationInGameSuccess="invitationInGameSuccess"
       :inviteInGameSuccess="inviteInGameSuccess"
       :joinChannelSuccess="joinChannelSuccess"
       :removeChannelSuccess="removeChannelSuccess"
@@ -377,6 +376,7 @@
       :addChannelFailed="addChannelFailed"
       :addFriendFailed="addFriendFailed"
       :addMessageFailed="addMessageFailed"
+      :invitationInGameFailed="invitationInGameFailed"
       :inviteInGameFailed="inviteInGameFailed"
       :joinChannelFailed="joinChannelFailed"
       :removeChannelFailed="removeChannelFailed"
@@ -385,20 +385,25 @@
     <!--Modals-->
     <Modal
       :currentUserName="currentUserName"
+      :currentChannelName="channelName"
       :friendName="friendName"
-      :modalStates="modalStates"
-      :user="user"
+      :senderName="senderName"
       :userName="userName"
+
+      :modalStates="modalStates"
+      :modalMessage="modalMessage"
+  
       :parent="'userProfile'"
+  
+      :user="user"
 
       :addFriendFromDB="addFriendFromDB"
       :closeModal="closeModal"
+      :closeMessageModal="closeMessageModal"
       :createChannelInDB="createChannelInDB"
-      :createPrivateMessageInDB="createPrivateMessageInDB"
       :joinChannelInDB="joinChannelInDB"
       :removeFriendFromDB="removeFriendFromDB"
-      :togglePasswordInput="togglePasswordInput"
-    />  
+    />
   </body>
 </template>
 

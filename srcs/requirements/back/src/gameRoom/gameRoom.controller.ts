@@ -13,9 +13,15 @@ export class GameRoomController {
     return (gameRoom);
   }
 
-  @Get('get/:userId')
-  async getGameRoomByUserId(@Param('userId') userId: number): Promise<GameRoom[]> {
-    const gameRoom = await this.gameRoomService.getGameRoomByUserId(userId);
+  @Get('getPastGameRooms/:userId')
+  async getPastGameRoomByUserId(@Param('userId') userId: number): Promise<GameRoom[]> {
+    const gameRoom = await this.gameRoomService.getGameRoomsByUserId(userId);
+    return (gameRoom);
+  }
+
+  @Get('getCurrentGameRoom/:userId')
+  async getCurrentGameRoomByUserId(@Param('userId') userId: number): Promise<GameRoom> {
+    const gameRoom = await this.gameRoomService.getCurrentGameRoomByUserId(userId);
     return (gameRoom);
   }
 }

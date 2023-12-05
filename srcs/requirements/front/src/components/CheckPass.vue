@@ -1,25 +1,25 @@
 <script setup>
-	import sha256 from 'js-sha256';
   import Alert from './Alert.vue';
   import Modal from './Modal.vue';
-  import { onMounted, ref } from 'vue'
-	import { checkPass } from './api/post.call';
-	import { useRoute, useRouter } from 'vue-router';
-
-	const modalManageChannel = ref(null);
+  import sha256 from 'js-sha256';
+  import { ref, onMounted } from 'vue';
+  import { checkPass } from './api/post.call';
+  import { useRoute, useRouter } from 'vue-router';
+  
+  const checkPassFailed = ref(false);
   const password = ref('');
-
-  let checkPassFailed = ref(false);
 
   const route = useRoute();
   const router = useRouter();
 
-  const checkPassInDB = async () => {
-    const hashedPassword = sha256(password.value);
+  let modalCheckPass = ref(false);
+
+  const checkPassInDB = async (password) => {
+    const hashedPassword = sha256(password);
     const response = await checkPass(route.params.channelName, hashedPassword);
     
     if (response && response.success){
-      modalCheckPass.value.open = false;
+      modalCheckPass.value = false;
       router.push(`/channel/${route.params.channelName}`);
     }
     else { 
@@ -30,28 +30,11 @@
     }
   };
   
-  const closeModal = () => { modalCheckPass.value.open = false;};
-
-  onMounted(() => {
-    if (modalCheckPass.value)
-      modalCheckPass.value.show();
-  });
+  onMounted(() => { modalCheckPass.value = true; });
 </script>
 
 <template>
-  <div class="background"></div>
-
-  <!--Alerts-->
-  <Alert
-    checkPassFailed="checkPassFailed"
-  />
-
-  <!--Modals-->
-  <Modal
-    checkPassInDB="checkPassInDB"
-  />  
+  <Alert :checkPassFailed="checkPassFailed" />
+  <Modal :checkPassInDB="checkPassInDB" :modalCheckPass="modalCheckPass" :parent="'checkPass'" /> 
+  <body class="overflow-x-auto min-h-screen bg-base-200 pass"> </body>
 </template>
-
-<style scoped>
-	.dialogModalChannel { text-align: center; }
-</style>
