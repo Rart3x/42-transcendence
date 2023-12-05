@@ -137,7 +137,7 @@
                         <div v-if="privateMessages">
                             <div v-for="(pairMessages, pairIndex) in privateMessages" :key="pairIndex">
                                 <div v-for="(message, index) in pairMessages" :key="index">
-                                    <div v-if="message.senderName === senderName" class="message message-right">
+                                    <div v-if="message.senderName !== senderName" class="message message-right">
                                         {{ message.messageContent }}
                                     </div>
                                     <div v-else class="message message-left">
@@ -150,7 +150,7 @@
                     </div>
                 <div class="message-box">
                     <form class="message-form" @submit.prevent="createPrivateMessageInDB(userName, senderName, message_text)">
-                        <input type="text" class="message-input" placeholder="Type message..." v-model="message_text" @keyup.enter="createPrivateMessageInDB(userName, senderName, message_text)">
+                        <input type="text" class="message-input" placeholder="Type message..." v-model="message_text">
                         <button type="submit" class="message-submit">Send</button>
                     </form>
                 </div>
@@ -247,18 +247,16 @@
         clear: both;
         float: left;
         padding: 6px 10px 7px;
-        border-radius: 10px 10px 10px 0;
-        font-size: 14px;
+        font-size: 1.3vh;
         line-height: 1.4;
-        margin-left: 35px;
+        margin-left: 1vh;
         position: relative;
-        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     }
-    .messages::-webkit-scrollbar { width: 8px; }
-    .messages::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.3); border-radius: 4px;}
-    .messages .message.message-left { float: left; color: #fff; text-align: left; background: linear-gradient(120deg, #df9494, #777); }
-    .messages .message.message-left::before { right: auto; left: 0; border-left: none; }
-    .messages .message.message-right { float: right; color: #fff; text-align: right; background: linear-gradient(120deg, #a8c5b5, #257287); }
+    .messages::-webkit-scrollbar { width: 1vh; }
+    .messages::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.3); border-radius: 5px;}
+    .messages .message.message-left { float: left; color: #fff; text-align: left; background: linear-gradient(120deg, #df9494, #777); border-radius: 10px 10px 10px 0; }
+    .messages .message.message-left::before { right: auto; border-left: none; }
+    .messages .message.message-right { float: right; color: #fff; text-align: right; background: linear-gradient(120deg, #a8c5b5, #257287); border-radius: 10px 10px 0 10px; }
     .messages .message.message-right::before { left: auto; border-right: none; }
     .messages .message:last-child { margin-bottom: 8px; }
     .message-box {
