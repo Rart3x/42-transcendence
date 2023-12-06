@@ -180,20 +180,21 @@ export default class Game extends Phaser.Scene {
 				data.player2UserId,
 				data.player1UserName,
 				data.player2UserName);
-			this.gameRoom.engine = Matter.Engine.create();
-			this.gameRoom.engine.gravity.x = 0;
-			this.gameRoom.engine.gravity.y = 0;
-			this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
-			this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
-			this.destroyUI();
-			this.matter.world.disableGravity();
-			this.matter.world.setBounds();
-			this.gameRoom.world = this.gameRoom.engine.world;
-			this.spawnSceneProps();
-			this.updateUIScore();
-			this.gameRoom.entities.ball.gameObject.y = data.ballY;
-			//Useless to send socket.id here
-			socket.emit('readyAfterInitialisation', this.gameRoom.id);
+			if (data.scorePlayer1 < 3 && data.scorePlayer2 < 3){
+				this.gameRoom.engine = Matter.Engine.create();
+				this.gameRoom.engine.gravity.x = 0;
+				this.gameRoom.engine.gravity.y = 0;
+				this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
+				this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
+				this.destroyUI();
+				this.matter.world.disableGravity();
+				this.matter.world.setBounds();
+				this.gameRoom.world = this.gameRoom.engine.world;
+				this.spawnSceneProps();
+				this.updateUIScore();
+				this.gameRoom.entities.ball.gameObject.y = data.ballY;
+				socket.emit('readyAfterInitialisation', this.gameRoom.id);
+			}
 		});
 
 		socket.on('lobby', (data) => {
@@ -481,7 +482,6 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('gameFinish', (data) => {
-			console.log("game is finish");
 			this.children.removeAll();
 			this.destroyUI();
 			this.UIElement = this.add.dom(500, 400).createFromHTML(' \

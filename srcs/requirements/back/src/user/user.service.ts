@@ -1,7 +1,7 @@
 import { authenticator } from 'otplib';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
-import { Channel, User, Prisma } from '@prisma/client';
+import { Channel, User, Prisma, GameRoom } from '@prisma/client';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -166,6 +166,16 @@ export class UserService {
     });
     return true;
   }
+/*-----------------------------------------------GAMEROOMS-----------------------------------------------*/
+
+async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
+{
+  return await this.prisma.gameRoom.findFirst({
+    orderBy: { id: 'asc'},
+    include: { users: true }
+  });
+}
+
 /*-----------------------------------------------USERS-----------------------------------------------*/
   async blockUser(userName: string, blockedUserName: string): Promise<boolean> {
     const user = await this.getUserByName(userName);

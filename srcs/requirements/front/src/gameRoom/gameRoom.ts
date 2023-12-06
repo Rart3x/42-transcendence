@@ -22,6 +22,8 @@ export default class GameRoom {
     player2PlayAgain: boolean;
     player1Disconnected: boolean;
     player2Disconnected: boolean;
+    player1AfkUse: boolean;
+    player2AfkUse: boolean;
     finish: boolean;
 
     world?: World | null;
@@ -61,6 +63,8 @@ export default class GameRoom {
             this.running = false;
             this.playAgain = true;
             this.finish = false;
+            this.player1AfkUse = false;
+            this.player2AfkUse = false;
             this.score = new Map<string, number>();
             this.score.set(socketPlayer1, 0);
             this.score.set(socketPlayer2, 0);

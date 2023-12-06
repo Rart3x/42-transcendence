@@ -83,7 +83,7 @@ export class GameRoomService {
     });
   }
 
-  async getCurrentGameRoomByUserId(userId: number) {
+  async getCurrentGameRoomByUserId(userId: number){
     const id = typeof userId === 'string' ? parseInt(userId) : userId;
 
     return await this.prisma.gameRoom.findFirst({

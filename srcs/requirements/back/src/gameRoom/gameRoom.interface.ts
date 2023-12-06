@@ -19,6 +19,8 @@ export interface GameRoom {
     player2Spawn: boolean;
     player1Disconnected: boolean;
     player2Disconnected: boolean;
+    player1AfkUse: boolean;
+    player2AfkUse: boolean;
     playAgain: boolean;
     customGame: boolean;
     world: World | null;
