@@ -9,7 +9,7 @@ export class ScoreService {
 
     async updateGameRoomScore(
         gameRoomId: number,
-        scorerId: number,
+        scorerId: number | undefined,
         scoreIdPlayer1: number,
         scoreIdPlayer2: number
         ): Promise<Score> {
@@ -18,18 +18,17 @@ export class ScoreService {
             where: { gameRoomId: gameRoomId }
         });
 
+        //If win by afk no scorer
+        const scorer = scorerId ? { connect: { userId: scorerId }} : {};
+
+        const scorePayload = scorerId ? { create: { time: new Date(), scoreA: scoreIdPlayer1, scoreB: scoreIdPlayer2, scorerId: scorerId } } :
+                                        { create : { time: new Date(), scoreA: scoreIdPlayer1, scoreB: scoreIdPlayer2 } };
+
         if (!score){
             return await this.prisma.score.create({
                 data:{
                     gameRoomId: gameRoomId,
-                    score:{
-                        create: {
-                            time: new Date(),
-                            scoreA: scoreIdPlayer1,
-                            scoreB: scoreIdPlayer2,
-                            scorerId: scorerId
-                        }
-                    }
+                    score: scorePayload
                 }
             })
         }
@@ -39,11 +38,7 @@ export class ScoreService {
                     time: new Date(),
                     scoreA: scoreIdPlayer1,
                     scoreB: scoreIdPlayer2,
-                    scorer: {
-                        connect: {
-                           userId: scorerId
-                        }
-                    },
+                    scorer,
                     score: {
                         connect: {
                             gameRoomId: gameRoomId

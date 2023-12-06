@@ -133,6 +133,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 											this.gameRooms[i].player1SocketId,
 											this.gameRooms[i].player2SocketId,
 											this.gameRooms[i].nbBounces);
+										this.ScoreService.updateGameRoomScore(
+											this.gameRooms[i].roomId,
+											undefined,
+											0,
+											3
+										);
+										// this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
 										this.removeCollisionsEvent(this.gameRooms[i]);
 										World.clear(this.gameRooms[i].world);
 										Engine.clear(this.gameRooms[i].engine);
@@ -182,6 +189,17 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 											this.gameRooms[i].player1SocketId,
 											this.gameRooms[i].player2SocketId,
 											this.gameRooms[i].nbBounces);
+										this.ScoreService.updateGameRoomScore(
+											this.gameRooms[i].roomId,
+											undefined,
+											3,
+											0
+										);
+										// this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
+										this.removeCollisionsEvent(this.gameRooms[i]);
+										World.clear(this.gameRooms[i].world);
+										Engine.clear(this.gameRooms[i].engine);
+										this.gameRooms.splice(i, 1);
 									}
 								}
 							}, AFK_RECONNECTION_DELAY);

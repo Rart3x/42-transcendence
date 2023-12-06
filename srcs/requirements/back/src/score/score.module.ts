@@ -2,9 +2,10 @@ import { Module, Global, Controller } from '@nestjs/common';
 import { ScoreService } from './score.service';
 import { PrismaModule } from '../prisma.module';
 import { ScoreController } from './score.controller';
+import { UserModule } from '../user/user.module';
 
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule, UserModule],
     controllers: [ScoreController],
     providers: [ScoreService],
     exports: [ScoreService]
