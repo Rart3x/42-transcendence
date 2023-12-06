@@ -143,27 +143,27 @@
   };
 
   const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
-    // router.push('/game');
-    const host = user.value.userName;
-    socket.value.emit('invitationInGame', { host, userName, userId, userSocket, userStatus });
-    // socket.value.emit('localGame', user.value.userId);
+    router.push('/game');
+    // const host = user.value.userName;
+    // socket.value.emit('invitationInGame', { host, userName, userId, userSocket, userStatus });
+    socket.value.emit('localGame', user.value.userId);
   
-    // let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
-    // socket.value.emit('invitationInGame', { userName, sock, userStatus });
+    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
+    socket.value.emit('invitationInGame', { userName, sock, userStatus });
 
-    // socket.value.on('invitationInGameSuccess', () => {
-    //   inviteInGameSuccess = true;
-    //   setTimeout(() => {
-    //     inviteInGameSuccess = false;
-    //   }, 30000);
-    // });
+    socket.value.on('invitationInGameSuccess', () => {
+      inviteInGameSuccess = true;
+      setTimeout(() => {
+        inviteInGameSuccess = false;
+      }, 30000);
+    });
 
-    // socket.value.on('invitationInGameFailed', () => {
-    //   inviteInGameFailed = true;
-    //   setTimeout(() => {
-    //     inviteInGameFailed = false;
-    //   }, 3000);
-    // });
+    socket.value.on('invitationInGameFailed', () => {
+      inviteInGameFailed = true;
+      setTimeout(() => {
+        inviteInGameFailed = false;
+      }, 3000);
+    });
   }
 
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
@@ -182,7 +182,7 @@
 
   const socketOn = () => {
 
-    socket.value.on('invitedInGame', (data) => {
+    socket.value.once('invitedInGame', (data) => {
       hostName.value = data.host;
       invitationInGameSuccess.value = true;
       setTimeout(() => {
@@ -190,14 +190,14 @@
       }, 30000);
     });
 
-    socket.value.once('invitationInGameAccepted', (data) => {
-      console.log("accepteed");
-      hostName = data.host;
-      inviteInGameSuccess.value = true;
-      setTimeout(() => {
-        inviteInGameSuccess.value = false;
-      }, 30000);
-    });
+    // socket.value.on('invitationInGameAccepted', (data) => {
+    //   console.log("accepteed");
+    //   hostName = data.host;
+    //   inviteInGameSuccess.value = true;
+    //   setTimeout(() => {
+    //     inviteInGameSuccess.value = false;
+    //   }, 30000);
+    // });
 
     // socket.value.on('invitationInGameDeclined', (data) => {
     //   console.log("declined");
