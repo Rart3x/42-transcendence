@@ -44,7 +44,6 @@
   let addChannelFailed = ref(false);
   let addFriendFailed = ref(false);
   let addMessageFailed = ref(false);
-  let invitationInGameFailed = ref(false);
   let inviteInGameFailed = ref(false);
   let joinChannelFailed = ref(false);
   let removeChannelFailed = ref(false);
@@ -177,37 +176,37 @@
     const hostUser = await getUserByUserName(hostName.value);
     if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
       invitationInGameSuccess.value = false;
-    socket.value.emit(emit, { userName: hostUser.userName, userId: hostUser.userId, userSocket: hostUser.socket });
+    socket.value.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket });
   }
 
-  const socketOn = () => {
+  const socketOn = async () => {
 
-    socket.value.once('invitedInGame', (data) => {
-      hostName.value = data.host;
+    socket.value.on('invitedInGame', (body) => {
+      hostName.value = body.host;
       invitationInGameSuccess.value = true;
       setTimeout(() => {
         invitationInGameSuccess.value = false;
       }, 30000);
     });
 
-    // socket.value.on('invitationInGameAccepted', (data) => {
-    //   console.log("accepteed");
-    //   hostName = data.host;
-    //   inviteInGameSuccess.value = true;
-    //   setTimeout(() => {
-    //     inviteInGameSuccess.value = false;
-    //   }, 30000);
-    // });
+    socket.value.on('invitationAccepted', (body) => {
+      inviteInGameSuccess.value = true;
+      setTimeout(() => {
+        inviteInGameSuccess.value = false;
+      }, 30000);
+    });
 
-    // socket.value.on('invitationInGameDeclined', (data) => {
-    //   console.log("declined");
-    //   hostName = data.host;
-    //   inviteInGameFailed.value = true;
-    //   setTimeout(() => {
-    //     inviteInGameFailed.value = false;
-    //   }, 30000);
-    // });
+    socket.value.on('invitationDeclined', (body) => {
+      console.log("declined");
+      hostName = body.host;
+      inviteInGameFailed.value = true;
+      setTimeout(() => {
+        inviteInGameFailed.value = false;
+      }, 30000);
+    });
   };
+
+  setInterval(socketOn, 2500);
   
   onMounted(async () => {
     router = useRouter();
@@ -395,7 +394,6 @@
       :addChannelFailed="addChannelFailed"
       :addFriendFailed="addFriendFailed"
       :addMessageFailed="addMessageFailed"
-      :invitationInGameFailed="invitationInGameFailed"
       :inviteInGameFailed="inviteInGameFailed"
       :joinChannelFailed="joinChannelFailed"
       :removeChannelFailed="removeChannelFailed"
