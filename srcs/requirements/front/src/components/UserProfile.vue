@@ -7,16 +7,16 @@
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages } from "./api/get.call";
-  import { addFriend, createChannel, joinChannel, setStatus } from './api/post.call';
+  import { addFriend, createChannel, joinChannel, setClientSocket } from './api/post.call';
   import { io } from 'socket.io-client';
   import { useRouter } from "vue-router";
-  import { setClientSocket } from './api/post.call';
 
   let adminImage = ref(null);
   
   let currentUserName = ref("");
   let channelName = ref("");
   const friendName = ref("");
+  let hostName = ref("");
   let senderName = ref("");
   const userName = ref("");
 
@@ -143,44 +143,28 @@
   };
 
   const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
-    router.push('/game');
-    socket.value.emit('localGame', user.value.userId);
+    // router.push('/game');
+    const host = user.value.userName;
+    socket.value.emit('invitationInGame', { host, userName, userId, userSocket, userStatus });
+    // socket.value.emit('localGame', user.value.userId);
   
-    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
-    socket.value.emit('invitationInGame', { userName, sock, userStatus });
-
-    socket.value.on('invitationInGameSuccess', () => {
-      inviteInGameSuccess = true;
-      setTimeout(() => {
-        inviteInGameSuccess = false;
-      }, 30000);
-    });
-
-    socket.value.on('invitationInGameFailed', () => {
-      inviteInGameFailed = true;
-      setTimeout(() => {
-        inviteInGameFailed = false;
-      }, 3000);
-    });
-  }
-
-  const sendGameInvitation = (userName, userId, userSocket, userStatus) => {
-    // socket.value.emit('sendGameInvitation', { userName, userId, userSocket, userStatus, message: 'Hey! Let\'s play a game!' });
+    // let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
+    // socket.value.emit('invitationInGame', { userName, sock, userStatus });
 
     // socket.value.on('invitationInGameSuccess', () => {
-    //   invitationInGameSuccess.value = true;
+    //   inviteInGameSuccess = true;
     //   setTimeout(() => {
-    //     invitationInGameSuccess.value = false;
-    //   }, 3000);
+    //     inviteInGameSuccess = false;
+    //   }, 30000);
     // });
 
     // socket.value.on('invitationInGameFailed', () => {
-    //   inviteInGameFailed.value = true;
+    //   inviteInGameFailed = true;
     //   setTimeout(() => {
-    //     inviteInGameFailed.value = false;
+    //     inviteInGameFailed = false;
     //   }, 3000);
     // });
-  };
+  }
 
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
   const closeMessageModal = () => { modalMessage.value = false; };
@@ -188,17 +172,52 @@
   const openManageChannelModal = (channel) => { channelName.value = channel; modalStates.modalManageChannel.value = true; };
 
   var router;
+
+  const socketEmit = async (emit) => {
+    const hostUser = await getUserByUserName(hostName.value);
+    if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
+      invitationInGameSuccess.value = false;
+    socket.value.emit(emit, { userName: hostUser.userName, userId: hostUser.userId, userSocket: hostUser.socket });
+  }
+
+  const socketOn = () => {
+
+    socket.value.on('invitedInGame', (data) => {
+      hostName.value = data.host;
+      invitationInGameSuccess.value = true;
+      setTimeout(() => {
+        invitationInGameSuccess.value = false;
+      }, 30000);
+    });
+
+    socket.value.once('invitationInGameAccepted', (data) => {
+      console.log("accepteed");
+      hostName = data.host;
+      inviteInGameSuccess.value = true;
+      setTimeout(() => {
+        inviteInGameSuccess.value = false;
+      }, 30000);
+    });
+
+    // socket.value.on('invitationInGameDeclined', (data) => {
+    //   console.log("declined");
+    //   hostName = data.host;
+    //   inviteInGameFailed.value = true;
+    //   setTimeout(() => {
+    //     inviteInGameFailed.value = false;
+    //   }, 30000);
+    // });
+  };
   
   onMounted(async () => {
     router = useRouter();
 
     socket.value = io('http://localhost:3000');
-    // socket.value.emit('message', 'zeubi');
-    // socket.value.on('response', (data) => {
-    //   console.log(data);
-    // });
-
+  
     user.value = await getUserByCookie(Cookies.get("_authToken"));
+    setClientSocket(user.value.userName, socket.value.id);
+
+    socketOn();
 
     userName.value = user.value.displayName;
     adminImage = "src/assets/userImages/" + user.value.image;
@@ -381,6 +400,10 @@
       :joinChannelFailed="joinChannelFailed"
       :removeChannelFailed="removeChannelFailed"
       :removeFriendFailed="removeFriendFailed"
+
+      :hostName="hostName"
+
+      :socketEmit="socketEmit"
     />
     <!--Modals-->
     <Modal

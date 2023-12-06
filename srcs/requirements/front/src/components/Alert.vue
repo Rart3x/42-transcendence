@@ -32,6 +32,10 @@
 			unblockFailed: Boolean,
 			unsetPassSuccess: Boolean,
 			unsetPassFailed: Boolean,
+
+			hostName: String,
+
+			socketEmit: Function,
 		},
 	};
 </script>
@@ -107,19 +111,20 @@
 	<!--InvitationInGame-->
 	<div v-if="invitationInGameSuccess" class="toast toast-start">
 		<div class="alert alert-primary">
-			<button class="btn btn-success">Accept</button>
-			<button class="btn btn-error">Decline</button>
+			<span>{{ hostName }} invite you in a Game</span>
+			<button class="btn btn-success" @click="socketEmit('invitationInGameAccepted')" >Accept</button>
+			<button class="btn btn-error" @click="socketEmit('invitationInGameDeclined')">Decline</button>
 		</div>
 	</div>
 	<!--InviteInGame-->
 	<div v-if="inviteInGameSuccess" class="toast toast-start">
 		<div class="alert alert-success">
-			<span>User Invite in Game successfully.</span>
+			<span>User has accepted the invitation</span>
 		</div>
 	</div>
 	<div v-if="inviteInGameFailed" class="toast toast-start">
 		<div class="alert alert-error">
-		<span>Failed to Invite in Game</span>
+		<span>User has declined the invitation</span>
 		</div>
 	</div>
 	<!--JoinChannel-->
