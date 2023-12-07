@@ -7,16 +7,16 @@
   import { onMounted, ref } from "vue";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages } from "./api/get.call";
-  import { addFriend, createChannel, joinChannel, setStatus } from './api/post.call';
+  import { addFriend, createChannel, joinChannel, setClientSocket } from './api/post.call';
   import { io } from 'socket.io-client';
   import { useRouter } from "vue-router";
-  import { setClientSocket } from './api/post.call';
 
   let adminImage = ref(null);
   
   let currentUserName = ref("");
   let channelName = ref("");
   const friendName = ref("");
+  let hostName = ref("");
   let senderName = ref("");
   const userName = ref("");
 
@@ -44,7 +44,6 @@
   let addChannelFailed = ref(false);
   let addFriendFailed = ref(false);
   let addMessageFailed = ref(false);
-  let invitationInGameFailed = ref(false);
   let inviteInGameFailed = ref(false);
   let joinChannelFailed = ref(false);
   let removeChannelFailed = ref(false);
@@ -144,6 +143,8 @@
 
   const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
     router.push('/game');
+    // const host = user.value.userName;
+    // socket.value.emit('invitationInGame', { host, userName, userId, userSocket, userStatus });
     socket.value.emit('localGame', user.value.userId);
   
     let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
@@ -164,41 +165,58 @@
     });
   }
 
-  const sendGameInvitation = (userName, userId, userSocket, userStatus) => {
-    // socket.value.emit('sendGameInvitation', { userName, userId, userSocket, userStatus, message: 'Hey! Let\'s play a game!' });
-
-    // socket.value.on('invitationInGameSuccess', () => {
-    //   invitationInGameSuccess.value = true;
-    //   setTimeout(() => {
-    //     invitationInGameSuccess.value = false;
-    //   }, 3000);
-    // });
-
-    // socket.value.on('invitationInGameFailed', () => {
-    //   inviteInGameFailed.value = true;
-    //   setTimeout(() => {
-    //     inviteInGameFailed.value = false;
-    //   }, 3000);
-    // });
-  };
-
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
   const closeMessageModal = () => { modalMessage.value = false; };
   const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName.value = userName; };
   const openManageChannelModal = (channel) => { channelName.value = channel; modalStates.modalManageChannel.value = true; };
 
   var router;
+
+  const socketEmit = async (emit) => {
+    const hostUser = await getUserByUserName(hostName.value);
+    if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
+      invitationInGameSuccess.value = false;
+    socket.value.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket });
+  }
+
+  const socketOn = async () => {
+
+    socket.value.on('invitedInGame', (body) => {
+      hostName.value = body.host;
+      invitationInGameSuccess.value = true;
+      setTimeout(() => {
+        invitationInGameSuccess.value = false;
+      }, 30000);
+    });
+
+    socket.value.on('invitationAccepted', (body) => {
+      inviteInGameSuccess.value = true;
+      setTimeout(() => {
+        inviteInGameSuccess.value = false;
+      }, 30000);
+    });
+
+    socket.value.on('invitationDeclined', (body) => {
+      console.log("declined");
+      hostName = body.host;
+      inviteInGameFailed.value = true;
+      setTimeout(() => {
+        inviteInGameFailed.value = false;
+      }, 30000);
+    });
+  };
+
+  setInterval(socketOn, 2500);
   
   onMounted(async () => {
     router = useRouter();
 
     socket.value = io('http://localhost:3000');
-    // socket.value.emit('message', 'zeubi');
-    // socket.value.on('response', (data) => {
-    //   console.log(data);
-    // });
-
+  
     user.value = await getUserByCookie(Cookies.get("_authToken"));
+    setClientSocket(user.value.userName, socket.value.id);
+
+    socketOn();
 
     userName.value = user.value.displayName;
     adminImage = "src/assets/userImages/" + user.value.image;
@@ -376,11 +394,14 @@
       :addChannelFailed="addChannelFailed"
       :addFriendFailed="addFriendFailed"
       :addMessageFailed="addMessageFailed"
-      :invitationInGameFailed="invitationInGameFailed"
       :inviteInGameFailed="inviteInGameFailed"
       :joinChannelFailed="joinChannelFailed"
       :removeChannelFailed="removeChannelFailed"
       :removeFriendFailed="removeFriendFailed"
+
+      :hostName="hostName"
+
+      :socketEmit="socketEmit"
     />
     <!--Modals-->
     <Modal
