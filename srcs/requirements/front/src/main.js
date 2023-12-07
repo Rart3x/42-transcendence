@@ -5,10 +5,8 @@ import store from './store/socket.js';
 
 const app = createApp(App);
 
-app.config.ignoredElements = [/ion-\w*/];
 app.config.productionTip = false;
 
-app.use(router);
 app.use(store);
-
+app.use(router);
 app.mount('#app');
