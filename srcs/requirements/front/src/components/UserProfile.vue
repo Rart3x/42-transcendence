@@ -142,27 +142,27 @@
   };
 
   const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
-    router.push('/game');
-    // const host = user.value.userName;
-    // socket.value.emit('invitationInGame', { host, userName, userId, userSocket, userStatus });
-    socket.value.emit('localGame', user.value.userId);
+    // router.push('/game');
+    const host = user.value.userName;
+    socket.value.emit('invitationInGame', { host, userName, userId, userSocket, userStatus });
+    // socket.value.emit('localGame', user.value.userId);
   
-    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
-    socket.value.emit('invitationInGame', { userName, sock, userStatus });
+    // let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
+    // socket.value.emit('invitationInGame', { userName, sock, userStatus });
 
-    socket.value.on('invitationInGameSuccess', () => {
-      inviteInGameSuccess = true;
-      setTimeout(() => {
-        inviteInGameSuccess = false;
-      }, 30000);
-    });
+    // socket.value.on('invitationInGameSuccess', () => {
+    //   inviteInGameSuccess = true;
+    //   setTimeout(() => {
+    //     inviteInGameSuccess = false;
+    //   }, 30000);
+    // });
 
-    socket.value.on('invitationInGameFailed', () => {
-      inviteInGameFailed = true;
-      setTimeout(() => {
-        inviteInGameFailed = false;
-      }, 3000);
-    });
+    // socket.value.on('invitationInGameFailed', () => {
+    //   inviteInGameFailed = true;
+    //   setTimeout(() => {
+    //     inviteInGameFailed = false;
+    //   }, 3000);
+    // });
   }
 
   const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
@@ -179,44 +179,10 @@
     socket.value.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket });
   }
 
-  const socketOn = async () => {
-
-    socket.value.on('invitedInGame', (body) => {
-      hostName.value = body.host;
-      invitationInGameSuccess.value = true;
-      setTimeout(() => {
-        invitationInGameSuccess.value = false;
-      }, 30000);
-    });
-
-    socket.value.on('invitationAccepted', (body) => {
-      inviteInGameSuccess.value = true;
-      setTimeout(() => {
-        inviteInGameSuccess.value = false;
-      }, 30000);
-    });
-
-    socket.value.on('invitationDeclined', (body) => {
-      console.log("declined");
-      hostName = body.host;
-      inviteInGameFailed.value = true;
-      setTimeout(() => {
-        inviteInGameFailed.value = false;
-      }, 30000);
-    });
-  };
-
-  setInterval(socketOn, 2500);
-  
   onMounted(async () => {
     router = useRouter();
-
-    socket.value = io('http://localhost:3000');
   
     user.value = await getUserByCookie(Cookies.get("_authToken"));
-    setClientSocket(user.value.userName, socket.value.id);
-
-    socketOn();
 
     userName.value = user.value.displayName;
     adminImage = "src/assets/userImages/" + user.value.image;

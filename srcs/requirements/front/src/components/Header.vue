@@ -1,27 +1,33 @@
 <script setup>
+  import Alert from "./Alert.vue";
   import Cookies from "js-cookie";
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
   import { computed, onMounted, ref, unref } from "vue";
   import { RouterLink } from "vue-router";
+  import { useStore } from "vuex";
   import { getAllUsers, getPrivateMessagesByUserName, getUserByCookie } from "./api/get.call.ts";
-  import { createPrivateMessage, setStatus } from "./api/post.call.ts";
+  import { createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
 
   let imageSrc = ref(null);
-
-  let searchInput = ref("");
-
-  const userName = ref("");
-
+  let modalMessage = ref(false);
   let privateMessages = ref([]);
-  let users = ref([]);
+  let searchInput = ref("");
+  let socket = ref(null);
 
   let user = ref(null);
+  let users = ref([]);
 
   let currentUserName = ref("");
   let senderName = ref("");
+  const userName = ref("");
 
-  let modalMessage = ref(false);
+  let invitationInGameSuccess = ref(false);
+  let inviteInGameSuccess = ref(false);
+
+  let inviteInGameFailed = ref(false);
+
+  const store = useStore();
 
   const filteredUsers = computed(() => {
     if (!users.value)
@@ -54,9 +60,41 @@
   const closeMessageModal = () => { modalMessage.value = false; };
   const openMessageModal = (userName, message) => { modalMessage.value = true; currentUserName = userName; senderName.value = (message.senderName === userName) ? message.receiverName : message.senderName; };
 
+  const socketOn = async () => {
+
+    socket.value.on('invitedInGame', (body) => {
+      hostName.value = body.host;
+      invitationInGameSuccess.value = true;
+      setTimeout(() => {
+        invitationInGameSuccess.value = false;
+      }, 30000);
+    });
+
+    // socket.value.on('invitationAccepted', (body) => {
+    //   inviteInGameSuccess.value = true;
+    //   setTimeout(() => {
+    //     inviteInGameSuccess.value = false;
+    //   }, 30000);
+    // });
+
+    // socket.value.on('invitationDeclined', (body) => {
+    //   console.log("declined");
+    //   hostName = body.host;
+    //   inviteInGameFailed.value = true;
+    //   setTimeout(() => {
+    //     inviteInGameFailed.value = false;
+    //   }, 30000);
+    // });
+  };
+
   onMounted(async () => {
     if (Cookies.get("_authToken") == undefined)
       return;
+
+    store.dispatch('initializeSocket');
+  
+    user.value = await getUserByCookie(Cookies.get("_authToken"));
+    setClientSocket(user.value.userName, store.state.socket.id);
     user.value = await getUserByCookie(Cookies.get("_authToken"));
     userName.value = user.value.displayName;
 
@@ -66,13 +104,13 @@
     import(/* @vite-ignore */ imagePath).then((image) => {
       imageSrc.value = image.default;
     });
-    const allUsers = await getAllUsers();
-    users.value = allUsers;
+    users.value = await getAllUsers();
   });
 
 </script>
 
 <template>
+  <Alert :inviteInGameFailed="inviteInGameFailed" :inviteInGameSuccess="inviteInGameSuccess" :invitationInGameSuccess="invitationInGameSuccess" />
   <div class="navbar bg-base-100">
     <div class="navbar-start">
       <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :userName="userName"/>
@@ -85,18 +123,21 @@
     </div>
     <div class="navbar-end">
       <Drawer
-        :user="user"
-        :imageSrc="imageSrc"
-        :logout="logout"
         :display="true"
-        :privateMessages="privateMessages"
-        :createPrivateMessageInDB="createPrivateMessageInDB"
-        :openMessageModal="openMessageModal"
+        :imageSrc="imageSrc"
+        :user="user"
+
         :currentUserName="currentUserName"
-        :modalMessage="modalMessage"
-        :closeMessageModal="closeMessageModal"
         :senderName="senderName"
         :userName="userName"
+
+        :closeMessageModal="closeMessageModal"
+        :modalMessage="modalMessage"
+        :openMessageModal="openMessageModal"
+        :privateMessages="privateMessages"
+
+        :createPrivateMessageInDB="createPrivateMessageInDB"
+        :logout="logout"
       />
       <Modal :senderName="senderName" />
     </div>
