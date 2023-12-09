@@ -214,7 +214,7 @@
                     </div>
                 <div class="message-box">
                     <form class="message-form" @submit.prevent="createPrivateMessageInDB(userName, senderName, message_text)">
-                        <input type="text" class="message-input" placeholder="Type message..." v-model="message_text">
+                        <input type="text" class="message-input" placeholder="/game to game" v-model="message_text">
                         <button type="submit" class="message-submit">Send</button>
                     </form>
                 </div>

@@ -5,8 +5,10 @@
   import Modal from "./Modal.vue";
   import { computed, onMounted, ref, unref } from "vue";
   import { RouterLink } from "vue-router";
-  import { getAllUsers, getPrivateMessagesByUserName, getUserByCookie } from "./api/get.call.ts";
+  import { getAllUsers, getPrivateMessagesByUserName, getUserByCookie, getUserByUserName } from "./api/get.call.ts";
   import { createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
+  import { useRouter } from "vue-router";
+  import { useStore } from "vuex";
 
   let imageSrc = ref(null);
   let modalMessage = ref(false);
@@ -25,7 +27,6 @@
 
   let inviteInGameFailed = ref(false);
 
-
   const filteredUsers = computed(() => {
     if (!users.value)
       return [];
@@ -43,10 +44,43 @@
     }
   });
 
+  const router = useRouter();
+  const store = useStore();
+
   const createPrivateMessageInDB = async (userName, senderName, message_text) => {
+    if (message_text === "/game") { 
+      const user = await getUserByUserName(senderName);
+      modalMessage.value = false;
+      inviteFriendInGame(user.userName, user.userId, user.socket, user.status);
+    }
     const response = await createPrivateMessage(userName, senderName, message_text);
     privateMessages.value = await getPrivateMessagesByUserName(user.value.userName);
   };
+
+  const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
+    router.push('/game');
+    // const host = user.value.userName;
+    // store.dispatch('sendToBackend', { data: 'valeur' });
+    store.state.socket.value.emit('localGame', user.value.userId);
+  
+    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
+    store.state.socket.value.emit('invitationInGame', { userName, sock, userStatus });
+
+    store.state.socket.value.on('invitationInGameSuccess', () => {
+      inviteInGameSuccess = true;
+      setTimeout(() => {
+        inviteInGameSuccess = false;
+      }, 30000);
+    });
+
+    store.state.socket.value.on('invitationInGameFailed', () => {
+      inviteInGameFailed = true;
+      setTimeout(() => {
+        inviteInGameFailed = false;
+      }, 3000);
+    });
+  }
+
 
   const logout = () => {
     Cookies.remove("_authToken");

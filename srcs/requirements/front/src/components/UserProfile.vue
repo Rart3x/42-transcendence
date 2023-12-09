@@ -172,7 +172,6 @@
   const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName.value = userName; };
   const openManageChannelModal = (channel) => { channelName.value = channel; modalStates.modalManageChannel.value = true; };
 
-
   const socketEmit = async (emit) => {
     const hostUser = await getUserByUserName(hostName.value);
     if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
