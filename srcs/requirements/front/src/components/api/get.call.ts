@@ -304,9 +304,26 @@ export async function getPrivateMessagesByUserName(userName : string) {
 }
 /*-----------------------------------------------SCORE-----------------------------------------------*/
 
-export async function getAllScore(gameRoomId: number) {
+export async function getAllUserScore(gameRoomId: number) {
   try {
-    const response = await fetch(`http://localhost:3000/score/getAllScore/${gameRoomId}`, {
+    const response = await fetch(`http://localhost:3000/score/getAllUserScore/${gameRoomId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
+export async function getScoreByRoomId(gameRoomId: string){
+  try {
+    const response = await fetch(`http://localhost:3000/score/getScoreByRoomId/${gameRoomId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -139,7 +139,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 											0,
 											3
 										);
-										// this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
+										this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
+										this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
 										this.removeCollisionsEvent(this.gameRooms[i]);
 										World.clear(this.gameRooms[i].world);
 										Engine.clear(this.gameRooms[i].engine);
@@ -195,7 +196,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 											3,
 											0
 										);
-										// this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
+										this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
+										this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
 										this.removeCollisionsEvent(this.gameRooms[i]);
 										World.clear(this.gameRooms[i].world);
 										Engine.clear(this.gameRooms[i].engine);
@@ -450,31 +452,29 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			});
 
 			setTimeout(() => {
-        if (gameRoom.pausedAfk == false){
-          Matter.Body.setPosition(gameRoom.entities.ball.gameObject, {
-            x: 500,
-            y: randY
-          });
-
-          Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
-            x: vecX,
-            y: vecY
-          });
-          
-          this.server.to(gameRoom.player1SocketId).emit('restartAfterScore', {
-            ball: {
-              vecX: vecX,
-              vecY: vecY
-            }
-          });
-          this.server.to(gameRoom.player2SocketId).emit('restartAfterScore', {
-            ball: {
-              vecX: vecX,
-              vecY: vecY
-            }
-          });
-          gameRoom.paused = false;
-        }
+				if (gameRoom.pausedAfk == false){
+					Matter.Body.setPosition(gameRoom.entities.ball.gameObject, {
+						x: 500,
+						y: randY
+					});
+					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
+						x: vecX,
+						y: vecY
+					});
+					this.server.to(gameRoom.player1SocketId).emit('restartAfterScore', {
+						ball: {
+							vecX: vecX,
+							vecY: vecY
+						}
+					});
+					this.server.to(gameRoom.player2SocketId).emit('restartAfterScore', {
+						ball: {
+							vecX: vecX,
+							vecY: vecY
+						}
+          			});
+          			gameRoom.paused = false;
+       		 	}
 			}, 3000);
 		}
 
@@ -553,13 +553,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 			this.gameRooms.push(localRoom);
 
+			console.log(user1.userId, user2.userId);
 			this.server.to(localRoom.player1SocketId).emit('lobby', {
 				roomId: localRoom.roomId,
 				customGameMode: false,
 				player1SocketId: localRoom.player1SocketId,
 				player2SocketId: localRoom.player2SocketId,
-        player1UserId: user1.userId,
-        player2UserId: user2.userId,
+				player1UserId: user1.userId,
+				player2UserId: user2.userId,
 				player1UserName: user1.userName,
 				player2UserName: user2.userName,
 				player1Image: user1.image,
@@ -571,8 +572,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				customGameMode: false,
 				player1SocketId: localRoom.player1SocketId,
 				player2SocketId: localRoom.player2SocketId,
-        player1UserId: user1.userId,
-        player2UserId: user2.userId,
+				player1UserId: user1.userId,
+				player2UserId: user2.userId,
 				player1UserName: user1.userName,
 				player2UserName: user2.userName,
 				player1Image: user1.image,
@@ -625,6 +626,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		var user2 : User;
 
 		if (this.queueListCustomGame.size >= 2){
+
 			const first = this.queueListCustomGame.entries().next().value;
 
 			this.queueListCustomGame.delete(first[0]);
@@ -644,6 +646,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			localRoom = this.createGameRoomLocal(gameRoom.id, first, second, true);
 
 			this.gameRooms.push(localRoom);
+			console.log(user1.userId, user2.userId);
 
 			this.server.to(localRoom.player1SocketId).emit('lobby', {
 				roomId: localRoom.roomId,
@@ -652,10 +655,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				player2SocketId: localRoom.player2SocketId,
 				player1UserName: user1.userName,
 				player2UserName: user2.userName,
+				player1UserId: user1.userId,
+				player2UserId: user2.userId,
 				player1Image: user1.image,
 				player2Image: user2.image
 			});
-	
+
 			this.server.to(localRoom.player2SocketId).emit('lobby', {
 				roomId: localRoom.roomId,
 				customGameMode: true,
@@ -663,6 +668,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				player2SocketId: localRoom.player2SocketId,
 				player1UserName: user1.userName,
 				player2UserName: user2.userName,
+				player1UserId: user1.userId,
+				player2UserId: user2.userId,
 				player1Image: user1.image,
 				player2Image: user2.image
 			});

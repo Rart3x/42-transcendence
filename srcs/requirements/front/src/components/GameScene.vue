@@ -417,9 +417,12 @@ export default class Game extends Phaser.Scene {
 						this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
 					}
 					//Update score
+					console.log("Score point ", data.score.player1, data.score.player2);
 					if (this.gameRoom.score && this.gameRoom.player1UserId && this.gameRoom.player2UserId){
 						this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.score.player1);
 						this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.score.player2);
+						var scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1UserId.toString());
+						var scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2UserId.toString());
 						this.updateUIScore();
 					}
 				}
@@ -575,8 +578,8 @@ export default class Game extends Phaser.Scene {
 			data.player1UserName,
 			data.player2UserName);
 
-    
-
+		console.log(data.player1UserId, data.player2UserId);
+		
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 		<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
 			<div class="avatar row-start-2"> \

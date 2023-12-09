@@ -94,6 +94,7 @@ model Score {
     id          Int @id @default(autoincrement())
     score       UserScore[]
     gameRoomId  Int @unique
+    winByAfk    Boolean @default(false)
     winnerId    Int?
     winner      User? @relation(fields: [winnerId], references: [userId])
     gameRoom    GameRoom @relation(fields: [gameRoomId], references: [id])

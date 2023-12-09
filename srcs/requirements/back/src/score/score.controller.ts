@@ -8,9 +8,14 @@ export class ScoreController {
   constructor(
     private readonly ScoreService: ScoreService) {}
 
-  @Get('getAllScore/:gameRoomId')
+  @Get('getAllUserScore/:gameRoomId')
   async getAllScore(@Param('gameRoomId') gameRoomId: string): Promise<UserScore[]> {
     return await this.ScoreService.getAllUserScore(gameRoomId);
+  }
+
+  @Get('getScoreByRoomId/:gameRoomId')
+  async getScoreByRoomId(@Param('gameRoomId') gameRoomId: string): Promise<Score> {
+    return await this.ScoreService.getScoreByRoomId(gameRoomId);
   }
 
   @Get('getGameWinner/:gameRoomId')

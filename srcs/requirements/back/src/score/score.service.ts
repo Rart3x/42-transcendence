@@ -28,7 +28,7 @@ export class ScoreService {
             return await this.prisma.score.create({
                 data:{
                     gameRoomId: gameRoomId,
-                    score: scorePayload
+                    score: scorePayload,
                 }
             })
         }
@@ -65,6 +65,17 @@ export class ScoreService {
         })
     }
 
+    async setWinByAfk(gameRoomId: number) : Promise<Score>{
+        return await this.prisma.score.update({
+            where : {
+                gameRoomId: gameRoomId
+            },
+            data : {
+                winByAfk: true
+            }
+        })
+    }
+
     async getAllUserScore(gameRoomId: string) : Promise<UserScore[]>
     {
         var id = Number(gameRoomId);
@@ -72,6 +83,17 @@ export class ScoreService {
             where: {
                 scoreId: id
             }
+        })
+    }
+
+    async getScoreByRoomId(gameRoomId: string) : Promise<Score>
+    {
+        var roomId = Number(gameRoomId);
+
+        return await this.prisma.score.findUnique({
+            where: {
+                gameRoomId: roomId
+            },
         })
     }
 
