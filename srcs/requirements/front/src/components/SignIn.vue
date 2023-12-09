@@ -81,8 +81,8 @@
           return ;
         }
 
-        await setClientSocket(user.value.userName, store.state.socket.id);
         await insertUser(userInfo.value.login, userInfo.value.image.link, code);
+        await setClientSocket(user.value.userName, store.state.socket.id);
 
         Cookies.set("_authToken", code, {
           expires: 1,
