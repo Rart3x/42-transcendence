@@ -1,9 +1,10 @@
 <script setup>
-  import { ref, onMounted } from "vue";
-  import { insertUser, setStatus} from './api/post.call.ts';
+  import Cookies from "js-cookie";
+  import { inject, ref, onMounted } from "vue";
+  import { insertUser, setClientSocket, setStatus} from './api/post.call.ts';
   import { getUserByUserName, checkA2F } from './api/get.call.ts';
   import { useRouter } from "vue-router";
-  import Cookies from "js-cookie";
+  import { useStore } from "vuex";
 
   let userInfo = ref(null);
   let user = ref(null);
@@ -11,6 +12,7 @@
   let userToken = ref(null);
 
   const code = new URL(window.location.href).searchParams.get("code");
+  const store = useStore();
 
   const verifyToken = async () => {
     try {
@@ -34,6 +36,9 @@
 
   onMounted(async () => {
     const router = useRouter();
+    await store.dispatch("initializeSocket");
+    const socket = store.state.socket;
+    console.log('Socket initialized:', socket);
     try {
       if (code) {
         const response = await fetch("https://api.intra.42.fr/oauth/token", {
@@ -72,9 +77,11 @@
 
         if (user.value && user.value.A2F) {
           userA2F.value = true;
+          await setClientSocket(user.value.userName, store.state.socket.id);
           return ;
         }
-        
+
+        await setClientSocket(user.value.userName, store.state.socket.id);
         await insertUser(userInfo.value.login, userInfo.value.image.link, code);
 
         Cookies.set("_authToken", code, {
@@ -86,10 +93,8 @@
         window.location.href = "/settings";
       }
       else
-      {
         router.push('/');
-      }
-      }
+    }
     catch (error) {
       router.push('/');
     }

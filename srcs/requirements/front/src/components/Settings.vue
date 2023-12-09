@@ -1,10 +1,11 @@
 <script setup>
+	import Cookies from 'js-cookie';
+	import qrcode from 'qrcode';
 	import UserStatHeader from './UserStatHeader.vue';
 	import { updateImage, updateUsername, updateA2F } from './api/post.call';
 	import { getUserByCookie } from './api/get.call';
 	import { onMounted, ref } from 'vue';
-	import Cookies from 'js-cookie';
-	import qrcode from 'qrcode';
+	import { useStore } from 'vuex';
 
 	let dataURL = ref(null);
 	let selectedFile = ref(null);
@@ -14,7 +15,6 @@
 	let userName = ref("");
 
 	let A2FEnabled = ref(false);
-
 	let activeTab = ref("username");
 
 	const changeA2F = async () => {

@@ -1,27 +1,30 @@
 <script setup>
+  import Alert from "./Alert.vue";
   import Cookies from "js-cookie";
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
   import { computed, onMounted, ref, unref } from "vue";
   import { RouterLink } from "vue-router";
   import { getAllUsers, getPrivateMessagesByUserName, getUserByCookie } from "./api/get.call.ts";
-  import { createPrivateMessage, setStatus } from "./api/post.call.ts";
+  import { createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
 
   let imageSrc = ref(null);
-
+  let modalMessage = ref(false);
+  let privateMessages = ref([]);
   let searchInput = ref("");
 
-  const userName = ref("");
-
-  let privateMessages = ref([]);
-  let users = ref([]);
-
   let user = ref(null);
+  let users = ref([]);
 
   let currentUserName = ref("");
   let senderName = ref("");
+  const userName = ref("");
 
-  let modalMessage = ref(false);
+  let invitationInGameSuccess = ref(false);
+  let inviteInGameSuccess = ref(false);
+
+  let inviteInGameFailed = ref(false);
+
 
   const filteredUsers = computed(() => {
     if (!users.value)
@@ -57,6 +60,7 @@
   onMounted(async () => {
     if (Cookies.get("_authToken") == undefined)
       return;
+  
     user.value = await getUserByCookie(Cookies.get("_authToken"));
     userName.value = user.value.displayName;
 
@@ -66,13 +70,13 @@
     import(/* @vite-ignore */ imagePath).then((image) => {
       imageSrc.value = image.default;
     });
-    const allUsers = await getAllUsers();
-    users.value = allUsers;
+    users.value = await getAllUsers();
   });
 
 </script>
 
 <template>
+  <Alert :inviteInGameFailed="inviteInGameFailed" :inviteInGameSuccess="inviteInGameSuccess" :invitationInGameSuccess="invitationInGameSuccess" />
   <div class="navbar bg-base-100">
     <div class="navbar-start">
       <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :userName="userName"/>
@@ -85,18 +89,21 @@
     </div>
     <div class="navbar-end">
       <Drawer
-        :user="user"
-        :imageSrc="imageSrc"
-        :logout="logout"
         :display="true"
-        :privateMessages="privateMessages"
-        :createPrivateMessageInDB="createPrivateMessageInDB"
-        :openMessageModal="openMessageModal"
+        :imageSrc="imageSrc"
+        :user="user"
+
         :currentUserName="currentUserName"
-        :modalMessage="modalMessage"
-        :closeMessageModal="closeMessageModal"
         :senderName="senderName"
         :userName="userName"
+
+        :closeMessageModal="closeMessageModal"
+        :modalMessage="modalMessage"
+        :openMessageModal="openMessageModal"
+        :privateMessages="privateMessages"
+
+        :createPrivateMessageInDB="createPrivateMessageInDB"
+        :logout="logout"
       />
       <Modal :senderName="senderName" />
     </div>
