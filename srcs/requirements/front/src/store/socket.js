@@ -15,14 +15,17 @@ const store = createStore({
       const socket = io('http://localhost:3000');
       commit('SET_SOCKET', socket);
     },
-    sendToBackend(context, data) {
+    invitationInGame(context, body) {
       const socket = context.state.socket;
 
       if (socket)
-        socket.emit('eventName', data);
+        socket.emit('invitationInGame', body);
       else
-        console.error('Socket not initialized');
+        console.error('error: socket uninitialized');
     },
+    test(context) { 
+      console.log('test');
+    }
   },
 });
 

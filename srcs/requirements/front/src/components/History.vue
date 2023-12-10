@@ -2,7 +2,7 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
   import { onMounted, ref, computed } from "vue";
-  import { getPastGameRoomsByUserId,getUserByCookie, getAllUserScore, getScoreByRoomId, getUserByUserName, getGameWinner } from "./api/get.call";
+  import { getPastGameRoomsByUserId, getUserByCookie, getAllUserScore, getScoreByRoomId, getUserByUserName, getGameWinner } from "./api/get.call";
 
   let games = ref([]);
   let user = ref(null);
@@ -192,37 +192,18 @@
               </td>
             </tr>
           </tbody>
-
-
-
-
-
-
-
-
-
-          
         </table>
       </div>
   </div>
 </template>
 
 <style scoped>
+  .avatar { display: flex; align-items: center; justify-content: center; margin: 0 10px; }
+  .collapse-title { display: flex; align-items: center; }
   .dark-row:hover { background-color: #364e6e; }
   .stats { border-radius: unset; }
   .table{ border-radius: unset; }
-
-  .collapse-title { display: flex; align-items: center; }
-
   .text-before { margin-right: auto; }
   .text-after { margin-left: auto; }
-
-  .avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 10px;
-  }
-
   .versus-image { max-width: 100%; max-height: 100%;  }
 </style>
