@@ -10,7 +10,7 @@ export class AppGateway implements OnModuleInit{
 
 	onModuleInit() {
 		this.server.on('connection', (socket) => {
-			console.log('new connection on ' + socket.id);
+			// console.log('new connection on ' + socket.id);
 		});
 	}
 

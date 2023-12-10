@@ -228,6 +228,23 @@ export async function getCurrentGameRoomByUserId(userId : number) {
   }
 }
 
+export async function getLastGameRoomIfAfk(userId : number) {
+  try {
+    const response = await fetch(`http://localhost:3000/gameroom/getLastGameRoomIfAfk/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
 /*-----------------------------------------------MESSAGES-----------------------------------------------*/
 export async function getMessagesFromChannel(channelName : string) {
   try {

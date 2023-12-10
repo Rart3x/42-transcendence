@@ -21,7 +21,7 @@ export class ScoreService {
         //If win by afk no scorer
         const scorer = scorerId ? { connect: { userId: scorerId }} : {};
 
-        const scorePayload = scorerId ? { create: { time: new Date(), scoreA: scoreIdPlayer1, scoreB: scoreIdPlayer2, scorerId: scorerId } } :
+        const scorePayload = scorerId ? { create : { time: new Date(), scoreA: scoreIdPlayer1, scoreB: scoreIdPlayer2, scorerId: scorerId } } :
                                         { create : { time: new Date(), scoreA: scoreIdPlayer1, scoreB: scoreIdPlayer2 } };
 
         if (!score){
@@ -50,30 +50,40 @@ export class ScoreService {
         }
     }
 
-    async setWinner(
-        gameRoomId: number,
-        winnerId: number) : Promise<Score> {
-        return await this.prisma.score.update({
-            where: { gameRoomId: gameRoomId },
-            data: { 
-                winner: {
-                    connect:{
-                        userId: winnerId
+    async setWinner(gameRoomId: number, winnerId: number) : Promise<Score | null> {
+        var score = await this.prisma.score.findUnique({
+            where : { gameRoomId: gameRoomId }
+        });
+        if (score){
+            return await this.prisma.score.update({
+                where: { gameRoomId: gameRoomId },
+                data: { 
+                    winner: {
+                        connect:{
+                            userId: winnerId
+                        }
                     }
                 }
-            }
-        })
+            })
+        }
+        return null;
     }
 
-    async setWinByAfk(gameRoomId: number) : Promise<Score>{
-        return await this.prisma.score.update({
-            where : {
-                gameRoomId: gameRoomId
-            },
-            data : {
-                winByAfk: true
-            }
-        })
+    async setWinByAfk(gameRoomId: number) : Promise<Score | null>{
+        var score = await this.prisma.score.findUnique({
+            where : { gameRoomId: gameRoomId }
+        });
+        if (score){
+            return await this.prisma.score.update({
+                where : {
+                    gameRoomId: gameRoomId
+                },
+                data : {
+                    winByAfk: true
+                }
+            })
+        }
+        return null;
     }
 
     async getAllUserScore(gameRoomId: string) : Promise<UserScore[]>

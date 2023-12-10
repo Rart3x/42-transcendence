@@ -15,8 +15,8 @@ export default class Entities {
         this.players.push(new Player(950, 400, 10, 80, player2SocketId, "player2"));
 
         if (customGame){
-            this.obstacles.push(new RotatingWall(500, 250, 10, 80));
-            this.obstacles.push(new RotatingWall(500, 650, 10, 80));
+            this.obstacles.push(new RotatingWall(500, 250, 10, 120));
+            this.obstacles.push(new RotatingWall(500, 650, 10, 120));
         }
 
         this.walls.push(new Wall(10, 400, 10, 770, "left"));

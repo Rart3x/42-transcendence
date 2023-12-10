@@ -18,7 +18,7 @@ import Phaser from 'phaser';
 import * as Matter from 'matter-js';
 
 //Post and Get Methods
-import { getGameRoomByRoomId, getCurrentGameRoomByUserId, getUserByCookie } from './api/get.call';
+import { getGameRoomByRoomId, getCurrentGameRoomByUserId, getUserByCookie, getLastGameRoomIfAfk, getUserByUserId } from './api/get.call';
 import { setClientSocket } from './api/post.call';
 
 //Cookie
@@ -55,7 +55,6 @@ export default class Game extends Phaser.Scene {
 	constructor(){
 		super("game");
 		setClientSocket(user.userName, socket.id);
-
 	}
 
 	preload(){
@@ -122,15 +121,42 @@ export default class Game extends Phaser.Scene {
 	async create(){
 		var self = this;
 		if (user.userId != null){
-			let gameRoom : any = await getCurrentGameRoomByUserId(user.userId);
+			let gameRoom : any = await getLastGameRoomIfAfk(user.userId);
 			if (gameRoom){
-				this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
-				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Trying to reconnect to the game...</h1></div> \
-				<div class="row-start-2 ..."><span class="loading loading-spinner loading-lg"></span></div> \
-				</div>');
-				socket.emit('playerReconnection', {
-					roomId: gameRoom.id,
-					userId: user.userId
+				this.children.removeAll();
+				if (this.UIElement){
+					this.destroyUI();
+				}
+				this.UIElement = this.add.dom(500, 400).createFromHTML(' \
+					<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
+					<div class="row-start-1"> <h1 id="winLooseMessage" class="text-4xl font-bold dark:text-white ..."></h1> </div> \
+					<div class="row-start-3 col-start-1 col-end-2"><button id="stopButton" class="btn btn-secondary">Stop</button></div> \
+					</div> \
+				')
+				var user1 = await getUserByUserId(gameRoom.users[0].userId);
+				var user2 = await getUserByUserId(gameRoom.users[1].userId);
+				let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
+				if (user.userId == gameRoom.winnerId){
+					if (user.userId == gameRoom.player1UserId)
+						winLooseMessage.innerText = "You won against " + user2.userName;
+					else
+						winLooseMessage.innerText = "You won against " + user1.userName;
+				}
+				else{
+					if (user.userId == gameRoom.player1UserId)
+						winLooseMessage.innerText = "You lost against " + user2.userName;
+					else
+						winLooseMessage.innerText = "You lost against " + user1.userName;
+				}
+				let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
+				stopButton.addEventListener('click', () => {
+					if (this.gameRoom){
+						socket.emit('stopPlay', this.gameRoom.id);
+					}
+					this.destroyUI();
+					this.gameRoom = undefined;
+					this.children.removeAll();
+					this.gamePage(this);
 				});
 			}
 			else {
@@ -145,28 +171,6 @@ export default class Game extends Phaser.Scene {
 			this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
 			this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
 			this.updateUIScore();
-		});
-
-		socket.on('opponentReconnection', (data) => {
-			this.gameRoom.engine = Matter.Engine.create();
-			this.gameRoom.engine.gravity.x = 0;
-			this.gameRoom.engine.gravity.y = 0;
-			this.matter.world.disableGravity();
-			this.matter.world.setBounds();
-			this.gameRoom.world = this.gameRoom.engine.world;
-			this.destroyUI();
-			this.spawnSceneProps();
-			this.updateUIScore();
-			this.gameRoom.entities.ball.gameObject.y = data.ballY;
-			if (this.gameRoom.player1UserId == data.userId){
-				this.gameRoom.player1SocketId = data.playerSocket;
-				this.gameRoom.player1Disconnected = false;
-			}
-			else{
-				this.gameRoom.player2SocketId = data.playerSocket;
-				this.gameRoom.player1Disconnected = false;
-			}
-			socket.emit('readyAfterInitialisation', this.gameRoom.id);
 		});
 
 		socket.on('currentGameInformation', (data) => {
@@ -254,41 +258,14 @@ export default class Game extends Phaser.Scene {
 			// let isReadyButtonPlayer1 = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
 			// let isReadyButtonPlayer2 = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
 		});
-	
-		socket.on('opponentDisconnection', (data) => {
-			if (user.userId == this.gameRoom.player1UserId){
-				this.gameRoom.player2Disconnected = true;
-			}
-			else{
-				this.gameRoom.player1Disconnected = true;
-			}
-			this.destroyUI();
-			this.children.removeAll();
-			this.UIElement.destroy();
-			this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-2  justify-items-center ..."> \
-				<div class="row-start-1 ..."><h1 class="text-4xl font-bold dark:text-white ...">Waiting for opponent to reconnect to the game...</h1></div> \
-				<div class="row-start-2 ..."> \
-					<span class="countdown font-mono text-6xl"> \
-						<span id="countdown" style="--value:10;"></span> \
-					</span> \
-				</div> \
-			</div>');
-			let counter = 10;
-			const refreshID = setInterval(() => {
-				if(counter > 0){
-					counter--;
-				}
-				let countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
-				countdownUI.style.setProperty('--value', counter.toString());
-				if (counter == 0){
 
-					this.UIElement.destroy();
-					clearInterval(refreshID);
-				}
-			}, 1000);
-		});
 
 		//Happy Birthday to our lead developper kenny <3
+
+		socket.on('endGameInformation', (data) => {
+			
+	
+		});
 
 		socket.on('otherPlayerReady', () => {
 			let otherPlayerProfile : any;
@@ -337,39 +314,31 @@ export default class Game extends Phaser.Scene {
 
 		//Waiting for server response to isReady command
 		socket.on('init', () => {
-
 			if (this.gameRoom){
 				this.gameRoom.engine = Matter.Engine.create();
-
 				this.gameRoom.engine.gravity.x = 0;
 				this.gameRoom.engine.gravity.y = 0;
-
 				this.matter.world.disableGravity();
-
 				this.matter.world.setBounds();
-
 				this.gameRoom.world = this.gameRoom.engine.world;
-
 				this.spawnSceneProps();
-
 				socket.emit('readyAfterInitialisation', this.gameRoom.id);
-
 			}
 		});
 		
 		socket.on('gameStart', () => {
-			let countdown = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
-			<span id="countdown" style="--value:3;"></span> \
-			</span>');
+			this.UIElement = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
+				<span id="countdown" style="--value:3;"></span> \
+				</span>');
 			let counter = 3;
 			const refreshID = setInterval(() => {
 				if(counter > 0){
 					counter--;
 				}
-				let countdownUI = countdown.node.querySelector('#countdown') as HTMLElement;
+				let countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
 				countdownUI.style.setProperty('--value', counter.toString());
 				if (counter == 0){
-					countdown.destroy();
+					this.UIElement.destroy();
 					clearInterval(refreshID);
 				}
 			}, 1000);
@@ -417,7 +386,6 @@ export default class Game extends Phaser.Scene {
 						this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
 					}
 					//Update score
-					console.log("Score point ", data.score.player1, data.score.player2);
 					if (this.gameRoom.score && this.gameRoom.player1UserId && this.gameRoom.player2UserId){
 						this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.score.player1);
 						this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.score.player2);
@@ -485,6 +453,7 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('gameFinish', (data) => {
+			this.gameRoom.finish = true;
 			this.children.removeAll();
 			this.destroyUI();
 			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
@@ -578,7 +547,6 @@ export default class Game extends Phaser.Scene {
 			data.player1UserName,
 			data.player2UserName);
 
-		console.log(data.player1UserId, data.player2UserId);
 		
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 		<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
@@ -659,10 +627,11 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('otherPlayerLeaveLobby', () => {
-			// self.UIElement.destroy();
-			self.destroyUI();
-			self.textures.remove('userImage2')
-			self.textures.remove('userImage1')
+			self.children.removeAll();
+			this.destroyUI();
+			// self.gameRoom.finish = true;
+			self.textures.remove('userImage2');
+			self.textures.remove('userImage1');
 			self.UIElement = self.add.dom(500, 400).createFromHTML(' \
 				<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
 					<div class="row-start-1 col-start-2 col-end-3 ..."> \
@@ -672,7 +641,12 @@ export default class Game extends Phaser.Scene {
 						<span class=" loading loading-dots loading-lg"></span> \
 					</div> \
 				</div>');
-			socket.emit('playerJoinNormalQueue', user.userId);
+			if (!this.gameRoom.customGameMode){
+				socket.emit('playerJoinNormalQueue', user.userId);
+			}
+			else{
+				socket.emit('playerJoinCustomQueue', user.userId);
+			}
 		});
 
 		startButton.addEventListener('click', function() {

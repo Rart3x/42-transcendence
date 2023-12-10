@@ -33,6 +33,15 @@ model GameRoom {
   player1Ready Boolean @default(false)
   player2Ready Boolean @default(false)
 
+  player1UserId Int?
+  player2UserId Int?
+
+  player1Reconnected Boolean @default(false)
+  player2Reconnected Boolean @default(false)
+
+  player1Afk   Boolean @default(false)
+  player2Afk   Boolean @default(false)
+
   score        Score?
 
   nbBounces    Int      @default(0)
@@ -132,7 +141,7 @@ model User {
   gameRoom     GameRoom[]
   gamePlayed   Int       @default(0)
   gameWon      Int       @default(0)
-
+  
   messages      Message[]
 
   privateMessagesSent     PrivateMessage[] @relation("PrivateMessageSender")

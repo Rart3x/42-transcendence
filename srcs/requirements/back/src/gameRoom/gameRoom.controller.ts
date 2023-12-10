@@ -24,4 +24,10 @@ export class GameRoomController {
     const gameRoom = await this.gameRoomService.getCurrentGameRoomByUserId(userId);
     return (gameRoom);
   }
+
+  @Get('getLastGameRoomIfAfk/:userId')
+  async getLastGameRoomIfAfk(@Param('userId') userId: number): Promise<GameRoom> {
+    const gameRoom = await this.gameRoomService.getLastGameRoomIfAfk(userId);
+    return (gameRoom);
+  }
 }
