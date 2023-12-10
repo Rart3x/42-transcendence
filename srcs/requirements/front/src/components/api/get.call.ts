@@ -266,6 +266,23 @@ export async function getMessage() {
 }
 
 /*-----------------------------------------------PRIVATEMESSAGES-----------------------------------------------*/
+export async function getLastMessage(userName1 : string, userName2 : string) { 
+  try {
+    const response = await fetch(`http://localhost:3000/privateMessage/${userName1}/${userName2}/lastMessage`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
 export async function getPrivateMessages(userName1 : string, userName2 : string) {
   try {
     const response = await fetch(`http://localhost:3000/privateMessage/${userName1}/${userName2}`, {

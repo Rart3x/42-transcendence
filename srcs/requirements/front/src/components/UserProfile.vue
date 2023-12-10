@@ -10,6 +10,7 @@
   import { useStore } from "vuex";
 
   export default {
+    name: "UserProfile",
     components: {
       Alert,
       History,
@@ -46,6 +47,7 @@
         }
         friends.value = await getAllFriends(userName);      
       },
+
       async createChannelInDB(channelName, userName, currentUserName) {
         const response = await createChannel(channelName, userName, currentUserName);
         modalStates.modalChannel.value = false;
@@ -63,6 +65,12 @@
         }
         channels.value = await getAllChannelsFromUser(userName);
       },
+  
+      async inviteFriendInGame (userName, userId, userSocket, userStatus) {
+        const host = this.user.userName;
+        await this.store.dispatch('invitationInGame', { host, userName, userId, userSocket, userStatus });
+      },
+
       async joinChannelInDB(channelName, userName) {
         const response = await joinChannel(channelName, userName);
 
@@ -79,23 +87,6 @@
         }
         channels.value = await getAllChannelsFromUser(userName);
         allChannels = await getAllNewChannels(userName);
-      },
-
-      async removeFriendFromDB(userName, friendName) {
-        const response = await removeFriend(userName, friendName);
-        
-        if (response && response.success) {
-          removeFriendSuccess.value = true;
-          setTimeout(() => {
-            removeFriendSuccess.value = false;
-          }, 3000);
-        } else {
-          removeFriendFailed.value = true;
-          setTimeout(() => {
-            removeFriendFailed.value = false;
-          }, 3000);
-        }
-        friends.value = await getAllFriends(userName);
       },
 
       async removeChannelFromDB(channelName) {
@@ -115,9 +106,21 @@
         channels.value = await getAllChannelsFromUser(userName);
       },
 
-      async inviteFriendInGame (userName, userId, userSocket, userStatus) {
-        const host = this.user.userName;
-        await this.store.dispatch('invitationInGame', { host, userName, userId, userSocket, userStatus });
+      async removeFriendFromDB(userName, friendName) {
+        const response = await removeFriend(userName, friendName);
+        
+        if (response && response.success) {
+          removeFriendSuccess.value = true;
+          setTimeout(() => {
+            removeFriendSuccess.value = false;
+          }, 3000);
+        } else {
+          removeFriendFailed.value = true;
+          setTimeout(() => {
+            removeFriendFailed.value = false;
+          }, 3000);
+        }
+        friends.value = await getAllFriends(userName);
       },
 
       closeModal(modalKey) {

@@ -3,6 +3,7 @@
   import Cookies from "js-cookie";
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
+  import socketOn from "./UserProfile.vue";
   import { computed, onMounted, ref, unref } from "vue";
   import { RouterLink } from "vue-router";
   import { getAllUsers, getPrivateMessagesByUserName, getUserByCookie, getUserByUserName } from "./api/get.call.ts";
@@ -57,7 +58,6 @@
     privateMessages.value = await getPrivateMessagesByUserName(user.value.userName);
   };
 
-
   const logout = () => {
     Cookies.remove("_authToken");
     setStatus(user.value.userName, "offline");
@@ -70,7 +70,7 @@
   onMounted(async () => {
     if (Cookies.get("_authToken") == undefined)
       return;
-  
+
     user.value = await getUserByCookie(Cookies.get("_authToken"));
     userName.value = user.value.displayName;
 

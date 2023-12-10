@@ -77,7 +77,6 @@
                 }
                 this.closeModal('modalManageChannel');
             },
-
             updateCheckBox(isChecked) {
                 this.passwordCheckBox = isChecked;
             },
@@ -201,17 +200,17 @@
                         <div v-if="privateMessages">
                             <div v-for="(pairMessages, pairIndex) in privateMessages" :key="pairIndex">
                                 <div v-for="(message, index) in pairMessages" :key="index">
-                                    <div v-if="message.senderName !== senderName" class="message message-right">
-                                        {{ message.messageContent }}
-                                    </div>
-                                    <div v-else class="message message-left">
-                                        {{ message.messageContent }}
-                                    </div>
+                                    <div v-if="message.senderName === userName && message.receiverName === senderName && message.messageContent" class="message message-right">
+                                    {{ message.messageContent }}
+                                </div>
+                                <div v-else-if="message.senderName === senderName && message.receiverName === userName && message.messageContent" class="message message-left">
+                                    {{ message.messageContent }}
+                                </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    </div>
+                </div>
                 <div class="message-box">
                     <form class="message-form" @submit.prevent="createPrivateMessageInDB(userName, senderName, message_text)">
                         <input type="text" class="message-input" placeholder="/game to game" v-model="message_text">
