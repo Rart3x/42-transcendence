@@ -6,6 +6,11 @@ import { PrivateMessageService } from './privateMessage.service';
 export class PrivateMessageController {
   constructor(private readonly privateMessageService: PrivateMessageService) {}
 
+  @Get(':userName1/:userName2/lastMessage')
+  async getLastPrivateMessage(@Param('userName1') userName1: string, @Param('userName2') userName2: string): Promise<PrivateMessage> {
+    return await this.privateMessageService.getLastPrivateMessage(userName1, userName2);
+  }
+
   @Get(':userName1/:userName2')
   async getPrivateMessages(@Param('userName1') userName1: string, @Param('userName2') userName2: string): Promise<PrivateMessage> {
     return await this.privateMessageService.getPrivateMessage(userName1, userName2);

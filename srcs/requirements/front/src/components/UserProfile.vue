@@ -1,255 +1,223 @@
-<script setup>
+<script>
   import Alert from "./Alert.vue";
+  import Cookies from "js-cookie";
+  import History from "./History.vue";
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
-  import History from "./History.vue";
-  import Cookies from "js-cookie";
-  import { onMounted, ref } from "vue";
-  import { removeChannel, removeFriend } from "./api/delete.call";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages } from "./api/get.call";
-  import { addFriend, createChannel, joinChannel, setClientSocket } from './api/post.call';
-  import { io } from 'socket.io-client';
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
+  import { addFriend, createChannel, joinChannel, setClientSocket } from "./api/post.call";
   import { useRouter } from "vue-router";
+  import { useStore } from "vuex";
 
-  let adminImage = ref(null);
+  export default {
+    name: "UserProfile",
+    components: {
+      Alert,
+      History,
+      Modal,
+      UserStatHeader,
+    },
+    data() {
+      return {
+        adminImage: null,
+        currentUserName: "", channelName: "", friendName: "", hostName: "", senderName: "", userName: "",
+        modalStates: { modalChannel: false, modalManageChannel: false, }, modalMessage: false,
+        allChannels: null, channels: [], currentUser: null, friends: [], privateMessages: [], user: null,
+        addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false,
+        addChannelFailed: false, addFriendFailed: false, addMessageFailed: false, inviteInGameFailed: false, joinChannelFailed: false, removeChannelFailed: false, removeFriendFailed: false,
+        message_text: "", password: "",
+        router: useRouter(), store: useStore(),
+        activeTab: "friends",
+      };
+    },
+    methods: {
+      async addFriendFromDB(userName, friendName) {
+        const response = await addFriend(userName, friendName);
+
+        if (response && response.success) {
+          addFriendSuccess.value = true;
+          setTimeout(() => {
+            addFriendSuccess.value = false;
+          }, 3000);
+        } else {
+          addFriendFailed.value = true;
+          setTimeout(() => {
+            addFriendFailed.value = false;
+          }, 3000);
+        }
+        friends.value = await getAllFriends(userName);      
+      },
+
+      async createChannelInDB(channelName, userName, currentUserName) {
+        const response = await createChannel(channelName, userName, currentUserName);
+        modalStates.modalChannel.value = false;
+
+        if (response && response.success) {
+          addChannelSuccess.value = true;
+          setTimeout(() => {
+            addChannelSuccess.value = false;
+          }, 3000);
+        } else {
+          addChannelFailed.value = true;
+          setTimeout(() => {
+            addChannelFailed.value = false;
+          }, 3000);
+        }
+        channels.value = await getAllChannelsFromUser(userName);
+      },
   
-  let currentUserName = ref("");
-  let channelName = ref("");
-  const friendName = ref("");
-  let hostName = ref("");
-  let senderName = ref("");
-  const userName = ref("");
+      async inviteFriendInGame (userName, userId, userSocket, userStatus) {
+        const host = this.user.userName;
+        await this.store.dispatch('invitationInGame', { host, userName, userId, userSocket, userStatus });
+      },
 
-  const modalStates = { modalChannel: ref(false), modalManageChannel: ref(false) };
-  const modalMessage = ref(false);
+      async joinChannelInDB(channelName, userName) {
+        const response = await joinChannel(channelName, userName);
 
-  let allChannels;
-  let channels = ref([]);
-  let currentUser = ref(null);
-  let friends = ref([]);
-  let privateMessages = ref([]);
-  let user = ref(null);
+        if (response && response.success) {
+          joinChannelSuccess.value = true;
+          setTimeout(() => {
+            joinChannelSuccess.value = false;
+          }, 3000);
+        } else {
+          joinChannelFailed.value = true;
+          setTimeout(() => {
+            joinChannelFailed.value = false;
+          }, 3000);
+        }
+        channels.value = await getAllChannelsFromUser(userName);
+        allChannels = await getAllNewChannels(userName);
+      },
 
-  let socket = ref(null);
-
-  let addChannelSuccess = ref(false);
-  let addFriendSuccess = ref(false);
-  let addMessageSuccess = ref(false);
-  let invitationInGameSuccess = ref(false);
-  let inviteInGameSuccess = ref(false);
-  let joinChannelSuccess = ref(false);
-  let removeChannelSuccess = ref(false);
-  let removeFriendSuccess = ref(false);
-
-  let addChannelFailed = ref(false);
-  let addFriendFailed = ref(false);
-  let addMessageFailed = ref(false);
-  let inviteInGameFailed = ref(false);
-  let joinChannelFailed = ref(false);
-  let removeChannelFailed = ref(false);
-  let removeFriendFailed = ref(false);
-
-  let message_text = ref("");
-  let password = ref("");
-
-  const addFriendFromDB = async (userName, friendName) => {
-    const response = await addFriend(userName, friendName);
-
-    if (response && response.success) {
-      addFriendSuccess.value = true;
-      setTimeout(() => {
-        addFriendSuccess.value = false;
-      }, 3000);
-    } else {
-      addFriendFailed.value = true;
-      setTimeout(() => {
-        addFriendFailed.value = false;
-      }, 3000);
-    }
-    friends.value = await getAllFriends(userName);
-  };
-
-  const createChannelInDB = async (channelName, userName, currentUserName) => {
-    const response = await createChannel(channelName, userName, currentUserName);
-    modalStates.modalChannel.value = false;
-
-    if (response && response.success) {
-      addChannelSuccess.value = true;
-      setTimeout(() => {
-        addChannelSuccess.value = false;
-      }, 3000);
-    } else {
-      addChannelFailed.value = true;
-      setTimeout(() => {
-        addChannelFailed.value = false;
-      }, 3000);
-    }
-    channels.value = await getAllChannelsFromUser(userName);
-  };
-
-  const joinChannelInDB = async (channelName, userName) => {
-    const response = await joinChannel(channelName, userName);
-
-    if (response && response.success) {
-      joinChannelSuccess.value = true;
-      setTimeout(() => {
-        joinChannelSuccess.value = false;
-      }, 3000);
-    } else {
-      joinChannelFailed.value = true;
-      setTimeout(() => {
-        joinChannelFailed.value = false;
-      }, 3000);
-    }
-    channels.value = await getAllChannelsFromUser(userName);
-    allChannels = await getAllNewChannels(userName);
-  };
-
-  const removeFriendFromDB = async (userName, friendName) => {
-    const response = await removeFriend(userName, friendName);
+      async removeChannelFromDB(channelName) {
+        const response = await removeChannel(channelName);
     
-    if (response && response.success) {
-      removeFriendSuccess.value = true;
-      setTimeout(() => {
-        removeFriendSuccess.value = false;
-      }, 3000);
-    } 
-    else {
-      removeFriendFailed.value = true;
-      setTimeout(() => {
-        removeFriendFailed.value = false;
-      }, 3000);
-    }
-    friends.value = await getAllFriends(userName);
-  };
+        if (response && response.success) {
+          removeChannelSuccess.value = true;
+          setTimeout(() => {
+            removeChannelSuccess.value = false;
+          }, 3000);
+        } else {
+          removeChannelFailed.value = true;
+          setTimeout(() => {
+            removeChannelFailed.value = false;
+          }, 3000);
+        }
+        channels.value = await getAllChannelsFromUser(userName);
+      },
 
-  const removeChannelFromDB = async (channelName) => {
-    const response = await removeChannel(channelName);
-    
-    if (response && response.success) {
-      removeChannelSuccess.value = true;
-      setTimeout(() => {
-        removeChannelSuccess.value = false;
-      }, 3000);
-    } 
-    else {
-      removeChannelFailed.value = true;
-      setTimeout(() => {
-        removeChannelFailed.value = false;
-      }, 3000);
-    }
-    channels.value = await getAllChannelsFromUser(userName);
-  };
+      async removeFriendFromDB(userName, friendName) {
+        const response = await removeFriend(userName, friendName);
+        
+        if (response && response.success) {
+          removeFriendSuccess.value = true;
+          setTimeout(() => {
+            removeFriendSuccess.value = false;
+          }, 3000);
+        } else {
+          removeFriendFailed.value = true;
+          setTimeout(() => {
+            removeFriendFailed.value = false;
+          }, 3000);
+        }
+        friends.value = await getAllFriends(userName);
+      },
 
-  const inviteFriendInGame = (userName, userId, userSocket, userStatus) => {
-    router.push('/game');
-    // const host = user.value.userName;
-    // socket.value.emit('invitationInGame', { host, userName, userId, userSocket, userStatus });
-    socket.value.emit('localGame', user.value.userId);
+      closeModal(modalKey) {
+        modalStates[modalKey].value = false;       
+      },
+      closeMessageModal() {
+        modalMessage.value = false;      
+      },
+      openChannelModal(userName) {
+        modalStates.modalChannel.value = true; currentUserName.value = userName;
+      },
+      openManageChannelModal(channel) {
+        channelName.value = channel; modalStates.modalManageChannel.value = true;      
+      },
+        
+      async socketEmit(emit) {
+        const hostUser = await getUserByUserName(this.hostName);
+        if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
+          this.invitationInGameSuccess = false;
+        this.router.push('/game');
+        this.store.state.socket.emit('localGame', this.user.userId);
+        this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket });
+      },
   
-    let sock = "90f2aeee274984a13f92cc00420126c9ac2153c11c938a0a18dfe87d0bea2391";
-    socket.value.emit('invitationInGame', { userName, sock, userStatus });
+      socketOn() {
+        this.store.state.socket.on('invitedInGame', (body) => {
+        this.hostName = body.host;
+        this.invitationInGameSuccess = true;
+        setTimeout(() => {
+          this.invitationInGameSuccess = false;
+        }, 30000);
+      });
 
-    socket.value.on('invitationInGameSuccess', () => {
-      inviteInGameSuccess = true;
-      setTimeout(() => {
-        inviteInGameSuccess = false;
-      }, 30000);
-    });
+      this.store.state.socket.on('invitationAccepted', (body) => {
+        this.router.push('/game');
+        this.store.state.socket.emit('localGame', this.user.userId);
+      });
 
-    socket.value.on('invitationInGameFailed', () => {
-      inviteInGameFailed = true;
-      setTimeout(() => {
-        inviteInGameFailed = false;
-      }, 3000);
-    });
-  }
+      this.store.state.socket.on('invitationDeclined', (body) => {
+        this.hostName = body.host;
+        this.inviteInGameFailed = true;
+        setTimeout(() => {
+          this.inviteInGameFailed = false;
+        }, 5000);
+        });
+      },
 
-  const closeModal = (modalKey) => { modalStates[modalKey].value = false; };
-  const closeMessageModal = () => { modalMessage.value = false; };
-  const openChannelModal = (userName) => { modalStates.modalChannel.value = true; currentUserName.value = userName; };
-  const openManageChannelModal = (channel) => { channelName.value = channel; modalStates.modalManageChannel.value = true; };
+      showContent(tab) {
+        this.activeTab = tab;
+      },
+    },
 
-  var router;
+    async mounted() {
+      this.user = await getUserByCookie(Cookies.get("_authToken"));
 
-  const socketEmit = async (emit) => {
-    const hostUser = await getUserByUserName(hostName.value);
-    if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
-      invitationInGameSuccess.value = false;
-    socket.value.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket });
-  }
+      this.store.dispatch('initializeSocket');
+      await new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (this.store.state.socket) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 100);
+      });
+      setClientSocket(this.user.userName, this.store.state.socket.id);
 
-  const socketOn = async () => {
+      if (this.store && this.store.state.socket)
+        this.socketOn();
 
-    socket.value.on('invitedInGame', (body) => {
-      hostName.value = body.host;
-      invitationInGameSuccess.value = true;
-      setTimeout(() => {
-        invitationInGameSuccess.value = false;
-      }, 30000);
-    });
+      this.userName = this.user.displayName;
+      this.adminImage = "src/assets/userImages/" + this.user.image;
 
-    socket.value.on('invitationAccepted', (body) => {
-      inviteInGameSuccess.value = true;
-      setTimeout(() => {
-        inviteInGameSuccess.value = false;
-      }, 30000);
-    });
+      let friendsData = await getAllFriends(this.user.userName);
+      this.channels = await getAllChannelsFromUser(this.user.userName);
+      this.allChannels = await getAllNewChannels(this.user.userName);
 
-    socket.value.on('invitationDeclined', (body) => {
-      console.log("declined");
-      hostName = body.host;
-      inviteInGameFailed.value = true;
-      setTimeout(() => {
-        inviteInGameFailed.value = false;
-      }, 30000);
-    });
+      for (let i = 0; i < friendsData.length; i++) {
+        const imagePath = "../assets/userImages/" + friendsData[i].image;
+        const image = await import(/* @vite-ignore */ imagePath);
+        friendsData[i].imageSrc = image.default;
+      }
+
+      for (let i = 0; i < this.channels.length; i++) {
+        const imagePath = "../assets/userImages/" + this.channels[i].channelAdminImage;
+        const image = await import(/* @vite-ignore */ imagePath);
+        this.channels[i].imageSrc = image.default;
+      }
+
+      for (let i = 0; i < this.allChannels.length; i++) {
+        const imagePath = "../assets/userImages/" + this.allChannels[i].channelAdminImage;
+        const image = await import(/* @vite-ignore */ imagePath);
+        this.allChannels[i].imageSrc = image.default;
+      }
+
+      this.friends.splice(0, this.friends.length, ...friendsData);
+    },
   };
-
-  setInterval(socketOn, 2500);
-  
-  onMounted(async () => {
-    router = useRouter();
-
-    socket.value = io('http://localhost:3000');
-  
-    user.value = await getUserByCookie(Cookies.get("_authToken"));
-    setClientSocket(user.value.userName, socket.value.id);
-
-    socketOn();
-
-    userName.value = user.value.displayName;
-    adminImage = "src/assets/userImages/" + user.value.image;
-
-    let friendsData = await getAllFriends(user.value.userName);
-    channels = await getAllChannelsFromUser(user.value.userName);
-    allChannels = await getAllNewChannels(user.value.userName);
-
-    for (let i = 0; i < friendsData.length; i++) {
-      const imagePath = "../assets/userImages/" + friendsData[i].image;
-      const image = await import(/* @vite-ignore */ imagePath);
-      friendsData[i].imageSrc = image.default;
-    }
-
-    for (let i = 0; i < channels.length; i++) {
-      const imagePath = "../assets/userImages/" + channels[i].channelAdminImage;
-      const image = await import(/* @vite-ignore */ imagePath);
-      channels[i].imageSrc = image.default;
-    }
-
-    for (let i = 0; i < allChannels.length; i++) {
-      const imagePath = "../assets/userImages/" + allChannels[i].channelAdminImage;
-      const image = await import(/* @vite-ignore */ imagePath);
-      allChannels[i].imageSrc = image.default;
-    }
-
-    friends.value.splice(0, friends.value.length, ...friendsData);
-  });
-
-  let activeTab = ref('friends');
-
-  const showContent = (tab) => { activeTab.value = tab; };
-
 </script>
 
 <template>

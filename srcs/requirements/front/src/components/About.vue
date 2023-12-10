@@ -10,11 +10,7 @@
 </template>
 
 <style scoped>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
         display: flex;
         justify-content: center;
@@ -23,22 +19,7 @@
         background: url(./images/kramjatt.jpg);
         background-size: cover;
     }
-    .box {
-        position: relative;
-        width: 200px;
-        height: 200px;
-        transform-style: preserve-3d;
-        animation: animate 20s linear infinite;
-    }
-
-    @keyframes animate {
-        0% {
-            transform: perspective(1000px) rotateY(0deg);
-        }
-        100% {
-            transform: perspective(1000px) rotateY(360deg);
-        }
-    }
+    .box { position: relative; width: 200px; height: 200px; transform-style: preserve-3d; animation: animate 20s linear infinite; }
     .box span {
         position: absolute;
         top: 0;
@@ -57,5 +38,13 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+    @keyframes animate {
+        0% {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+        100% {
+            transform: perspective(1000px) rotateY(360deg);
+        }
     }
 </style>

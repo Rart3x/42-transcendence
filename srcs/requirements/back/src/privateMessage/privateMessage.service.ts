@@ -11,9 +11,8 @@ export class PrivateMessageService {
     const user1 = await this.userService.getUserByName(senderName);
     const user2 = await this.userService.getUserByName(receiverName);
     
-    if (!user1 || !user2) {
+    if (!user1 || !user2)
       return false;
-    }
     
     await this.prisma.privateMessage.create({
       data: {
@@ -26,15 +25,37 @@ export class PrivateMessageService {
   
     return true;
   }
+
+  async getLastPrivateMessage(userName1: string, userName2: string): Promise<PrivateMessage> {
+    const user1 = await this.userService.getUserByName(userName1);
+    const user2 = await this.userService.getUserByName(userName2);
+
+    if (!user1 || !user2)
+      return null;
   
-  async getPrivateMessage(userName1: string, userName2: string): Promise<PrivateMessage> {
+    const privateMessage = await this.prisma.privateMessage.findFirst({
+      where: {
+        AND: [
+          { OR: [{ senderName: userName1 }, { senderName: userName2 }] },
+          { OR: [{ receiverName: userName1 }, { receiverName: userName2 }] },
+        ],
+      },
+      orderBy: {
+        privateMessageDate: 'desc',
+      },
+    });
+
+    return privateMessage;
+  }
+  
+  async getPrivateMessage(userName1: string, userName2: string) {
     const user1 = await this.userService.getUserByName(userName1);
     const user2 = await this.userService.getUserByName(userName2);
   
     if (!user1 || !user2)
       return null;
   
-    const privateMessage = await this.prisma.privateMessage.findFirst({
+    let privateMessage = await this.prisma.privateMessage.findFirst({
       where: {
         AND: [
           { OR: [{ senderName: userName1 }, { senderName: userName2 }] },
@@ -46,15 +67,29 @@ export class PrivateMessageService {
         receiver: true,
       },
     });
+  
+    if (!privateMessage) {
+      privateMessage = await this.prisma.privateMessage.create({
+        data: {
+          sender: { connect: { userName: userName1 } },
+          receiver: { connect: { userName: userName2 } },
+          messageContent: '',
+        },
+        include: {
+          sender: true,
+          receiver: true,
+        },
+      });
+    }
+  
     return privateMessage;
   }
   
   async getPrivateMessagesByUserName(userName: string): Promise<{ [key: string]: PrivateMessage[] }> {
     const user = await this.userService.getUserByName(userName);
   
-    if (!user) {
+    if (!user)
       return null;
-    }
   
     const privateMessagesSent = await this.prisma.privateMessage.findMany({
       where: {

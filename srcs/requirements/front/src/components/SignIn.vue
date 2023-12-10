@@ -1,9 +1,9 @@
 <script setup>
+  import Cookies from "js-cookie";
   import { ref, onMounted } from "vue";
   import { insertUser, setStatus} from './api/post.call.ts';
   import { getUserByUserName, checkA2F } from './api/get.call.ts';
   import { useRouter } from "vue-router";
-  import Cookies from "js-cookie";
 
   let userInfo = ref(null);
   let user = ref(null);
@@ -74,7 +74,7 @@
           userA2F.value = true;
           return ;
         }
-        
+
         await insertUser(userInfo.value.login, userInfo.value.image.link, code);
 
         Cookies.set("_authToken", code, {
@@ -86,10 +86,8 @@
         window.location.href = "/settings";
       }
       else
-      {
         router.push('/');
-      }
-      }
+    }
     catch (error) {
       router.push('/');
     }
