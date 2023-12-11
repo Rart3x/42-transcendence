@@ -17,7 +17,6 @@ const store = createStore({
     },
     invitationInGame(context, body) {
       const socket = context.state.socket;
-
       if (socket)
         socket.emit('invitationInGame', body);
       else

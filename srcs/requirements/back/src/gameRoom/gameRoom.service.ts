@@ -2,11 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'
 import { GameRoom, Prisma, Score } from '@prisma/client';
 import { last } from 'rxjs';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class GameRoomService {
-  constructor (private prisma: PrismaService) {}
-
+  constructor (
+    private prisma: PrismaService,
+    private readonly UserService: UserService) {}
+  
   async createGameRoom(
     player1: any,
     player2: any | undefined,
@@ -27,6 +30,26 @@ export class GameRoomService {
           }
         },
       });
+  }
+
+  async createGameRoomInvitation(player1Name: string): Promise<GameRoom> {
+    var user = await this.UserService.getUserByName(player1Name);
+    console.log(user);
+    return await this.prisma.gameRoom.create({
+        data: {
+          player1SocketId: user.socket,
+          player2SocketId: undefined,
+          player1UserId: user.userId,
+          player2UserId: undefined,
+          customGame: false,
+          startDate: new Date(),
+          users: {
+            connect: [
+              { userId: user.userId },
+            ],
+          }
+        },
+    });
   }
 
   async updateGameRoom(

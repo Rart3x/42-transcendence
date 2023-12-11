@@ -5,7 +5,7 @@
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
-  import { addFriend, createChannel, joinChannel, setClientSocket } from "./api/post.call";
+  import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom } from "./api/post.call";
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
 
@@ -68,7 +68,10 @@
   
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
         const host = this.user.userName;
-        await this.store.dispatch('invitationInGame', { host, userName, userId, userSocket, userStatus });
+        var gameRoom = await createGameRoom(host);
+        if (gameRoom){
+          await this.store.dispatch('invitationInGame', { host,  userName, userId, userSocket, userStatus });
+        }
       },
 
       async joinChannelInDB(channelName, userName) {

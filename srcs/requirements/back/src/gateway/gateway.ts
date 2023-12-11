@@ -16,6 +16,7 @@ export class AppGateway implements OnModuleInit{
 
   @SubscribeMessage('invitationInGame')
   handleInvitationInGame(@MessageBody() body): any {
+    console.log(body);
     console.log("invitationInGame : " + body.userSocket);
     this.server.to(body.userSocket).emit('invitedInGame', body);
   }

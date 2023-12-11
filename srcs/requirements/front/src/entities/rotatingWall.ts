@@ -30,8 +30,8 @@ export default class RotatingWall{
         this.gameObject.name = "wall";
     }
 
-    rotate(delta: number){
-        this.angle += delta;
-        this.gameObject.angle = this.angle;
-    }
+    // rotate(delta: number){
+    //     this.angle += delta;
+    //     this.gameObject.angle = this.angle;
+    // }
 }

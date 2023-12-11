@@ -42,7 +42,6 @@ const SI = new SnapshotInterpolation();
 //Create and bind our socket to the server
 const socket = io('http://localhost:3000');
 
-
 export default class Game extends Phaser.Scene {
 
 	startButton !: Phaser.GameObjects.BitmapText;
@@ -54,7 +53,6 @@ export default class Game extends Phaser.Scene {
 
 	constructor(){
 		super("game");
-		setClientSocket(user.userName, socket.id);
 	}
 
 	preload(){
@@ -62,6 +60,9 @@ export default class Game extends Phaser.Scene {
 	}
 
 	gamePage(self : any){
+		// console.log("socket ", socket.id);
+		setClientSocket(user.userName, socket.id);
+
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
 			<div class="row-start-1  ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
 			<div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
@@ -86,7 +87,7 @@ export default class Game extends Phaser.Scene {
 					<h1 class="text-4xl font-bold dark:text-white ...">Choose a game mode</h1> \
 				</div> \
 				<div class="row-start-3 col-start-2 ..."> \
-					<button id="choseCustomGameMode" class="btn btn-primary ml-5 ...">Custom</button> \
+					<button id="choseCustomGameMode" class="btn btn-primary ml-5 ..n.">Custom</button> \
 				</div> \
 				<div class="row-start-3 col-start-4 ..."> \
 					<button id="choseNormalGameMode" class="btn btn-primary ml-5 ...">Normal</button> \
@@ -373,6 +374,13 @@ export default class Game extends Phaser.Scene {
 						this.gameRoom.entities.players[1].gameObject.body.position.y = this.gameRoom.entities.players[1].y;
 					}
 				}
+				// this.gameRoom.entities.ball.gameObject.x = pointer.x;
+				// this.gameRoom.entities.ball.gameObject.y = pointer.y;
+				// socket.emit('ballMovement', {
+				// 	roomId: this.gameRoom.id,
+				// 	x: pointer.x,
+				// 	y: pointer.y
+				// });
 			}
 		}, this);
 
@@ -754,40 +762,9 @@ export default class Game extends Phaser.Scene {
 	destroy(){}
 
 	update(){
+
 		//Client receive a snapshot which contains both the ball and the players position
 		//by doing so, every client read the same game steps.
-
-		//Interpolate x y coordinates on ball object
-		const ballSnapshot = SI.calcInterpolation('x y velX velY', 'ball');
-
-		if (ballSnapshot) {
-			const { state } = ballSnapshot;
-			if (state){
-				const { id, x, y, velX, velY } = state[0];
-				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
-					//get rid of old snapshot not rendered when the ball scored and then respawn
-					this.gameRoom.entities.ball.gameObject.x = x;
-					this.gameRoom.entities.ball.gameObject.y = y;
-					this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
-				}
-			}
-		}
-
-		if (this.gameRoom && this.gameRoom.customGameMode){
-			const obstaclesSnapshot = SI.calcInterpolation('delta', 'obstacles');
-			if (obstaclesSnapshot){
-				const { state } = obstaclesSnapshot;
-				if (state){
-					const {id, delta} = state[0];
-					if (id != undefined){
-						for (let i = 0; i < 2; i++){
-							this.gameRoom.entities.obstacles[i].gameObject.setAngle(delta);
-						}
-					}
-				}
-			}
-		}
-
 		const playerSnapshot = SI.calcInterpolation('x y', 'players');
 		if (playerSnapshot){
 			const { state } = playerSnapshot;
@@ -803,6 +780,36 @@ export default class Game extends Phaser.Scene {
 						}
 					}
 				});
+			}
+		}
+
+		//Interpolate x y coordinates on ball object
+		const ballSnapshot = SI.calcInterpolation('x y velX velY', 'ball');
+		if (ballSnapshot) {
+			const { state } = ballSnapshot;
+			if (state){
+				const { id, x, y, velX, velY } = state[0];
+				if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball.gameObject) {
+					//get rid of old snapshot not rendered when the ball scored and then respawn
+					this.gameRoom.entities.ball.gameObject.x = x;
+					this.gameRoom.entities.ball.gameObject.y = y;
+					this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
+				}
+			}
+		}
+
+		if (this.gameRoom && this.gameRoom.customGameMode && this.gameRoom.entities){
+			const obstaclesSnapshot = SI.calcInterpolation('delta', 'obstacles');
+			if (obstaclesSnapshot){
+				const { state } = obstaclesSnapshot;
+				if (state){
+					const {id, delta} = state[0];
+					if (id){
+						for (let i = 0; i < 2; i++){
+							this.gameRoom.entities.obstacles[i].gameObject.setAngle(delta);
+						}
+					}
+				}
 			}
 		}
 	}

@@ -24,6 +24,7 @@ export default class Entities {
         this.walls.push(new Wall(500, 10, 970, 10, "up"));
         this.walls.push(new Wall(500, 790, 970, 10, "down"));
 
+        
         this.ball = new Ball(500, 400);
     }
 }

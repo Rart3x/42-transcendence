@@ -11,9 +11,7 @@ import {
 	OnGatewayConnection
 } from '@nestjs/websockets';
 
-
 import {  createGameRoom } from '../gameRoom/gameRoom';
-
 
 //Socket
 import { io } from 'socket.io-client';
@@ -153,7 +151,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						false,
 						true,
 						this.gameRooms[i].nbBounces);
-
 					this.ScoreService.updateGameRoomScore(
 						this.gameRooms[i].roomId,
 						undefined,
@@ -307,6 +304,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	createGameWorld(gameRoom: GameRoom, engine: Matter.Engine, world: Matter.World, entities: Entities){
 		this.setBallDefaultParameters(entities.ball);
+		if (gameRoom.customGame){
+			Matter.Body.rotate(gameRoom.entities.obstacles[0].gameObject, 60);
+			Matter.Body.rotate(gameRoom.entities.obstacles[1].gameObject, 240);
+		}
 		this.initCollisions(gameRoom.customGame, entities, world);
 		this.initCollisionsEvent(engine, gameRoom);
 	}
@@ -316,6 +317,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		Matter.Body.setVelocity(ball.gameObject, {x: 0, y: 0});
 		//Random ball spawning
 		Matter.Body.setPosition(ball.gameObject, {x: 500, y: 400});
+		// Matter.Body.setA
 	}
 	
 	removeCollisionsEvent(gameRoom: GameRoom){
@@ -324,7 +326,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		// Remove 'collisionEnd' event
 		Matter.Events.off(gameRoom.engine, 'collisionEnd');
 	}
-	 
 
 	initCollisions(customGameMode: Boolean, entities: Entities, world: Matter.World){
 		Matter.World.add(world, entities.ball.gameObject);
@@ -469,9 +470,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				//Ball score
 				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "left" || pair.bodyA.label == "right")){
 					gameRoom.paused = true;
-					scorePoint(pair, gameRoom);
+					// scorePoint(pair, gameRoom);
 					ballRespawn(gameRoom, pair);
 				}
+	
 				//Elastic physics
 				else if (pair.bodyB.label == "ball" && (pair.bodyA.label == "player1"|| pair.bodyA.label == "player2")){
 					collisionBallPlayer(pair, gameRoom);
@@ -506,8 +508,16 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						y: velY,
 					});
 				}
+		
 			});
 		});
+	}
+
+	@SubscribeMessage('inviteInGame')
+	async handleInviteInGame(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() userId: number) {
+		
 	}
 
 	@SubscribeMessage('playerJoinNormalQueue')
@@ -870,8 +880,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					gameRoom.started = true;
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
 						x: 4,
-						y: 4 
-				});
+						y: 4
+					});
 				gameRoom.pausedAfk = false;
 				gameRoom.player2Ready = false;
 				gameRoom.player1Ready = false;
@@ -888,8 +898,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
 		}
 		if (gameRoom.customGame && gameRoom.entities){
-			Matter.Body.rotate(gameRoom.entities.obstacles[0].gameObject, 0.5);
-			Matter.Body.rotate(gameRoom.entities.obstacles[1].gameObject, 0.5);
+			Matter.Body.rotate(gameRoom.entities.obstacles[0].gameObject, 5);
+			Matter.Body.rotate(gameRoom.entities.obstacles[1].gameObject, 5);
 		}
 		const ballState = [{
 			id: '0',
@@ -917,9 +927,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			x : gameRoom.entities.players[1].gameObject.position.x,
 			y : gameRoom.entities.players[1].gameObject.position.y
 		}]
-		
 
 		var globalState : any;
+
 		//Better use JSON stringify function to do this
 		if (gameRoom.customGame == false){
 			globalState = {
@@ -964,6 +974,20 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}
 		}
 	}
+
+	// @SubscribeMessage('ballMovement')
+	// handleBallMovement(
+	// 	@ConnectedSocket() client: Socket,
+	// 	@MessageBody() data: {roomId: number, x: number,y : number}): void {
+	// 	for (let i = 0; i < this.gameRooms.length; i++){
+	// 		if (this.gameRooms[i].roomId == data.roomId){
+	// 			Matter.Body.setPosition(this.gameRooms[i].entities.ball.gameObject, {
+	// 				x: data.x,
+	// 				y: data.y
+	// 			});
+	// 		}
+	// 	}
+	// }
 
 	findCorrespondingGame(roomId: number) : GameRoom{
 		for (let i = 0; i < this.gameRooms.length; i++){

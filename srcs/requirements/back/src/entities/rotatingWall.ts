@@ -7,6 +7,7 @@ export default class RotatingWall{
     width: number;
     height : number;
     angle: number;
+    label : string;
 
     constructor(x : number, y : number, width: number, height: number){
         const wallOptions = {
@@ -20,10 +21,12 @@ export default class RotatingWall{
         this.height = height;
         this.angle = 0;
         this.gameObject = Bodies.rectangle(this.x, this.y, this.width, this.height, wallOptions);
+        this.label = "rotatingWall";
+
     }
 
-    rotate(delta: number){
-        this.angle += delta;
-        this.gameObject.angle = this.angle;
-    }
+    // rotate(delta: number){
+    //     this.angle += delta;
+    //     this.gameObject.angle = this.angle;
+    // }
 }

@@ -374,6 +374,31 @@ export async function updateUsername(userName : string, newUserName : string) {
   }
 }
 
+/*-----------------------------------------------GAMEROOM-----------------------------------------------*/
+
+
+export async function createGameRoom(hostName : string) {
+  try {
+    const response = await fetch(`http://localhost:3000/gameroom/createGameRoomInvitation/${hostName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ hostName: hostName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+    else {
+      const errorText = await response.text();
+    }
+  } 
+  catch (error) {
+    console.error('error: sending POST request', error);
+  }
+}
+
 /*-----------------------------------------------QUEUES-----------------------------------------------*/
 export async function insertIntoQueueList(clientSocket : string) {
   try {
