@@ -470,7 +470,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				//Ball score
 				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "left" || pair.bodyA.label == "right")){
 					gameRoom.paused = true;
-					// scorePoint(pair, gameRoom);
+					scorePoint(pair, gameRoom);
 					ballRespawn(gameRoom, pair);
 				}
 	
