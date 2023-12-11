@@ -377,14 +377,14 @@ export async function updateUsername(userName : string, newUserName : string) {
 /*-----------------------------------------------GAMEROOM-----------------------------------------------*/
 
 
-export async function createGameRoom(hostName : string) {
+export async function createGameRoom(hostPlayerName : string, invitedPlayerName: string) {
   try {
-    const response = await fetch(`http://localhost:3000/gameroom/createGameRoomInvitation/${hostName}`, {
+    const response = await fetch(`http://localhost:3000/gameroom/createGameRoomInvitation/${hostPlayerName}/${invitedPlayerName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ hostName: hostName }),
+      body: JSON.stringify({ hostPlayerName: hostPlayerName, invitedPlayerName: invitedPlayerName }),
     });
     if (response.ok) {
       const responseData = await response.json();

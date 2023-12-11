@@ -20,7 +20,7 @@
     data() {
       return {
         adminImage: null,
-        currentUserName: "", channelName: "", friendName: "", hostName: "", senderName: "", userName: "",
+        currentUserName: "", channelName: "", friendName: "", hostName: "", senderName: "", userName: "", hostGame: null,
         modalStates: { modalChannel: false, modalManageChannel: false, }, modalMessage: false,
         allChannels: null, channels: [], currentUser: null, friends: [], privateMessages: [], user: null,
         addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false,
@@ -67,10 +67,13 @@
       },
   
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
-        const host = this.user.userName;
-        var gameRoom = await createGameRoom(host);
+        const hostPlayer = this.user.userName;
+        const invitedPlayer = await getUserByUserName(userName);
+        // console.log(userName, userId, userSocket, userStatus);
+        // console.log(invitedPlayer);
+        var gameRoom = await createGameRoom(hostPlayer, invitedPlayer);
         if (gameRoom){
-          await this.store.dispatch('invitationInGame', { host,  userName, userId, userSocket, userStatus });
+          await this.store.dispatch('invitationInGame', { hostPlayer,  gameRoom, userName, userId, userSocket, userStatus });
         }
       },
 
@@ -144,22 +147,25 @@
         if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
           this.invitationInGameSuccess = false;
         this.router.push('/game');
-        this.store.state.socket.emit('localGame', this.user.userId);
-        this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket });
+        // console.log("emitting");
+        
+        this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id });
+        this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket, hostGame: this.hostGame });
       },
-  
+
       socketOn() {
         this.store.state.socket.on('invitedInGame', (body) => {
-        this.hostName = body.host;
-        this.invitationInGameSuccess = true;
-        setTimeout(() => {
-          this.invitationInGameSuccess = false;
-        }, 30000);
+          this.hostGame = body.gameRoom;
+          this.hostName = body.host;
+          this.invitationInGameSuccess = true;
+          setTimeout(() => {
+            this.invitationInGameSuccess = false;
+          }, 30000);
       });
 
       this.store.state.socket.on('invitationAccepted', (body) => {
-        this.router.push('/game');
-        this.store.state.socket.emit('localGame', this.user.userId);
+        this.router.push('/game'); 
+        this.store.state.socket.emit('localGame', { player: this.user.userId, hostGameId: this.hostGame.id });
       });
 
       this.store.state.socket.on('invitationDeclined', (body) => {

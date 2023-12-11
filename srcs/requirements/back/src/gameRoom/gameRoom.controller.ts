@@ -31,9 +31,9 @@ export class GameRoomController {
     return (gameRoom);
   }
 
-  @Post('createGameRoomInvitation/:hostName')
-  async createGameRoomInvitation(@Param('userId') hostName: string): Promise<GameRoom> {
-    const gameRoom = await this.gameRoomService.createGameRoomInvitation(hostName);
+  @Post('createGameRoomInvitation/:hostPlayerName/:invitedPlayerName')
+  async createGameRoomInvitation(@Param('hostPlayerName') hostPlayerName: string, @Param('invitedPlayerName') invitedPlayerName: string,): Promise<GameRoom> {
+    const gameRoom = await this.gameRoomService.createGameRoomInvitation(hostPlayerName, invitedPlayerName);
     return (gameRoom);
   }
 }

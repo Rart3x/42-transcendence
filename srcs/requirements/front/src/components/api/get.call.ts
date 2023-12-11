@@ -245,6 +245,7 @@ export async function getLastGameRoomIfAfk(userId : number) {
   }
 }
 
+
 /*-----------------------------------------------MESSAGES-----------------------------------------------*/
 export async function getMessagesFromChannel(channelName : string) {
   try {

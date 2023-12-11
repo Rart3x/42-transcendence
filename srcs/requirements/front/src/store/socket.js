@@ -23,7 +23,6 @@ const store = createStore({
         console.error('error: socket uninitialized');
     },
     test(context) { 
-      console.log('test');
     }
   },
 });

@@ -16,21 +16,21 @@ export class AppGateway implements OnModuleInit{
 
   @SubscribeMessage('invitationInGame')
   handleInvitationInGame(@MessageBody() body): any {
-    console.log(body);
-    console.log("invitationInGame : " + body.userSocket);
+    // console.log("Inside the gateway ", body);
+    // console.log("invitationInGame : " + body.userSocket);
     this.server.to(body.userSocket).emit('invitedInGame', body);
   }
 
   @SubscribeMessage('invitationInGameAccepted')
   handleInvitationInGameAccepted(@MessageBody() body): any {
-    console.log("invitationInGameAccepted " + body.userSocket);
-    console.log(body.ownUserSocket);
+    // console.log("invitationInGameAccepted " + body.userSocket);
+    // console.log(body.ownUserSocket);
     this.server.to(body.userSocket).emit('invitationAccepted', body);
   }
 
   @SubscribeMessage('invitationInGameDeclined')
   handleInvitationInGameDeclined(@MessageBody() body): any {
-    console.log("invitationInGameDeclined : " + body.userSocket);
+    // console.log("invitationInGameDeclined : " + body.userSocket);
     this.server.to(body.userSocket).emit('invitationDeclined', body);
   }
 }

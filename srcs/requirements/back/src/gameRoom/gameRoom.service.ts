@@ -32,20 +32,23 @@ export class GameRoomService {
       });
   }
 
-  async createGameRoomInvitation(player1Name: string): Promise<GameRoom> {
-    var user = await this.UserService.getUserByName(player1Name);
-    console.log(user);
+  async createGameRoomInvitation(hostPlayerName: string, invitedPlayerName: string): Promise<GameRoom> {
+    var hostPlayer = await this.UserService.getUserByName(hostPlayerName);
+    var invitedPlayer = await this.UserService.getUserByName(invitedPlayerName);
+
+    // console.log(user);
     return await this.prisma.gameRoom.create({
         data: {
-          player1SocketId: user.socket,
-          player2SocketId: undefined,
-          player1UserId: user.userId,
-          player2UserId: undefined,
+          player1SocketId: hostPlayer.socket,
+          player2SocketId: invitedPlayer.socket,
+          player1UserId: hostPlayer.userId,
+          player2UserId: invitedPlayer.userId,
           customGame: false,
           startDate: new Date(),
           users: {
             connect: [
-              { userId: user.userId },
+              { userId: hostPlayer.userId },
+              { userId: invitedPlayer.userId },
             ],
           }
         },
