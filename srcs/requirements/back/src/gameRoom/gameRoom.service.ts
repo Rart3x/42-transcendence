@@ -36,7 +36,7 @@ export class GameRoomService {
     var hostPlayer = await this.UserService.getUserByName(hostPlayerName);
     var invitedPlayer = await this.UserService.getUserByName(invitedPlayerName);
 
-    // console.log(user);
+
     return await this.prisma.gameRoom.create({
         data: {
           player1SocketId: hostPlayer.socket,

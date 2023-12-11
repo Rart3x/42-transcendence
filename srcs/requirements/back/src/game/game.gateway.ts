@@ -784,8 +784,33 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@MessageBody() data : { playerId: number, hostGameId: number } ) {
 		setTimeout(async () => {
 			// console.log(data.playerId);
-			const user = await this.UserService.getUserById(data.playerId);
+			
 			const gameRoom = await this.GameRoomService.getGameRoomById(data.hostGameId);
+
+			const user = await this.UserService.getUserById(data.playerId);
+			if (user.userId == gameRoom.player1UserId){
+				
+			}
+			else{
+
+			}
+			// var localRoom = this.createGameRoomLocal(gameRoom.id, , second, false);
+
+			// this.gameRooms.push(localRoom);
+
+			// this.server.to(gameRoom.player1SocketId).emit('lobby', {
+			// 	roomId: gameRoom.id,
+			// 	customGameMode: false,
+			// 	player1SocketId: gameRoom.player1SocketId,
+			// 	player2SocketId: gameRoom.player2SocketId,
+			// 	player1UserId: gameRoom.player1UserId,
+			// 	player2UserId: gameRoom.player2UserId,
+			// 	player1UserName: gameRoom.player1
+			// 	player2UserName: user2.userName,
+			// 	player1Image: user1.image,
+			// 	player2Image: user2.image
+			// });
+	
 			console.log(user);
 			// console.log(gameRoom);
 			this.server.to(user.socket).emit('localGameCreated', {

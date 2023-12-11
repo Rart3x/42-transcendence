@@ -78,11 +78,10 @@
       },
   
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
-        const hostPlayer = this.user.userName;
+        const hostPlayer = await getUserByUserName(this.user.userName);
         const invitedPlayer = await getUserByUserName(userName);
-        // console.log(userName, userId, userSocket, userStatus);
-        // console.log(invitedPlayer);
-        var gameRoom = await createGameRoom(hostPlayer, invitedPlayer);
+        console.log(hostPlayer, invitedPlayer);
+        var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName);
         if (gameRoom){
           await this.store.dispatch('invitationInGame', { hostPlayer,  gameRoom, userName, userId, userSocket, userStatus });
         }

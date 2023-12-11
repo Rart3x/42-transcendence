@@ -393,7 +393,7 @@ export async function createGameRoom(hostPlayerName : string, invitedPlayerName:
     else {
       const errorText = await response.text();
     }
-  } 
+  }
   catch (error) {
     console.error('error: sending POST request', error);
   }
