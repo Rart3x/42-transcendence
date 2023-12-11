@@ -1,90 +1,90 @@
-<script setup>
+<script>
   import Alert from "./Alert.vue";
   import Cookies from "js-cookie";
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
-  import socketOn from "./UserProfile.vue";
-  import { computed, onMounted, ref, unref } from "vue";
-  import { RouterLink } from "vue-router";
+  import { inviteFriendInGameEXPORT, socketOnEXPORT } from "./UserProfile.vue";
   import { getAllUsers, getPrivateMessagesByUserName, getUserByCookie, getUserByUserName } from "./api/get.call.ts";
   import { createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
-  import { useRouter } from "vue-router";
+  import { RouterLink } from "vue-router";
 
-  let imageSrc = ref(null);
-  let modalMessage = ref(false);
-  let privateMessages = ref([]);
-  let searchInput = ref("");
 
-  let user = ref(null);
-  let users = ref([]);
+  export default {
+    components: {
+      Alert,
+      Drawer,
+      Modal,
+    },
+    data() {
+      return {
+        imageSrc: null,
+        modalMessage: false,
+        privateMessages: [],
+        searchInput: "",
+        user: null,
+        users: [],
+        currentUserName: "",
+        senderName: "",
+        userName: "",
+        invitationInGameSuccess: false,
+        inviteInGameSuccess: false,
+        inviteInGameFailed: false
+      };
+    },
+    computed: {
+      filteredUsers() {
+        if (!this.users)
+          return [];
+        try {
+          const searchInputValue = this.searchInput;
+          if (!searchInputValue || !this.users)
+            return [];
+          return this.users.filter(user =>
+            user.userName && user.userName.includes(searchInputValue) ||
+            user.displayName && user.displayName.includes(searchInputValue)
+          );
+        }
+        catch (error) {
+          return [];
+        }
+      }
+    },
+    methods: {
+      createPrivateMessageInDB(userName, senderName, message_text) {
+        if (message_text === "/game") { 
+          const user1 = getUserByUserName(senderName);
+          message_text = "";
+          this.modalMessage = false;
+          inviteFriendInGameEXPORT(user1.userName, user1.userId, user1.userSocket, user1.userStatus, this.user);
+        }
+        const response = createPrivateMessage(userName, senderName, message_text);
+        message_text = "";
+        this.privateMessages = getPrivateMessagesByUserName(this.user.userName);
+      },
+      logout() {
+        Cookies.remove("_authToken");
+        setStatus(this.user.userName, "offline");
+        window.location.href = "/";
+      },
+      closeMessageModal() { this.modalMessage = false; },
+      openMessageModal(userName, message) { this.modalMessage = true; this.currentUserName = userName; this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; },
+    },
+    async mounted() {
+      if (Cookies.get("_authToken") == undefined)
+        return;
 
-  let currentUserName = ref("");
-  let senderName = ref("");
-  const userName = ref("");
+      this.user = await getUserByCookie(Cookies.get("_authToken"));
+      this.userName = this.user.displayName;
 
-  let invitationInGameSuccess = ref(false);
-  let inviteInGameSuccess = ref(false);
-
-  let inviteInGameFailed = ref(false);
-
-  const filteredUsers = computed(() => {
-    if (!users.value)
-      return [];
-    try {
-      const searchInputValue = unref(searchInput);
-      if (!searchInputValue || !users.value)
-        return [];
-      return users.value.filter(user =>
-        user.userName && user.userName.includes(searchInputValue) ||
-        user.displayName && user.displayName.includes(searchInputValue)
-      );
+      this.privateMessages = await getPrivateMessagesByUserName(this.user.userName);
+      
+      let imagePath = "../assets/userImages/" + this.user.image;
+      import(/* @vite-ignore */ imagePath).then((image) => {
+        this.imageSrc = image.default;
+      });
+      this.users = await getAllUsers();
     }
-    catch (error) {
-      return [];
-    }
-  });
-
-  const router = useRouter();
-
-  const createPrivateMessageInDB = async (userName, senderName, message_text) => {
-    if (message_text === "/game") { 
-      const user1 = await getUserByUserName(senderName);
-      message_text = "";
-      modalMessage.value = false;
-      inviteFriendInGame(user.value.userName, user1.userName, user1.userId, user1.socket, user1.status);
-    }
-    const response = await createPrivateMessage(userName, senderName, message_text);
-    message_text = "";
-    privateMessages.value = await getPrivateMessagesByUserName(user.value.userName);
   };
-
-  const logout = () => {
-    Cookies.remove("_authToken");
-    setStatus(user.value.userName, "offline");
-    window.location.href = "/";
-  };
-
-  const closeMessageModal = () => { modalMessage.value = false; };
-  const openMessageModal = (userName, message) => { modalMessage.value = true; currentUserName = userName; senderName.value = (message.senderName === userName) ? message.receiverName : message.senderName; };
-
-  onMounted(async () => {
-    if (Cookies.get("_authToken") == undefined)
-      return;
-
-    user.value = await getUserByCookie(Cookies.get("_authToken"));
-    userName.value = user.value.displayName;
-
-    privateMessages.value = await getPrivateMessagesByUserName(user.value.userName);
-    
-    // socketOn();
-    
-    let imagePath = "../assets/userImages/" + user.value.image;
-    import(/* @vite-ignore */ imagePath).then((image) => {
-      imageSrc.value = image.default;
-    });
-    users.value = await getAllUsers();
-  });
-
 </script>
 
 <template>
