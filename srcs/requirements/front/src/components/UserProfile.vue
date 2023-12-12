@@ -349,7 +349,7 @@
           <div class="requestTable table-border">
           <table class="table">
             <tbody>
-              <tr class="dark-row" v-for="(channel, index) in channels" :key="index">
+              <tr v-for="(channel, index) in channels" :key="index" class="dark-row" >
                 <td>
                   <label tabindex="0" class="btn glass btn-ghost btn-circle">
                     <div class="avatar">
@@ -369,11 +369,11 @@
                     <button class="btn glass no-animation">{{ channel.channelName }}</button>
                   </router-link>
                 </td>
-                <td v-if="user && channel && channel.channelAdmin.userId == user.userId">
-                  <button class="btn glass btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
+                <td>
+                  <button v-if="user && channel && channel.channelAdmin == user.userId" class="btn glass btn-error" @click="removeChannelFromDB(channel.channelName)">Delete Channel</button>
                 </td>
-                <td v-if="user && channel && channel.channelAdmin == user.userId">
-                  <button class="btn glass" @click="openManageChannelModal(channel.channelName)">Manage Channel</button>
+                <td>
+                  <button v-if="user && channel && channel.channelAdmin == user.userId" class="btn glass" @click="openManageChannelModal(channel.channelName)">Manage Channel</button>
                 </td>
               </tr>
             </tbody>
@@ -384,8 +384,8 @@
         <div v-if="activeTab === 'suggestions'" class="p-4">
           <table class="table">
             <tbody>
-              <tr class="dark-row" v-for="(channel, index) in allChannels" :key="index">
-                <div class="channelSecurity" v-if="!channel.password && !channel.isPrivate">
+              <tr v-for="(channel, index) in allChannels" :key="index" class="dark-row">
+                <div v-if="!channel.password && !channel.isPrivate" class="channelSecurity">
                   <td>
                     <label tabindex="0" class="btn glass btn-ghost btn-circle">
                       <div class="avatar">

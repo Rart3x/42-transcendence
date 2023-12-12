@@ -1,5 +1,4 @@
 <script setup>
-  import UserStatHeader from "./UserStatHeader.vue";
   import Cookies from "js-cookie";
   import { onMounted, ref, computed } from "vue";
   import { getPastGameRoomsByUserId, getUserByCookie, getAllUserScore, getScoreByRoomId, getUserByUserName, getGameWinner } from "./api/get.call";
@@ -65,7 +64,6 @@
       scores.value.push(await getScoreByRoomId(games.value[i].id));
       winners.value.push(await getGameWinner(games.value[i].id));
     }
-    console.log(scores.value);
   });
 </script>
 
