@@ -80,7 +80,6 @@
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
         const hostPlayer = await getUserByUserName(this.user.userName);
         const invitedPlayer = await getUserByUserName(userName);
-        console.log(hostPlayer, invitedPlayer);
         var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName);
         if (gameRoom){
           await this.store.dispatch('invitationInGame', { hostPlayer,  gameRoom, userName, userId, userSocket, userStatus });
@@ -157,10 +156,8 @@
         if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
           this.invitationInGameSuccess = false;
         this.router.push('/game');
-        // console.log("emitting");
-        
         this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id });
-        this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket, hostGame: this.hostGame });
+        this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket });
       },
 
       socketOn() {
@@ -174,8 +171,9 @@
       });
 
       this.store.state.socket.on('invitationAccepted', (body) => {
+        console.log("host player");
         this.router.push('/game'); 
-        this.store.state.socket.emit('localGame', { player: this.user.userId, hostGameId: this.hostGame.id });
+        this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id });
       });
 
       this.store.state.socket.on('invitationDeclined', (body) => {

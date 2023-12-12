@@ -786,39 +786,36 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			// console.log(data.playerId);
 			
 			const gameRoom = await this.GameRoomService.getGameRoomById(data.hostGameId);
+			var user1 : any;
+			var user2 : any;
 
-			const user = await this.UserService.getUserById(data.playerId);
-			if (user.userId == gameRoom.player1UserId){
-				
-			}
-			else{
-
-			}
+			setTimeout(async () => {
+				user1 = await this.UserService.getUserById(gameRoom.player1UserId);
+				user2 = await this.UserService.getUserById(gameRoom.player2UserId);
+				var receiverSocketId : string;
+				if (data.playerId == user1.userId){
+					receiverSocketId = user1.socket;
+				}
+				else{
+					receiverSocketId = user2.socket;
+				}
+				this.server.to(receiverSocketId).emit('lobby', {
+					roomId: gameRoom.id,
+					customGameMode: false,
+					player1SocketId: gameRoom.player1SocketId,
+					player2SocketId: gameRoom.player2SocketId,
+					player1UserId: gameRoom.player1UserId,
+					player2UserId: gameRoom.player2UserId,
+					player1UserName: user1.userName,
+					player2UserName: user2.userName,
+					player1Image: user1.image,
+					player2Image: user2.image
+				});
+				//timeout farfelu pour pouvoir laisser le temps de changer la socket du jeu dans gamescene.vue
+			}, 2000)
 			// var localRoom = this.createGameRoomLocal(gameRoom.id, , second, false);
-
 			// this.gameRooms.push(localRoom);
-
-			// this.server.to(gameRoom.player1SocketId).emit('lobby', {
-			// 	roomId: gameRoom.id,
-			// 	customGameMode: false,
-			// 	player1SocketId: gameRoom.player1SocketId,
-			// 	player2SocketId: gameRoom.player2SocketId,
-			// 	player1UserId: gameRoom.player1UserId,
-			// 	player2UserId: gameRoom.player2UserId,
-			// 	player1UserName: gameRoom.player1
-			// 	player2UserName: user2.userName,
-			// 	player1Image: user1.image,
-			// 	player2Image: user2.image
-			// });
-	
-			console.log(user);
-			// console.log(gameRoom);
-			this.server.to(user.socket).emit('localGameCreated', {
-				// player1SocketId: socket.id,
-				// player1UserName: user1.userName,
-				// player1Image: user1.image,
-			});
-		}, 5000);
+		});
 	}
 
 	@SubscribeMessage('playAgain')
