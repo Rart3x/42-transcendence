@@ -784,7 +784,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() data : { playerId: number, hostGameId: number } ) {
 		setTimeout(async () => {
-			console.log(data.playerId);
+			// console.log(data.playerId);
 			
 			const gameRoom = await this.GameRoomService.getGameRoomById(data.hostGameId);
 			var user1 : any;
@@ -796,9 +796,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				if (!this.findCorrespondingGame(gameRoom.id)){
 					var localRoom = this.createGameRoomLocal(gameRoom.id, [user1.userId, user1.socket] , [user2.userId, user2.socket], false);
 					this.gameRooms.push(localRoom);
-					console.log(localRoom);
+					// console.log(localRoom);
 				}
-
+ 
 				var receiverSocketId : string;
 				if (data.playerId == user1.userId){
 					receiverSocketId = user1.socket;
@@ -819,7 +819,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					player2Image: user2.image
 				});
 			}, 2000)
-
 		});
 	}
 

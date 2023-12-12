@@ -5,7 +5,7 @@
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
-  import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
+  import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword, deleteGameRoomById } from "./api/post.call";
   import { removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
@@ -191,8 +191,10 @@
         const hostUser = await getUserByUserName(this.hostName);
         if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
           this.invitationInGameSuccess = false;
-        this.router.push('/game');
-        this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id });
+        if (emit === "invitationInGameAccepted"){
+          this.router.push('/game');
+          this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id });
+        }
         this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket, hostGameId: this.hostGame.id });
       },
 
@@ -208,13 +210,15 @@
 
       this.store.state.socket.on('invitationAccepted', (body) => {
         this.hostName = body.host;
-
         this.router.push('/game'); 
         this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
       });
 
       this.store.state.socket.on('invitationDeclined', (body) => {
         this.hostName = body.host;
+        console.log(`game to delete ${body.hostGameId}`);
+
+        deleteGameRoomById(body.hostGameId.toString());
         this.inviteInGameFailed = true;
         setTimeout(() => {
           this.inviteInGameFailed = false;

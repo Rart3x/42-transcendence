@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma.service'
 import { GameRoom, Prisma, Score } from '@prisma/client';
 import { last } from 'rxjs';
 import { UserService } from '../user/user.service';
+import e from 'express';
+import { getAdapter } from 'axios';
 
 @Injectable()
 export class GameRoomService {
@@ -35,8 +37,6 @@ export class GameRoomService {
   async createGameRoomInvitation(hostPlayerName: string, invitedPlayerName: string): Promise<GameRoom> {
     var hostPlayer = await this.UserService.getUserByName(hostPlayerName);
     var invitedPlayer = await this.UserService.getUserByName(invitedPlayerName);
-
-
     return await this.prisma.gameRoom.create({
         data: {
           player1SocketId: hostPlayer.socket,
@@ -196,12 +196,12 @@ export class GameRoomService {
     return null;
   }
 
-  async deleteGameRoomByGameRoomId(roomId: number){
+  async deleteGameRoomByGameRoomId(gameRoomId: number){
+    var id = Number(gameRoomId); 
     return await this.prisma.gameRoom.delete({
       where: {
-        id: roomId
+        id: id
       }
     })
   }
 }
-

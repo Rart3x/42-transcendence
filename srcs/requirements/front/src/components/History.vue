@@ -108,12 +108,12 @@
                           </div>
                           <div v-else class="w-20 mask mask-squircle">
                             <span v-if="item.game.winnerId && item.game.winnerId == item.game.users[0].userId">
-                              <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[0].imageSrc" class="grayscale"/>
-                              <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[1].imageSrc"  />
+                              <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[0].imageSrc" />
+                              <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[1].imageSrc" class="grayscale" />
                             </span>
                             <span v-else>
-                              <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[0].imageSrc" />
-                              <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[1].imageSrc" class="grayscale"/>
+                              <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[0].imageSrc" class="grayscale"/>
+                              <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[1].imageSrc" />
                             </span>
                           </div>
                         </div>
@@ -123,12 +123,12 @@
                         </span>
                         <span v-else>
                           <span v-if="item.game.winnerId && item.game.winnerId == item.game.users[0].userId">
-                            <span v-if="user.userName == item.game.users[0].userName" class="font-little font-bold">{{ item.game.users[0].userName }}(AFK)</span>
-                            <span v-if="user.userName == item.game.users[1].userName" class="font-little font-bold">{{ item.game.users[1].userName }}</span>
-                          </span>
-                          <span v-else>
                             <span v-if="user.userName == item.game.users[0].userName" class="font-little font-bold">{{ item.game.users[0].userName }}</span>
                             <span v-if="user.userName == item.game.users[1].userName" class="font-little font-bold">{{ item.game.users[1].userName }}(AFK)</span>
+                          </span>
+                          <span v-else>
+                            <span v-if="user.userName == item.game.users[0].userName" class="font-little font-bold">{{ item.game.users[0].userName }}(AFK)</span>
+                            <span v-if="user.userName == item.game.users[1].userName" class="font-little font-bold">{{ item.game.users[1].userName }}</span>
                           </span>
                         </span>
                       </label>
@@ -149,27 +149,27 @@
                           </div>
                           <div v-else class="w-20 mask mask-squircle">
                             <span v-if="item.game.winnerId && item.game.winnerId == item.game.users[0].userId">
-                              <img  v-if="user.userName == item.game.users[0].userName" :src="item.game.users[1].imageSrc"/>
-                              <img  v-if="user.userName == item.game.users[1].userName" :src="item.game.users[0].imageSrc" class="grayscale"/>
+                              <img  v-if="user.userName == item.game.users[0].userName" :src="item.game.users[1].imageSrc" class="grayscale"/>
+                              <img  v-if="user.userName == item.game.users[1].userName" :src="item.game.users[0].imageSrc" />
                             </span>
                             <span v-else>
-                              <img  v-if="user.userName == item.game.users[0].userName" :src="item.game.users[1].imageSrc" class="grayscale"/>
-                              <img  v-if="user.userName == item.game.users[1].userName" :src="item.game.users[0].imageSrc"/>
+                              <img  v-if="user.userName == item.game.users[0].userName" :src="item.game.users[1].imageSrc" />
+                              <img  v-if="user.userName == item.game.users[1].userName" :src="item.game.users[0].imageSrc" class="grayscale"/>
                             </span>
                           </div>
                         </div>
-                          <span v-if="!item.scores.winByAfk">
+                        <span v-if="!item.scores.winByAfk">
                           <span v-if="user.userName == item.game.users[0].userName" class="font-little font-bold">{{ item.game.users[1].userName }}</span>
                           <span v-if="user.userName == item.game.users[1].userName" class="font-little font-bold">{{ item.game.users[0].userName }}</span>
                         </span>
                         <span v-else>
                           <span v-if="item.game.winnerId && item.game.winnerId == item.game.users[0].userId">
-                            <span v-if="user.userName == item.game.users[0].userName" class="font-little font-bold">{{ item.game.users[1].userName }}</span>
-                            <span v-if="user.userName == item.game.users[1].userName" class="font-little font-bold">{{ item.game.users[0].userName }}(AFK)</span>
-                          </span>
-                          <span v-else>
                             <span v-if="user.userName == item.game.users[0].userName" class="font-little font-bold">{{ item.game.users[1].userName }}(AFK)</span>
                             <span v-if="user.userName == item.game.users[1].userName" class="font-little font-bold">{{ item.game.users[0].userName }}</span>
+                          </span>
+                          <span v-else>
+                            <span v-if="user.userName == item.game.users[0].userName" class="font-little font-bold">{{ item.game.users[1].userName }}</span>
+                            <span v-if="user.userName == item.game.users[1].userName" class="font-little font-bold">{{ item.game.users[0].userName }}(AFK)</span>
                           </span>
                         </span>
                       </label>

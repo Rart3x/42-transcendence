@@ -36,4 +36,9 @@ export class GameRoomController {
     const gameRoom = await this.gameRoomService.createGameRoomInvitation(data.hostPlayerName, data.invitedPlayerName);
     return (gameRoom);
   }
+
+  @Post('deleteGameRoom/:gameRoomId')
+  async deleteGameRoomById(@Param('gameRoomId') gameRoomId: number) : Promise<GameRoom>{
+    return await this.gameRoomService.deleteGameRoomByGameRoomId(gameRoomId);
+  }
 }
