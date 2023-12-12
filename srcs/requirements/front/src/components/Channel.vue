@@ -2,11 +2,11 @@
   import Alert from './Alert.vue';
   import Modal from './Modal.vue';
   import Cookies from "js-cookie";
-  import { removeOperator, removeUserFromChannel, unmuteUser} from "./api/delete.call";
+  import { removeChannel, removeOperator, removeUserFromChannel, unmuteUser} from "./api/delete.call";
   import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie } from "./api/get.call";
-  import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel } from "./api/post.call";
+  import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel, setAdmin } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
-  import { useRoute } from "vue-router";
+  import { useRoute, useRouter } from "vue-router";
 
   let actualUser = ref(null);
   let channel = ref(null);
@@ -17,8 +17,6 @@
 
   let message_text = ref("");
 
-  const route = useRoute();
-
   let banSuccess = ref(false);
   let kickSuccess = ref(false);
   let muteSuccess = ref(false);
@@ -28,11 +26,13 @@
   let muteFailed = ref(false);
 
   let actualUserMuted = ref(false);
-
   let modalMuteUser = ref(false);
   let userMuted = ref("");
 
   let selectedDuration = ref(1);
+
+  const route = useRoute();
+  const router = useRouter();
 
   const addOperatorInDB = async (channelName, userName) => {
     const response = await addOperator(channelName, userName);
@@ -104,6 +104,18 @@
   };
 
   const removeUserFromChannelInDB = async (channelName, userName) => {
+    const chan = await getChannelByName(channelName);
+
+    if (actualUser.value.userId === chan.channelAdmin) { 
+      if (chan.channelOperators.length > 0) {
+        const newAdmin = chan.channelOperators[Math.floor(Math.random() * chan.channelOperators.length)];
+        await setAdmin(channelName, newAdmin.userName);
+        await removeOperator(channelName, newAdmin.userName);
+      }
+      else
+        await removeChannel(channelName);
+    }
+
     const response = await removeUserFromChannel(channelName, userName);
 
     if (response && response.success) {
@@ -120,6 +132,7 @@
     }
     users.value = await getUsersFromChannel(route.params.channelName);
     updateUserImages(users.value);
+    router.push("/profile");
   };
 
   const filteredUsers = computed(() => {
@@ -240,11 +253,11 @@
 </script>
  
 <template>
-  <div class="navbar overflow-x-auto bg-base-200 font-mono">
+  <div class="navbar bg-base-200 font-mono">
     <div class="navbar-end">
       <details class="dropdown">
         <summary class="m-1 btn glass">{{ $route.params.channelName }}</summary>
-        <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+        <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 dark-row">
           <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName)">Quit</li>
         </ul>
       </details>
@@ -356,10 +369,11 @@
 </template>
 
 <style scoped>
-  .chat-messages { max-height: 55vh; overflow-x: auto; }
+.chat-messages { max-height: 55vh; overflow-x: auto; }
   .chat-messages::-webkit-scrollbar-thumb { background: #888; }
   .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }
+  
   .friend-list { max-height: 85vh; overflow-x: auto; }
   .friend-list::-webkit-scrollbar-thumb { background: #888; }
   .friend-list::-webkit-scrollbar-thumb:hover { background: #555; }

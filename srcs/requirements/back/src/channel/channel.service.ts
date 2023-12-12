@@ -454,6 +454,23 @@ export class ChannelService {
     return true;
   }
 
+  async setAdmin(channelName: string, userName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+    const user = await this.userService.getUserByName(userName);
+
+    if (!channel || !user)
+      return false;
+
+    await this.prisma.channel.update({
+      where: { channelId: channel.channelId },
+      data: {
+        channelAdmin: user.userId,
+        channelAdminImage: user.image,
+      },
+    });
+    return true;
+  }
+
   async setPassword(channelName: string, password: string): Promise<Channel> {
     try {
       const channel = await this.getChannelByName(channelName);

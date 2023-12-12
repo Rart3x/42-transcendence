@@ -32,6 +32,12 @@ export class ChannelController {
     return { success: result };
   }
 
+  @Post(':channelName/set/admin/:adminName')
+  async setAdmin(@Body('channelName') channelName: string, @Body('adminName') adminName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.setAdmin(channelName, adminName);
+    return { success: result }
+  }
+
   @Get('getAllChannels')
   async getAllChannels(): Promise<Channel[]> {
     return this.channelService.getAllChannels();
