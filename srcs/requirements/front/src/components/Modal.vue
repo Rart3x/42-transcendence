@@ -202,6 +202,7 @@
 </template>
 
 <style scoped>
+    .modal { background-color: rgba(0, 0, 0, 0.5);  backdrop-filter: blur(5px); }
     .chat {
         position: absolute;
         top: 50%;

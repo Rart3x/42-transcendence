@@ -141,7 +141,6 @@
       },
 
       async togglePasswordInput(channelName, password, check) {
-        console.log(channelName, password )
         if (check) {
           const response = await setPassword(channelName, sha256(password));
           if (response) {
