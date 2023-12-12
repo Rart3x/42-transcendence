@@ -6,6 +6,7 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
   import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom } from "./api/post.call";
+  import { removeFriend } from "./api/delete.call";
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
 
@@ -36,7 +37,7 @@
         allChannels: null, channels: [], currentUser: null, friends: [], privateMessages: [], user: null,
         addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false,
         addChannelFailed: false, addFriendFailed: false, addMessageFailed: false, inviteInGameFailed: false, joinChannelFailed: false, removeChannelFailed: false, removeFriendFailed: false,
-        message_text: "", password: "",
+        message_text: "", password: "", friendsData: [],
         router: useRouter(), store: useStore(),
         activeTab: "friends",
       };
@@ -46,35 +47,35 @@
         const response = await addFriend(userName, friendName);
 
         if (response && response.success) {
-          addFriendSuccess.value = true;
+          this.addFriendSuccess = true;
           setTimeout(() => {
-            addFriendSuccess.value = false;
+            this.addFriendSuccess = false;
           }, 3000);
         } else {
-          addFriendFailed.value = true;
+          this.addFriendFailed = true;
           setTimeout(() => {
-            addFriendFailed.value = false;
+            this.addFriendFailed = false;
           }, 3000);
         }
-        friends.value = await getAllFriends(userName);      
+        this.updateFriends();
       },
 
       async createChannelInDB(channelName, userName, currentUserName) {
         const response = await createChannel(channelName, userName, currentUserName);
-        modalStates.modalChannel.value = false;
+        this.modalStates.modalChannel = false;
 
         if (response && response.success) {
-          addChannelSuccess.value = true;
+          this.addChannelSuccess = true;
           setTimeout(() => {
-            addChannelSuccess.value = false;
+            this.addChannelSuccess = false;
           }, 3000);
         } else {
-          addChannelFailed.value = true;
+          this.addChannelFailed = true;
           setTimeout(() => {
-            addChannelFailed.value = false;
+            this.addChannelFailed = false;
           }, 3000);
         }
-        channels.value = await getAllChannelsFromUser(userName);
+        this.updateChannels();
       },
   
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
@@ -90,65 +91,65 @@
         const response = await joinChannel(channelName, userName);
 
         if (response && response.success) {
-          joinChannelSuccess.value = true;
+          this.joinChannelSuccess = true;
           setTimeout(() => {
-            joinChannelSuccess.value = false;
+            this.joinChannelSuccess = false;
           }, 3000);
         } else {
-          joinChannelFailed.value = true;
+          this.joinChannelFailed = true;
           setTimeout(() => {
-            joinChannelFailed.value = false;
+            this.joinChannelFailed = false;
           }, 3000);
         }
-        channels.value = await getAllChannelsFromUser(userName);
-        allChannels = await getAllNewChannels(userName);
+        this.updateChannels();
+        this.updateAllChannels();
       },
 
       async removeChannelFromDB(channelName) {
         const response = await removeChannel(channelName);
     
         if (response && response.success) {
-          removeChannelSuccess.value = true;
+          this.removeChannelSuccess = true;
           setTimeout(() => {
-            removeChannelSuccess.value = false;
+            this.removeChannelSuccess = false;
           }, 3000);
         } else {
-          removeChannelFailed.value = true;
+          this.removeChannelFailed = true;
           setTimeout(() => {
-            removeChannelFailed.value = false;
+            removeChannelFailed = false;
           }, 3000);
         }
-        channels.value = await getAllChannelsFromUser(userName);
+        this.updateChannels();
       },
 
       async removeFriendFromDB(userName, friendName) {
         const response = await removeFriend(userName, friendName);
         
         if (response && response.success) {
-          removeFriendSuccess.value = true;
+          this.removeFriendSuccess = true;
           setTimeout(() => {
-            removeFriendSuccess.value = false;
+            this.removeFriendSuccess = false;
           }, 3000);
         } else {
-          removeFriendFailed.value = true;
+          this.removeFriendFailed = true;
           setTimeout(() => {
-            removeFriendFailed.value = false;
+            this.removeFriendFailed = false;
           }, 3000);
         }
-        friends.value = await getAllFriends(userName);
+        this.updateFriends();
       },
 
       closeModal(modalKey) {
-        modalStates[modalKey].value = false;       
+        this.modalStates[modalKey] = false;       
       },
       closeMessageModal() {
-        modalMessage.value = false;      
+        this.modalMessage = false;      
       },
       openChannelModal(userName) {
-        modalStates.modalChannel.value = true; currentUserName.value = userName;
+        this.modalStates.modalChannel = true; currentUserName = userName;
       },
       openManageChannelModal(channel) {
-        channelName.value = channel; modalStates.modalManageChannel.value = true;      
+        this.channelName = channel; modalStates.modalManageChannel = true;      
       },
         
       async socketEmit(emit) {
@@ -188,6 +189,39 @@
       showContent(tab) {
         this.activeTab = tab;
       },
+
+      async updateFriends() {
+        this.friendsData = await getAllFriends(this.user.userName);
+        for (let i = 0; i < this.friendsData.length; i++) {
+          const imagePath = "../assets/userImages/" + this.friendsData[i].image;
+          const image = await import(/* @vite-ignore */ imagePath);
+          this.friendsData[i].imageSrc = image.default;
+        }
+        this.friends = this.friendsData;
+      },
+      async updateChannels() {
+        let channelsData = await getAllChannelsFromUser(this.user.userName);
+        for (let i = 0; i < channelsData.length; i++) {
+          const imagePath = "../assets/userImages/" + channelsData[i].channelAdminImage;
+          const image = await import(/* @vite-ignore */ imagePath);
+          channelsData[i].imageSrc = image.default;
+        }
+        this.channels = channelsData;
+      },
+      async updateAllChannels() {
+        let allChannelsData = await getAllNewChannels(this.user.userName);
+        for (let i = 0; i < allChannelsData.length; i++) {
+          const imagePath = "../assets/userImages/" + allChannelsData[i].channelAdminImage;
+          const image = await import(/* @vite-ignore */ imagePath);
+          allChannelsData[i].imageSrc = image.default;
+        }
+        this.allChannels = allChannelsData;
+      },
+      updateAll() {
+        this.updateFriends();
+        this.updateChannels();
+        this.updateAllChannels();
+      },
     },
 
     async mounted() {
@@ -210,29 +244,9 @@
       this.userName = this.user.displayName;
       this.adminImage = "src/assets/userImages/" + this.user.image;
 
-      let friendsData = await getAllFriends(this.user.userName);
-      this.channels = await getAllChannelsFromUser(this.user.userName);
-      this.allChannels = await getAllNewChannels(this.user.userName);
+      this.updateAll();
 
-      for (let i = 0; i < friendsData.length; i++) {
-        const imagePath = "../assets/userImages/" + friendsData[i].image;
-        const image = await import(/* @vite-ignore */ imagePath);
-        friendsData[i].imageSrc = image.default;
-      }
-
-      for (let i = 0; i < this.channels.length; i++) {
-        const imagePath = "../assets/userImages/" + this.channels[i].channelAdminImage;
-        const image = await import(/* @vite-ignore */ imagePath);
-        this.channels[i].imageSrc = image.default;
-      }
-
-      for (let i = 0; i < this.allChannels.length; i++) {
-        const imagePath = "../assets/userImages/" + this.allChannels[i].channelAdminImage;
-        const image = await import(/* @vite-ignore */ imagePath);
-        this.allChannels[i].imageSrc = image.default;
-      }
-
-      this.friends.splice(0, this.friends.length, ...friendsData);
+      this.friends.splice(0, this.friends.length, ...this.friendsData);
     },
   };
 </script>
