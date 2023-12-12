@@ -47,6 +47,7 @@ import Player from '../entities/player';
 //Server
 import { Server } from 'ws';
 import { warn } from 'console';
+import { find } from 'rxjs';
 
 
 //-------------------------------------------------------------------------------------------------------------------------------------------
@@ -102,7 +103,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private readonly ScoreService: ScoreService
 	){}
 
-	handleConnection(socket: Socket){}
+	handleConnection(socket: Socket){} 
 
 	handleDisconnect(socket: Socket) {
 		//If disconnected user was inside a game room
@@ -783,7 +784,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() data : { playerId: number, hostGameId: number } ) {
 		setTimeout(async () => {
-			// console.log(data.playerId);
+			console.log(data.playerId);
 			
 			const gameRoom = await this.GameRoomService.getGameRoomById(data.hostGameId);
 			var user1 : any;
@@ -792,6 +793,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			setTimeout(async () => {
 				user1 = await this.UserService.getUserById(gameRoom.player1UserId);
 				user2 = await this.UserService.getUserById(gameRoom.player2UserId);
+				if (!this.findCorrespondingGame(gameRoom.id)){
+					console.log(user1);
+					var localRoom = this.createGameRoomLocal(gameRoom.id, [user1.userId, user1.socket] , [user2.userId, user2.socket], false);
+					this.gameRooms.push(localRoom);
+				}
+
 				var receiverSocketId : string;
 				if (data.playerId == user1.userId){
 					receiverSocketId = user1.socket;
@@ -813,8 +820,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				});
 				//timeout farfelu pour pouvoir laisser le temps de changer la socket du jeu dans gamescene.vue
 			}, 2000)
-			// var localRoom = this.createGameRoomLocal(gameRoom.id, , second, false);
-			// this.gameRooms.push(localRoom);
+
 		});
 	}
 

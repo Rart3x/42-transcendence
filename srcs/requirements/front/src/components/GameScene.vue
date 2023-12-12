@@ -53,7 +53,7 @@ export default class Game extends Phaser.Scene {
 
 	constructor(){
 		super("game");
-		// setClientSocket(user.userName, socket.id);
+		setClientSocket(user.userName, socket.id);
 	}
 
 	preload(){
@@ -61,9 +61,6 @@ export default class Game extends Phaser.Scene {
 	}
 
 	gamePage(self : any){
-		// console.log("socket ", socket.id);
-		setClientSocket(user.userName, socket.id);
-		console.log(socket.id);
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
 			<div class="row-start-1  ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
 			<div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
