@@ -87,7 +87,7 @@
     </div>
   </div>
   <!--Messages Drawer-->
-  <div v-if="display" class="drawer-end">
+  <div v-if="display" class="drawer-end z-[1]">
     <input id="my-drawer-1" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
       <button class="btn btn-ghost btn-circle">
@@ -99,8 +99,8 @@
       </button>
     </div> 
     <div class="drawer-side z-[1] font-mono">
+      <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-        <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
         <form @submit.prevent="checkName">
           <div class="p-4">
             <input v-model="enteredName" type="text" placeholder="Enter a name" class="input input-bordered w-full mb" @keyup.enter="checkName"/>
