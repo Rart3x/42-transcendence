@@ -306,7 +306,7 @@
         <button class="btn glass" @click="showContent('suggestions')">Suggestions</button>
         <button class="btn glass" @click="showContent('history')">Game History</button>
       </div>
-      <div class="content">
+      <div>
         <!--FriendList-->
         <div v-if="activeTab === 'friends'" class="p-4">
           <div class="underStat">
