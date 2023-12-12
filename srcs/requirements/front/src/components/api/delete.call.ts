@@ -94,3 +94,28 @@ export async function removeUserFromChannel(channelName: string, friendName: str
 		console.error("error: sending DELETE request", error);
 	}
 }
+
+/*-----------------------------------------------GAMEROOM-----------------------------------------------*/
+
+export async function deleteGameRoomById(gameRoomId: string) {
+	try {
+	  const response = await fetch(`http://localhost:3000/gameroom/deleteGameRoom/${gameRoomId}`, {
+		method: "DELETE",
+		headers: {
+		  "Content-Type": "application/json",
+		},
+		body: JSON.stringify({ gameRoomId: gameRoomId }),
+	  });
+	  if (response.ok) {
+		const responseData = await response.json();
+		return responseData;
+	  }
+	  else {
+		const errorText = await response.text();
+	  }
+	}
+	catch (error) {
+	  console.error('error: sending POST request', error);
+	}
+}
+  

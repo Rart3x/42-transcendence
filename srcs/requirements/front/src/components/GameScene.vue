@@ -135,6 +135,7 @@ export default class Game extends Phaser.Scene {
 				var user1 = await getUserByUserId(gameRoom.users[0].userId);
 				var user2 = await getUserByUserId(gameRoom.users[1].userId);
 				let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
+				console.log(gameRoom.score);
 				if (user.userId == gameRoom.winnerId){
 					if (user.userId == gameRoom.player1UserId)
 						winLooseMessage.innerText = "You won against " + user2.userName;
@@ -472,19 +473,29 @@ export default class Game extends Phaser.Scene {
 			')
 
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
-		
+
+			console.log(data);
+
+			var scoreWinner = data.scoreWinner.toString();
+			var scoreLooser = data.scoreLooser.toString();
+
 			if (this.gameRoom){
 				if (user.userId == data.winUserId){
-					if (user.userId == this.gameRoom.player1UserId)
-						winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName;
-					else
-						winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName;
+					if (user.userId == this.gameRoom.player1UserId){
+	
+						winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName + "\n " + scoreWinner + " - "  + scoreLooser;
+					}
+					else{
+						winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName + "\n " + scoreWinner + " - "  + scoreLooser;
+					}
 				}
 				else{
-					if (user.userId == this.gameRoom.player1UserId)
-						winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName;
-					else
-						winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName;
+					if (user.userId == this.gameRoom.player1UserId){
+						winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName + "\n " + scoreLooser + " - "  + scoreWinner;
+					}
+					else{
+						winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName + "\n " + scoreLooser + " - "  + scoreWinner;
+					}
 				}
 				let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
 				let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;

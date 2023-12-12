@@ -235,10 +235,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.gameRooms[i].winnerId = this.gameRooms[i].player1UserId;
 
 							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player1UserId
+								winUserId: this.gameRooms[i].player1UserId,
+								scoreWinner: scorePlayer1,
+								scoreLooser: scorePlayer2
 							});
 							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player1UserId
+								winUserId: this.gameRooms[i].player1UserId,
+								scoreWinner: scorePlayer1,
+								scoreLooser: scorePlayer2
 							});
 						}
 						else{
@@ -248,10 +252,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.gameRooms[i].winnerId = this.gameRooms[i].player2UserId;
 
 							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player2UserId
+								winUserId: this.gameRooms[i].player2UserId,
+								scoreWinner: scorePlayer2,
+								scoreLooser: scorePlayer1
 							});
 							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player2UserId
+								winUserId: this.gameRooms[i].player2UserId,
+								scoreWinner: scorePlayer2,
+								scoreLooser: scorePlayer1
 							});
 						}
 						this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");

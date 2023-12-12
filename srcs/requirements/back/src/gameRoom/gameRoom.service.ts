@@ -141,7 +141,7 @@ export class GameRoomService {
     });
   }
 
-  async getLastGameRoomIfAfk(userId: number) : Promise<GameRoom | null>{
+  async getLastGameRoomIfAfk(userId: number) : Promise<GameRoom | undefined>{
     const id = typeof userId === 'string' ? parseInt(userId) : userId;
 
     var lastActiveGameRoom =  await this.prisma.gameRoom.findFirst({
@@ -193,7 +193,7 @@ export class GameRoomService {
         }
       }
     }
-    return null;
+    return undefined;
   }
 
   async deleteGameRoomByGameRoomId(gameRoomId: number){

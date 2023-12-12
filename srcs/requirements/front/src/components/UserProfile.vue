@@ -5,7 +5,8 @@
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
-  import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword, deleteGameRoomById } from "./api/post.call";
+  import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
+  import { deleteGameRoomById } from "./api/delete.call";
   import { removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
