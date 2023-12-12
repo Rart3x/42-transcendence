@@ -794,9 +794,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				user1 = await this.UserService.getUserById(gameRoom.player1UserId);
 				user2 = await this.UserService.getUserById(gameRoom.player2UserId);
 				if (!this.findCorrespondingGame(gameRoom.id)){
-					console.log(user1);
 					var localRoom = this.createGameRoomLocal(gameRoom.id, [user1.userId, user1.socket] , [user2.userId, user2.socket], false);
 					this.gameRooms.push(localRoom);
+					console.log(localRoom);
 				}
 
 				var receiverSocketId : string;
@@ -809,8 +809,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				this.server.to(receiverSocketId).emit('lobby', {
 					roomId: gameRoom.id,
 					customGameMode: false,
-					player1SocketId: gameRoom.player1SocketId,
-					player2SocketId: gameRoom.player2SocketId,
+					player1SocketId: user1.socket,
+					player2SocketId: user2.socket,
 					player1UserId: gameRoom.player1UserId,
 					player2UserId: gameRoom.player2UserId,
 					player1UserName: user1.userName,
@@ -818,7 +818,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					player1Image: user1.image,
 					player2Image: user2.image
 				});
-				//timeout farfelu pour pouvoir laisser le temps de changer la socket du jeu dans gamescene.vue
 			}, 2000)
 
 		});
