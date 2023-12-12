@@ -5,8 +5,9 @@
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
-  import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom } from "./api/post.call";
+  import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
   import { removeFriend } from "./api/delete.call";
+  import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
 
@@ -32,12 +33,12 @@
     data() {
       return {
         adminImage: null,
-        currentUserName: "", channelName: "", friendName: "", hostName: "", senderName: "", userName: "", hostGame: null,
+        currentUserName: "", channelName: "", friendName: "", hostName: "", newChannelName: "", senderName: "", userName: "",
         modalStates: { modalChannel: false, modalManageChannel: false, }, modalMessage: false,
-        allChannels: null, channels: [], currentUser: null, friends: [], privateMessages: [], user: null,
-        addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false,
-        addChannelFailed: false, addFriendFailed: false, addMessageFailed: false, inviteInGameFailed: false, joinChannelFailed: false, removeChannelFailed: false, removeFriendFailed: false,
-        message_text: "", password: "", friendsData: [],
+        allChannels: null, channels: [], currentUser: null, friends: [], hostGame: null, privateMessages: [], user: null,
+        addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false, setPassSuccess: false, unsetPassSuccess: false, 
+        addChannelFailed: false, addFriendFailed: false, addMessageFailed: false, inviteInGameFailed: false, joinChannelFailed: false, removeChannelFailed: false, removeFriendFailed: false, setPassFailed: false, unsetPassFailed: false,
+        message_text: "", password: "", friendsData: [], 
         router: useRouter(), store: useStore(),
         activeTab: "friends",
       };
@@ -139,6 +140,40 @@
         this.updateFriends();
       },
 
+      async togglePasswordInput(channelName, password, check) {
+        console.log(channelName, password )
+        if (check) {
+          const response = await setPassword(channelName, sha256(password));
+          if (response) {
+            this.setPassSuccess = true;
+            setTimeout(() => {
+              this.setPassSuccess = false;
+            }, 3000);
+          } else {
+            this.setPassFailed = true;
+              setTimeout(() => {
+                this.setPassFailed = false;
+            }, 3000);
+          }
+        }
+        else
+        { 
+          const response = unsetPassword(channelName);
+          if (response) {
+            this.unsetPassSuccess = true;
+            setTimeout(() => {
+              this.unsetPassSuccess = false;
+            }, 3000);
+          } else {
+            this.unsetPassFailed = true;
+              setTimeout(() => {
+                this.unsetPassFailed = false;
+            }, 3000);
+          }
+        }
+        this.closeModal('modalManageChannel');
+      },
+
       closeModal(modalKey) {
         this.modalStates[modalKey] = false;       
       },
@@ -146,10 +181,10 @@
         this.modalMessage = false;      
       },
       openChannelModal(userName) {
-        this.modalStates.modalChannel = true; currentUserName = userName;
+        this.modalStates.modalChannel = true; this.currentUserName = userName;
       },
       openManageChannelModal(channel) {
-        this.channelName = channel; modalStates.modalManageChannel = true;      
+        this.channelName = channel; this.modalStates.modalManageChannel = true;      
       },
         
       async socketEmit(emit) {
@@ -307,9 +342,9 @@
         <!--ChannelList-->
         <div v-if="activeTab === 'channels'" class="p-4">
           <div class="underStat">
-            <form @submit.prevent="createChannelInDB(channelName, userName)">
+            <form @submit.prevent="createChannelInDB(newChannelName, userName)">
               <button class="btn glass">Create Channel</button>
-              <input type="text" id="channelName" v-model="channelName" class="input input-bordered w-full max-w-xs" />
+              <input type="text" id="newChannelName" v-model="newChannelName" class="input input-bordered w-full max-w-xs" />
             </form>
           </div>
           <div class="requestTable table-border">
@@ -389,6 +424,8 @@
       :joinChannelSuccess="joinChannelSuccess"
       :removeChannelSuccess="removeChannelSuccess"
       :removeFriendSuccess="removeFriendSuccess"
+      :setPassSuccess="setPassSuccess"
+      :unsetPassSuccess="unsetPassSuccess"
 
       :addChannelFailed="addChannelFailed"
       :addFriendFailed="addFriendFailed"
@@ -397,6 +434,8 @@
       :joinChannelFailed="joinChannelFailed"
       :removeChannelFailed="removeChannelFailed"
       :removeFriendFailed="removeFriendFailed"
+      :setPassFailed="setPassFailed"
+      :unsetPassFailed="unsetPassFailed"
 
       :hostName="hostName"
 
@@ -423,6 +462,7 @@
       :createChannelInDB="createChannelInDB"
       :joinChannelInDB="joinChannelInDB"
       :removeFriendFromDB="removeFriendFromDB"
+      :togglePasswordInput="togglePasswordInput"
     />
   </body>
 </template>

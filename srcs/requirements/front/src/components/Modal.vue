@@ -1,9 +1,7 @@
 <script>
     import Alert from './Alert.vue';
-    import { sha256 } from 'js-sha256';
     import { ref } from 'vue';
     import { getUserByUserName } from './api/get.call';
-    import { setPassword, unsetPassword } from './api/post.call';
 
     export default {
         name: 'Modal',
@@ -45,38 +43,6 @@
                 this.closeMuteModal();
             },
 
-            async togglePasswordInput(channelName, password) {
-                if (this.passwordCheckBox) {
-                    const response = await setPassword(channelName, sha256(password));
-                    if (response) {
-                        this.setPassSuccess = true;
-                        setTimeout(() => {
-                            this.setPassSuccess = false;
-                        }, 3000);
-                    } else {
-                        this.setPassFailed = true;
-                        setTimeout(() => {
-                            this.setPassFailed = false;
-                        }, 3000);
-                    }
-                }
-                else
-                { 
-                    const response = unsetPassword(channelName);
-                    if (response) {
-                        this.unsetPassSuccess = true;
-                        setTimeout(() => {
-                            this.unsetPassSuccess = false;
-                        }, 3000);
-                    } else {
-                        this.unsetPassFailed = true;
-                        setTimeout(() => {
-                            this.unsetPassFailed = false;
-                        }, 3000);
-                    }
-                }
-                this.closeModal('modalManageChannel');
-            },
             updateCheckBox(isChecked) {
                 this.passwordCheckBox = isChecked;
             },
@@ -121,6 +87,7 @@
             sendMessage: Function,
             muteUserFromChannelInDB: Function,
             removeFriendFromDB: Function,
+            togglePasswordInput: Function,
         },
         watch: {
             senderName(newSenderName) {
@@ -152,7 +119,7 @@
     </div>
     <div v-if="parent === 'userProfile'">
         <!--Channel Modal-->
-        <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel.value" @keydown.esc="closeModal('modalChannel')">
+        <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel" @keydown.esc="closeModal('modalChannel')">
             <div class="modal-box w-11/12 max-w-5xl">
                 <form class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, user.userName, currentUserName)">
                     <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" />
@@ -161,15 +128,15 @@
             </div>
         </dialog>
         <!--Manage Channel Modal-->
-        <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalManageChannel.value" @keydown.esc="closeModal('modalManageChannel')">
+        <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalManageChannel" @keydown.esc="closeModal('modalManageChannel')">
             <div class="modal-box w-11/12 max-w-5xl">
-                <form class="dialogModal" @submit.prevent="togglePasswordInput(currentChannelName, password)">
+                <form class="dialogModal" @submit.prevent="togglePasswordInput(currentChannelName, password, passwordCheckBox)">
                     <div v-if="passwordCheckBox">
                         <label>Set password</label>
                         <br/><br/>
                         <input type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
                         <br/><br/>
-                        <input type="text" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
+                        <input type="password" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
                         <br/><br/>
                         <button class="btn glass">Set {{ currentChannelName }} password</button>
                         <br/><br/>
