@@ -81,10 +81,11 @@
   
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
         const hostPlayer = await getUserByUserName(this.user.userName);
+        const hostPlayerName = hostPlayer.userName;
         const invitedPlayer = await getUserByUserName(userName);
         var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName);
         if (gameRoom){
-          await this.store.dispatch('invitationInGame', { hostPlayer,  gameRoom, userName, userId, userSocket, userStatus });
+          await this.store.dispatch('invitationInGame', { hostPlayerName,  gameRoom, userName, userId, userSocket, userStatus });
         }
       },
 
@@ -192,13 +193,13 @@
           this.invitationInGameSuccess = false;
         this.router.push('/game');
         this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id });
-        this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket });
+        this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket, hostGameId: this.hostGame.id });
       },
 
       socketOn() {
         this.store.state.socket.on('invitedInGame', (body) => {
           this.hostGame = body.gameRoom;
-          this.hostName = body.host;
+          this.hostName = body.hostPlayerName;
           this.invitationInGameSuccess = true;
           setTimeout(() => {
             this.invitationInGameSuccess = false;
@@ -206,9 +207,10 @@
       });
 
       this.store.state.socket.on('invitationAccepted', (body) => {
-        console.log("host player");
+        this.hostName = body.host;
+
         this.router.push('/game'); 
-        this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id });
+        this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
       });
 
       this.store.state.socket.on('invitationDeclined', (body) => {

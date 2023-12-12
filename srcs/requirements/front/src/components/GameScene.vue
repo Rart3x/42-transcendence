@@ -53,7 +53,7 @@ export default class Game extends Phaser.Scene {
 
 	constructor(){
 		super("game");
-		// setClientSocket(user.userName, socket.id);
+		setClientSocket(user.userName, socket.id);
 	}
 
 	preload(){
@@ -61,9 +61,6 @@ export default class Game extends Phaser.Scene {
 	}
 
 	gamePage(self : any){
-		// console.log("socket ", socket.id);
-		setClientSocket(user.userName, socket.id);
-		console.log(socket.id);
 		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
 			<div class="row-start-1  ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
 			<div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
@@ -204,7 +201,7 @@ export default class Game extends Phaser.Scene {
 		});
 
 		socket.on('lobby', (data) => {
-			console.log("Inside lobby");
+			// console.log("Inside lobby");
 			this.UIElement.destroy();
 			this.startLobby(data);
 		});
@@ -546,6 +543,7 @@ export default class Game extends Phaser.Scene {
 			this.destroyUI();
 		}
 
+		console.log(data);
 		this.gameRoom = GameRoom.createGameRoom(
 			this,
 			data.roomId,
@@ -660,23 +658,25 @@ export default class Game extends Phaser.Scene {
 		});
 
 		startButton.addEventListener('click', function() {
+			console.log("click");
+			console.log(socket.id, self.gameRoom?.player1SocketId, self.gameRoom?.player2SocketId);
 			if (socket.id == self.gameRoom?.player2SocketId){
 				if (self.gameRoom?.player2Ready == false){
 					self.gameRoom.player2Ready = true;
 					isReadyButtonPlayer2.innerText = 'Ready';
 					isReadyButtonPlayer2.className = 'btn no-animation btn-active btn-accent';
-          if (userProfile2){
-					  userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
-          }
+					if (userProfile2){
+						userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+					}
 					socket.emit('playerReady', self.gameRoom.id);
 				}
 				else{
 					self.gameRoom.player2Ready = false;
 					isReadyButtonPlayer2.innerText = 'Not ready';
 					isReadyButtonPlayer2.className = 'btn no-animation  btn-secondary';
-          if (userProfile2){
-					  userProfile2.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
-          }
+					if (userProfile2){
+						userProfile2.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
+					}
 					socket.emit('playerNotReady', self.gameRoom.id);
 				}
 			}
@@ -685,18 +685,18 @@ export default class Game extends Phaser.Scene {
 					self.gameRoom.player1Ready = true;
 					isReadyButtonPlayer1.innerText = 'Ready';
 					isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
-          if (userProfile1){
-					  userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2 ...';
-          }
+					if (userProfile1){
+						userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2 ...';
+					}
 					socket.emit('playerReady', self.gameRoom.id);
 				}
 				else{
 					self.gameRoom.player1Ready = false;
 					isReadyButtonPlayer1.innerText = 'Not ready';
 					isReadyButtonPlayer1.className = 'btn no-animation  btn-secondary';
-          if (userProfile1){
-					  userProfile1.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
-          }
+					if (userProfile1){
+						userProfile1.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
+					}
 					socket.emit('playerNotReady', self.gameRoom.id);
 				}
 			}
