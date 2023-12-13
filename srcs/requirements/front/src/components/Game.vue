@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import GameConfig from "@/components/GameConfig.vue";
+  import GameConfig from "./GameConfig.vue";
 </script>
 
 <template>

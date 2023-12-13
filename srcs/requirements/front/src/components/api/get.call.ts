@@ -236,10 +236,8 @@ export async function getLastGameRoomIfAfk(userId : number) {
         "Content-Type": "application/json",
       },
     });
-    if (response.ok) {
-      console.log(response.json());
+    if (response.ok)
       return await response.json();
-    }
   } catch (error) {
     console.error('error: sending GET request', error);
   }
