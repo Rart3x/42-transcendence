@@ -1,7 +1,7 @@
 <script lang="ts">
 
   import Phaser from 'phaser'
-  import GameScene from '@/components/GameScene.vue'
+  import GameScene from './GameScene.vue'
 
   export default {
     name: 'GameConfig',
