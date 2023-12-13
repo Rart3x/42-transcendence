@@ -158,9 +158,11 @@
             <div class="chat">
                 <div class="chat-title">
                     <h1>{{ senderName }}</h1>
-                    <figure class="avatar">
-                        <img :src="senderImageSrc" />
-                    </figure>
+                    <router-link :to="`/profile/` + senderName">
+                        <figure class="avatar">
+                            <img :src="senderImageSrc" />
+                        </figure>
+                    </router-link>
                 </div>
                 <div class="messages" ref="messagesContent">
                     <div class="messages-content">
