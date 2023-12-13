@@ -96,13 +96,13 @@
         <table class="table col-start-2 col-span-3">
           <tbody>
             <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index">
-              <td :class="user.userId == item.scores.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
+              <td v-if="item.scores && item.scores.winnerId" :class="user.userId == item.scores.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
                 <div class="collapse">
                   <label for="collapse1" class="collapse-title text-xl font-medium">
                     <span class="text-before">
                       <label tabindex="0" class="btn btn-ghost">
                         <div class="avatar">
-                          <div v-if="!item.scores.winByAfk" class="w-20 mask mask-squircle"> 
+                          <div v-if="user && !item.scores.winByAfk" class="w-20 mask mask-squircle"> 
                             <img v-if="user.userName == item.game.users[0].userName" :src="item.game.users[0].imageSrc" />
                             <img v-if="user.userName == item.game.users[1].userName" :src="item.game.users[1].imageSrc" />
                           </div>

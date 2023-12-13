@@ -363,7 +363,7 @@ export async function getScoreByRoomId(gameRoomId: string){
       },
     });
     if (response.ok)
-      return await response.json();
+      return await response.text();
   }
   catch (error) {
     console.error('error: sending GET request', error);
@@ -380,7 +380,7 @@ export async function getGameWinner(gameRoomId: number) {
       },
     });
     if (response.ok)
-      return await response.json();
+      return await response.text();
   }
   catch (error) {
     console.error('error: sending GET request', error);
