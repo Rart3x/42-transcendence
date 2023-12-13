@@ -1,4 +1,3 @@
-
 import { Body, Controller, Get, Post, Param, Delete } from '@nestjs/common';
 import { GameRoom } from '@prisma/client';
 import { GameRoomService } from './gameRoom.service';
@@ -27,11 +26,13 @@ export class GameRoomController {
   }
 
   @Get('getLastGameRoomIfAfk/:userId')
-  async getLastGameRoomIfAfk(@Param('userId') userId: number): Promise<GameRoom | undefined> {
+  async getLastGameRoomIfAfk(@Param('userId') userId: number): Promise<GameRoom> {
+    console.log(userId);
     const gameRoom = await this.gameRoomService.getLastGameRoomIfAfk(userId);
-    if (gameRoom){
+    console.log(gameRoom);
+    if (gameRoom)
       return (gameRoom);
-    }
+    console.log("null");
     return null
   }
 
