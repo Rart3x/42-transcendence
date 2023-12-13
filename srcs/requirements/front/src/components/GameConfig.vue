@@ -16,6 +16,9 @@
             autoCenter: Phaser.Scale.CENTER_BOTH,
             mode: Phaser.Scale.FIT,
           },
+          audio: {
+            disableWebAudio: true
+          },
           dom :{
             createContainer: true
           },
