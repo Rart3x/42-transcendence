@@ -1,13 +1,7 @@
-FROM node:lts-alpine
-
-RUN mkdir app
-
+FROM node:lts-alpine AS builder
+RUN mkdir /app
 WORKDIR /app
-
 COPY package*.json ./
-
 RUN npm install
-
 COPY . .
-
-CMD [ "npm", "run", "build" ]
+RUN npm run build
