@@ -33,8 +33,8 @@ import Player from "../player/player";
 
 
 //Get user by cookie
-const token = await Cookies.get("_authToken");
-const user = await getUserByCookie(token);
+const token = Cookies.get("_authToken");
+const user = getUserByCookie(token);
 
 //Initialize snapshot library
 const SI = new SnapshotInterpolation();

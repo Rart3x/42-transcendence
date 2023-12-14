@@ -1,12 +1,43 @@
 version: '3.8'
-
 services:
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: kramjatt
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: PMU
-    ports:
-      - '5432:5432'
-    restart: always
+ backend:
+   build: ./requirements/back
+   ports:
+     - '3000:3000'
+   volumes:
+     - ./backend-data:/src/dist
+   depends_on:
+     - postgres 
+   restart : always
+
+ frontend:
+   build: ./requirements/front
+   ports:
+     - '5173:5173'
+   volumes:
+     - ./frontend-data:/app/dist
+   depends_on:
+     - backend
+   restart: always
+
+ nginx:
+   image: nginx:alpine
+   ports:
+     - '443:443'
+   volumes:
+     - ./frontend-data:/usr/share/nginx/html
+     - ./backend-data:/usr/share/nginx/html
+   depends_on:
+     - frontend
+     - backend
+   restart: always
+
+ postgres:
+   image: postgres:latest
+   environment:
+     POSTGRES_USER: kramjatt
+     POSTGRES_PASSWORD: 123
+     POSTGRES_DB: PMU
+   ports:
+     - '5432:5432'
+   restart: always

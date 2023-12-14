@@ -5,13 +5,20 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    target: 'esnext'
+  },
+  esbuild: {
+    supported: {
+      'top-level-await': true
+    },
+  },
   plugins: [
     vue(),
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      // "db": fileURLToPath(new URL('42-transcendence/srcs/requirements/back/nest/db/services'))
     }
   }
 })

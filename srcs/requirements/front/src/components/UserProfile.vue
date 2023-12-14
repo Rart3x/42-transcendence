@@ -10,6 +10,7 @@
   import { removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
+  import store from "../store/socket";
   import { useStore } from "vuex";
 
   export const inviteFriendInGameEXPORT = async function (userName, userId, userSocket, userStatus, user) {
@@ -25,6 +26,9 @@
 
   export default {
     name: "UserProfile",
+    async created() {
+      await store.dispatch('initializeSocket');
+    },
     components: {
       Alert,
       History,
@@ -40,7 +44,7 @@
         addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false, setPassSuccess: false, unsetPassSuccess: false, 
         addChannelFailed: false, addFriendFailed: false, addMessageFailed: false, inviteInGameFailed: false, joinChannelFailed: false, removeChannelFailed: false, removeFriendFailed: false, setPassFailed: false, unsetPassFailed: false,
         message_text: "", password: "", friendsData: [], 
-        router: useRouter(), store: useStore(),
+        router: useRouter(),
         activeTab: "friends",
       };
     },
@@ -268,15 +272,8 @@
     async mounted() {
       this.user = await getUserByCookie(Cookies.get("_authToken"));
 
-      this.store.dispatch('initializeSocket');
-      await new Promise((resolve) => {
-        const interval = setInterval(() => {
-          if (this.store.state.socket) {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 100);
-      });
+      console.log(store._state.data.socke);
+      console.log(store._state.data.socke);
       setClientSocket(this.user.userName, this.store.state.socket.id);
 
       if (this.store && this.store.state.socket)
