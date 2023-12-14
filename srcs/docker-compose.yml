@@ -1,5 +1,21 @@
 version: '3.8'
 services:
+  postgres:
+    build:
+      context: ./requirements/postgreSQL 
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5    
+    restart: always
+    volumes:
+     - postgresdata:/var/lib/postgresql/data
+    networks:
+      - netnet
+
   backend:
     build:
       context: ./requirements/back
@@ -7,9 +23,10 @@ services:
     volumes:
       - backenddata:/test/dist
     ports:
-      - '8082:8080'
+      - '3000:3000'
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     restart: always
     networks:
       - netnet
@@ -35,22 +52,10 @@ services:
       - frontdata:/usr/share/nginx/html
     depends_on:
       - frontend
+      - backend
     restart: always
     networks:
       - netnet
-
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: kramjatt
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: PMU
-    ports:
-      - '5432:5432'
-    restart: always
-    networks:
-      - netnet
-
 
 volumes:
   backenddata:
@@ -59,7 +64,11 @@ volumes:
   frontdata:
     name: frontdata
     driver: local
+  postgresdata:
+    name: postgresdata
+    driver: local
 
 networks:
   netnet:
+    name: netnet
     driver: bridge

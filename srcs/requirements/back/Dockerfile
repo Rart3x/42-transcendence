@@ -1,17 +1,28 @@
 FROM node:lts-alpine AS builder
 
-RUN apk update && apk add bash postgresql-client
-
 RUN mkdir test
 WORKDIR /test
 
 COPY package*.json ./
 
+COPY prisma/schema.prisma ./prisma/schema.prisma
+
 RUN npm install
-RUN npx prisma generate
 
 COPY . .
 
-EXPOSE 8080
+RUN npm run build
 
-CMD ["bash", "wait-for-postgres.sh", "postgres", "npm", "run", "build"]
+RUN npx prisma generate
+
+FROM node:lts-alpine
+
+WORKDIR /test
+
+COPY --from=builder /test/node_modules ./node_modules
+COPY --from=builder /test/package*.json ./
+COPY --from=builder /test/dist ./dist
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:prod"]

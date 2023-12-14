@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://kramjatt:123@postgres:5432/PMU"
+  url      = "postgresql://admin:123@postgres:5432/ft_t?schema=public"
 }
 
 model Channel {
