@@ -5,12 +5,14 @@ services:
       context: ./requirements/back
       dockerfile: Dockerfile
     volumes:
-      - backenddata:/src/dist
+      - backenddata:/test/dist
     ports:
       - '8082:8080'
     depends_on:
       - postgres
     restart: always
+    networks:
+      - netnet
 
   frontend:
     build:
@@ -21,6 +23,8 @@ services:
     ports:
       - '8081:80'
     restart: always
+    networks:
+      - netnet
 
   nginx:
     image: nginx:stable-alpine
@@ -32,6 +36,8 @@ services:
     depends_on:
       - frontend
     restart: always
+    networks:
+      - netnet
 
   postgres:
     image: postgres:latest
@@ -42,6 +48,9 @@ services:
     ports:
       - '5432:5432'
     restart: always
+    networks:
+      - netnet
+
 
 volumes:
   backenddata:
@@ -50,3 +59,7 @@ volumes:
   frontdata:
     name: frontdata
     driver: local
+
+networks:
+  netnet:
+    driver: bridge

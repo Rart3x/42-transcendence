@@ -1,7 +1,9 @@
-FROM node:lts-alpine
+FROM node:lts-alpine AS builder
 
-RUN mkdir src
-WORKDIR /src
+RUN apk update && apk add bash postgresql-client
+
+RUN mkdir test
+WORKDIR /test
 
 COPY package*.json ./
 
@@ -12,4 +14,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["wait-for-postgres.sh", "postgres", "&&", "npm", "run", "build"]
+CMD ["bash", "wait-for-postgres.sh", "postgres", "npm", "run", "build"]

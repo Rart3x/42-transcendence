@@ -1,13 +1,9 @@
-set -e
+#!/bin/bash
 
-host="$1"
-shift
-cmd="$@"
-
-until PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "postgres" -c '\q'; do
- >&2 echo "Postgres is unavailable - sleeping"
+until PGPASSWORD="123" psql "postgresql://kramjatt:123@postgres:5432/PMU" -c '\q'; do
+ >&2 echo "Postgres is unavailable - waiting"
  sleep 1
 done
 
 >&2 echo "Postgres is up - executing command"
-exec $cmd
+exec "$@"
