@@ -1,7 +1,7 @@
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
 export async function removeChannel(channelName : string) { 
 	try { 
-		const response = await fetch(`http://localhost:3000/channel/delete/${channelName}`, { 
+		const response = await fetch(`http://localhost/api/channel/delete/${channelName}`, { 
 			method: "DELETE", 
 			headers: { 
 				"Content-Type": "application/json", 
@@ -20,7 +20,7 @@ export async function removeChannel(channelName : string) {
 
 export async function unmuteUser(channelName : string, userName : string) {
 	try {
-		const response = await fetch(`http://localhost:3000/channel/unmute/${channelName}/${userName}`, {
+		const response = await fetch(`http://localhost/api/channel/unmute/${channelName}/${userName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
@@ -40,7 +40,7 @@ export async function unmuteUser(channelName : string, userName : string) {
 /*-----------------------------------------------FRIENDS-----------------------------------------------*/
 export async function removeFriend(userName: string, friendName: string) {
 	try {
-		const response = await fetch(`http://localhost:3000/user/friend/delete/${friendName}`, {
+		const response = await fetch(`http://localhost/api/user/friend/delete/${friendName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
@@ -59,7 +59,7 @@ export async function removeFriend(userName: string, friendName: string) {
 
 export async function removeOperator(channelName : string, operatorName : string){
 	try {
-		const response = await fetch(`http://localhost:3000/channel/${channelName}/operator/delete/${operatorName}`, {
+		const response = await fetch(`http://localhost/api/channel/${channelName}/operator/delete/${operatorName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
@@ -78,7 +78,7 @@ export async function removeOperator(channelName : string, operatorName : string
 
 export async function removeUserFromChannel(channelName: string, friendName: string) {
 	try {
-		const response = await fetch(`http://localhost:3000/channel/${channelName}/delete/${friendName}`, {
+		const response = await fetch(`http://localhost/api/channel/${channelName}/delete/${friendName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
@@ -99,7 +99,7 @@ export async function removeUserFromChannel(channelName: string, friendName: str
 
 export async function deleteGameRoomById(gameRoomId: string) {
 	try {
-	  const response = await fetch(`http://localhost:3000/gameroom/deleteGameRoom/${gameRoomId}`, {
+	  const response = await fetch(`http://localhost/api/gameroom/deleteGameRoom/${gameRoomId}`, {
 		method: "DELETE",
 		headers: {
 		  "Content-Type": "application/json",

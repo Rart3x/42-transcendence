@@ -50,8 +50,11 @@
           }),
         });
 
-        if (!response.ok)
+        if (!response.ok){
+          console.log(response);
           throw new Error(`HTTP error! status: ${response.status}`);
+
+        }
 
         const data = await response.json();
         const accessToken = data.access_token;
@@ -62,8 +65,10 @@
           },
         });
 
-        if (!userResponse.ok)
+        if (!userResponse.ok){
+          console.log(userResponse);
           throw new Error(`HTTP error! status: ${userResponse.status}`);
+        }
 
         user.value = await userResponse.json();
         userInfo.value = user.value;

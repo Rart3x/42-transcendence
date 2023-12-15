@@ -17,11 +17,11 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('doc', app, document);
 
   const server = express();
   server.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost/',
     methods: ['GET', 'POST', 'DELETE'],
   }));
 

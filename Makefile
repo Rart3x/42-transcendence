@@ -2,7 +2,7 @@ NAME = transcendence
 
 #-------------------------------------CLASSICS-------------------------------------#
 all:
-	@docker compose -f ./srcs/docker-compose.yml up -d
+	@docker compose -f ./srcs/docker-compose.yml up
 
 run: build
 	@printf "Launch configuration ${NAME}...\n"

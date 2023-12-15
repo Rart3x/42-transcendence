@@ -3,7 +3,7 @@ import { User } from '../../../../back/node_modules/@prisma/client';
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
 export async function addOperator(channelName : string, operatorName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/add/operator/${operatorName}`, {
+    const response = await fetch(`http://localhost/api/channel/${channelName}/add/operator/${operatorName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +22,7 @@ export async function addOperator(channelName : string, operatorName : string) {
 
 export async function checkPass(channelName: string, password: string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/checkPass`, {
+    const response = await fetch(`http://localhost/api/channel/${channelName}/checkPass`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +42,7 @@ export async function checkPass(channelName: string, password: string) {
 
 export async function createChannel(channelName : string, userName : string, invitedUserName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}`, {
+    const response = await fetch(`http://localhost/api/channel/${channelName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -62,7 +62,7 @@ export async function createChannel(channelName : string, userName : string, inv
 
 export async function createEmptyChannel(channelName : string, userName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/create/${channelName}/empty`, {
+    const response = await fetch(`http://localhost/api/channel/create/${channelName}/empty`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -82,7 +82,7 @@ export async function createEmptyChannel(channelName : string, userName : string
 
 export async function joinChannel(channelName : string, userName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/join/${userName}`, {
+    const response = await fetch(`http://localhost/api/channel/${channelName}/join/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -102,7 +102,7 @@ export async function joinChannel(channelName : string, userName : string) {
 
 export async function setAdmin(channelName : string, adminName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/set/admin/${adminName}`, {
+    const response = await fetch(`http://localhost/api/channel/${channelName}/set/admin/${adminName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -121,7 +121,7 @@ export async function setAdmin(channelName : string, adminName : string) {
 
 export async function setPassword(channelName : string, password : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/set/password`, {
+    const response = await fetch(`http://localhost/api/channel/${channelName}/set/password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -144,7 +144,7 @@ export async function setPassword(channelName : string, password : string) {
 
 export async function unsetPassword(channelName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/unset/password`, {
+    const response = await fetch(`http://localhost/api/channel/${channelName}/unset/password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -168,7 +168,7 @@ export async function unsetPassword(channelName : string) {
 /*-----------------------------------------------FRIENDS-----------------------------------------------*/
 export async function addFriend(userName : string, friendName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/friend/add/${friendName}`, {
+    const response = await fetch(`http://localhost/api/user/friend/add/${friendName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -187,7 +187,7 @@ export async function addFriend(userName : string, friendName : string) {
 /*-----------------------------------------------MESSAGES-----------------------------------------------*/
 export async function insertMessage(message_text : string) {
   try {
-    const response = await fetch("http://localhost:3000/message", {
+    const response = await fetch("http://localhost/api/message", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -210,7 +210,7 @@ export async function insertMessage(message_text : string) {
 
 export async function insertMessageToChannel(channelName : string, message_text : string, user : User) {
   try {
-    const response = await fetch(`http://localhost:3000/message/${channelName}/post/message`, {
+    const response = await fetch(`http://localhost/api/message/${channelName}/post/message`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -234,7 +234,7 @@ export async function insertMessageToChannel(channelName : string, message_text 
 /*-----------------------------------------------PRIVATEMESSAGES-----------------------------------------------*/
 export async function createPrivateMessage(userName1 : string, userName2 : string, privateMessageText : string) {
   try {
-    const response = await fetch(`http://localhost:3000/privateMessage/create/${userName1}/${userName2}`, {
+    const response = await fetch(`http://localhost/api/privateMessage/create/${userName1}/${userName2}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -255,7 +255,7 @@ export async function createPrivateMessage(userName1 : string, userName2 : strin
 /*-----------------------------------------------USERS-----------------------------------------------*/
 export async function banUserFromChannel(channelName : string, userName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/ban/${userName}`, {
+    const response = await fetch(`http://localhost/api/channel/${channelName}/ban/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -274,7 +274,7 @@ export async function banUserFromChannel(channelName : string, userName : string
 
 export async function blockUser(userName : string, blockedUserName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/${userName}/block/${blockedUserName}`, {
+    const response = await fetch(`http://localhost/api/user/${userName}/block/${blockedUserName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -293,7 +293,7 @@ export async function blockUser(userName : string, blockedUserName : string) {
 
 export async function unblockUser(userName : string, unblockedUserName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/${userName}/unblock/${unblockedUserName}`, {
+    const response = await fetch(`http://localhost/api/user/${userName}/unblock/${unblockedUserName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -313,7 +313,7 @@ export async function unblockUser(userName : string, unblockedUserName : string)
 
 export async function insertUser(userName: string, image: string, cookie: string) {
   try {
-    const response = await fetch(`http://localhost:3000/user`, {
+    const response = await fetch(`http://localhost/api/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -335,7 +335,7 @@ export async function insertUser(userName: string, image: string, cookie: string
 
 export async function muteUserFromChannel(channelName : string, userName : string, duration : number) {
   try {
-    const response = await fetch(`http://localhost:3000/channel/${channelName}/mute/${userName}`, {
+    const response = await fetch(`http://localhost/api/channel/${channelName}/mute/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -354,7 +354,7 @@ export async function muteUserFromChannel(channelName : string, userName : strin
 
 export async function setStatus(userName : string, status : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/${userName}/setStatus`, {
+    const response = await fetch(`http://localhost/api/user/${userName}/setStatus`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -373,7 +373,7 @@ export async function setStatus(userName : string, status : string) {
 
 export async function updateUsername(userName : string, newUserName : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/updateUsername/${userName}`, {
+    const response = await fetch(`http://localhost/api/user/updateUsername/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -397,7 +397,7 @@ export async function updateUsername(userName : string, newUserName : string) {
 
 export async function createGameRoom(hostPlayerName : string, invitedPlayerName: string) {
   try {
-    const response = await fetch(`http://localhost:3000/gameroom/createGameRoomInvitation/${hostPlayerName}/${invitedPlayerName}`, {
+    const response = await fetch(`http://localhost/api/gameroom/createGameRoomInvitation/${hostPlayerName}/${invitedPlayerName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -420,7 +420,7 @@ export async function createGameRoom(hostPlayerName : string, invitedPlayerName:
 /*-----------------------------------------------QUEUES-----------------------------------------------*/
 export async function insertIntoQueueList(clientSocket : string) {
   try {
-    const response = await fetch(`http://localhost:3000/queuelist`, {
+    const response = await fetch(`http://localhost/api/queuelist`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -444,7 +444,7 @@ export async function insertIntoQueueList(clientSocket : string) {
 /*-----------------------------------------------UTILS-----------------------------------------------*/
 export async function setClientSocket(userName : string, socket : string) {
   try {
-    const response = await fetch(`http://localhost:3000/user/socket/${socket}`, {
+    const response = await fetch(`http://localhost/api/user/socket/${socket}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -466,7 +466,7 @@ export async function setClientSocket(userName : string, socket : string) {
 
 export async function updateA2F(userName : string, A2F : boolean) {
   try {
-    const response = await fetch(`http://localhost:3000/user/updateA2F/${userName}`, {
+    const response = await fetch(`http://localhost/api/user/updateA2F/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -492,7 +492,7 @@ export async function updateImage(userName : string, image : string) {
     formData.append("userName", userName);
     formData.append("image", image);
 
-    const response = await fetch(`http://localhost:3000/user/updateImage/${userName}`, {
+    const response = await fetch(`http://localhost/api/user/updateImage/${userName}`, {
       method: "POST",
       body: formData,
     });

@@ -89,7 +89,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	@WebSocketServer()
 	
-	server: Server = io("https://localhost:5173");
+	server: Server = io("http://localhost/");
 
 	queueListNormalGame : Map<number, string> = new Map();
 	queueListCustomGame : Map<number, string> = new Map();
