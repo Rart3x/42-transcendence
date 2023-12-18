@@ -3,6 +3,7 @@ import * as express from 'express';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 
 var cors = require('cors')
 
@@ -10,6 +11,8 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
+
+  app.use(cookieParser());
 
   const config = new DocumentBuilder()
     .setTitle('API\'s route')

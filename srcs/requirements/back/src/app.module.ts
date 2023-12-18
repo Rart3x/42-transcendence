@@ -9,6 +9,7 @@ import { GameRoomModule } from './gameRoom/gameRoom.module';
 import { MessageModule } from './message/message.module';
 import { PrivateMessageModule } from './privateMessage/privateMessage.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 import { ChannelController } from './channel/channel.controller'
 import { ChannelService } from './channel/channel.service';
@@ -33,6 +34,7 @@ import { UserService } from './user/user.service';
     MessageModule,
     PrivateMessageModule,
     UserModule,
+    AuthModule
   ],
   controllers: [
     ChannelController,

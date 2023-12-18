@@ -59,17 +59,17 @@ export class UserController {
     return { success: result };
   }
 
-  @Post()
-  async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
-    try {
-      await validateOrReject(createUserDTO);
+  // @Post()
+  // async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
+  //   try {
+  //     await validateOrReject(createUserDTO);
 
-      return this.userService.createUser(createUserDTO);
-    }
-    catch (validationErrors) {
-      throw new BadRequestException(validationErrors);
-    }
-  }
+  //     return this.userService.createUser(createUserDTO);
+  //   }
+  //   catch (validationErrors) {
+  //     throw new BadRequestException(validationErrors);
+  //   }
+  // }
 
   @Get(':userName/isBlock/:blockedUserName')
   async isBlock(@Param('userName') userName: string, @Param('blockedUserName') blockedUserName: string): Promise<{ success: boolean }> {

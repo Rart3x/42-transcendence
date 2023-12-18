@@ -198,17 +198,16 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return true;
   }
 
-  async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
+  async createUser(data : { userName: string, image: string }): Promise<User> {
     const user = await this.getUserByName(data.userName);
     
-    if (user != null)
-      return await this.updateCookie(user.userId, data.cookie);
-
+    if (user)
+      return ;
     // Download the profile picture in a folder and save the path in the database
-    const imagePath = `${data.userName}.jpg`;
-    await downloadImage(data.image, imagePath);
-    data.image = imagePath;
-    data.displayName = data.userName;
+    const imagePath = data.image;
+  
+    //TO DO: fix this function
+    // await downloadImage(data.image, imagePath);
 
     const createUserInput: Prisma.UserCreateInput = {
       ...data,
