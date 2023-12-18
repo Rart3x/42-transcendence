@@ -65,8 +65,9 @@
 
 	onMounted(async () => {
 		user.value = await getUserByCookie(Cookies.get("_authToken"));
-		if (!user.value)
-			window.location.href = "/";
+		// if (!user.value){
+		// 	window.location.href = "/";
+		// }
 		userName.value = user.value.displayName;
 		if (user.value.A2F)
 			dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);

@@ -78,15 +78,14 @@ const router = createRouter({
     }
   ],
 });
+// router.beforeEach(async (to, from, next) => {
+//   const user = await getUserByCookie(Cookies.get("_authToken"));
+//   const path = to.path;
 
-router.beforeEach(async (to, from, next) => {
-  const user = await getUserByCookie(Cookies.get("_authToken"));
-  const path = to.path;
-
-  if (!user && path !== "/" && path !== "/sign-in")
-    next('/');
-  else
-    next();
-});
+//   if (!user && path !== "/" && path !== "/sign-in")
+//     next('/');
+//   else
+//     next();
+// });
 
 export default router;

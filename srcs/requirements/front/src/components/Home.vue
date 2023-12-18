@@ -16,7 +16,7 @@
   };
 
   onMounted(async () => {
-    console.log(Cookies.get("jwt_token"));
+    // console.log(Cookies.get("jwt_token"));
     user.value = await getUserByCookie(Cookies.get("_authToken"));
     if (user)
       animateText();

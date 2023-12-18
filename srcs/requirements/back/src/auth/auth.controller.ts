@@ -52,12 +52,13 @@ export class AuthController {
                     const payload = { sub: userData.id, username: userData.login };
                     await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
                     const access_token = await this.JwtService.signAsync(payload);
-                    res.cookie('jwt_token', access_token, {
+                    res.cookie('Bearer', access_token, {
                         httpOnly: true,
                         secure: false,
                         sameSite: 'lax',
                         expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                    }).send({ status: 'ok'});
+                    });
+                    res.redirect("http://localhost:5173/settings")
                 }
             }
         }
