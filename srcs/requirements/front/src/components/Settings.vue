@@ -59,17 +59,16 @@
 			alert(`File size should not exceed ${sizeLimit}MB`);
 			return;
 		}
-
 		await updateImage(user.value.userName, selectedFile.value);
 	}
 
 	onMounted(async () => {
 		console.log(Cookies.get("UserId"));
 
-		// user.value = await getUserByUserId(Cookies.get("UserId"));
-		// if (!user.value){
-		// 	window.location.href = "/";
-		// }
+		user.value = await getUserByUserId(Cookies.get("UserId"));
+		if (!user.value){
+			window.location.href = "/";
+		}
 		// userName.value = user.value.displayName;
 		// if (user.value.A2F)
 		// 	dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);

@@ -11,10 +11,7 @@ import { AuthGuard } from '../auth/auth.guard';
     controllers: [ScoreController],
     providers: [
         ScoreService,
-        {
-            provide: APP_GUARD,
-            useClass: AuthGuard,
-        }
+  
     ],
     exports: [ScoreService]
 })

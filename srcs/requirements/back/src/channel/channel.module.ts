@@ -6,8 +6,7 @@ import { MessageService } from '../message/message.service';
 
 import { PrismaModule } from '../prisma.module';
 import { UserService } from '../user/user.service';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from '../auth/auth.guard';
+
 
 @Module({
   imports: [PrismaModule],
@@ -16,10 +15,7 @@ import { AuthGuard } from '../auth/auth.guard';
     ChannelService,
     MessageService,
     UserService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    }
+
   ],
   exports: [ChannelService]
 })

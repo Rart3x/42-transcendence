@@ -10,11 +10,8 @@ import { AuthGuard } from '../auth/auth.guard';
 @Module({
     imports: [PrismaModule],
     providers: [
-        MessageService,
-        {
-            provide: APP_GUARD,
-            useClass: AuthGuard,
-        }
+               MessageService,
+  
     ],
     controllers: [MessageController],
     exports: [MessageService],

@@ -1,4 +1,4 @@
-import { Controller,  Get, Post, Query, Redirect, Req, Res } from '@nestjs/common';
+import { Controller,  Get, Post, Query, Redirect, Req, Res, SetMetadata } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -13,6 +13,7 @@ export class AuthController {
         private readonly JwtService: JwtService){}
 
     @Get('login')
+    @SetMetadata('isPublic', true)
     async makeAuth42(
         @Query('code') code: string,
         @Res() res: Response,
@@ -50,20 +51,42 @@ export class AuthController {
                     if (!userResponse.ok)
                         throw new Error(`HTTP error! status: ${response.status}`);
                     const userData = await userResponse.json();
-                    // console.log(userData);
                     const payload = { sub: userData.id, username: userData.login };
-                    const user = await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
+
+                    var user = await this.UserService.getUserByName(userData.login);
+                    if (user){
+                        //If user already exist we set the cookies back
+                        const access_token = await this.JwtService.signAsync(payload);
+
+                        res.cookie('Bearer', access_token, {
+                            httpOnly: true,
+                            secure: false,
+                            sameSite: 'lax',
+                            expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
+                        });
+                        //UserId to retrieve user in db
+                        res.cookie('UserId', user.userId, {
+                            httpOnly: true,
+                            secure: false,
+                            sameSite: 'lax',
+                            expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
+                        })
+                        res.redirect("http://localhost:5173/settings");
+                        return ;
+                    }
+                    await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
+
                     const access_token = await this.JwtService.signAsync(payload);
                     //Jwt token to make request to the back
                     res.cookie('Bearer', access_token, {
-                        httpOnly: true,
+                        httpOnly: false,
                         secure: false,
                         sameSite: 'lax',
                         expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
                     });
-                    // UserId to retrieve user in db
+                    //UserId to retrieve user in db
                     res.cookie('UserId', user.userId, {
-                        httpOnly: true,
+                        httpOnly: false,
                         secure: false,
                         sameSite: 'lax',
                         expires: new Date(Date.now() + 1 * 24 * 60 * 1000),

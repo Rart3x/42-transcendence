@@ -451,6 +451,7 @@ export async function getUserByCookie(cookie : string) {
 }
 
 export async function getUserByUserId(userId : number) {
+  console.log("userID: ", userId)
   try {
     const response = await fetch(`http://localhost:3000/user/getUser/${userId}`, {
       method: "GET",

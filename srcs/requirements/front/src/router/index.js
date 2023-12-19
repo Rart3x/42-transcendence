@@ -62,11 +62,6 @@ const router = createRouter({
       component: () => import("@/components/Settings.vue"),
     },
     {
-      path: "/sign-in",
-      name: "sign-in",
-      component: () => import("@/components/SignIn.vue"),
-    },
-    {
       path: "/leaderboard",
       name: "leaderboard",
       component: () => import("@/components/Leaderboard.vue"),

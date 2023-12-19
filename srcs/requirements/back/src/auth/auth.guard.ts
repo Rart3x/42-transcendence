@@ -4,22 +4,31 @@ import {
     Injectable,
     UnauthorizedException,
 } from '@nestjs/common';
-
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    //In order to only let public the route for the auth which generates
+    //the jwt token we set the metadata of route to true inside Auth controller
+    const isPublic = this.reflector.get<boolean>(
+      'isPublic',
+      context.getHandler(),
+    );
+
+    if (isPublic) {
+      return true;
+    }
     const request = context.switchToHttp().getRequest();
-    // const token = this.extractTokenFromHeader(request);
     const token = request.cookies.Bearer;
-    // console.log(request.cookies.Bearer);
-    // console.log(token);
-    // console.log(jwtConstants);
+
     if (!token) {
       throw new UnauthorizedException();
     }
@@ -39,8 +48,4 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-//   private extractTokenFromHeader(request: Request): string | undefined {
-//     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-//     return type === 'Bearer' ? token : undefined;
-//   }
 }

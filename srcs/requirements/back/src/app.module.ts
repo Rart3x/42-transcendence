@@ -24,6 +24,8 @@ import { PrivateMessageService } from './privateMessage/privateMessage.service';
 
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -47,6 +49,10 @@ import { UserService } from './user/user.service';
     MessageService,
     PrismaService,
     PrivateMessageService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    }
   ],
 })
 export class AppModule {}

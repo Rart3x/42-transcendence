@@ -6,6 +6,7 @@
     "daisyui": "^3.9.4"
   },
   "dependencies": {
+    "@esbuild/darwin-arm64": "^0.19.10",
     "@fastify/cookie": "^9.2.0",
     "@nestjs/cache-manager": "^2.1.1",
     "@nestjs/jwt": "^10.2.0",
@@ -14,6 +15,7 @@
     "data-fns": "^1.1.0",
     "date-fns": "^2.30.0",
     "dotenv": "^16.3.1",
+    "typescript-cookie": "^1.0.6",
     "vue-cookie": "^1.1.4",
     "vuex": "^4.1.0"
   }

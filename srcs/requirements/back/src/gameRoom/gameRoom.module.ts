@@ -11,10 +11,7 @@ import { AuthGuard } from '../auth/auth.guard';
     controllers: [GameRoomController],
     providers: [
         GameRoomService,
-        {
-            provide: APP_GUARD,
-            useClass: AuthGuard,
-        }
+
     ],
     exports: [GameRoomService]
 })

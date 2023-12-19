@@ -11,10 +11,7 @@ import { AuthGuard } from '../auth/auth.guard';
     imports: [PrismaModule],
     providers: [PrivateMessageService,
         UserService,
-        {
-            provide: APP_GUARD,
-            useClass: AuthGuard,
-        }
+    
     ],
     controllers: [PrivateMessageController],
     exports: [PrivateMessageService],

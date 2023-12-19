@@ -14,6 +14,11 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  });
+  
   const config = new DocumentBuilder()
     .setTitle('API\'s route')
     .setVersion('0.1')
@@ -23,10 +28,10 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   const server = express();
-  server.use(cors({
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'DELETE'],
-  }));
+  // server.use(cors({
+  //   origin: 'http://localhost:5173',
+  //   methods: ['GET', 'POST', 'DELETE'],
+  // }));
 
   app.use(cors())
 
