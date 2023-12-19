@@ -3,7 +3,7 @@
 	import qrcode from 'qrcode';
 	import UserStatHeader from './UserStatHeader.vue';
 	import { updateImage, updateUsername, updateA2F } from './api/post.call';
-	import { getUserByCookie } from './api/get.call';
+	import { getUserByCookie, getUserByUserId } from './api/get.call';
 	import { onMounted, ref } from 'vue';
 	import { useStore } from 'vuex';
 
@@ -64,13 +64,16 @@
 	}
 
 	onMounted(async () => {
-		user.value = await getUserByCookie(Cookies.get("_authToken"));
-		if (!user.value)
-			window.location.href = "/";
-		userName.value = user.value.displayName;
-		if (user.value.A2F)
-			dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);
-		A2FEnabled.value = user.value.A2F;
+		console.log(Cookies.get("UserId"));
+
+		// user.value = await getUserByUserId(Cookies.get("UserId"));
+		// if (!user.value){
+		// 	window.location.href = "/";
+		// }
+		// userName.value = user.value.displayName;
+		// if (user.value.A2F)
+		// 	dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);
+		// A2FEnabled.value = user.value.A2F;
 	});
 </script>
 

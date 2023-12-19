@@ -2,14 +2,14 @@
   import Cookies from "js-cookie";
   import Header from "@/components/Header.vue";
   import { onMounted, ref } from "vue";
-  import { getUserByCookie } from "./components/api/get.call";
+  import { getUserByCookie, getUserByUserId } from "./components/api/get.call";
   import { setClientSocket } from "./components/api/post.call";
   import "./assets/main.css"
 
   let user = ref(null);
 
   onMounted(async () => {
-    user.value = await getUserByCookie(Cookies.get("_authToken"));
+    user.value = await getUserByUserId(Cookies.get("UserId"));
 
   });
 </script>

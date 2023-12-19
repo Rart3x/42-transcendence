@@ -202,12 +202,16 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     const user = await this.getUserByName(data.userName);
     
     if (user)
-      return ;
-    // Download the profile picture in a folder and save the path in the database
+      return user;
+
     const imagePath = data.image;
   
-    //TO DO: fix this function
-    // await downloadImage(data.image, imagePath);
+    let parts = imagePath.split('/');
+    let imageNameWithExtension = parts.pop();
+    let imageParts = imageNameWithExtension.split('.');
+    let imageName = imageParts[0];
+
+    await downloadImage(data.image, imageName);
 
     const createUserInput: Prisma.UserCreateInput = {
       ...data,

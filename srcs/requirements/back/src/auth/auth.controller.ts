@@ -2,7 +2,7 @@ import { Controller,  Get, Post, Query, Redirect, Req, Res } from '@nestjs/commo
 import * as dotenv from 'dotenv';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { Request, Response } from 'express';
+import e, { Request, Response } from 'express';
 
 dotenv.config();
 
@@ -19,7 +19,6 @@ export class AuthController {
         ) : Promise<any>{
         try {
             if (code) {
-                // console.log(code);
                 //Fetch to retrieve the bearer token with query code 
                 const response = await fetch("https://api.intra.42.fr/oauth/token", {
                     method: "POST",
@@ -34,8 +33,10 @@ export class AuthController {
                         redirect_uri: process.env.VITE_REDIRECT_URI
                     }),
                 });
+
                 if (!response.ok)
                     throw new Error(`HTTP error! status: ${response.status}`);
+
                 const data = await response.json();
                 const token = data.access_token;
 
@@ -49,15 +50,25 @@ export class AuthController {
                     if (!userResponse.ok)
                         throw new Error(`HTTP error! status: ${response.status}`);
                     const userData = await userResponse.json();
+                    // console.log(userData);
                     const payload = { sub: userData.id, username: userData.login };
-                    await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
+                    const user = await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
                     const access_token = await this.JwtService.signAsync(payload);
-                    res.cookie('jwt_token', access_token, {
+                    //Jwt token to make request to the back
+                    res.cookie('Bearer', access_token, {
                         httpOnly: true,
                         secure: false,
                         sameSite: 'lax',
                         expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                    }).send({ status: 'ok'});
+                    });
+                    // UserId to retrieve user in db
+                    res.cookie('UserId', user.userId, {
+                        httpOnly: true,
+                        secure: false,
+                        sameSite: 'lax',
+                        expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
+                    })
+                    res.redirect("http://localhost:5173/settings")
                 }
             }
         }
