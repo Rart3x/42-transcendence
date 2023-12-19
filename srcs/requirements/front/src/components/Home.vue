@@ -1,6 +1,6 @@
 <script setup>
   import Cookies from "js-cookie";
-  import { getUserByCookie } from "./api/get.call";
+  import { getUserByUserId } from "./api/get.call";
   import { onMounted, ref } from "vue";
 
   let text = ' ft_transcendence';
@@ -16,12 +16,10 @@
   };
 
   onMounted(async () => {
-    // console.log(Cookies.get("jwt_token"));
-    user.value = await getUserByCookie(Cookies.get("_authToken"));
+    user.value = await getUserByUserId(Cookies.get("UserId"));
     if (user)
       animateText();
   });
-
 
   const animateText = () => {
     const textInterval = setInterval(() => {

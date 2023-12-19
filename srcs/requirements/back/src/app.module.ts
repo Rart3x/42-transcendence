@@ -47,7 +47,6 @@ import { UserService } from './user/user.service';
     MessageService,
     PrismaService,
     PrivateMessageService,
-    UserService,
   ],
 })
 export class AppModule {}

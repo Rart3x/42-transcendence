@@ -136,7 +136,7 @@ export class UserController {
   async updateA2F(@Body('userName') userName: string, @Body('A2F') A2F: boolean): Promise<User> {
     
     const user = await this.userService.updateA2F(userName, A2F);
-    if (!user) {
+    if (!user) { 
       console.warn("error: user not found");
     }
     return user;
