@@ -7,13 +7,14 @@
   let users = ref([]);
   let userImage = ref([]);
   let user = ref(null);
+  let cookieJWT = ref(null);
 
   onMounted(async () => {
     let cookieUserId = Cookies.get('UserId');
-		let cookieJWT = Cookies.get('Bearer');
-    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
-      user.value = await getUserByUserId(cookieUserId, cookieJWT);
-      users.value = await getAllUsers(cookieJWT);
+		cookieJWT.value = Cookies.get('Bearer');
+    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
+      user.value = await getUserByUserId(cookieUserId, cookieJWT.value);
+      users.value = await getAllUsers(cookieJWT.value);
       users.value = users.value.sort((a, b) => b.matchmakingScore - a.matchmakingScore);
       if (users.value){
         users.value.forEach((user, index) => {
