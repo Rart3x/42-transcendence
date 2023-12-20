@@ -504,51 +504,9 @@ export async function getAllUsers(jwtToken: string) {
   }
 }
 
-<<<<<<< HEAD
-/*-----------------------------------------------UTILS-----------------------------------------------*/
-export async function getClientFromQueueList(){
-  try {
-    const response = await fetch("http://localhost/api/queuelist", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      const responseData = await response.json();
-      return responseData;
-    }
-  } 
-  catch (error) {
-    console.error('error: sending GET request', error);
-  }
-}
-
-export async function sumQueueList(){
-  try {
-    const response = await fetch("http://localhost/api/queuelist/sum", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      const responseData = await response.json();
-      return responseData;
-    }
-  } 
-  catch (error) {
-    console.error('error: sending GET request', error);
-  }
-}
-
-export async function checkA2F(userName : string, token : string) {
-=======
 /*-----------------------------------------------AUTH-----------------------------------------------*/
 
 export async function checkA2F(userName : string, token : string, jwtToken: string) {
->>>>>>> auth
   try {
     const response = await fetch(`http://localhost/api/user/checkA2F/${userName}?token=${token}`, {
       method: "GET",

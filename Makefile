@@ -2,7 +2,7 @@ NAME = transcendence
 
 #-------------------------------------CLASSICS-------------------------------------#
 all:
-	@docker compose -f ./srcs/docker-compose.yml up
+	@make front & make run
 
 run: build
 	@printf "Launch configuration ${NAME}...\n"
@@ -56,6 +56,5 @@ fclean:
 	@docker system prune --all --force --volumes
 	@docker network prune --force
 	@docker volume prune --force
-	@rm -rf ./srcs/frontend-data/* ./srcs/backend-data/*
 
 .PHONY	: all build down re clean fclean vue

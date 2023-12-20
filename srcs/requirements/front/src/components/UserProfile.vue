@@ -44,11 +44,7 @@
         addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false, setPassSuccess: false, unsetPassSuccess: false, 
         addChannelFailed: false, addFriendFailed: false, addMessageFailed: false, inviteInGameFailed: false, joinChannelFailed: false, removeChannelFailed: false, removeFriendFailed: false, setPassFailed: false, unsetPassFailed: false,
         message_text: "", password: "", friendsData: [], 
-<<<<<<< HEAD
-        router: useRouter(),
-=======
         router: useRouter(), store: useStore(), cookieJWT: null,
->>>>>>> auth
         activeTab: "friends",
       };
     },
