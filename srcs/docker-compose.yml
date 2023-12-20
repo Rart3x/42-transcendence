@@ -1,12 +1,82 @@
 version: '3.8'
-
 services:
   postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: kramjatt
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: PMU
+    container_name: postgres
+    hostname: postgres
+    build:
+      context: ./requirements/postgreSQL 
     ports:
       - '5432:5432'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5    
     restart: always
+    volumes:
+     - postgresdata:/var/lib/postgresql/data
+    networks:
+      - transcendence
+
+  backend:
+    container_name: backend
+    hostname: backend
+    build:
+      context: ./requirements/back
+      dockerfile: Dockerfile
+    volumes:
+      - backenddata:/test/dist
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - transcendence
+
+  frontend:
+    container_name: frontend
+    hostname: frontend
+    build:
+      context: ./requirements/front
+      dockerfile: Dockerfile
+    volumes:
+      - frontdata:/app/dist
+    depends_on:
+      - backend
+    restart: on-failure
+    networks:
+      - transcendence
+
+  nginx:
+    container_name: nginx
+    hostname: nginx
+    image: nginx:stable-alpine
+    ports:
+      - '80:80'
+    volumes:
+      - ./requirements/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - frontdata:/usr/share/nginx/html
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+    networks:
+      - transcendence
+
+volumes:
+  backenddata:
+    name: backenddata
+    driver: local
+  frontdata:
+    name: frontdata
+    driver: local
+  postgresdata:
+    name: postgresdata
+    driver: local
+
+networks:
+  transcendence:
+    name: transcendence
+    driver: bridge
