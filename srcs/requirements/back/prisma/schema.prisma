@@ -158,7 +158,6 @@ model User {
   image         String     @default("default_pic.jpg")
   isChecked     Boolean    @default(false)
 
-  cookie        String?    @unique
   socket        String?
   status        String?    @default("offline")
 

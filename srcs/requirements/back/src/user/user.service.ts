@@ -407,13 +407,6 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     });
   }
 
-  async updateCookie(userId: number, cookie: string): Promise<User> {
-    return this.prisma.user.update({
-      where: { userId: userId },
-      data: { cookie: cookie },
-    });
-  }
-
   async updateImage(userName: string, imageFile: Express.Multer.File): Promise<User> {
     const imagePath = path.join(__dirname, '../../../front/src/assets/userImages', `${userName}.jpg`);
     fs.writeFileSync(imagePath, imageFile.buffer);

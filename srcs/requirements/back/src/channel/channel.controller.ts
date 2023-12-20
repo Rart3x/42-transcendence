@@ -27,7 +27,7 @@ export class ChannelController {
   }
 
   @Post(':channelName/mute/:userName')
-  async muteUserFromChannel( @Body('channelName') channelName: string, @Body('userName') userName: string, @Body('duration') duration: number ): Promise<{ success: boolean }> {
+  async muteUserFromChannel(@Body('channelName') channelName: string, @Body('userName') userName: string, @Body('duration') duration: number ): Promise<{ success: boolean }> {
     const result = await this.channelService.muteUserFromChannel(channelName, userName, duration);
     return { success: result };
   }

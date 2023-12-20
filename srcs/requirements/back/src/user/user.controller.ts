@@ -146,20 +146,6 @@ export class UserController {
     return user
   }
 
-  @Post('updateCookie/:cookie')
-  async updateCookie(@Body('userName') userName: string, @Body('cookie') cookie: string): Promise<User> {
-    
-    const user = await this.userService.getUserByName(userName);
-    
-    if (user) {
-      await this.userService.updateCookie(user.userId, cookie); 
-    }
-    else{
-      console.warn("error: user not found");
-    }
-    return user;
-  }
-
   @Post('updateImage/:userName')
   @UseInterceptors(FileInterceptor('image'))
   async updateImage(@Param('userName') userName: string, @UploadedFile() image): Promise<User> {
