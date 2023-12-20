@@ -3,7 +3,7 @@
   import Modal from './Modal.vue';
   import Cookies from "js-cookie";
   import { removeChannel, removeOperator, removeUserFromChannel, unmuteUser} from "./api/delete.call";
-  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie } from "./api/get.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByUserId } from "./api/get.call";
   import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel, setAdmin } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
@@ -34,21 +34,23 @@
   const route = useRoute();
   const router = useRouter();
 
+  let cookieJWT = ref(null);
+
   const addOperatorInDB = async (channelName, userName) => {
-    const response = await addOperator(channelName, userName);
-    updateOperator(users.value, route.params.channelName);
+    const response = await addOperator(channelName, userName, cookieJWT.value);
+    updateOperator(users.value, route.params.channelName, cookieJWT.value);
   };
 
   const removeOperatorInDB = async (channelName, userName) => {
     const response = await removeOperator(channelName, userName);
-    updateOperator(users.value, route.params.channelName);
+    updateOperator(users.value, route.params.channelName, cookieJWT.value);
   };
 
   const closeMuteModal = () => { modalMuteUser.value = false; };
   const openMuteModal = (userMutedName) => { modalMuteUser.value = true; userMuted.value = userMutedName};
 
   const banUserFromChannelInDB = async (channelName, userName) => {
-    const response = await banUserFromChannel(channelName, userName);
+    const response = await banUserFromChannel(channelName, userName, cookieJWT.value);
 
     if (response && response.success) {
       banSuccess.value = true;
@@ -62,29 +64,29 @@
         banFailed.value = false;
       }, 3000);
     }
-    updateBan(users.value, route.params.channelName);
+    updateBan(users.value, route.params.channelName, jwtToken);
   };
 
   const isOperatorInDB = async (channelName, userId) => {
-    const channel = await getChannelByName(channelName);
+    const channel = await getChannelByName(channelName, cookieJWT.value);
     if (channel && channel.channelOperators)
       return channel.channelOperators.some(operator => operator.userId === userId);
   };
 
   const isUserBanInChannelInDB = async (channelName, userId) => {
-    const channel = await getChannelByName(channelName);
+    const channel = await getChannelByName(channelName, cookieJWT.value);
     if (channel && channel.channelUsersMute)
       return channel.channelUsersBan.some(user => user.userId === userId);
   };
 
   const isUserMuteInChannelInDB = async (channelName, userId) => {
-    const channel = await getChannelByName(channelName);
+    const channel = await getChannelByName(channelName, cookieJWT.value);
     if (channel && channel.channelUsersMute)
       return channel.channelUsersMute.some(operator => operator.userId === userId);
   };
 
   const muteUserFromChannelInDB = async (channelNameMute, userName, selectedDuration) => {
-    const response = await muteUserFromChannel(channelNameMute, userName, selectedDuration);
+    const response = await muteUserFromChannel(channelNameMute, userName, selectedDuration, cookieJWT.value);
 
     if (response && response.success) {
       muteSuccess.value = true;
@@ -98,25 +100,25 @@
         muteFailed.value = false;
       }, 3000);
     }
-    users.value = await getUsersFromChannel(route.params.channelName);
+    users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
     updateUserImages(users.value);
-    channel.value = await getChannelByName(route.params.channelName);
+    channel.value = await getChannelByName(route.params.channelName, cookieJWT.value);
   };
 
   const removeUserFromChannelInDB = async (channelName, userName) => {
-    const chan = await getChannelByName(channelName);
+    const chan = await getChannelByName(channelName, cookieJWT.value);
 
     if (actualUser.value.userId === chan.channelAdmin) { 
       if (chan.channelOperators.length > 0) {
         const newAdmin = chan.channelOperators[Math.floor(Math.random() * chan.channelOperators.length)];
-        await setAdmin(channelName, newAdmin.userName);
-        await removeOperator(channelName, newAdmin.userName);
+        await setAdmin(channelName, newAdmin.userName, cookieJWT.value);
+        await removeOperator(channelName, newAdmin.userName, cookieJWT.value);
       }
       else
-        await removeChannel(channelName);
+        await removeChannel(channelName, cookieJWT.value);
     }
 
-    const response = await removeUserFromChannel(channelName, userName);
+    const response = await removeUserFromChannel(channelName, userName, cookieJWT.value);
 
     if (response && response.success) {
       kickSuccess.value = true;
@@ -130,7 +132,7 @@
         kickFailed.value = false;
       }, 3000);
     }
-    users.value = await getUsersFromChannel(route.params.channelName);
+    users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
     updateUserImages(users.value);
     router.push("/profile");
   };
@@ -146,9 +148,10 @@
       await insertMessageToChannel(
         route.params.channelName,
         message_text.value,
-        actualUser.value
+        actualUser.value,
+        cookieJWT.value
       );
-      messages.value = await getMessagesFromChannel(route.params.channelName);
+      messages.value = await getMessagesFromChannel(route.params.channelName, cookieJWT.value);
       await nextTick();
       scrollToBottom();
       message_text.value = "";
@@ -163,15 +166,15 @@
 
   async function updateBan(users, channelName) {
     for (let user of users) {
-      user.isBan = await isUserBanInChannelInDB(channelName, user.userId);
+      user.isBan = await isUserBanInChannelInDB(channelName, user.userId, cookieJWT.value);
     }
   }
 
   async function updateOperator(users, channelName) {
     for (let user of users) {
-      user.isOperator = await isOperatorInDB(channelName, user.userId);
+      user.isOperator = await isOperatorInDB(channelName, user.userId, cookieJWT.value);
     }
-    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
+    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId, cookieJWT.value);
   }
 
   async function updateMessageSenders(messages) {
@@ -181,7 +184,7 @@
         await import(/* @vite-ignore */ imagePath).then((image) => {
           message.sender.image = image.default;
         });
-        message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId);
+        message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId, cookieJWT.value);
       }
     }
   }
@@ -192,7 +195,7 @@
       await import(/* @vite-ignore */ imagePath).then((image) => {
         user.imageSrc = image.default;
       });
-      user.isOperator = await isOperatorInDB(route.params.channelName, user.userId);
+      user.isOperator = await isOperatorInDB(route.params.channelName, user.userId, cookieJWT.value);
     }
   }
 
@@ -201,54 +204,60 @@
 
     for (const user of users.value) {
       if (user.userId !== actualUser.value.userId) {
-        const isMuted = await isUserMuteInChannelInDB(route.params.channelName, user.userId);
+        const isMuted = await isUserMuteInChannelInDB(route.params.channelName, user.userId, cookieJWT.value);
         
         if (isMuted) {
           const muteDetails = channel.value.channelUsersMute.find(user => user.userId === user.userId).mutedUntil;
           const muteUntil = new Date(muteDetails);
 
           if (currentTime > muteUntil) {  
-            await unmuteUser(route.params.channelName, user.userName);
+            await unmuteUser(route.params.channelName, user.userName, cookieJWT.value);
             user.isMuted = false;
           }
         }
       }
     }
-    users.value = await getUsersFromChannel(route.params.channelName);
+    users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
     updateUserImages(users.value);
   };
 
   setInterval(checkMuteStatus, 30000);
 
   onMounted(async () => {
-    actualUser.value = await getUserByCookie(Cookies.get("_authToken"));
+    let cookieUserId = Cookies.get('UserId');
+		cookieJWT.value = Cookies.get('Bearer');
+    
+    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
 
-    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
+			actualUser.value = await getUserByUserId(cookieUserId, cookieJWT.value);
 
-    channel.value = await getChannelByName(route.params.channelName);
-    channelNameMute.value = route.params.channelName;
+      actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId, cookieJWT.value);
 
-    if (channel.value && channel.value.channelUsers) {
-      const userWithSameId = channel.value.channelUsers.find(user => user.userId === actualUser.value.userId);
-      if (!userWithSameId) window.location.href = "/profile";
-    }
+      channel.value = await getChannelByName(route.params.channelName, cookieJWT.value);
+      channelNameMute.value = route.params.channelName;
 
-    if (actualUser.value.image) {
-      let userImagePath = "../assets/userImages/" + actualUser.value.image;
-      await import(/* @vite-ignore */ userImagePath).then((userImage) => {
-        actualUser.value.image = userImage.default;
-      });
-    }
-    actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId);
+      if (channel.value && channel.value.channelUsers) {
+        const userWithSameId = channel.value.channelUsers.find(user => user.userId === actualUser.value.userId);
+        if (!userWithSameId) window.location.href = "/profile";
+      }
 
-    let usersData = await getUsersFromChannel(route.params.channelName);
-    await updateUserImages(usersData);
+      if (actualUser.value.image) {
+        let userImagePath = "../assets/userImages/" + actualUser.value.image;
+        await import(/* @vite-ignore */ userImagePath).then((userImage) => {
+          actualUser.value.image = userImage.default;
+        });
+      }
+      actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId, cookieJWT.value);
 
-    messages.value = await getMessagesFromChannel(route.params.channelName);
+      let usersData = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+      await updateUserImages(usersData);
 
-    scrollToBottom();
-    await updateMessageSenders(messages.value);
-    users.value.splice(0, users.value.length, ...usersData);
+      messages.value = await getMessagesFromChannel(route.params.channelName, cookieJWT.value);
+
+      scrollToBottom();
+      await updateMessageSenders(messages.value, cookieJWT.value);
+      users.value.splice(0, users.value.length, ...usersData);
+		}
   });
 </script>
  
@@ -290,7 +299,7 @@
                   <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
                     <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
                     <button class="btn glass btn-warning" @click="openMuteModal(user.userName)">Mute</button>
-                    <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
+                    <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName, )">Kick</button>
                     <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperatorInDB($route.params.channelName, user.userName)" >Promote</button>
                     <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperatorInDB($route.params.channelName, user.userName)">Depreciate</button>
                   </div>

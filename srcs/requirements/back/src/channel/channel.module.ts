@@ -7,10 +7,16 @@ import { MessageService } from '../message/message.service';
 import { PrismaModule } from '../prisma.module';
 import { UserService } from '../user/user.service';
 
+
 @Module({
   imports: [PrismaModule],
   controllers: [ChannelController],
-  providers: [ChannelService, MessageService, UserService],
+  providers: [
+    ChannelService,
+    MessageService,
+    UserService,
+
+  ],
   exports: [ChannelService]
 })
 

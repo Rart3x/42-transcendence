@@ -4,7 +4,7 @@
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
   import { inviteFriendInGameEXPORT, socketOnEXPORT } from "./UserProfile.vue";
-  import { getAllUsers, getPrivateMessagesByUserName, getUserByCookie, getUserByUserName } from "./api/get.call.ts";
+  import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName } from "./api/get.call.ts";
   import { createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
   import { RouterLink } from "vue-router";
 
@@ -28,7 +28,8 @@
         userName: "",
         invitationInGameSuccess: false,
         inviteInGameSuccess: false,
-        inviteInGameFailed: false
+        inviteInGameFailed: false,
+        cookieJWT: null,
       };
     },
     computed: {
@@ -52,37 +53,39 @@
     methods: {
       createPrivateMessageInDB(userName, senderName, message_text) {
         if (message_text === "/game") { 
-          const user1 = getUserByUserName(senderName);
+          const user1 = getUserByUserName(senderName, this.cookieJWT);
           message_text = "";
           this.modalMessage = false;
-          inviteFriendInGameEXPORT(user1.userName, user1.userId, user1.userSocket, user1.userStatus, this.user);
+          inviteFriendInGameEXPORT(user1.userName, user1.userId, user1.userSocket, user1.userStatus, this.user, this.cookieJWT);
         }
-        const response = createPrivateMessage(userName, senderName, message_text);
+        const response = createPrivateMessage(userName, senderName, message_text, this.cookieJWT);
         message_text = "";
-        this.privateMessages = getPrivateMessagesByUserName(this.user.userName);
+        this.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       },
       logout() {
         Cookies.remove("_authToken");
-        setStatus(this.user.userName, "offline");
+        setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";
       },
       closeMessageModal() { this.modalMessage = false; },
       openMessageModal(userName, message) { this.modalMessage = true; this.currentUserName = userName; this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; },
     },
     async mounted() {
-      if (Cookies.get("_authToken") == undefined)
-        return;
-
-      this.user = await getUserByCookie(Cookies.get("_authToken"));
+      let cookieUserId = Cookies.get('UserId');
+		  this.cookieJWT = Cookies.get('Bearer');
+  
+      if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined'){
+        this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
+      }
       this.userName = this.user.displayName;
 
-      this.privateMessages = await getPrivateMessagesByUserName(this.user.userName);
+      this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       
       let imagePath = "../assets/userImages/" + this.user.image;
       import(/* @vite-ignore */ imagePath).then((image) => {
         this.imageSrc = image.default;
       });
-      this.users = await getAllUsers();
+      this.users = await getAllUsers(this.cookieJWT);
     }
   };
 </script>

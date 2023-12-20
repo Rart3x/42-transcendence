@@ -3,9 +3,8 @@
 	import qrcode from 'qrcode';
 	import UserStatHeader from './UserStatHeader.vue';
 	import { updateImage, updateUsername, updateA2F } from './api/post.call';
-	import { getUserByCookie } from './api/get.call';
+	import { getUserByUserId } from './api/get.call';
 	import { onMounted, ref } from 'vue';
-	import { useStore } from 'vuex';
 
 	let dataURL = ref(null);
 	let selectedFile = ref(null);
@@ -16,10 +15,11 @@
 
 	let A2FEnabled = ref(false);
 	let activeTab = ref("username");
+	let cookieJWT = ref(null);
 
 	const changeA2F = async () => {
 		user.value.A2F = !user.value.A2F;
-		user.value = await updateA2F(user.value.userName, user.value.A2F);
+		user.value = await updateA2F(user.value.userName, user.value.A2F, cookieJWT.value);
 		dataURL = ref(null);
 		if (user.value.A2F)
 				dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);
@@ -28,11 +28,11 @@
 
 	const handleSubmit = async () => {
 		if (!newUserName.value || newUserName.value.length > 20 || newUserName.value.length < 3 || !/^[A-Za-z0-9_\-]+$/.test(newUserName.value)) {
-				alert('Invalid username');
-				return;
+			alert('Invalid username');
+			return;
 		}
 
-		await updateUsername(user.value.userName, newUserName.value);
+		await updateUsername(user.value.userName, newUserName.value, cookieJWT.value);
 		window.location.href = "/settings";
 	}
 
@@ -59,18 +59,22 @@
 			alert(`File size should not exceed ${sizeLimit}MB`);
 			return;
 		}
-
-		await updateImage(user.value.userName, selectedFile.value);
+		await updateImage(user.value.userName, selectedFile.value, cookieJWT.value);
 	}
 
 	onMounted(async () => {
-		user.value = await getUserByCookie(Cookies.get("_authToken"));
-		if (!user.value)
-			window.location.href = "/";
-		userName.value = user.value.displayName;
-		if (user.value.A2F)
-			dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);
-		A2FEnabled.value = user.value.A2F;
+		let cookieUserId = Cookies.get('UserId');
+		cookieJWT.value = Cookies.get('Bearer');
+		if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
+			user.value = await getUserByUserId(cookieUserId, cookieJWT.value);
+			if (!user.value){
+				window.location.href = "/";
+			}
+			userName.value = user.value.displayName;
+			if (user.value.A2F)
+				dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);
+			A2FEnabled.value = user.value.A2F;
+		}
 	});
 </script>
 

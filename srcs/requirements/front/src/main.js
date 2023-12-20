@@ -4,7 +4,6 @@ import router from './router';
 import store from './store/socket.js';
 
 const app = createApp(App);
-
 app.config.productionTip = false;
 
 app.use(store);

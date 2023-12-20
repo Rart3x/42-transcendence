@@ -3,6 +3,7 @@ import * as express from 'express';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 
 var cors = require('cors')
 
@@ -11,6 +12,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
 
+  app.use(cookieParser());
+
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  });
+  
   const config = new DocumentBuilder()
     .setTitle('API\'s route')
     .setVersion('0.1')
@@ -20,10 +28,10 @@ async function bootstrap() {
   SwaggerModule.setup('doc', app, document);
 
   const server = express();
-  server.use(cors({
-    origin: 'http://localhost/',
-    methods: ['GET', 'POST', 'DELETE'],
-  }));
+  // server.use(cors({
+  //   origin: 'http://localhost:5173',
+  //   methods: ['GET', 'POST', 'DELETE'],
+  // }));
 
   app.use(cors())
 

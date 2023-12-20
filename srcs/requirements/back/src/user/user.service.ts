@@ -198,17 +198,20 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return true;
   }
 
-  async createUser(data: Prisma.UserCreateInput, friendName: string | null = null): Promise<User> {
+  async createUser(data : { userName: string, image: string }): Promise<User> {
     const user = await this.getUserByName(data.userName);
     
-    if (user != null)
-      return await this.updateCookie(user.userId, data.cookie);
+    if (user)
+      return user;
 
-    // Download the profile picture in a folder and save the path in the database
-    const imagePath = `${data.userName}.jpg`;
-    await downloadImage(data.image, imagePath);
-    data.image = imagePath;
-    data.displayName = data.userName;
+    const imagePath = data.image;
+  
+    let parts = imagePath.split('/');
+    let imageNameWithExtension = parts.pop();
+    let imageParts = imageNameWithExtension.split('.');
+    let imageName = imageParts[0];
+
+    await downloadImage(data.image, imageName);
 
     const createUserInput: Prisma.UserCreateInput = {
       ...data,
@@ -253,15 +256,6 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return false;
   }
 
-  async getUserByCookie(cookie: string) {
-    
-    const user = await this.prisma.user.findFirst({
-      where: { cookie: cookie },
-    });
-
-    return user;
-  }
-
   async getUserByName(userName: string) {
     return await this.prisma.user.findFirst({
       where: { userName: userName },
@@ -274,7 +268,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   async getUserById(userId: number) {
     const userIdNumber = Number(userId);
     return await this.prisma.user.findUnique({
-      where: { userId: userIdNumber },
+      where: { userId: userIdNumber }
     });
    }
    
@@ -410,13 +404,6 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return this.prisma.user.update({
       where: { userName: userName },
       data: { A2FUrl: otpAuthUrl, A2F: true, A2FSecret: secret },
-    });
-  }
-
-  async updateCookie(userId: number, cookie: string): Promise<User> {
-    return this.prisma.user.update({
-      where: { userId: userId },
-      data: { cookie: cookie },
     });
   }
 

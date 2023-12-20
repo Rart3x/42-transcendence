@@ -59,17 +59,17 @@ export class UserController {
     return { success: result };
   }
 
-  @Post()
-  async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
-    try {
-      await validateOrReject(createUserDTO);
+  // @Post()
+  // async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
+  //   try {
+  //     await validateOrReject(createUserDTO);
 
-      return this.userService.createUser(createUserDTO);
-    }
-    catch (validationErrors) {
-      throw new BadRequestException(validationErrors);
-    }
-  }
+  //     return this.userService.createUser(createUserDTO);
+  //   }
+  //   catch (validationErrors) {
+  //     throw new BadRequestException(validationErrors);
+  //   }
+  // }
 
   @Get(':userName/isBlock/:blockedUserName')
   async isBlock(@Param('userName') userName: string, @Param('blockedUserName') blockedUserName: string): Promise<{ success: boolean }> {
@@ -124,19 +124,11 @@ export class UserController {
     return authenticator.check(token, user.A2FSecret);
   }
 
-  @Get('cookie/:cookie')
-  async getUserByCookie(@Param('cookie') cookie: string): Promise<User> {
-
-    const user = await this.userService.getUserByCookie(cookie);
-
-    return user;
-  }
-  
   @Post('updateA2F/:userName')
   async updateA2F(@Body('userName') userName: string, @Body('A2F') A2F: boolean): Promise<User> {
     
     const user = await this.userService.updateA2F(userName, A2F);
-    if (!user) {
+    if (!user) { 
       console.warn("error: user not found");
     }
     return user;
@@ -152,20 +144,6 @@ export class UserController {
       console.warn('Error in setSocket:', error);
     }
     return user
-  }
-
-  @Post('updateCookie/:cookie')
-  async updateCookie(@Body('userName') userName: string, @Body('cookie') cookie: string): Promise<User> {
-    
-    const user = await this.userService.getUserByName(userName);
-    
-    if (user) {
-      await this.userService.updateCookie(user.userId, cookie); 
-    }
-    else{
-      console.warn("error: user not found");
-    }
-    return user;
   }
 
   @Post('updateImage/:userName')

@@ -9,6 +9,7 @@ import { GameRoomModule } from './gameRoom/gameRoom.module';
 import { MessageModule } from './message/message.module';
 import { PrivateMessageModule } from './privateMessage/privateMessage.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 import { ChannelController } from './channel/channel.controller'
 import { ChannelService } from './channel/channel.service';
@@ -23,6 +24,8 @@ import { PrivateMessageService } from './privateMessage/privateMessage.service';
 
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -33,6 +36,7 @@ import { UserService } from './user/user.service';
     MessageModule,
     PrivateMessageModule,
     UserModule,
+    AuthModule
   ],
   controllers: [
     ChannelController,
@@ -45,7 +49,10 @@ import { UserService } from './user/user.service';
     MessageService,
     PrismaService,
     PrivateMessageService,
-    UserService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    }
   ],
 })
 export class AppModule {}

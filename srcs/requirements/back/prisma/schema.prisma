@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://admin:123@postgres:5432/ft_t?schema=public"
+  url      = "postgresql://admin:123@localhost:5432/ft_t?schema=public"
 }
 
 model Channel {
@@ -158,7 +158,6 @@ model User {
   image         String     @default("default_pic.jpg")
   isChecked     Boolean    @default(false)
 
-  cookie        String?    @unique
   socket        String?
   status        String?    @default("offline")
 

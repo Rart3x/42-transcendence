@@ -1,7 +1,7 @@
 <script setup>
   import Cookies from "js-cookie";
   import { onMounted, ref, computed } from "vue";
-  import { getPastGameRoomsByUserId, getUserByCookie, getAllUserScore, getScoreByRoomId, getUserByUserName, getGameWinner } from "./api/get.call";
+  import { getPastGameRoomsByUserId, getUserByUserId, getAllUserScore, getScoreByRoomId, getUserByUserName, getGameWinner } from "./api/get.call";
 
   let games = ref([]);
   let user = ref(null);

@@ -4,10 +4,15 @@ import { PrismaModule } from '../prisma.module';
 import { MessageService } from './message.service';
 
 import { MessageController } from './message.controller';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Module({
     imports: [PrismaModule],
-    providers: [MessageService],
+    providers: [
+               MessageService,
+  
+    ],
     controllers: [MessageController],
     exports: [MessageService],
 })

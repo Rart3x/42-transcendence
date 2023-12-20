@@ -4,7 +4,7 @@
   import History from "./History.vue";
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
   import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
   import { deleteGameRoomById } from "./api/delete.call";
   import { removeFriend } from "./api/delete.call";
@@ -15,7 +15,7 @@
 
   export const inviteFriendInGameEXPORT = async function (userName, userId, userSocket, userStatus, user) {
     const host = user.userName;
-    var gameRoom = await createGameRoom(host);
+    var gameRoom = await createGameRoom(host, this.cookieJWT);
     if (gameRoom) 
       await store.dispatch('invitationInGame', { host, userName, userId, userSocket, userStatus });
   }
@@ -44,13 +44,17 @@
         addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false, setPassSuccess: false, unsetPassSuccess: false, 
         addChannelFailed: false, addFriendFailed: false, addMessageFailed: false, inviteInGameFailed: false, joinChannelFailed: false, removeChannelFailed: false, removeFriendFailed: false, setPassFailed: false, unsetPassFailed: false,
         message_text: "", password: "", friendsData: [], 
+<<<<<<< HEAD
         router: useRouter(),
+=======
+        router: useRouter(), store: useStore(), cookieJWT: null,
+>>>>>>> auth
         activeTab: "friends",
       };
     },
     methods: {
       async addFriendFromDB(userName, friendName) {
-        const response = await addFriend(userName, friendName);
+        const response = await addFriend(userName, friendName, this.cookieJWT);
 
         if (response && response.success) {
           this.addFriendSuccess = true;
@@ -67,7 +71,7 @@
       },
 
       async createChannelInDB(channelName, userName, currentUserName) {
-        const response = await createChannel(channelName, userName, currentUserName);
+        const response = await createChannel(channelName, userName, currentUserName, this.cookieJWT);
         this.modalStates.modalChannel = false;
 
         if (response && response.success) {
@@ -85,17 +89,17 @@
       },
   
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
-        const hostPlayer = await getUserByUserName(this.user.userName);
+        const hostPlayer = await getUserByUserName(this.user.userName, this.cookieJWT);
         const hostPlayerName = hostPlayer.userName;
-        const invitedPlayer = await getUserByUserName(userName);
-        var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName);
+        const invitedPlayer = await getUserByUserName(userName, this.cookieJWT);
+        var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName, this.cookieJWT);
         if (gameRoom){
           await this.store.dispatch('invitationInGame', { hostPlayerName,  gameRoom, userName, userId, userSocket, userStatus });
         }
       },
 
       async joinChannelInDB(channelName, userName) {
-        const response = await joinChannel(channelName, userName);
+        const response = await joinChannel(channelName, userName, this.cookieJWT);
 
         if (response && response.success) {
           this.joinChannelSuccess = true;
@@ -113,7 +117,7 @@
       },
 
       async removeChannelFromDB(channelName) {
-        const response = await removeChannel(channelName);
+        const response = await removeChannel(channelName, this.cookieJWT);
     
         if (response && response.success) {
           this.removeChannelSuccess = true;
@@ -130,7 +134,7 @@
       },
 
       async removeFriendFromDB(userName, friendName) {
-        const response = await removeFriend(userName, friendName);
+        const response = await removeFriend(userName, friendName, this.cookieJWT);
         
         if (response && response.success) {
           this.removeFriendSuccess = true;
@@ -148,7 +152,7 @@
 
       async togglePasswordInput(channelName, password, check) {
         if (check) {
-          const response = await setPassword(channelName, sha256(password));
+          const response = await setPassword(channelName, sha256(password), this.cookieJWT);
           if (response) {
             this.setPassSuccess = true;
             setTimeout(() => {
@@ -163,7 +167,7 @@
         }
         else
         { 
-          const response = unsetPassword(channelName);
+          const response = unsetPassword(channelName, this.cookieJWT);
           if (response) {
             this.unsetPassSuccess = true;
             setTimeout(() => {
@@ -193,7 +197,7 @@
       },
         
       async socketEmit(emit) {
-        const hostUser = await getUserByUserName(this.hostName);
+        const hostUser = await getUserByUserName(this.hostName, this.cookieJWT);
         if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
           this.invitationInGameSuccess = false;
         if (emit === "invitationInGameAccepted"){
@@ -236,7 +240,7 @@
       },
 
       async updateFriends() {
-        this.friendsData = await getAllFriends(this.user.userName);
+        this.friendsData = await getAllFriends(this.user.userName, this.cookieJWT);
         for (let i = 0; i < this.friendsData.length; i++) {
           const imagePath = "../assets/userImages/" + this.friendsData[i].image;
           const image = await import(/* @vite-ignore */ imagePath);
@@ -245,7 +249,7 @@
         this.friends = this.friendsData;
       },
       async updateChannels() {
-        let channelsData = await getAllChannelsFromUser(this.user.userName);
+        let channelsData = await getAllChannelsFromUser(this.user.userName, this.cookieJWT);
         for (let i = 0; i < channelsData.length; i++) {
           const imagePath = "../assets/userImages/" + channelsData[i].channelAdminImage;
           const image = await import(/* @vite-ignore */ imagePath);
@@ -254,7 +258,7 @@
         this.channels = channelsData;
       },
       async updateAllChannels() {
-        let allChannelsData = await getAllNewChannels(this.user.userName);
+        let allChannelsData = await getAllNewChannels(this.user.userName, this.cookieJWT);
         for (let i = 0; i < allChannelsData.length; i++) {
           const imagePath = "../assets/userImages/" + allChannelsData[i].channelAdminImage;
           const image = await import(/* @vite-ignore */ imagePath);
@@ -270,22 +274,35 @@
     },
 
     async mounted() {
-      this.user = await getUserByCookie(Cookies.get("_authToken"));
+      let cookieUserId = Cookies.get('UserId');
+		  this.cookieJWT  = Cookies.get('Bearer');
 
-      console.log(store._state.data.socke);
-      console.log(store._state.data.socke);
-      setClientSocket(this.user.userName, this.store.state.socket.id);
+      if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined'){
+        this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
+      }
+      if (this.user){
+        this.store.dispatch('initializeSocket');
+        await new Promise((resolve) => {
+          const interval = setInterval(() => {
+            if (this.store.state.socket) {
+              clearInterval(interval);
+              resolve();
+            }
+          }, 100);
+        });
+        setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
 
-      if (this.store && this.store.state.socket)
-        this.socketOn();
+        if (this.store && this.store.state.socket)
+          this.socketOn();
 
-      this.userName = this.user.displayName;
-      this.adminImage = "src/assets/userImages/" + this.user.image;
+        this.userName = this.user.userName;
+        this.adminImage = "src/assets/userImages/" + this.user.image;
 
-      this.updateAll();
+        this.updateAll();
 
-      this.friends.splice(0, this.friends.length, ...this.friendsData);
-    },
+        this.friends.splice(0, this.friends.length, ...this.friendsData);
+      }
+    }
   };
 </script>
 

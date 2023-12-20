@@ -18,7 +18,7 @@ import Phaser from 'phaser';
 import * as Matter from 'matter-js';
 
 //Post and Get Methods
-import { getGameRoomByRoomId, getCurrentGameRoomByUserId, getUserByCookie, getLastGameRoomIfAfk, getUserByUserId } from './api/get.call';
+import { getGameRoomByRoomId, getCurrentGameRoomByUserId, getLastGameRoomIfAfk, getUserByUserId } from './api/get.call';
 import { setClientSocket } from './api/post.call';
 
 //Cookie
@@ -33,8 +33,17 @@ import Player from "../player/player";
 
 
 //Get user by cookie
-const token = Cookies.get("_authToken");
-const user = getUserByCookie(token);
+
+let user : any
+
+async() => {
+	let cookieUserId = Cookies.get('UserId');
+	let cookieJWT = Cookies.get('Bearer');
+  
+    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
+		user = await getUserByUserId(Number(cookieUserId), cookieJWT);
+	}
+}
 
 //Initialize snapshot library
 const SI = new SnapshotInterpolation();

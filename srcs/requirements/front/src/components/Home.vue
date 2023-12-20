@@ -1,6 +1,6 @@
 <script setup>
   import Cookies from "js-cookie";
-  import { getUserByCookie } from "./api/get.call";
+  import { getUserByUserId } from "./api/get.call";
   import { onMounted, ref } from "vue";
 
   let text = ' ft_transcendence';
@@ -10,13 +10,13 @@
   const user = ref(null);
 
   const signInWithIntra = () => {
-    window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${
+     window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${
       import.meta.env.VITE_CLIENT_ID
     }&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
   };
 
   onMounted(async () => {
-    user.value = await getUserByCookie(Cookies.get("_authToken"));
+    user.value = await getUserByUserId(Cookies.get("UserId"));
     if (user)
       animateText();
   });
@@ -29,7 +29,7 @@
         clearInterval(textInterval);
         animateList();
       }
-    }, 200);
+    }, 1);
   };
 
   const animateList = () => {
@@ -42,7 +42,7 @@
       }
       else
         clearInterval(listInterval);
-    }, 250);
+    },1);
   };
 
   const animateListItem = (element) => {
