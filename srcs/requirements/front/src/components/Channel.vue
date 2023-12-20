@@ -3,12 +3,13 @@
   import Modal from './Modal.vue';
   import Cookies from "js-cookie";
   import { removeChannel, removeOperator, removeUserFromChannel, unmuteUser} from "./api/delete.call";
-  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByCookie } from "./api/get.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByUserId } from "./api/get.call";
   import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel, setAdmin } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
 
   let actualUser = ref(null);
+  let jwtToken = ref(null);
   let channel = ref(null);
   let messages = ref([]);
   let users = ref([]);
@@ -34,21 +35,21 @@
   const route = useRoute();
   const router = useRouter();
 
-  const addOperatorInDB = async (channelName, userName) => {
-    const response = await addOperator(channelName, userName);
-    updateOperator(users.value, route.params.channelName);
+  const addOperatorInDB = async (channelName, userName, jwtToken) => {
+    const response = await addOperator(channelName, userName, jwtToken);
+    updateOperator(users.value, route.params.channelName, jwtToken);
   };
 
-  const removeOperatorInDB = async (channelName, userName) => {
+  const removeOperatorInDB = async (channelName, userName, jwtToken) => {
     const response = await removeOperator(channelName, userName);
-    updateOperator(users.value, route.params.channelName);
+    updateOperator(users.value, route.params.channelName, jwtToken);
   };
 
   const closeMuteModal = () => { modalMuteUser.value = false; };
   const openMuteModal = (userMutedName) => { modalMuteUser.value = true; userMuted.value = userMutedName};
 
-  const banUserFromChannelInDB = async (channelName, userName) => {
-    const response = await banUserFromChannel(channelName, userName);
+  const banUserFromChannelInDB = async (channelName, userName, jwtToken) => {
+    const response = await banUserFromChannel(channelName, userName, jwtToken);
 
     if (response && response.success) {
       banSuccess.value = true;
@@ -62,29 +63,29 @@
         banFailed.value = false;
       }, 3000);
     }
-    updateBan(users.value, route.params.channelName);
+    updateBan(users.value, route.params.channelName, jwtToken);
   };
 
-  const isOperatorInDB = async (channelName, userId) => {
-    const channel = await getChannelByName(channelName);
+  const isOperatorInDB = async (channelName, userId, jwtToken) => {
+    const channel = await getChannelByName(channelName, jwtToken);
     if (channel && channel.channelOperators)
       return channel.channelOperators.some(operator => operator.userId === userId);
   };
 
-  const isUserBanInChannelInDB = async (channelName, userId) => {
-    const channel = await getChannelByName(channelName);
+  const isUserBanInChannelInDB = async (channelName, userId, jwtToken) => {
+    const channel = await getChannelByName(channelName, jwtToken);
     if (channel && channel.channelUsersMute)
       return channel.channelUsersBan.some(user => user.userId === userId);
   };
 
-  const isUserMuteInChannelInDB = async (channelName, userId) => {
-    const channel = await getChannelByName(channelName);
+  const isUserMuteInChannelInDB = async (channelName, userId, jwtToken) => {
+    const channel = await getChannelByName(channelName, jwtToken);
     if (channel && channel.channelUsersMute)
       return channel.channelUsersMute.some(operator => operator.userId === userId);
   };
 
-  const muteUserFromChannelInDB = async (channelNameMute, userName, selectedDuration) => {
-    const response = await muteUserFromChannel(channelNameMute, userName, selectedDuration);
+  const muteUserFromChannelInDB = async (channelNameMute, userName, selectedDuration, jwtToken) => {
+    const response = await muteUserFromChannel(channelNameMute, userName, selectedDuration, jwtToken);
 
     if (response && response.success) {
       muteSuccess.value = true;
@@ -98,25 +99,25 @@
         muteFailed.value = false;
       }, 3000);
     }
-    users.value = await getUsersFromChannel(route.params.channelName);
+    users.value = await getUsersFromChannel(route.params.channelName, jwtToken);
     updateUserImages(users.value);
-    channel.value = await getChannelByName(route.params.channelName);
+    channel.value = await getChannelByName(route.params.channelName, jwtToken);
   };
 
-  const removeUserFromChannelInDB = async (channelName, userName) => {
+  const removeUserFromChannelInDB = async (channelName, userName, jwtToken) => {
     const chan = await getChannelByName(channelName);
 
     if (actualUser.value.userId === chan.channelAdmin) { 
       if (chan.channelOperators.length > 0) {
         const newAdmin = chan.channelOperators[Math.floor(Math.random() * chan.channelOperators.length)];
-        await setAdmin(channelName, newAdmin.userName);
-        await removeOperator(channelName, newAdmin.userName);
+        await setAdmin(channelName, newAdmin.userName, jwtToken);
+        await removeOperator(channelName, newAdmin.userName, jwtToken);
       }
       else
-        await removeChannel(channelName);
+        await removeChannel(channelName, jwtToken);
     }
 
-    const response = await removeUserFromChannel(channelName, userName);
+    const response = await removeUserFromChannel(channelName, userName, jwtToken);
 
     if (response && response.success) {
       kickSuccess.value = true;
@@ -130,7 +131,7 @@
         kickFailed.value = false;
       }, 3000);
     }
-    users.value = await getUsersFromChannel(route.params.channelName);
+    users.value = await getUsersFromChannel(route.params.channelName, jwtToken);
     updateUserImages(users.value);
     router.push("/profile");
   };
@@ -141,14 +142,15 @@
     );
   });
 
-  const sendMessage = async () => {
+  const sendMessage = async (jwtToken) => {
     if (message_text.value) {
       await insertMessageToChannel(
         route.params.channelName,
         message_text.value,
-        actualUser.value
+        actualUser.value,
+        jwtToken
       );
-      messages.value = await getMessagesFromChannel(route.params.channelName);
+      messages.value = await getMessagesFromChannel(route.params.channelName, jwtToken);
       await nextTick();
       scrollToBottom();
       message_text.value = "";
@@ -161,32 +163,32 @@
       container.scrollTop = container.scrollHeight;
   };
 
-  async function updateBan(users, channelName) {
+  async function updateBan(users, channelName, jwtToken) {
     for (let user of users) {
-      user.isBan = await isUserBanInChannelInDB(channelName, user.userId);
+      user.isBan = await isUserBanInChannelInDB(channelName, user.userId, jwtToken);
     }
   }
 
-  async function updateOperator(users, channelName) {
+  async function updateOperator(users, channelName, jwtToken) {
     for (let user of users) {
-      user.isOperator = await isOperatorInDB(channelName, user.userId);
+      user.isOperator = await isOperatorInDB(channelName, user.userId, jwtToken);
     }
-    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
+    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId, jwtToken);
   }
 
-  async function updateMessageSenders(messages) {
+  async function updateMessageSenders(messages, jwtToken) {
     for (let message of messages) {
       if (message.sender) {
         let imagePath = `../assets/userImages/${message.sender.image}`;
         await import(/* @vite-ignore */ imagePath).then((image) => {
           message.sender.image = image.default;
         });
-        message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId);
+        message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId, jwtToken);
       }
     }
   }
 
-  async function updateUserImages(users) {
+  async function updateUserImages(users, jwtToken) {
     for (let user of users) {
       let imagePath = `../assets/userImages/${user.image}`;
       await import(/* @vite-ignore */ imagePath).then((image) => {
@@ -196,12 +198,12 @@
     }
   }
 
-  const checkMuteStatus = async () => {
+  const checkMuteStatus = async (jwtToken) => {
     const currentTime = new Date();
 
     for (const user of users.value) {
       if (user.userId !== actualUser.value.userId) {
-        const isMuted = await isUserMuteInChannelInDB(route.params.channelName, user.userId);
+        const isMuted = await isUserMuteInChannelInDB(route.params.channelName, user.userId, jwtToken);
         
         if (isMuted) {
           const muteDetails = channel.value.channelUsersMute.find(user => user.userId === user.userId).mutedUntil;
@@ -221,34 +223,42 @@
   setInterval(checkMuteStatus, 30000);
 
   onMounted(async () => {
-    actualUser.value = await getUserByCookie(Cookies.get("_authToken"));
+    let cookieUserId = Cookies.get('UserId');
+		let cookieJWT = Cookies.get('Bearer');
+    
+    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
 
-    actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId);
+      this.jwtToken = cookieJWT;
+			actualUser.value = await getUserByUserId(cookieUserId, cookieJWT);
 
-    channel.value = await getChannelByName(route.params.channelName);
-    channelNameMute.value = route.params.channelName;
+      //protection?
+      actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId, cookieJWT);
 
-    if (channel.value && channel.value.channelUsers) {
-      const userWithSameId = channel.value.channelUsers.find(user => user.userId === actualUser.value.userId);
-      if (!userWithSameId) window.location.href = "/profile";
-    }
+      channel.value = await getChannelByName(route.params.channelName, cookieJWT);
+      channelNameMute.value = route.params.channelName;
 
-    if (actualUser.value.image) {
-      let userImagePath = "../assets/userImages/" + actualUser.value.image;
-      await import(/* @vite-ignore */ userImagePath).then((userImage) => {
-        actualUser.value.image = userImage.default;
-      });
-    }
-    actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId);
+      if (channel.value && channel.value.channelUsers) {
+        const userWithSameId = channel.value.channelUsers.find(user => user.userId === actualUser.value.userId);
+        if (!userWithSameId) window.location.href = "/profile";
+      }
 
-    let usersData = await getUsersFromChannel(route.params.channelName);
-    await updateUserImages(usersData);
+      if (actualUser.value.image) {
+        let userImagePath = "../assets/userImages/" + actualUser.value.image;
+        await import(/* @vite-ignore */ userImagePath).then((userImage) => {
+          actualUser.value.image = userImage.default;
+        });
+      }
+      actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId, cookieJWT);
 
-    messages.value = await getMessagesFromChannel(route.params.channelName);
+      let usersData = await getUsersFromChannel(route.params.channelName, cookieJWT);
+      await updateUserImages(usersData);
 
-    scrollToBottom();
-    await updateMessageSenders(messages.value);
-    users.value.splice(0, users.value.length, ...usersData);
+      messages.value = await getMessagesFromChannel(route.params.channelName, cookieJWT);
+
+      scrollToBottom();
+      await updateMessageSenders(messages.value, cookieJWT);
+      users.value.splice(0, users.value.length, ...usersData);
+		}
   });
 </script>
  
@@ -290,9 +300,9 @@
                   <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
                     <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
                     <button class="btn glass btn-warning" @click="openMuteModal(user.userName)">Mute</button>
-                    <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName)">Kick</button>
-                    <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperatorInDB($route.params.channelName, user.userName)" >Promote</button>
-                    <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperatorInDB($route.params.channelName, user.userName)">Depreciate</button>
+                    <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName, )">Kick</button>
+                    <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperatorInDB($route.params.channelName, user.userName, jwtToken)" >Promote</button>
+                    <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperatorInDB($route.params.channelName, user.userName, jwtToken)">Depreciate</button>
                   </div>
                 </td>
               </tr>

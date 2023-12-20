@@ -5,7 +5,7 @@
   import Cookies from "js-cookie";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isBlock, isFriend, getPrivateMessages, getUserByCookie, getUserByUserName } from './api/get.call';
+  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName } from './api/get.call';
   import { addFriend, blockUser, createChannel, createPrivateMessage, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
 
@@ -35,8 +35,8 @@
   let messages = ref([]);
   let message_text = ref(null);
 
-  const addFriendFromDB = async (userName, friendName) => {
-    const response = await addFriend(userName, friendName);
+  const addFriendFromDB = async (userName, friendName, jwtToken) => {
+    const response = await addFriend(userName, friendName, jwtToken);
 
     if (response && response.success) {
       addFriendSuccess.value = true;
@@ -53,8 +53,8 @@
     }
   };
 
-  const blockFromDB = async (userName, blockedUserName) => {
-    const response = await blockUser(userName, blockedUserName);
+  const blockFromDB = async (userName, blockedUserName, jwtToken) => {
+    const response = await blockUser(userName, blockedUserName, jwtToken);
 
     if (response && response.success) {
       blockSuccess.value = true;
@@ -73,8 +73,8 @@
     }
   };
 
-  const createChannelInDB = async (channelName, userName, currentUserName) => {
-    const response = await createChannel(channelName, userName, currentUserName);
+  const createChannelInDB = async (channelName, userName, currentUserName, jwtToken) => {
+    const response = await createChannel(channelName, userName, currentUserName, jwtToken);
     modalChannel.value = false;
 
     if (response && response.success) {
@@ -91,8 +91,8 @@
     }
   };
 
-  const isBlockFromDB = async (userName, blockedUserName) => {
-    const response = await isBlock(userName, blockedUserName);
+  const isBlockFromDB = async (userName, blockedUserName, jwtToken) => {
+    const response = await isBlock(userName, blockedUserName, jwtToken);
 
     if (response && response.success)
       isBlockBool.value = true;
@@ -100,8 +100,8 @@
       isBlockBool.value = false;
   };
 
-  const isFriendFromDB = async (userName, friendName) => {
-    const response = await isFriend(userName, friendName);
+  const isFriendFromDB = async (userName, friendName, jwtToken) => {
+    const response = await isFriend(userName, friendName, jwtToken);
 
     if (response && response.success)
       isFriendBool.value = true;
@@ -114,8 +114,8 @@
     currentUserName = userName;
   };
 
-  const removeFriendFromDB = async (userName, friendName) => {
-    const response = await removeFriend(userName, friendName);
+  const removeFriendFromDB = async (userName, friendName, jwtToken) => {
+    const response = await removeFriend(userName, friendName, jwtToken);
     
     if (response && response.success) {
       removeFriendSuccess.value = true;
@@ -133,8 +133,12 @@
   };
 
   onMounted(async () => {
-    user.value = await getUserByCookie(Cookies.get("_authToken"));
-    actualUser.value = await getUserByUserName(route.params.userName);
+    let cookieUserId = Cookies.get('UserId');
+		let cookieJWT = Cookies.get('Bearer');
+    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
+      user.value = await getUserByUserId(cookieUserId, cookieJWT);
+    }
+    actualUser.value = await getUserByUserName(route.params.userName, cookieJWT);
     
     isFriendBool.value = isFriendFromDB(user.value.userName, actualUser.value.userName).sucess;
     isBlockBool.value = isBlockFromDB(user.value.userName, actualUser.value.userName).sucess;

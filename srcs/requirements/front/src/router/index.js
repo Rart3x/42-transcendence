@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { createRouter, createWebHistory } from "vue-router";
-import { getChannelByName, getUserByCookie } from "../components/api/get.call";
+import { getChannelByName } from "../components/api/get.call";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,7 +26,7 @@ const router = createRouter({
       beforeEnter: async (to, from, next) => {
         const channelName = to.params.channelName;
         const channel = await getChannelByName(channelName);
-        const actualUser = await getUserByCookie(Cookies.get("_authToken"));
+        const actualUser = await getUserByUserId(Cookies.get("_authToken"));
 
         if (channel && channel.channelUsers) {
           if (!channel.channelUsers.find(user => user.userId === actualUser.userId) && channel.isPrivate)
@@ -73,14 +73,20 @@ const router = createRouter({
     }
   ],
 });
-// router.beforeEach(async (to, from, next) => {
-//   const user = await getUserByCookie(Cookies.get("_authToken"));
-//   const path = to.path;
 
-//   if (!user && path !== "/" && path !== "/sign-in")
-//     next('/');
-//   else
-//     next();
-// });
+router.beforeEach(async (to, from, next) => {
+  let cookieUserId = Cookies.get('UserId');
+  let cookieJWT = Cookies.get('Bearer');
+
+  let user;
+  if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
+    user = await getUserByUserId(cookieUserId, cookieJWT);
+  }
+  const path = to.path;
+  if (!user && path !== "/" && path !== "/sign-in")
+    next('/');
+  else
+    next();
+});
 
 export default router;

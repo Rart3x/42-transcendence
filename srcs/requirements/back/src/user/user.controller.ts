@@ -124,14 +124,6 @@ export class UserController {
     return authenticator.check(token, user.A2FSecret);
   }
 
-  @Get('cookie/:cookie')
-  async getUserByCookie(@Param('cookie') cookie: string): Promise<User> {
-
-    const user = await this.userService.getUserByCookie(cookie);
-
-    return user;
-  }
-  
   @Post('updateA2F/:userName')
   async updateA2F(@Body('userName') userName: string, @Body('A2F') A2F: boolean): Promise<User> {
     

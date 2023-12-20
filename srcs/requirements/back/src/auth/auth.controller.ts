@@ -59,14 +59,14 @@ export class AuthController {
                         const access_token = await this.JwtService.signAsync(payload);
 
                         res.cookie('Bearer', access_token, {
-                            httpOnly: true,
+                            httpOnly: false,
                             secure: false,
                             sameSite: 'lax',
                             expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
                         });
                         //UserId to retrieve user in db
                         res.cookie('UserId', user.userId, {
-                            httpOnly: true,
+                            httpOnly: false,
                             secure: false,
                             sameSite: 'lax',
                             expires: new Date(Date.now() + 1 * 24 * 60 * 1000),

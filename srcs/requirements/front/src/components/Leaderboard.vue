@@ -1,7 +1,7 @@
 <script setup>
   import UserStatHeader from "./UserStatHeader.vue";
   import { onMounted, ref } from "vue";
-  import { getAllUsers, getUserByCookie } from "./api/get.call";
+  import { getAllUsers, getUserByUserId } from "./api/get.call";
   import Cookies from "js-cookie";
 
   let users = ref([]);
@@ -9,15 +9,21 @@
   let user = ref(null);
 
   onMounted(async () => {
-    user.value = await getUserByCookie(Cookies.get("_authToken"));
-    users.value = await getAllUsers();
-    users.value = users.value.sort((a, b) => b.matchmakingScore - a.matchmakingScore)
-    users.value.forEach((user, index) => {
-      let imagePath = "../assets/userImages/" + user.image;
-      import(/* @vite-ignore */ imagePath).then((image) => {
-        userImage.value.push(image.default);
-      });
-    })
+    let cookieUserId = Cookies.get('UserId');
+		let cookieJWT = Cookies.get('Bearer');
+    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
+      user.value = await getUserByUserId(cookieUserId, cookieJWT);
+      users.value = await getAllUsers(cookieJWT);
+      users.value = users.value.sort((a, b) => b.matchmakingScore - a.matchmakingScore);
+      if (users.value){
+        users.value.forEach((user, index) => {
+          let imagePath = "../assets/userImages/" + user.image;
+          import(/* @vite-ignore */ imagePath).then((image) => {
+            userImage.value.push(image.default);
+          });
+        })
+      }
+    }
   })
 </script>
 

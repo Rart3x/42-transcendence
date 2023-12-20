@@ -4,7 +4,7 @@
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
   import { inviteFriendInGameEXPORT, socketOnEXPORT } from "./UserProfile.vue";
-  import { getAllUsers, getPrivateMessagesByUserName, getUserByCookie, getUserByUserName } from "./api/get.call.ts";
+  import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName } from "./api/get.call.ts";
   import { createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
   import { RouterLink } from "vue-router";
 
@@ -70,10 +70,12 @@
       openMessageModal(userName, message) { this.modalMessage = true; this.currentUserName = userName; this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; },
     },
     async mounted() {
-      if (Cookies.get("_authToken") == undefined)
-        return;
-
-      this.user = await getUserByCookie(Cookies.get("_authToken"));
+      let cookieUserId = Cookies.get('UserId');
+		  let cookieJWT = Cookies.get('Bearer');
+  
+      if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
+        this.user = await getUserByUserId(cookieUserId, cookieJWT);
+      }
       this.userName = this.user.displayName;
 
       this.privateMessages = await getPrivateMessagesByUserName(this.user.userName);

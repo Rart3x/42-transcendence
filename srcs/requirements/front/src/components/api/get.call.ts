@@ -1,11 +1,12 @@
 /*-----------------------------------------------CHANNEL-----------------------------------------------*/
-export async function getAllChannels() { 
+export async function getAllChannels(jwtToken: string) { 
   try {
     const response = await fetch("http://localhost:3000/channel/getAllChannels", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.json();
@@ -15,12 +16,13 @@ export async function getAllChannels() {
   }
 }
 
-export async function getAllNewChannels(userName : string) {
+export async function getAllNewChannels(userName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/getAllNewChannels/${userName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
       },
     });
     if (response.ok)
@@ -31,13 +33,14 @@ export async function getAllNewChannels(userName : string) {
   }
 }
 
-export async function getAllChannelsFromUser(userName : string) {
+export async function getAllChannelsFromUser(userName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/user/${userName}/channels`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.json();
@@ -47,13 +50,14 @@ export async function getAllChannelsFromUser(userName : string) {
   }
 }
 
-export async function getChannelByName(channelName : string) {
+export async function getChannelByName(channelName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/get/${channelName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.json();
@@ -64,13 +68,14 @@ export async function getChannelByName(channelName : string) {
   return null;
 }
 
-export async function isUserInChannel(channelName : string, userName : string) {
+export async function isUserInChannel(channelName : string, userName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/isUser/${userName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok) {
       const responseData = await response.json();
@@ -83,13 +88,14 @@ export async function isUserInChannel(channelName : string, userName : string) {
   return false;
 }
 
-export async function isUserBanInChannel(channelName : string, userName : string) {
+export async function isUserBanInChannel(channelName : string, userName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/isBan/${userName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.json();
@@ -101,13 +107,14 @@ export async function isUserBanInChannel(channelName : string, userName : string
 }
 
 /*-----------------------------------------------FRIEND-----------------------------------------------*/
-export async function isFriend(userName : string, friendName : string){
+export async function isFriend(userName : string, friendName : string, jwtToken: string){
   try {
     const response = await fetch(`http://localhost:3000/user/isFriend/${userName}/${friendName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok) {
       const responseData = await response.json();
@@ -120,13 +127,14 @@ export async function isFriend(userName : string, friendName : string){
   return null;
 }
 
-export async function getAllFriends(userName : string) {
+export async function getAllFriends(userName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/user/${userName}/friends`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.json();
@@ -137,13 +145,14 @@ export async function getAllFriends(userName : string) {
   return null;
 }
 
-export async function getFriendUserNames(userId : number) {
+export async function getFriendUserNames(userId : number, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/user/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
 
     if (response.ok) {
@@ -156,12 +165,13 @@ export async function getFriendUserNames(userId : number) {
   }
 }
 
-export async function getUserFriends(userId : number) {
+export async function getUserFriends(userId : number, jwtToken: string) {
   try {
     const response = await fetch("http://localhost:3000/user/friends", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
       },
       body: JSON.stringify({ userId: userId }),
     });
@@ -177,13 +187,14 @@ export async function getUserFriends(userId : number) {
 }
 
 /*-----------------------------------------------GAMEROOM--------------------------------------------*/
-export async function getGameRoomByRoomId(id : number) {
+export async function getGameRoomByRoomId(id : number, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/gameroom/id/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok) {
       return await response.json();
@@ -194,13 +205,14 @@ export async function getGameRoomByRoomId(id : number) {
   }
 }
 
-export async function getPastGameRoomsByUserId(userId : number) {
+export async function getPastGameRoomsByUserId(userId : number, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/gameroom/getPastGameRooms/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok) {
       return await response.json();
@@ -211,13 +223,14 @@ export async function getPastGameRoomsByUserId(userId : number) {
   }
 }
 
-export async function getCurrentGameRoomByUserId(userId : number) {
+export async function getCurrentGameRoomByUserId(userId : number, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/gameroom/getCurrentGameRoom/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok) {
       return await response.json();
@@ -228,13 +241,14 @@ export async function getCurrentGameRoomByUserId(userId : number) {
   }
 }
 
-export async function getLastGameRoomIfAfk(userId : number) {
+export async function getLastGameRoomIfAfk(userId : number, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/gameroom/getLastGameRoomIfAfk/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.text();
@@ -245,13 +259,14 @@ export async function getLastGameRoomIfAfk(userId : number) {
 
 
 /*-----------------------------------------------MESSAGES-----------------------------------------------*/
-export async function getMessagesFromChannel(channelName : string) {
+export async function getMessagesFromChannel(channelName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/messages`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.json();
@@ -262,13 +277,14 @@ export async function getMessagesFromChannel(channelName : string) {
   return null;
 }
 
-export async function getMessage() {
+export async function getMessage(jwtToken: string) {
   try {
     const response = await fetch("http://localhost:3000/message", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
 
     if (response.ok) {
@@ -282,13 +298,14 @@ export async function getMessage() {
 }
 
 /*-----------------------------------------------PRIVATEMESSAGES-----------------------------------------------*/
-export async function getLastMessage(userName1 : string, userName2 : string) { 
+export async function getLastMessage(userName1 : string, userName2 : string, jwtToken: string) { 
   try {
     const response = await fetch(`http://localhost:3000/privateMessage/${userName1}/${userName2}/lastMessage`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.json();
@@ -299,12 +316,13 @@ export async function getLastMessage(userName1 : string, userName2 : string) {
   return null;
 }
 
-export async function getPrivateMessages(userName1 : string, userName2 : string) {
+export async function getPrivateMessages(userName1 : string, userName2 : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/privateMessage/${userName1}/${userName2}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
       },
     });
     if (response.ok)
@@ -316,13 +334,14 @@ export async function getPrivateMessages(userName1 : string, userName2 : string)
   return null;
 }
 
-export async function getPrivateMessagesByUserName(userName : string) {
+export async function getPrivateMessagesByUserName(userName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/privateMessage/${userName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok){
       return await response.json();
@@ -337,13 +356,14 @@ export async function getPrivateMessagesByUserName(userName : string) {
 }
 /*-----------------------------------------------SCORE-----------------------------------------------*/
 
-export async function getAllUserScore(gameRoomId: number) {
+export async function getAllUserScore(gameRoomId: number, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/score/getAllUserScore/${gameRoomId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.json();
@@ -354,13 +374,14 @@ export async function getAllUserScore(gameRoomId: number) {
   return null;
 }
 
-export async function getScoreByRoomId(gameRoomId: string){
+export async function getScoreByRoomId(gameRoomId: string, jwtToken: string){
   try {
     const response = await fetch(`http://localhost:3000/score/getScoreByRoomId/${gameRoomId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.text();
@@ -371,13 +392,14 @@ export async function getScoreByRoomId(gameRoomId: string){
   return null;
 }
 
-export async function getGameWinner(gameRoomId: number) {
+export async function getGameWinner(gameRoomId: number, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/score/getGameWinner/${gameRoomId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.text();
@@ -389,13 +411,14 @@ export async function getGameWinner(gameRoomId: number) {
 }
 
 /*-----------------------------------------------USERS-----------------------------------------------*/
-export async function isBlock(userName : string, blockedUserName : string){
+export async function isBlock(userName : string, blockedUserName : string, jwtToken: string){
   try {
     const response = await fetch(`http://localhost:3000/user/${userName}/isBlock/${blockedUserName}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok) {
       const responseData = await response.json();
@@ -408,13 +431,14 @@ export async function isBlock(userName : string, blockedUserName : string){
   return null;
 }
 
-export async function getUsersFromChannel(channelName : string) {
+export async function getUsersFromChannel(channelName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/users`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
     if (response.ok)
       return await response.json();
@@ -425,38 +449,13 @@ export async function getUsersFromChannel(channelName : string) {
   return null;
 }
 
-export async function getUserByCookie(cookie : string) {
-  try {
-    const response = await fetch(`http://localhost:3000/user/cookie/${cookie}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      const text = await response.text();
-      if (!text) {
-        return null;
-      }
-
-      const responseData = JSON.parse(text);
-      return responseData;
-    }
-  }
-  catch (error) {
-    console.error('error: sending GET request', error);
-  }
-  return null;
-}
-
-export async function getUserByUserId(userId : number) {
-  console.log("userID: ", userId)
+export async function getUserByUserId(userId : number, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/user/getUser/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
       },
     });
     if (response.ok) {
@@ -469,12 +468,13 @@ export async function getUserByUserId(userId : number) {
   }
 }
 
-export async function getUserByUserName(username : string) {
+export async function getUserByUserName(username : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/user/getUsername/${username}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
       },
     });
     if (response.ok) {
@@ -484,13 +484,14 @@ export async function getUserByUserName(username : string) {
   catch (error) {}
 }
 
-export async function getAllUsers() {
+export async function getAllUsers(jwtToken: string) {
   try {
     const response = await fetch("http://localhost:3000/user/getAllUsers/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        "Authorization": `Bearer ${jwtToken}`
+      }
     });
 
     if (response.ok) {
@@ -503,50 +504,15 @@ export async function getAllUsers() {
   }
 }
 
-/*-----------------------------------------------UTILS-----------------------------------------------*/
-export async function getClientFromQueueList(){
-  try {
-    const response = await fetch("http://localhost:3000/queuelist", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      const responseData = await response.json();
-      return responseData;
-    }
-  } 
-  catch (error) {
-    console.error('error: sending GET request', error);
-  }
-}
+/*-----------------------------------------------AUTH-----------------------------------------------*/
 
-export async function sumQueueList(){
-  try {
-    const response = await fetch("http://localhost:3000/queuelist/sum", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      const responseData = await response.json();
-      return responseData;
-    }
-  } 
-  catch (error) {
-    console.error('error: sending GET request', error);
-  }
-}
-
-export async function checkA2F(userName : string, token : string) {
+export async function checkA2F(userName : string, token : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/user/checkA2F/${userName}?token=${token}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
       },
     });
 

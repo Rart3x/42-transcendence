@@ -4,7 +4,7 @@
   import History from "./History.vue";
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllFriends, getUserByCookie, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
   import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
   import { deleteGameRoomById } from "./api/delete.call";
   import { removeFriend } from "./api/delete.call";
@@ -266,29 +266,35 @@
     },
 
     async mounted() {
-      this.user = await getUserByCookie(Cookies.get("_authToken"));
+      let cookieUserId = Cookies.get('UserId');
+		  let cookieJWT = Cookies.get('Bearer');
 
-      this.store.dispatch('initializeSocket');
-      await new Promise((resolve) => {
-        const interval = setInterval(() => {
-          if (this.store.state.socket) {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 100);
-      });
-      setClientSocket(this.user.userName, this.store.state.socket.id);
+      if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
+        this.user = await getUserByUserId(cookieUserId, cookieJWT);
+      }
+      if (this.user){
+        this.store.dispatch('initializeSocket');
+        await new Promise((resolve) => {
+          const interval = setInterval(() => {
+            if (this.store.state.socket) {
+              clearInterval(interval);
+              resolve();
+            }
+          }, 100);
+        });
+        setClientSocket(this.user.userName, this.store.state.socket.id);
 
-      if (this.store && this.store.state.socket)
-        this.socketOn();
+        if (this.store && this.store.state.socket)
+          this.socketOn();
 
-      this.userName = this.user.displayName;
-      this.adminImage = "src/assets/userImages/" + this.user.image;
+        this.userName = this.user.displayName;
+        this.adminImage = "src/assets/userImages/" + this.user.image;
 
-      this.updateAll();
+        this.updateAll();
 
-      this.friends.splice(0, this.friends.length, ...this.friendsData);
-    },
+        this.friends.splice(0, this.friends.length, ...this.friendsData);
+      }
+    }
   };
 </script>
 

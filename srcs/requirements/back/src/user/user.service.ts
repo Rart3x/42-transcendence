@@ -256,15 +256,6 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return false;
   }
 
-  async getUserByCookie(cookie: string) {
-    
-    const user = await this.prisma.user.findFirst({
-      where: { cookie: cookie },
-    });
-
-    return user;
-  }
-
   async getUserByName(userName: string) {
     return await this.prisma.user.findFirst({
       where: { userName: userName },
@@ -277,7 +268,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   async getUserById(userId: number) {
     const userIdNumber = Number(userId);
     return await this.prisma.user.findUnique({
-      where: { userId: userIdNumber },
+      where: { userId: userIdNumber }
     });
    }
    
