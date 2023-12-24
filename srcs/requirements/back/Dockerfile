@@ -1,11 +1,10 @@
-FROM node:lts-alpine AS builder
+FROM node:lts AS builder
 
-RUN mkdir test
-WORKDIR /test
+WORKDIR /app
 
 COPY package*.json ./
 
-COPY prisma/schema.prisma ./prisma/schema.prisma
+COPY prisma ./prisma/
 
 RUN npm install
 
@@ -13,14 +12,13 @@ COPY . .
 
 RUN npm run build
 
-RUN npx prisma generate
+FROM node:lts
 
-FROM node:lts-alpine
-
-COPY --from=builder /test/node_modules ./node_modules
-COPY --from=builder /test/package*.json ./
-COPY --from=builder /test/dist ./dist
+COPY --from=builder /app/.env ./.env
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+CMD [ "npm", "run", "start:prod" ]

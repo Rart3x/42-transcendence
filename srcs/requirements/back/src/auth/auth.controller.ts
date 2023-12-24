@@ -71,10 +71,10 @@ export class AuthController {
                             sameSite: 'lax',
                             expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
                         })
-                        res.redirect("http://localhost:5173/settings");
+                        res.redirect("http://localhost:1505/settings");
                         return ;
                     }
-                    await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
+                    const newUser = await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
 
                     const access_token = await this.JwtService.signAsync(payload);
                     //Jwt token to make request to the back
@@ -85,13 +85,13 @@ export class AuthController {
                         expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
                     });
                     //UserId to retrieve user in db
-                    res.cookie('UserId', user.userId, {
+                    res.cookie('UserId', newUser.userId, {
                         httpOnly: false,
                         secure: false,
                         sameSite: 'lax',
                         expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
                     })
-                    res.redirect("http://localhost:5173/settings")
+                    res.redirect("http://localhost:1505/settings")
                 }
             }
         }

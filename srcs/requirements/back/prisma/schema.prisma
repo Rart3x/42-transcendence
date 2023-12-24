@@ -1,11 +1,10 @@
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://admin:123@localhost:5432/ft_t?schema=public"
+  url      = "postgresql://admin:123@postgres:5432/ft_t?schema=ft_t?connect_timeout=300"
 }
 
 model Channel {
