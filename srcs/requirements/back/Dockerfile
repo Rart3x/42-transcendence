@@ -23,4 +23,8 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
-CMD npx prisma migrate dev && npm run start:prod 
+COPY startup.sh ./
+
+RUN chmod +x startup.sh
+
+CMD ["./startup.sh"]
