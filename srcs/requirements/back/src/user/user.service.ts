@@ -211,7 +211,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     let imageParts = imageNameWithExtension.split('.');
     let imageName = imageParts[0];
 
-    await downloadImage(data.image, imageName);
+    // await downloadImage(data.image, imageName);
 
     const createUserInput: Prisma.UserCreateInput = {
       ...data,

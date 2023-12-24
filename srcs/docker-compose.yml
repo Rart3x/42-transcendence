@@ -28,6 +28,7 @@ services:
       - backenddata:/app/dist
     ports:
       - '3000:3000'
+      - '5555:5555'
     depends_on:
       postgres:
         condition: service_healthy
@@ -56,6 +57,7 @@ services:
     ports:
       - '1505:1505'
     volumes:
+      - ./requirements/nginx/nginx.conf:/etc/nginx/nginx.conf
       - frontdata:/usr/share/nginx/html
     depends_on:
       - frontend
