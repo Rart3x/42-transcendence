@@ -63,7 +63,8 @@
         this.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       },
       logout() {
-        Cookies.remove("_authToken");
+        Cookies.remove("userId");
+        Cookies.remove("Bearer");
         setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";
       },
@@ -81,8 +82,7 @@
 
       this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       
-      let imagePath = "../assets/userImages/" + this.user.image;
-      import(/* @vite-ignore */ imagePath).then((image) => {
+      import(/* @vite-ignore */ this.user.image).then((image) => {
         this.imageSrc = image.default;
       });
       this.users = await getAllUsers(this.cookieJWT);

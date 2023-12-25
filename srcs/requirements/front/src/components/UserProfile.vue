@@ -234,7 +234,7 @@
       async updateFriends() {
         this.friendsData = await getAllFriends(this.user.userName, this.cookieJWT);
         for (let i = 0; i < this.friendsData.length; i++) {
-          const imagePath = "../assets/userImages/" + this.friendsData[i].image;
+          const imagePath = this.friendsData[i].image;
           const image = await import(/* @vite-ignore */ imagePath);
           this.friendsData[i].imageSrc = image.default;
         }
@@ -243,7 +243,7 @@
       async updateChannels() {
         let channelsData = await getAllChannelsFromUser(this.user.userName, this.cookieJWT);
         for (let i = 0; i < channelsData.length; i++) {
-          const imagePath = "../assets/userImages/" + channelsData[i].channelAdminImage;
+          const imagePath =  channelsData[i].channelAdminImage;
           const image = await import(/* @vite-ignore */ imagePath);
           channelsData[i].imageSrc = image.default;
         }
@@ -252,7 +252,7 @@
       async updateAllChannels() {
         let allChannelsData = await getAllNewChannels(this.user.userName, this.cookieJWT);
         for (let i = 0; i < allChannelsData.length; i++) {
-          const imagePath = "../assets/userImages/" + allChannelsData[i].channelAdminImage;
+          const imagePath = allChannelsData[i].channelAdminImage;
           const image = await import(/* @vite-ignore */ imagePath);
           allChannelsData[i].imageSrc = image.default;
         }
@@ -288,7 +288,7 @@
           this.socketOn();
 
         this.userName = this.user.userName;
-        this.adminImage = "src/assets/userImages/" + this.user.image;
+        this.adminImage =  this.user.image;
 
         this.updateAll();
 

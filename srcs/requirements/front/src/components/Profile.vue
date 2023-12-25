@@ -147,12 +147,12 @@
     
     messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName, cookieJWT.value);
 
-    let imagePath = "../assets/userImages/" + actualUser.value.image;
+    let imagePath =  actualUser.value.image;
     await import(/* @vite-ignore */ imagePath).then((image) => {
       actualUser.value.imageSrc = image.default;
     });
 
-    let imagePathUser = "../assets/userImages/" + user.value.image;
+    let imagePathUser =  user.value.image;
     await import(/* @vite-ignore */ imagePathUser).then((image) => {
       user.value.imageSrc = image.default;
     });

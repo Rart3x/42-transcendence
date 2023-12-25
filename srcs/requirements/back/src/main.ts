@@ -31,6 +31,8 @@ async function bootstrap() {
 
   app.use(cors())
 
+  // app.use('/images', express.static('public/images'));
+
   await app.listen(3000);
 }
 

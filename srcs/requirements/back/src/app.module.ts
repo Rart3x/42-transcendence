@@ -26,6 +26,8 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -36,7 +38,10 @@ import { AuthGuard } from './auth/auth.guard';
     MessageModule,
     PrivateMessageModule,
     UserModule,
-    AuthModule
+    AuthModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+  }),
   ],
   controllers: [
     ChannelController,

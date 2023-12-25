@@ -180,7 +180,7 @@
   async function updateMessageSenders(messages) {
     for (let message of messages) {
       if (message.sender) {
-        let imagePath = `../assets/userImages/${message.sender.image}`;
+        let imagePath = `${message.sender.image}`;
         await import(/* @vite-ignore */ imagePath).then((image) => {
           message.sender.image = image.default;
         });
@@ -191,7 +191,7 @@
 
   async function updateUserImages(users) {
     for (let user of users) {
-      let imagePath = `../assets/userImages/${user.image}`;
+      let imagePath = user.image;
       await import(/* @vite-ignore */ imagePath).then((image) => {
         user.imageSrc = image.default;
       });
@@ -242,7 +242,7 @@
       }
 
       if (actualUser.value.image) {
-        let userImagePath = "../assets/userImages/" + actualUser.value.image;
+        let userImagePath =  actualUser.value.image;
         await import(/* @vite-ignore */ userImagePath).then((userImage) => {
           actualUser.value.image = userImage.default;
         });

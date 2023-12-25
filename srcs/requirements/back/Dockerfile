@@ -19,14 +19,12 @@ FROM node:lts-alpine
 
 EXPOSE 3000
 
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/.env ./ 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
-COPY startup.sh ./
-
-RUN chmod +x startup.sh
 
 CMD ["npm", "run", "prod"]

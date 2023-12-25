@@ -29,7 +29,7 @@
         methods: {
             async loadSenderImage(senderName) {
                 const user = await getUserByUserName(senderName);
-                const imagePath = "../assets/userImages/" + user.image;
+                const imagePath = user.image;
                 try {
                     const image = await import(/* @vite-ignore */ imagePath);
                     this.senderImageSrc = image.default;

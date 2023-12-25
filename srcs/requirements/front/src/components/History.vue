@@ -50,13 +50,13 @@
 
     if (!user.value) window.location.href = "/";
   
-    versusImage.value = "../src/assets/vs.png";
+    versusImage.value = "./assets/vs.png";
     games.value = await getPastGameRoomsByUserId(user.value.userId);
     if (!games.value) window.location.href = "/";
 
     for (let i = 0; i < games.value.length; i++) {
       for (let j = 0; j < games.value[i].users.length; j++) {
-        const imagePath = "../assets/userImages/" + games.value[i].users[j].image;
+        const imagePath =  games.value[i].users[j].image;
         const image = await import(/* @vite-ignore */ imagePath);
         games.value[i].users[j].imageSrc = image.default;
       }

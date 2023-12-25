@@ -62,11 +62,11 @@ export default class Game extends Phaser.Scene {
 
 	constructor(){
 		super("game");
-		setClientSocket(user.userName, socket.id);
+		// setClientSocket(user.userName, socket.id);
 	}
 
 	preload(){
-		this.load.setPath('src/assets');
+		// this.load.setPath('src/assets');
 	}
 
 	gamePage(self : any){
@@ -617,8 +617,8 @@ export default class Game extends Phaser.Scene {
 			userProfile1Name.innerText = data.player1UserName;
 		}
 
-		var imagePathPlayer1 = "userImages/" + data.player1Image;
-		var imagePathPlayer2 = "userImages/" + data.player2Image;
+		// var imagePathPlayer1 = "userImages/" + data.player1Image;
+		// var imagePathPlayer2 = "userImages/" + data.player2Image;
 
 		if (!this.textures.exists('userImage2')){
 			this.load.image('userImage2', imagePathPlayer2);

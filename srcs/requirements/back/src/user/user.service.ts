@@ -8,13 +8,14 @@ import * as path from 'path';
 import { get } from 'http';
 import { PartialUserDTO } from './dto/partial-user.dto';
 
-async function downloadImage (url, filename) {
-  if (!fs.existsSync(path.join(__dirname, '../../../front/public/userImages')))
-    fs.mkdirSync(path.join(__dirname, '../../../front/public/userImages'));
+async function downloadImage (url : string, filename : string) {
+  if (!fs.existsSync('/public/'))
+    fs.mkdirSync('/public/');
 
   return new Promise((resolve, reject) => {
-    https.get(url, (response) => {
-      const fileStream = fs.createWriteStream(path.join(__dirname, '../../../front/public/userImages', filename));
+    https.get(url, (response : any) => {
+      console.log("Path", path.join('/public/', filename))
+      const fileStream = fs.createWriteStream(path.join('/public/', filename));
       response.pipe(fileStream);
       fileStream.on('finish', () => {
         fileStream.close(resolve);
@@ -208,10 +209,11 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   
     let parts = imagePath.split('/');
     let imageNameWithExtension = parts.pop();
-    let imageParts = imageNameWithExtension.split('.');
-    let imageName = imageParts[0];
 
-    // await downloadImage(data.image, imageName);
+
+    await downloadImage(data.image, imageNameWithExtension);
+
+    data.image = path.join('/public/', imageNameWithExtension)
 
     const createUserInput: Prisma.UserCreateInput = {
       ...data,
@@ -408,7 +410,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   }
 
   async updateImage(userName: string, imageFile: Express.Multer.File): Promise<User> {
-    const imagePath = path.join(__dirname, '../../../front/src/assets/userImages', `${userName}.jpg`);
+    const imagePath = path.join('/public/', `${userName}.jpg`);
     fs.writeFileSync(imagePath, imageFile.buffer);
 
     return await this.getUserByName(userName);
