@@ -55,47 +55,15 @@ export class AuthController {
 
                     var user = await this.UserService.getUserByName(userData.login);
                     if (user){
-                        //If user already exist we set the cookies back
-                        const access_token = await this.JwtService.signAsync(payload);
+                            const access_token = await this.JwtService.signAsync(payload);
 
-                        res.cookie('Bearer', access_token, {
-                            httpOnly: false,
-                            secure: false,
-                            sameSite: 'lax',
-                            expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                        });
-                        //UserId to retrieve user in db
-                        res.cookie('UserId', user.userId, {
-                            httpOnly: false,
-                            secure: false,
-                            sameSite: 'lax',
-                            expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                        })
+                        this.setCookie(res, user.userId, access_token);
                         res.redirect("http://localhost:1505/settings");
                         return ;
                     }
                     const newUser = await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
-<<<<<<< HEAD
                     const access_token = await this.JwtService.signAsync(payload);
                     this.setCookie(res, newUser.userId, access_token);
-=======
-
-                    const access_token = await this.JwtService.signAsync(payload);
-                    //Jwt token to make request to the back
-                    res.cookie('Bearer', access_token, {
-                        httpOnly: false,
-                        secure: false,
-                        sameSite: 'lax',
-                        expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                    });
-                    //UserId to retrieve user in db
-                    res.cookie('UserId', newUser.userId, {
-                        httpOnly: false,
-                        secure: false,
-                        sameSite: 'lax',
-                        expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                    })
->>>>>>> 4a09e76cc916e25f5a06f8e0c31d20f8ef66b8c2
                     res.redirect("http://localhost:1505/settings")
                 }
             }
