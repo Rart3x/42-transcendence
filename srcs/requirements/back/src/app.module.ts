@@ -40,7 +40,8 @@ import { join } from 'path';
     UserModule,
     AuthModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
+      rootPath: join(__dirname, '..', '../public'),
+      serveRoot: '/public'
   }),
   ],
   controllers: [

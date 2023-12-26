@@ -528,3 +528,22 @@ export async function checkA2F(userName : string, token : string, jwtToken: stri
     console.error('error: sending POST request', error);
   }
 }
+
+/*-----------------------------------------------IMAGES-----------------------------------------------*/
+
+export async function getImage(userImage: string) {
+  try {
+    const response = await fetch(`http://localhost:3000/public/${userImage}`, {
+        method: 'GET',
+    });
+ 
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    } else {
+        const blob = await response.arrayBuffer();
+        return window.URL.createObjectURL(new Blob([blob]));
+    }
+  } catch (error) {
+      console.error(`Error: ${error}`);
+  }
+}

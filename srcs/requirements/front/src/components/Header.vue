@@ -4,9 +4,10 @@
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
   import { inviteFriendInGameEXPORT, socketOnEXPORT } from "./UserProfile.vue";
-  import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName } from "./api/get.call.ts";
+  import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName, getImage } from "./api/get.call.ts";
   import { createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
   import { RouterLink } from "vue-router";
+  import axios from 'axios';
 
 
   export default {
@@ -81,10 +82,8 @@
       this.userName = this.user.displayName;
 
       this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
-      
-      import(/* @vite-ignore */ this.user.image).then((image) => {
-        this.imageSrc = image.default;
-      });
+  
+      this.imageSrc = await getImage(this.user.image);
       this.users = await getAllUsers(this.cookieJWT);
     }
   };
