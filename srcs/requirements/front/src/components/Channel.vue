@@ -3,7 +3,7 @@
   import Modal from './Modal.vue';
   import Cookies from "js-cookie";
   import { removeChannel, removeOperator, removeUserFromChannel, unmuteUser} from "./api/delete.call";
-  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByUserId } from "./api/get.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByUserId, getImage } from "./api/get.call";
   import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel, setAdmin } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
@@ -180,10 +180,7 @@
   async function updateMessageSenders(messages) {
     for (let message of messages) {
       if (message.sender) {
-        let imagePath = `${message.sender.image}`;
-        await import(/* @vite-ignore */ imagePath).then((image) => {
-          message.sender.image = image.default;
-        });
+        message.sender.image = getImage(message.sender.image);
         message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId, cookieJWT.value);
       }
     }
@@ -191,10 +188,7 @@
 
   async function updateUserImages(users) {
     for (let user of users) {
-      let imagePath = user.image;
-      await import(/* @vite-ignore */ imagePath).then((image) => {
-        user.imageSrc = image.default;
-      });
+      user.imageSrc = getImage(user.image);
       user.isOperator = await isOperatorInDB(route.params.channelName, user.userId, cookieJWT.value);
     }
   }
@@ -243,9 +237,7 @@
 
       if (actualUser.value.image) {
         let userImagePath =  actualUser.value.image;
-        await import(/* @vite-ignore */ userImagePath).then((userImage) => {
-          actualUser.value.image = userImage.default;
-        });
+        actualUser.value.image = getImage(actualUser.value.image);
       }
       actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId, cookieJWT.value);
 

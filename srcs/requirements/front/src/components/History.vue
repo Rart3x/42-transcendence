@@ -1,7 +1,7 @@
 <script setup>
   import Cookies from "js-cookie";
   import { onMounted, ref, computed } from "vue";
-  import { getPastGameRoomsByUserId, getUserByUserId, getAllUserScore, getScoreByRoomId, getUserByUserName, getGameWinner } from "./api/get.call";
+  import { getPastGameRoomsByUserId, getUserByUserId, getAllUserScore, getScoreByRoomId, getUserByUserName, getGameWinner, getImage } from "./api/get.call";
 
   let games = ref([]);
   let user = ref(null);
@@ -56,9 +56,7 @@
 
     for (let i = 0; i < games.value.length; i++) {
       for (let j = 0; j < games.value[i].users.length; j++) {
-        const imagePath =  games.value[i].users[j].image;
-        const image = await import(/* @vite-ignore */ imagePath);
-        games.value[i].users[j].imageSrc = image.default;
+        games.value[i].users[j].imageSrc = getImage(games.value[i].users[j].image);
       }
       userScores.value.push(await getAllUserScore(games.value[i].id));
       scores.value.push(await getScoreByRoomId(games.value[i].id));

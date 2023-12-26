@@ -5,7 +5,7 @@
   import Cookies from "js-cookie";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName, getImage, getImageWithUserName } from './api/get.call';
+  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName, getImage } from './api/get.call';
   import { addFriend, blockUser, createChannel, createPrivateMessage, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
   import axios from 'axios';

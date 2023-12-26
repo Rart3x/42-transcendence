@@ -1,7 +1,7 @@
 <script>
     import Alert from './Alert.vue';
     import { ref } from 'vue';
-    import { getUserByUserName } from './api/get.call';
+    import { getUserByUserName, getImage } from './api/get.call';
 
     export default {
         name: 'Modal',
@@ -29,12 +29,8 @@
         methods: {
             async loadSenderImage(senderName) {
                 const user = await getUserByUserName(senderName);
-                const imagePath = user.image;
-                try {
-                    const image = await import(/* @vite-ignore */ imagePath);
-                    this.senderImageSrc = image.default;
-                } catch (error) {
-                    console.error("Error loading image:", error);
+                if (user){
+                    this.senderImageSrc = getImage(user.image)
                 }
             },
 

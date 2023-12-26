@@ -31,8 +31,8 @@ import GameRoom from "../gameRoom/gameRoom";
 
 import Player from "../player/player";
 
+import store from '../store/socket.js'
 
-//Get user by cookie
 
 let user : any
 
@@ -49,7 +49,7 @@ async() => {
 const SI = new SnapshotInterpolation();
 
 //Create and bind our socket to the server
-const socket = io('http://localhost:3000');
+// const socket = io('http://localhost:3000');
 
 export default class Game extends Phaser.Scene {
 

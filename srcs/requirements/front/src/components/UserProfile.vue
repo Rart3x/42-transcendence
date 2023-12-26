@@ -4,7 +4,7 @@
   import History from "./History.vue";
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
   import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
   import { deleteGameRoomById } from "./api/delete.call";
   import { removeFriend } from "./api/delete.call";
@@ -22,6 +22,7 @@
   export const socketOnEXPORT = function() {
     socketOn();
   }
+
 
   export default {
     name: "UserProfile",
@@ -217,8 +218,6 @@
 
       this.store.state.socket.on('invitationDeclined', (body) => {
         this.hostName = body.host;
-        console.log(`game to delete ${body.hostGameId}`);
-
         deleteGameRoomById(body.hostGameId.toString());
         this.inviteInGameFailed = true;
         setTimeout(() => {
@@ -234,27 +233,21 @@
       async updateFriends() {
         this.friendsData = await getAllFriends(this.user.userName, this.cookieJWT);
         for (let i = 0; i < this.friendsData.length; i++) {
-          const imagePath = this.friendsData[i].image;
-          const image = await import(/* @vite-ignore */ imagePath);
-          this.friendsData[i].imageSrc = image.default;
+          this.friendsData[i].imageSrc = getImage(this.friendsData[i].image);
         }
         this.friends = this.friendsData;
       },
       async updateChannels() {
         let channelsData = await getAllChannelsFromUser(this.user.userName, this.cookieJWT);
         for (let i = 0; i < channelsData.length; i++) {
-          const imagePath =  channelsData[i].channelAdminImage;
-          const image = await import(/* @vite-ignore */ imagePath);
-          channelsData[i].imageSrc = image.default;
+          channelsData[i].imageSrc = getImage(channelsData[i].channelAdminImage);
         }
         this.channels = channelsData;
       },
       async updateAllChannels() {
         let allChannelsData = await getAllNewChannels(this.user.userName, this.cookieJWT);
         for (let i = 0; i < allChannelsData.length; i++) {
-          const imagePath = allChannelsData[i].channelAdminImage;
-          const image = await import(/* @vite-ignore */ imagePath);
-          allChannelsData[i].imageSrc = image.default;
+          allChannelsData[i].imageSrc = getImage(allChannelsData[i].channelAdminImage)
         }
         this.allChannels = allChannelsData;
       },
@@ -266,6 +259,7 @@
     },
 
     async mounted() {
+      console.log(this.$store.state.socket.id)
       let cookieUserId = Cookies.get('UserId');
 		  this.cookieJWT  = Cookies.get('Bearer');
 
@@ -273,7 +267,6 @@
         this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
       }
       if (this.user){
-        this.store.dispatch('initializeSocket');
         await new Promise((resolve) => {
           const interval = setInterval(() => {
             if (this.store.state.socket) {

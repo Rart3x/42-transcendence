@@ -10,6 +10,7 @@
   let cookieJWT = ref(null);
 
   onMounted(async () => {
+    console.log(this.$store.state.socket.id)
 		cookieJWT.value = Cookies.get('Bearer');
     if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
       user.value = await getUserByUserId(cookieUserId, cookieJWT.value);

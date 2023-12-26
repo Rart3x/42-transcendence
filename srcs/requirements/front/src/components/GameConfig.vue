@@ -40,6 +40,7 @@
       }
     },
     mounted() {
+      console.log(this.$store.state.socket.id)
       this.createGame(this.game);
     },
   }
