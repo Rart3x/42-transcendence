@@ -66,6 +66,19 @@ services:
     networks:
       - transcendence
 
+  portainer:
+    build: ./requirements/portainer
+    image: portainer:inception
+    container_name: portainer
+    restart: unless-stopped
+    volumes:
+      - portainerdata:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9443:9443
+    networks:
+      - transcendence
+
 volumes:
   backenddata:
     name: backenddata
@@ -75,6 +88,9 @@ volumes:
     driver: local
   postgresdata:
     name: postgresdata
+    driver: local
+  portainerdata:
+    name: portainerdata
     driver: local
 
 networks:
