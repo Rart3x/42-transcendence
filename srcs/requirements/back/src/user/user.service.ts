@@ -409,7 +409,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   }
 
   async updateImage(userName: string, imageFile: Express.Multer.File): Promise<User> {
-    const imagePath = `${userName}.jpg`;
+    const imagePath = path.join(`/public/${userName}.jpg`);
     fs.writeFileSync(imagePath, imageFile.buffer);
     return await this.getUserByName(userName);
   }

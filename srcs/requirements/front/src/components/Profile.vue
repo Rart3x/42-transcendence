@@ -156,16 +156,11 @@
  
     this.users = await getAllUsers(this.cookieJWT);
 
-    // await import(/* @vite-ignore */ imagePath).then((image) => {
-    //   actualUser.value.imageSrc = image.default;
-    // });
-
     // let imagePathUser = "http://localhost:3000/public/" + user.value.image;
     // console.log(imagePathUser)
     // await import(imagePathUser).then((image) => {
     //   user.value.imageSrc = image.default;
     // });
-
   });
 
   const unblockFromDB = async (userName, unblockedUserName) => {

@@ -80,9 +80,7 @@
         this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
       }
       this.userName = this.user.displayName;
-
       this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
-  
       this.imageSrc = await getImage(this.user.image);
       this.users = await getAllUsers(this.cookieJWT);
     }

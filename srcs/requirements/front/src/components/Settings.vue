@@ -5,6 +5,7 @@
 	import { updateImage, updateUsername, updateA2F } from './api/post.call';
 	import { getUserByUserId } from './api/get.call';
 	import { onMounted, ref } from 'vue';
+	import { useRouter } from "vue-router";
 
 	let dataURL = ref(null);
 	let selectedFile = ref(null);
@@ -60,6 +61,7 @@
 			return;
 		}
 		await updateImage(user.value.userName, selectedFile.value, cookieJWT.value);
+		window.location.reload(); // Refresh the page but ugly
 	}
 
 	onMounted(async () => {
