@@ -8,13 +8,13 @@ import * as path from 'path';
 import { get } from 'http';
 import { PartialUserDTO } from './dto/partial-user.dto';
 
-async function downloadImage (url : string, filename : string) {
-  if (!fs.existsSync('/public/'))
-    fs.mkdirSync('/public/');
+async function downloadImage (url, filename) {
+  if (!fs.existsSync(path.join(__dirname, '../../../public')))
+    fs.mkdirSync(path.join(__dirname, '../../../public'));
 
   return new Promise((resolve, reject) => {
-    https.get(url, (response : any) => {
-      const fileStream = fs.createWriteStream(path.join('/public/', filename));
+    https.get(url, (response) => {
+      const fileStream = fs.createWriteStream(path.join(__dirname, '../../../public', filename));
       response.pipe(fileStream);
       fileStream.on('finish', () => {
         fileStream.close(resolve);

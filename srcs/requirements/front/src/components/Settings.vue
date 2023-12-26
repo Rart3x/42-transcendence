@@ -69,9 +69,9 @@
 		cookieJWT.value = Cookies.get('Bearer');
 		if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
 			user.value = await getUserByUserId(cookieUserId, cookieJWT.value);
-			if (!user.value){
-				window.location.href = "/";
-			}
+			// if (!user.value){
+			// 	window.location.href = "/";
+			// }
 			userName.value = user.value.displayName;
 			if (user.value.A2F)
 				dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);
