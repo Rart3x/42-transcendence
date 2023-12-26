@@ -77,19 +77,17 @@ const randomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 //-------------------------------------------------------------------------------------------------------------------------------------------
 
-//Gateway
 @WebSocketGateway({
 	cors : {
 		origin: '*',
 	},
+	// path: '/game'
 })
-
-@WebSocketGateway()
 export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
 	@WebSocketServer()
 	
-	server: Server = io("https://localhost:5173");
+	server: Server = io("https://localhost:3000");
 
 	queueListNormalGame : Map<number, string> = new Map();
 	queueListCustomGame : Map<number, string> = new Map();

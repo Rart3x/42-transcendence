@@ -59,6 +59,13 @@ export class UserController {
     return { success: result };
   }
 
+
+  @Get('getSocket/:userId')
+  async getSocketByUserId(@Param('userId') userId: number) : Promise<string> {
+    const result = await this.userService.getSocket(userId);
+    return result;
+  }
+
   // @Post()
   // async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
   //   try {

@@ -48,15 +48,17 @@
   onMounted(async () => {
     user.value = await getUserByUserName(props.userName);
 
-    if (!user.value) window.location.href = "/";
+    if (!user.value)
+      window.location.href = "/";
   
     versusImage.value = "./assets/vs.png";
     games.value = await getPastGameRoomsByUserId(user.value.userId);
-    if (!games.value) window.location.href = "/";
+    if (!games.value)
+      window.location.href = "/";
 
     for (let i = 0; i < games.value.length; i++) {
       for (let j = 0; j < games.value[i].users.length; j++) {
-        games.value[i].users[j].imageSrc = getImage(games.value[i].users[j].image);
+        games.value[i].users[j].imageSrc = await getImage(games.value[i].users[j].image);
       }
       userScores.value.push(await getAllUserScore(games.value[i].id));
       scores.value.push(await getScoreByRoomId(games.value[i].id));

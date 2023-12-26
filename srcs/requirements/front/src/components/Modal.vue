@@ -30,7 +30,7 @@
             async loadSenderImage(senderName) {
                 const user = await getUserByUserName(senderName);
                 if (user){
-                    this.senderImageSrc = getImage(user.image)
+                    this.senderImageSrc = await getImage(user.image)
                 }
             },
 

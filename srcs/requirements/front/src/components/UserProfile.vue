@@ -83,12 +83,12 @@
   
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
         const hostPlayer = await getUserByUserName(this.user.userName, this.cookieJWT);
-        const hostPlayerName = hostPlayer.userName;
         const invitedPlayer = await getUserByUserName(userName, this.cookieJWT);
+        const host = hostPlayer.userName;
+        const socket = invitedPlayer.socket;
         var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName, this.cookieJWT);
-        if (gameRoom){
-          await this.store.dispatch('invitationInGame', { hostPlayerName,  gameRoom, userName, userId, userSocket, userStatus });
-        }
+        if (gameRoom)
+          await this.store.dispatch('invitationInGame', { host,  gameRoom, userName, userId, socket, userStatus });
       },
 
       async joinChannelInDB(channelName, userName) {
@@ -190,40 +190,47 @@
       },
         
       async socketEmit(emit) {
+        console.log("MY EMIT : ", emit)
+        console.log(this.hostName)
+        // console.log("ON INVITATION ACCEPTED DATAS 1 = ", this.user.userId, this.hostGame.id, hostUser.socket);
         const hostUser = await getUserByUserName(this.hostName, this.cookieJWT);
-        if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
+        console.log(hostUser);
+        if (emit == "invitationInGameAccepted" || emit == "invitationInGameDeclined")
           this.invitationInGameSuccess = false;
-        if (emit === "invitationInGameAccepted"){
+        if (emit == "invitationInGameAccepted"){
           this.router.push('/game');
-          this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id });
+          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id })
         }
-        this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket, hostGameId: this.hostGame.id });
+        this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket,  hostGameId: this.hostGame.id });
+        // console.log("ON INVITATION ACCEPTED DATAS 2 = ", this.user.userId, this.hostGame.id, hostUser.socket);;
       },
 
       socketOn() {
         this.store.state.socket.on('invitedInGame', (body) => {
           this.hostGame = body.gameRoom;
-          this.hostName = body.hostPlayerName;
+          this.hostName = body.host;
+          console.log(this.hostGame)
           this.invitationInGameSuccess = true;
           setTimeout(() => {
             this.invitationInGameSuccess = false;
           }, 30000);
       });
 
-      this.store.state.socket.on('invitationAccepted', (body) => {
-        this.hostName = body.host;
-        this.router.push('/game'); 
-        this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
-      });
-
-      this.store.state.socket.on('invitationDeclined', (body) => {
-        this.hostName = body.host;
-        deleteGameRoomById(body.hostGameId.toString());
-        this.inviteInGameFailed = true;
-        setTimeout(() => {
-          this.inviteInGameFailed = false;
-        }, 5000);
+        this.store.state.socket.on('invitationAccepted', (body) => {
+          this.hostName = body.host;
+          console.log("ACCCCEPPPTED\n", body)
+          this.router.push('/game');
+          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
         });
+
+        this.store.state.socket.on('invitationDeclined', (body) => {
+          this.hostName = body.host;
+          deleteGameRoomById(body.hostGameId.toString());
+          this.inviteInGameFailed = true;
+          setTimeout(() => {
+            this.inviteInGameFailed = false;
+          }, 5000);
+          });
       },
 
       showContent(tab) {
@@ -259,7 +266,7 @@
     },
 
     async mounted() {
-      console.log(this.$store.state.socket.id)
+      // console.log(this.$store.state.socket.id)
       let cookieUserId = Cookies.get('UserId');
 		  this.cookieJWT  = Cookies.get('Bearer');
 
@@ -277,8 +284,10 @@
         });
         await setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
 
-        if (this.store && this.store.state.socket)
+        if (this.store && this.store.state.socket){
+          console.log("socketOn called");
           this.socketOn();
+        }
 
         this.userName = this.user.userName;
         this.adminImage = this.user.image;

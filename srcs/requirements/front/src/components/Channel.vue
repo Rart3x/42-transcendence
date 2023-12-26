@@ -180,7 +180,7 @@
   async function updateMessageSenders(messages) {
     for (let message of messages) {
       if (message.sender) {
-        message.sender.image = getImage(message.sender.image);
+        message.sender.image = await getImage(message.sender.image);
         message.sender.isBan = await isUserBanInChannelInDB(route.params.channelName, message.sender.userId, cookieJWT.value);
       }
     }
@@ -188,7 +188,7 @@
 
   async function updateUserImages(users) {
     for (let user of users) {
-      user.imageSrc = getImage(user.image);
+      user.imageSrc = await getImage(user.image);
       user.isOperator = await isOperatorInDB(route.params.channelName, user.userId, cookieJWT.value);
     }
   }
@@ -237,7 +237,7 @@
 
       if (actualUser.value.image) {
         let userImagePath =  actualUser.value.image;
-        actualUser.value.image = getImage(actualUser.value.image);
+        actualUser.value.image = await getImage(actualUser.value.image);
       }
       actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId, cookieJWT.value);
 

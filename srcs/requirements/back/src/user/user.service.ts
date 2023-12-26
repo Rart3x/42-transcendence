@@ -257,6 +257,13 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return false;
   }
 
+  async getSocket(userId: number) { 
+    const user = await this.prisma.user.findFirst({
+      where: { userId : userId },
+    })
+    return user.socket;
+  }
+
   async getUserByName(userName: string) {
     return await this.prisma.user.findFirst({
       where: { userName: userName },
