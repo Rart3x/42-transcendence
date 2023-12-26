@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppGateway } from './gateway';
+import { UserModule } from '../user/user.module';
 
 @Module({
-    imports: [AppGateway],
+    imports: [UserModule],
     controllers: [],
     providers: [],
     exports: [],

@@ -233,21 +233,21 @@
       async updateFriends() {
         this.friendsData = await getAllFriends(this.user.userName, this.cookieJWT);
         for (let i = 0; i < this.friendsData.length; i++) {
-          this.friendsData[i].imageSrc = getImage(this.friendsData[i].image);
+          this.friendsData[i].imageSrc = await getImage(this.friendsData[i].image);
         }
         this.friends = this.friendsData;
       },
       async updateChannels() {
         let channelsData = await getAllChannelsFromUser(this.user.userName, this.cookieJWT);
         for (let i = 0; i < channelsData.length; i++) {
-          channelsData[i].imageSrc = getImage(channelsData[i].channelAdminImage);
+          channelsData[i].imageSrc = await getImage(channelsData[i].channelAdminImage);
         }
         this.channels = channelsData;
       },
       async updateAllChannels() {
         let allChannelsData = await getAllNewChannels(this.user.userName, this.cookieJWT);
         for (let i = 0; i < allChannelsData.length; i++) {
-          allChannelsData[i].imageSrc = getImage(allChannelsData[i].channelAdminImage)
+          allChannelsData[i].imageSrc = await getImage(allChannelsData[i].channelAdminImage)
         }
         this.allChannels = allChannelsData;
       },
@@ -275,13 +275,13 @@
             }
           }, 100);
         });
-        setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
+        await setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
 
         if (this.store && this.store.state.socket)
           this.socketOn();
 
         this.userName = this.user.userName;
-        this.adminImage =  this.user.image;
+        this.adminImage = this.user.image;
 
         this.updateAll();
 
