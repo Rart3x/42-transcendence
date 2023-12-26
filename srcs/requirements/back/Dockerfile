@@ -1,26 +1,30 @@
 FROM node:lts-alpine AS builder
 
-RUN mkdir test
-WORKDIR /test
+RUN mkdir app
+WORKDIR /app
 
 COPY package*.json ./
 
-COPY prisma/schema.prisma ./prisma/schema.prisma
+COPY prisma/schema.prisma ./prisma/
 
 RUN npm install
 
 COPY . .
 
-RUN npm run build
-
 RUN npx prisma generate
+
+RUN npm run build
 
 FROM node:lts-alpine
 
-COPY --from=builder /test/node_modules ./node_modules
-COPY --from=builder /test/package*.json ./
-COPY --from=builder /test/dist ./dist
-
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.env ./ 
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+
+
+CMD ["npm", "run", "prod"]

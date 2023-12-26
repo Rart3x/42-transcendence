@@ -4,7 +4,7 @@
   import History from "./History.vue";
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, } from "./api/get.call";
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
   import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
   import { deleteGameRoomById } from "./api/delete.call";
   import { removeFriend } from "./api/delete.call";
@@ -23,6 +23,7 @@
   export const socketOnEXPORT = function() {
     socketOn();
   }
+
 
   export default {
     name: "UserProfile",
@@ -86,12 +87,12 @@
   
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
         const hostPlayer = await getUserByUserName(this.user.userName, this.cookieJWT);
-        const hostPlayerName = hostPlayer.userName;
         const invitedPlayer = await getUserByUserName(userName, this.cookieJWT);
+        const host = hostPlayer.userName;
+        const socket = invitedPlayer.socket;
         var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName, this.cookieJWT);
-        if (gameRoom){
-          await this.store.dispatch('invitationInGame', { hostPlayerName,  gameRoom, userName, userId, userSocket, userStatus });
-        }
+        if (gameRoom)
+          await this.store.dispatch('invitationInGame', { host,  gameRoom, userName, userId, socket, userStatus });
       },
 
       async joinChannelInDB(channelName, userName) {
@@ -193,42 +194,47 @@
       },
         
       async socketEmit(emit) {
+        console.log("MY EMIT : ", emit)
+        console.log(this.hostName)
+        // console.log("ON INVITATION ACCEPTED DATAS 1 = ", this.user.userId, this.hostGame.id, hostUser.socket);
         const hostUser = await getUserByUserName(this.hostName, this.cookieJWT);
-        if (emit === "invitationInGameAccepted" || emit === "invitationInGameDeclined")
+        console.log(hostUser);
+        if (emit == "invitationInGameAccepted" || emit == "invitationInGameDeclined")
           this.invitationInGameSuccess = false;
-        if (emit === "invitationInGameAccepted"){
+        if (emit == "invitationInGameAccepted"){
           this.router.push('/game');
-          this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id });
+          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id })
         }
-        this.store.state.socket.emit(emit, { userName: hostUser.userName, userSocket: hostUser.socket, hostGameId: this.hostGame.id });
+        this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket,  hostGameId: this.hostGame.id });
+        // console.log("ON INVITATION ACCEPTED DATAS 2 = ", this.user.userId, this.hostGame.id, hostUser.socket);;
       },
 
       socketOn() {
         this.store.state.socket.on('invitedInGame', (body) => {
           this.hostGame = body.gameRoom;
-          this.hostName = body.hostPlayerName;
+          this.hostName = body.host;
+          console.log(this.hostGame)
           this.invitationInGameSuccess = true;
           setTimeout(() => {
             this.invitationInGameSuccess = false;
           }, 30000);
       });
 
-      this.store.state.socket.on('invitationAccepted', (body) => {
-        this.hostName = body.host;
-        this.router.push('/game'); 
-        this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
-      });
-
-      this.store.state.socket.on('invitationDeclined', (body) => {
-        this.hostName = body.host;
-        console.log(`game to delete ${body.hostGameId}`);
-
-        deleteGameRoomById(body.hostGameId.toString());
-        this.inviteInGameFailed = true;
-        setTimeout(() => {
-          this.inviteInGameFailed = false;
-        }, 5000);
+        this.store.state.socket.on('invitationAccepted', (body) => {
+          this.hostName = body.host;
+          console.log("ACCCCEPPPTED\n", body)
+          this.router.push('/game');
+          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
         });
+
+        this.store.state.socket.on('invitationDeclined', (body) => {
+          this.hostName = body.host;
+          deleteGameRoomById(body.hostGameId.toString());
+          this.inviteInGameFailed = true;
+          setTimeout(() => {
+            this.inviteInGameFailed = false;
+          }, 5000);
+          });
       },
 
       showContent(tab) {
@@ -238,27 +244,21 @@
       async updateFriends() {
         this.friendsData = await getAllFriends(this.user.userName, this.cookieJWT);
         for (let i = 0; i < this.friendsData.length; i++) {
-          const imagePath = "../assets/userImages/" + this.friendsData[i].image;
-          const image = await import(/* @vite-ignore */ imagePath);
-          this.friendsData[i].imageSrc = image.default;
+          this.friendsData[i].imageSrc = await getImage(this.friendsData[i].image);
         }
         this.friends = this.friendsData;
       },
       async updateChannels() {
         let channelsData = await getAllChannelsFromUser(this.user.userName, this.cookieJWT);
         for (let i = 0; i < channelsData.length; i++) {
-          const imagePath = "../assets/userImages/" + channelsData[i].channelAdminImage;
-          const image = await import(/* @vite-ignore */ imagePath);
-          channelsData[i].imageSrc = image.default;
+          channelsData[i].imageSrc = await getImage(channelsData[i].channelAdminImage);
         }
         this.channels = channelsData;
       },
       async updateAllChannels() {
         let allChannelsData = await getAllNewChannels(this.user.userName, this.cookieJWT);
         for (let i = 0; i < allChannelsData.length; i++) {
-          const imagePath = "../assets/userImages/" + allChannelsData[i].channelAdminImage;
-          const image = await import(/* @vite-ignore */ imagePath);
-          allChannelsData[i].imageSrc = image.default;
+          allChannelsData[i].imageSrc = await getImage(allChannelsData[i].channelAdminImage)
         }
         this.allChannels = allChannelsData;
       },
@@ -270,6 +270,7 @@
     },
 
     async mounted() {
+      // console.log(this.$store.state.socket.id)
       let cookieUserId = Cookies.get('UserId');
 		  this.cookieJWT  = Cookies.get('Bearer');
 
@@ -277,7 +278,6 @@
         this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
       }
       if (this.user){
-        this.store.dispatch('initializeSocket');
         await new Promise((resolve) => {
           const interval = setInterval(() => {
             if (this.store.state.socket) {
@@ -286,13 +286,15 @@
             }
           }, 100);
         });
-        setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
+        await setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
 
-        if (this.store && this.store.state.socket)
+        if (this.store && this.store.state.socket){
+          console.log("socketOn called");
           this.socketOn();
+        }
 
         this.userName = this.user.userName;
-        this.adminImage = "src/assets/userImages/" + this.user.image;
+        this.adminImage = this.user.image;
 
         this.updateAll();
 

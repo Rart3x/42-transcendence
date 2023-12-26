@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 
 const store = createStore({
   state: {
-    socket: null,
+    socket: null
   },
   mutations: {
     SET_SOCKET(state, socket) {
@@ -17,12 +17,16 @@ const store = createStore({
     },
     invitationInGame(context, body) {
       const socket = context.state.socket;
-      if (socket)
-        socket.emit(' ', body);
+      if (socket){
+        console.log("invitation sent")
+        socket.emit('invitationInGame', body);
+      }
       else
         console.error('error: socket uninitialized');
     },
-  },
+    test(context) { 
+    }
+  }
 });
 
 export default store;

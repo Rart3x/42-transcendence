@@ -5,9 +5,10 @@
   import Cookies from "js-cookie";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName } from './api/get.call';
+  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName, getImage } from './api/get.call';
   import { addFriend, blockUser, createChannel, createPrivateMessage, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
+  import axios from 'axios';
 
   let actualUser = ref(null);
   let user = ref(null);
@@ -147,16 +148,19 @@
     
     messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName, cookieJWT.value);
 
-    let imagePath = "../assets/userImages/" + actualUser.value.image;
-    await import(/* @vite-ignore */ imagePath).then((image) => {
-      actualUser.value.imageSrc = image.default;
-    });
+    // let imagePath =  actualUser.value.image;
+    // actualUser.value.imageSrc = await getImage(this.user.image);
+  
+    this.imageSrc = await getImage(this.user.image);
 
-    let imagePathUser = "../assets/userImages/" + user.value.image;
-    await import(/* @vite-ignore */ imagePathUser).then((image) => {
-      user.value.imageSrc = image.default;
-    });
+ 
+    this.users = await getAllUsers(this.cookieJWT);
 
+    // let imagePathUser = "http://localhost:3000/public/" + user.value.image;
+    // console.log(imagePathUser)
+    // await import(imagePathUser).then((image) => {
+    //   user.value.imageSrc = image.default;
+    // });
   });
 
   const unblockFromDB = async (userName, unblockedUserName) => {

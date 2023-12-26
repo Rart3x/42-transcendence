@@ -57,46 +57,37 @@ export class AuthController {
                     if (user){
                         //If user already exist we set the cookies back
                         const access_token = await this.JwtService.signAsync(payload);
-
-                        res.cookie('Bearer', access_token, {
-                            httpOnly: false,
-                            secure: false,
-                            sameSite: 'lax',
-                            expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                        });
-                        //UserId to retrieve user in db
-                        res.cookie('UserId', user.userId, {
-                            httpOnly: false,
-                            secure: false,
-                            sameSite: 'lax',
-                            expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                        })
-                        res.redirect("http://localhost:5173/settings");
+                        this.setCookie(res, user.userId, access_token);
+               
+                        res.redirect("http://localhost:1505/settings");
                         return ;
                     }
-                    await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
-
+                    const newUser = await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
                     const access_token = await this.JwtService.signAsync(payload);
-                    //Jwt token to make request to the back
-                    res.cookie('Bearer', access_token, {
-                        httpOnly: false,
-                        secure: false,
-                        sameSite: 'lax',
-                        expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                    });
-                    //UserId to retrieve user in db
-                    res.cookie('UserId', user.userId, {
-                        httpOnly: false,
-                        secure: false,
-                        sameSite: 'lax',
-                        expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-                    })
-                    res.redirect("http://localhost:5173/settings")
+                    this.setCookie(res, newUser.userId, access_token);
+                    res.redirect("http://localhost:1505/settings")
                 }
             }
         }
         catch(error){
             console.log(error);
         }
+    }
+
+    private setCookie(res: Response, userId: number, bearerToken: string){
+            //Jwt token to make request to the back
+            res.cookie('Bearer', bearerToken, {
+            httpOnly: false,
+            secure: false,
+            sameSite: 'lax',
+            expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
+        });
+        //UserId to retrieve user in db
+        res.cookie('UserId', userId, {
+            httpOnly: false,
+            secure: false,
+            sameSite: 'lax',
+            expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
+        })
     }
 }

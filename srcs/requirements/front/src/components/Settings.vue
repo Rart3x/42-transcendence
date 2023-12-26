@@ -5,6 +5,7 @@
 	import { updateImage, updateUsername, updateA2F } from './api/post.call';
 	import { getUserByUserId } from './api/get.call';
 	import { onMounted, ref } from 'vue';
+	import { useRouter } from "vue-router";
 
 	let dataURL = ref(null);
 	let selectedFile = ref(null);
@@ -60,6 +61,7 @@
 			return;
 		}
 		await updateImage(user.value.userName, selectedFile.value, cookieJWT.value);
+		window.location.reload(); // Refresh the page but ugly
 	}
 
 	onMounted(async () => {
@@ -79,8 +81,8 @@
 </script>
 
 <template>
-	<UserStatHeader v-if="user" :userName="user.userName" :gamePlayed="user.gamePlayed" :gameWon="user.gameWon" />
 	<div class="overflow-x-auto min-h-screen bg-base-200">
+	<UserStatHeader v-if="user" :userName="user.userName" :gamePlayed="user.gamePlayed" :gameWon="user.gameWon" />
 		<div class="buttons bg-base-200">
 			<button class="btn glass" @click="showContent('username')">Change username</button>
 			<button class="btn glass" @click="showContent('image')">Change image</button>

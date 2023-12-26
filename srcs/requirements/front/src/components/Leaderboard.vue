@@ -10,7 +10,7 @@
   let cookieJWT = ref(null);
 
   onMounted(async () => {
-    let cookieUserId = Cookies.get('UserId');
+    console.log(this.$store.state.socket.id)
 		cookieJWT.value = Cookies.get('Bearer');
     if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
       user.value = await getUserByUserId(cookieUserId, cookieJWT.value);
@@ -18,7 +18,7 @@
       users.value = users.value.sort((a, b) => b.matchmakingScore - a.matchmakingScore);
       if (users.value){
         users.value.forEach((user, index) => {
-          let imagePath = "../assets/userImages/" + user.image;
+          let imagePath = user.image;
           import(/* @vite-ignore */ imagePath).then((image) => {
             userImage.value.push(image.default);
           });

@@ -489,9 +489,12 @@ export async function updateImage(userName : string, image : string, jwtToken: s
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("image", image);
-
-    const response = await fetch(`http://localhost/api/user/updateImage/${userName}`, {
+  
+    const response = await fetch(`http://localhost:3000/user/updateImage/${userName}`, {
       method: "POST",
+      headers: {
+        "Authorization": `Bearer ${jwtToken}`
+      },
       body: formData,
     });
     if (response.ok) {
