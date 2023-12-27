@@ -8,7 +8,6 @@
   let listItemIndex = ref(-1);
 
   const user = ref(null);
-
   const signInWithIntra = () => {
      window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${
       import.meta.env.VITE_CLIENT_ID
@@ -16,9 +15,17 @@
   };
 
   onMounted(async () => {
-    user.value = await getUserByUserId(Cookies.get("UserId"));
-    if (user)
-      animateText();
+    try {
+      const cookieJWT = Cookies.get("Bearer");
+      const cookieUserId = Cookies.get("UserId");
+      if (cookieJWT && cookieUserId){
+        user.value = await getUserByUserId(cookieUserId, cookieJWT);
+      }
+      if (user)
+        animateText();
+    } catch (error) {
+      console.error("Failed to fetch user data: ", error);
+    }
   });
 
   const animateText = () => {

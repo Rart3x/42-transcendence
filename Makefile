@@ -46,7 +46,7 @@ clean: down
 	@printf "Cleaning configuration ${NAME}...\n"
 	@docker system prune -a
 
-fclean:
+fclean: down
 	@printf "Total clean of all configurations docker\n"
 	@if [ $$(docker ps -q | wc -l) -gt 0 ]; then \
 	    docker stop $$(docker ps -qa); \
