@@ -23,7 +23,6 @@
     socketOn();
   }
 
-
   export default {
     name: "UserProfile",
     components: {
@@ -143,7 +142,6 @@
           const removedUser = await getUserByUserName(friendName, this.cookieJWT);
           const socket = removedUser.socket;
           //Update added user's buddy list
-          console.log("removed user socket: ", socket);
           await this.store.dispatch('friendRemoved', { socket })
           this.updateFriends();
         } else {

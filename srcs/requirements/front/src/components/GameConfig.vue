@@ -1,7 +1,7 @@
 <script lang="ts">
 
-  import Phaser from 'phaser'
-  import GameScene from './GameScene.vue'
+  import Phaser from 'phaser';
+  import GameScene from './GameScene.vue';
 
   export default {
     name: 'GameConfig',
@@ -26,7 +26,7 @@
           height: 800,
           physics: {
             default: 'matter',
-            matter : {debug: false}
+            matter : { debug: false }
           },
           scene: GameScene
         },

@@ -9,7 +9,7 @@ import '@geckos.io/snapshot-interpolation';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
 //Socket communication
-import { io } from 'socket.io-client';
+import { io } from 'store.state.socket.io-client';
 
 //Game library
 import Phaser from 'phaser';
@@ -18,11 +18,11 @@ import Phaser from 'phaser';
 import * as Matter from 'matter-js';
 
 //Post and Get Methods
-import { getGameRoomByRoomId, getCurrentGameRoomByUserId, getLastGameRoomIfAfk, getUserByUserId } from './api/get.call';
+import { getGameRoomByRoomId, getCurrentGameRoomByUserId, getLastGameRoomIfAfk, getUserByUserId, getImage } from './api/get.call';
 import { setClientSocket } from './api/post.call';
 
 //Cookie
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
 
 //Interfaces
 import Entities from '../entities/entities';
@@ -31,25 +31,13 @@ import GameRoom from "../gameRoom/gameRoom";
 
 import Player from "../player/player";
 
-import store from '../store/socket.js'
 
-
-let user : any
-
-async() => {
-	let cookieUserId = Cookies.get('UserId');
-	let cookieJWT = Cookies.get('Bearer');
-  
-    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
-		user = await getUserByUserId(Number(cookieUserId), cookieJWT);
-	}
-}
+//Store (socket)
+import store from '../store/socket.js';
+import { useStore } from "vuex";
 
 //Initialize snapshot library
 const SI = new SnapshotInterpolation();
-
-//Create and bind our socket to the server
-// const socket = io('http://localhost:3000');
 
 export default class Game extends Phaser.Scene {
 
@@ -59,24 +47,41 @@ export default class Game extends Phaser.Scene {
 	UIScorePlayer1: Phaser.GameObjects.DOMElement;
 	UIScorePlayer2: Phaser.GameObjects.DOMElement;
 	graphics : Phaser.GameObjects.Graphics;
+	user : any;
+	cookieJWT: string;
 
 	constructor(){
 		super("game");
-		// setClientSocket(user.userName, socket.id);
 	}
 
 	preload(){
-		// this.load.setPath('src/assets');
+		this.load.setPath(".");
+	}
+
+	async init(){
+		let cookieUserId = Cookies.get('UserId');
+		this.cookieJWT = Cookies.get('Bearer');
+	
+		if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined'){
+			this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
+			if (this.user){
+				console.log(this.user.userId);
+			}
+			else{
+				console.log("user not set");
+			}
+		}
 	}
 
 	gamePage(self : any){
-		this.UIElement = this.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
+		self = this;
+		this.UIElement = self.add.dom(500, 400).createFromHTML('<div class="grid grid-rows-6 justify-items-center ..."> \
 			<div class="row-start-1  ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
 			<div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
 			</div> \
 		');
-		if (this.input.keyboard){
-			const SPACEKey = this.input.keyboard.addKey('SPACE');
+		if (self.input.keyboard){
+			const SPACEKey = self.input.keyboard.addKey('SPACE');
 			SPACEKey.on('down', function (){
 				if (this.scale.isFullscreen){
 					this.scale.stopFullscreen();
@@ -102,25 +107,31 @@ export default class Game extends Phaser.Scene {
 			</div>');
 			let customGameModeButton = self.UIElement.node.querySelector("#choseCustomGameMode") as HTMLElement;
 			let normalGameModeButton = self.UIElement.node.querySelector("#choseNormalGameMode") as HTMLElement;
-			document.getElementById('parent').addEventListener('click', function(event) {
-				if (event.target.id == "choseCustomGameMode" || event.target.id == "choseNormalGameMode"){
-					if (event.target.id == "choseCustomGameMode"){
-						self.UIElement.destroy();
-						socket.emit('playerJoinCustomQueue', user.userId);
+			
+			const parentElement = document.getElementById('parent') as HTMLElement;
+
+			parentElement.addEventListener('click', function(event) {
+				if (event && event.target){
+					const target = event.target as HTMLButtonElement;
+					if (target.id == "choseCustomGameMode" || target.id == "choseNormalGameMode"){
+						if (target.id == "choseCustomGameMode"){
+							self.UIElement.destroy();
+							store.state.socket.emit('playerJoinCustomQueue', self.user.userId);
+						}
+						else{
+							self.UIElement.destroy();
+							store.state.socket.emit('playerJoinNormalQueue', self.user.userId);
+						}
+						self.UIElement = self.add.dom(500, 400).createFromHTML(' \
+						<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
+							<div class="row-start-1 col-start-2 col-end-3 ..."> \
+								<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
+							</div> \
+							<div class="row-start-2 col-start-2 col-end-3 ..."> \
+								<span class=" loading loading-dots loading-lg"></span> \
+							</div> \
+						</div>');
 					}
-					else{
-						self.UIElement.destroy();
-						socket.emit('playerJoinNormalQueue', user.userId);
-					}
-					self.UIElement = self.add.dom(500, 400).createFromHTML(' \
-					<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
-						<div class="row-start-1 col-start-2 col-end-3 ..."> \
-							<h1 class="text-4xl font-bold dark:text-white ...">Looking for a game</h1> \
-						</div> \
-						<div class="row-start-2 col-start-2 col-end-3 ..."> \
-							<span class=" loading loading-dots loading-lg"></span> \
-						</div> \
-					</div>');
 				}
 			});
 		});
@@ -128,8 +139,8 @@ export default class Game extends Phaser.Scene {
 
 	async create(){
 		var self = this;
-		if (user.userId != null){
-			let gameRoom : any = await getLastGameRoomIfAfk(user.userId);
+		if (this.user && this.user.userId != null){
+			let gameRoom : any = await getLastGameRoomIfAfk(self.user.userId, self.cookieJWT);
 			if (gameRoom){
 				this.children.removeAll();
 				if (this.UIElement){
@@ -141,18 +152,17 @@ export default class Game extends Phaser.Scene {
 					<div class="row-start-3 col-start-1 col-end-2"><button id="stopButton" class="btn btn-secondary">Stop</button></div> \
 					</div> \
 				')
-				var user1 = await getUserByUserId(gameRoom.users[0].userId);
-				var user2 = await getUserByUserId(gameRoom.users[1].userId);
+				var user1 = await getUserByUserId(gameRoom.users[0].userId, this.cookieJWT);
+				var user2 = await getUserByUserId(gameRoom.users[1].userId, this.cookieJWT);
 				let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
-				console.log(gameRoom.score);
-				if (user.userId == gameRoom.winnerId){
-					if (user.userId == gameRoom.player1UserId)
+				if (this.user.userId == gameRoom.winnerId){
+					if (this.user.userId == gameRoom.player1UserId)
 						winLooseMessage.innerText = "You won against " + user2.userName;
 					else
 						winLooseMessage.innerText = "You won against " + user1.userName;
 				}
 				else{
-					if (user.userId == gameRoom.player1UserId)
+					if (this.user.userId == gameRoom.player1UserId)
 						winLooseMessage.innerText = "You lost against " + user2.userName;
 					else
 						winLooseMessage.innerText = "You lost against " + user1.userName;
@@ -160,7 +170,7 @@ export default class Game extends Phaser.Scene {
 				let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
 				stopButton.addEventListener('click', () => {
 					if (this.gameRoom){
-						socket.emit('stopPlay', this.gameRoom.id);
+						store.state.socket.emit('stopPlay', this.gameRoom.id);
 					}
 					this.destroyUI();
 					this.gameRoom = undefined;
@@ -176,13 +186,13 @@ export default class Game extends Phaser.Scene {
 			this.gamePage(self);
 		}
 
-		socket.on('updateScore', (data) => {
+		store.state.socket.on('updateScore', (data) => {
 			this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
 			this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
 			this.updateUIScore();
 		});
 
-		socket.on('currentGameInformation', (data) => {
+		store.state.socket.on('currentGameInformation', (data) => {
 			this.gameRoom = new GameRoom(
 				this,
 				data.roomId,
@@ -206,17 +216,17 @@ export default class Game extends Phaser.Scene {
 				this.spawnSceneProps();
 				this.updateUIScore();
 				this.gameRoom.entities.ball.gameObject.y = data.ballY;
-				socket.emit('readyAfterInitialisation', this.gameRoom.id);
+				store.state.socket.emit('readyAfterInitialisation', this.gameRoom.id);
 			}
 		});
 
-		socket.on('lobby', (data) => {
+		store.state.socket.on('lobby', (data) => {
 			// console.log("Inside lobby");
 			this.UIElement.destroy();
 			this.startLobby(data);
 		});
 	
-		socket.on('localGameCreated', (data) => {
+		store.state.socket.on('localGameCreated', (data) => {
 			this.UIElement.destroy();
 			this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 			<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
@@ -272,20 +282,20 @@ export default class Game extends Phaser.Scene {
 
 		//Happy Birthday to our lead developper kenny <3
 
-		socket.on('endGameInformation', (data) => {
+		store.state.socket.on('endGameInformation', (data) => {
 			
 	
 		});
 
-		socket.on('otherPlayerReady', () => {
+		store.state.socket.on('otherPlayerReady', () => {
 			let otherPlayerProfile : any;
 			let otherPlayerReadyButton : any;
 
-			if (socket.id == self.gameRoom.player1SocketId){
+			if (store.state.socket.id == self.gameRoom.player1SocketId){
 				otherPlayerProfile = this.UIElement.node.querySelector("#userProfile2");
 				otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
 			}
-			else if (socket.id == self.gameRoom.player2SocketId){
+			else if (store.state.socket.id == self.gameRoom.player2SocketId){
 				otherPlayerProfile = this.UIElement.node.querySelector("#userProfile1");
 				otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
 			}
@@ -299,16 +309,16 @@ export default class Game extends Phaser.Scene {
 		});
 
 
-		socket.on('otherPlayerNotReady', () => {
+		store.state.socket.on('otherPlayerNotReady', () => {
 			let otherPlayerProfile : any;
 			let otherPlayerReadyButton : any;
 
-			if (socket.id == self.gameRoom?.player1SocketId){
+			if (store.state.socket.id == self.gameRoom?.player1SocketId){
 				self.gameRoom.player2Ready = false;
 				otherPlayerProfile = this.UIElement.node.querySelector("#userProfile2");
 				otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
 			}
-			else if (socket.id == self.gameRoom?.player2SocketId){
+			else if (store.state.socket.id == self.gameRoom?.player2SocketId){
 				self.gameRoom.player1Ready = false;
 				otherPlayerProfile = this.UIElement.node.querySelector("#userProfile1");
 				otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
@@ -323,7 +333,7 @@ export default class Game extends Phaser.Scene {
 		});
 
 		//Waiting for server response to isReady command
-		socket.on('init', () => {
+		store.state.socket.on('init', () => {
 			if (this.gameRoom){
 				this.gameRoom.engine = Matter.Engine.create();
 				this.gameRoom.engine.gravity.x = 0;
@@ -332,11 +342,11 @@ export default class Game extends Phaser.Scene {
 				this.matter.world.setBounds();
 				this.gameRoom.world = this.gameRoom.engine.world;
 				this.spawnSceneProps();
-				socket.emit('readyAfterInitialisation', this.gameRoom.id);
+				store.state.socket.emit('readyAfterInitialisation', this.gameRoom.id);
 			}
 		});
 		
-		socket.on('gameStart', () => {
+		store.state.socket.on('gameStart', () => {
 			this.UIElement = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
 				<span id="countdown" style="--value:3;"></span> \
 				</span>');
@@ -357,11 +367,11 @@ export default class Game extends Phaser.Scene {
 		//Mouse hook for movement
 		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
 			if (this?.gameRoom?.entities){
-				if (this.gameRoom?.player1SocketId == socket.id){
+				if (this.gameRoom?.player1SocketId == store.state.socket.id){
 					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
-					socket.emit('playerMovement', {
+					store.state.socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
-						socketId: socket.id,
+						socketId: store.state.socket.id,
 						x: this.gameRoom.entities.players[0].x,
 						y: this.gameRoom.entities.players[0].y
 					});
@@ -370,11 +380,11 @@ export default class Game extends Phaser.Scene {
 						this.gameRoom.entities.players[0].gameObject.body.position.y = this.gameRoom.entities.players[0].y;
 					}
 				}
-				else if (this.gameRoom?.player2SocketId == socket.id){
+				else if (this.gameRoom?.player2SocketId == store.state.socket.id){
 					this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 75, 725);
-					socket.emit('playerMovement', {
+					store.state.socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
-						socketId: socket.id,
+						socketId: store.state.socket.id,
 						x: this.gameRoom.entities.players[1].x,
 						y: this.gameRoom.entities.players[1].y
 					});
@@ -385,7 +395,7 @@ export default class Game extends Phaser.Scene {
 				}
 				// this.gameRoom.entities.ball.gameObject.x = pointer.x;
 				// this.gameRoom.entities.ball.gameObject.y = pointer.y;
-				// socket.emit('ballMovement', {
+				// store.state.socket.emit('ballMovement', {
 				// 	roomId: this.gameRoom.id,
 				// 	x: pointer.x,
 				// 	y: pointer.y
@@ -393,7 +403,7 @@ export default class Game extends Phaser.Scene {
 			}
 		}, this);
 
-		socket.on('scorePoint', (data) => {
+		store.state.socket.on('scorePoint', (data) => {
 			if (this.gameRoom?.entities){
 				if (this.gameRoom.player1Disconnected == false && this.gameRoom.player2Disconnected == false){
 					//Reset ball to the middle
@@ -414,14 +424,14 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		socket.on('restartAfterScore', (data) => {
+		store.state.socket.on('restartAfterScore', (data) => {
 			//this?.gameRoom?.entities?.ball.gameObject.setVelocity(data.ball.vecX, data.ball.vecY);
 		});
 
-		socket.on('playAgain', () => {
+		store.state.socket.on('playAgain', () => {
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
 
-			if (socket.id == this?.gameRoom?.player1SocketId){
+			if (store.state.socket.id == this?.gameRoom?.player1SocketId){
 				this.gameRoom.player2PlayAgain = true;
 				if (this.gameRoom.player1PlayAgain){
 					playAgainButton.innerText = "Play again 2/2";
@@ -441,11 +451,11 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		socket.on('playStop', () => {
+		store.state.socket.on('playStop', () => {
 			let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
       		this.gameRoom.playAgain = false;
         
-			if (socket.id == this.gameRoom?.player1SocketId){
+			if (store.state.socket.id == this.gameRoom?.player1SocketId){
 				this.gameRoom.player2PlayAgain = false;
 				if (this.gameRoom.player1PlayAgain == true){
 					playAgainButton.innerText = "Play again 1/2";
@@ -469,7 +479,7 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		socket.on('gameFinish', (data) => {
+		store.state.socket.on('gameFinish', (data) => {
 			this.gameRoom.finish = true;
 			this.children.removeAll();
 			this.destroyUI();
@@ -483,14 +493,14 @@ export default class Game extends Phaser.Scene {
 
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
 
-			console.log(data);
+			// console.log(data);
 
 			var scoreWinner = data.scoreWinner.toString();
 			var scoreLooser = data.scoreLooser.toString();
 
 			if (this.gameRoom){
-				if (user.userId == data.winUserId){
-					if (user.userId == this.gameRoom.player1UserId){
+				if (this.user.userId == data.winUserId){
+					if (this.user.userId == this.gameRoom.player1UserId){
 	
 						winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName + "\n " + scoreWinner + " - "  + scoreLooser;
 					}
@@ -499,7 +509,7 @@ export default class Game extends Phaser.Scene {
 					}
 				}
 				else{
-					if (user.userId == this.gameRoom.player1UserId){
+					if (this.user.userId == this.gameRoom.player1UserId){
 						winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName + "\n " + scoreLooser + " - "  + scoreWinner;
 					}
 					else{
@@ -510,7 +520,7 @@ export default class Game extends Phaser.Scene {
 				let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
 				playAgainButton.addEventListener('click', () => {
 					if (this.gameRoom.playAgain == true){
-						if (socket.id == this?.gameRoom?.player1SocketId){
+						if (store.state.socket.id == this?.gameRoom?.player1SocketId){
 							this.gameRoom.player1PlayAgain = true;
 							if (this.gameRoom.player2PlayAgain){
 								playAgainButton.innerText = "Play again 2/2";
@@ -528,12 +538,12 @@ export default class Game extends Phaser.Scene {
 								playAgainButton.innerText = "Play again 1/2";
 							}
 						}
-						socket.emit('playAgain', this.gameRoom.id);
+						store.state.socket.emit('playAgain', this.gameRoom.id);
 					}
 				});
 				stopButton.addEventListener('click', () => {
 					if (this.gameRoom){
-						socket.emit('stopPlay', this.gameRoom.id);
+						store.state.socket.emit('stopPlay', this.gameRoom.id);
 					}
 					this.destroyUI();
 					this.gameRoom = undefined;
@@ -543,7 +553,7 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		socket.on('snapshot', (data) => {
+		store.state.socket.on('snapshot', (data) => {
 			//Read the snapshot
 			SI.snapshot.add(data);
 			SI.vault.add(data);
@@ -574,7 +584,6 @@ export default class Game extends Phaser.Scene {
 			data.player1UserName,
 			data.player2UserName);
 
-		
 		this.UIElement = this.add.dom(450, 400).createFromHTML(' \
 		<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
 			<div class="avatar row-start-2"> \
@@ -608,7 +617,7 @@ export default class Game extends Phaser.Scene {
 		let userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
 		let userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
 
-		if (socket.id == this.gameRoom.player1SocketId){
+		if (store.state.socket.id == this.gameRoom.player1SocketId){
 			userProfile1Name.innerText = data.player1UserName;
 			userProfile2Name.innerText = data.player2UserName;
 		}
@@ -617,20 +626,23 @@ export default class Game extends Phaser.Scene {
 			userProfile1Name.innerText = data.player1UserName;
 		}
 
-		// var imagePathPlayer1 = "userImages/" + data.player1Image;
-		// var imagePathPlayer2 = "userImages/" + data.player2Image;
+		var imagePlayer1 = getImage(data.player1Image);
+		var imagePlayer2 = getImage(data.player2Image);
 
-		if (!this.textures.exists('userImage2')){
-			this.load.image('userImage2', imagePathPlayer2);
-		}
+	
+		// if (!this.textures.exists('userImage1')){
+		// 	this.load.image('userImage1', imagePlayer1);
+		// }
 
-		if (!this.textures.exists('userImage1')){
-			this.load.image('userImage1', imagePathPlayer1);
-		}
+		// if (!this.textures.exists('userImage2')){
+		// 	this.load.image('userImage2', imagePlayer2);
+		// }
+
+
 
 		this.load.once(Phaser.Loader.Events.COMPLETE, () => {
-			Phaser.DOM.AddToDOM(this.textures.get('userImage1').getSourceImage() as HTMLElement, 'userProfile1');
-			Phaser.DOM.AddToDOM(this.textures.get('userImage2').getSourceImage() as HTMLElement, 'userProfile2');
+			Phaser.DOM.AddToDOM(imagePlayer1, 'userProfile1');
+			Phaser.DOM.AddToDOM(imagePlayer2, 'userProfile2');
 		});
 	
 		this.load.start();
@@ -645,7 +657,7 @@ export default class Game extends Phaser.Scene {
 
 		leaveButton.addEventListener('click', function() {
 			if (self.gameRoom){
-				socket.emit('playerLeaveLobby', self.gameRoom.id);
+				store.state.socket.emit('playerLeaveLobby', self.gameRoom.id);
 				self.UIElement.destroy();
 				self.textures.remove('userImage2')
 				self.textures.remove('userImage1')
@@ -653,7 +665,7 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		socket.on('otherPlayerLeaveLobby', () => {
+		store.state.socket.on('otherPlayerLeaveLobby', () => {
 			self.children.removeAll();
 			this.destroyUI();
 			// self.gameRoom.finish = true;
@@ -669,17 +681,17 @@ export default class Game extends Phaser.Scene {
 					</div> \
 				</div>');
 			if (!this.gameRoom.customGameMode){
-				socket.emit('playerJoinNormalQueue', user.userId);
+				store.state.socket.emit('playerJoinNormalQueue', this.user.userId);
 			}
 			else{
-				socket.emit('playerJoinCustomQueue', user.userId);
+				store.state.socket.emit('playerJoinCustomQueue', this.user.userId);
 			}
 		});
 
 		startButton.addEventListener('click', function() {
 			console.log("click");
-			console.log(socket.id, self.gameRoom?.player1SocketId, self.gameRoom?.player2SocketId);
-			if (socket.id == self.gameRoom?.player2SocketId){
+			console.log(store.state.socket.id, self.gameRoom?.player1SocketId, self.gameRoom?.player2SocketId);
+			if (store.state.socket.id == self.gameRoom?.player2SocketId){
 				if (self.gameRoom?.player2Ready == false){
 					self.gameRoom.player2Ready = true;
 					isReadyButtonPlayer2.innerText = 'Ready';
@@ -687,7 +699,7 @@ export default class Game extends Phaser.Scene {
 					if (userProfile2){
 						userProfile2.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
 					}
-					socket.emit('playerReady', self.gameRoom.id);
+					store.state.socket.emit('playerReady', self.gameRoom.id);
 				}
 				else{
 					self.gameRoom.player2Ready = false;
@@ -696,10 +708,10 @@ export default class Game extends Phaser.Scene {
 					if (userProfile2){
 						userProfile2.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
 					}
-					socket.emit('playerNotReady', self.gameRoom.id);
+					store.state.socket.emit('playerNotReady', self.gameRoom.id);
 				}
 			}
-			else if (socket.id == self.gameRoom?.player1SocketId){
+			else if (store.state.socket.id == self.gameRoom?.player1SocketId){
 				if (self.gameRoom?.player1Ready == false){
 					self.gameRoom.player1Ready = true;
 					isReadyButtonPlayer1.innerText = 'Ready';
@@ -707,7 +719,7 @@ export default class Game extends Phaser.Scene {
 					if (userProfile1){
 						userProfile1.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2 ...';
 					}
-					socket.emit('playerReady', self.gameRoom.id);
+					store.state.socket.emit('playerReady', self.gameRoom.id);
 				}
 				else{
 					self.gameRoom.player1Ready = false;
@@ -716,7 +728,7 @@ export default class Game extends Phaser.Scene {
 					if (userProfile1){
 						userProfile1.className = 'avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ...';
 					}
-					socket.emit('playerNotReady', self.gameRoom.id);
+					store.state.socket.emit('playerNotReady', self.gameRoom.id);
 				}
 			}
 		});
