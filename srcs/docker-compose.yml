@@ -68,14 +68,12 @@ services:
 
   portainer:
     build: ./requirements/portainer
-    image: portainer:inception
-    container_name: portainer
     restart: unless-stopped
     volumes:
       - portainerdata:/data
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - 9443:9443
+      - '8000:8000'
     networks:
       - transcendence
 

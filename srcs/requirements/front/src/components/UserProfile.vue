@@ -48,19 +48,23 @@
     methods: {
       async addFriendFromDB(userName, friendName) {
         const response = await addFriend(userName, friendName, this.cookieJWT);
-
+    
         if (response && response.success) {
           this.addFriendSuccess = true;
           setTimeout(() => {
             this.addFriendSuccess = false;
           }, 3000);
+          const addedUser = await getUserByUserName(friendName, this.cookieJWT);
+          const socket = addedUser.socket;
+          //Update added user's buddy list
+          await this.store.dispatch('friendAdded', { socket })
+          this.updateFriends();
         } else {
           this.addFriendFailed = true;
           setTimeout(() => {
             this.addFriendFailed = false;
           }, 3000);
         }
-        this.updateFriends();
       },
 
       async createChannelInDB(channelName, userName, currentUserName) {
@@ -122,6 +126,7 @@
           setTimeout(() => {
             removeChannelFailed = false;
           }, 3000);
+
         }
         this.updateChannels();
       },
@@ -134,13 +139,18 @@
           setTimeout(() => {
             this.removeFriendSuccess = false;
           }, 3000);
+          const removedUser = await getUserByUserName(friendName, this.cookieJWT);
+          const socket = removedUser.socket;
+          //Update added user's buddy list
+          console.log("removed user socket: ", socket);
+          await this.store.dispatch('friendRemoved', { socket })
+          this.updateFriends();
         } else {
           this.removeFriendFailed = true;
           setTimeout(() => {
             this.removeFriendFailed = false;
           }, 3000);
         }
-        this.updateFriends();
       },
 
       async togglePasswordInput(channelName, password, check) {
@@ -188,13 +198,9 @@
       openManageChannelModal(channel) {
         this.channelName = channel; this.modalStates.modalManageChannel = true;      
       },
-        
+
       async socketEmit(emit) {
-        console.log("MY EMIT : ", emit)
-        console.log(this.hostName)
-        // console.log("ON INVITATION ACCEPTED DATAS 1 = ", this.user.userId, this.hostGame.id, hostUser.socket);
         const hostUser = await getUserByUserName(this.hostName, this.cookieJWT);
-        console.log(hostUser);
         if (emit == "invitationInGameAccepted" || emit == "invitationInGameDeclined")
           this.invitationInGameSuccess = false;
         if (emit == "invitationInGameAccepted"){
@@ -202,23 +208,20 @@
           // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id })
         }
         this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket,  hostGameId: this.hostGame.id });
-        // console.log("ON INVITATION ACCEPTED DATAS 2 = ", this.user.userId, this.hostGame.id, hostUser.socket);;
       },
 
       socketOn() {
         this.store.state.socket.on('invitedInGame', (body) => {
           this.hostGame = body.gameRoom;
           this.hostName = body.host;
-          console.log(this.hostGame)
           this.invitationInGameSuccess = true;
           setTimeout(() => {
             this.invitationInGameSuccess = false;
           }, 30000);
-      });
+        });
 
         this.store.state.socket.on('invitationAccepted', (body) => {
           this.hostName = body.host;
-          console.log("ACCCCEPPPTED\n", body)
           this.router.push('/game');
           // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
         });
@@ -230,7 +233,17 @@
           setTimeout(() => {
             this.inviteInGameFailed = false;
           }, 5000);
-          });
+        });
+  
+        this.store.state.socket.on('friendRemoved', () => {
+          console.log("you were removed from a friends buddy list")
+          this.updateFriends()
+        })
+      
+        this.store.state.socket.on('friendAdded', () => {
+          console.log("you were added by someone")
+          this.updateFriends()
+        })
       },
 
       showContent(tab) {
@@ -285,7 +298,6 @@
         await setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
 
         if (this.store && this.store.state.socket){
-          console.log("socketOn called");
           this.socketOn();
         }
 
