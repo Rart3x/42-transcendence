@@ -568,7 +568,7 @@ export default class Game extends Phaser.Scene {
 		}
 	}
 
-	startLobby(data : any){
+	async startLobby(data : any){
 		if (this.gameRoom){
 			this.destroyUI();
 		}
@@ -626,23 +626,38 @@ export default class Game extends Phaser.Scene {
 			userProfile1Name.innerText = data.player1UserName;
 		}
 
-		var imagePlayer1 = getImage(data.player1Image);
-		var imagePlayer2 = getImage(data.player2Image);
+		var imagePlayer1 = await getImage(data.player1Image);
+		var imagePlayer2 = await getImage(data.player2Image);
 
-	
-		// if (!this.textures.exists('userImage1')){
-		// 	this.load.image('userImage1', imagePlayer1);
-		// }
+		let img : HTMLImageElement;
+		let img2 : HTMLImageElement;
+		if (!this.textures.exists('userImage1')){
+			img = new Image();
+			if (imagePlayer1){
+				img.src = imagePlayer1
+				img.onload = () => {
+					this.textures.generate('userImage2', img);
+				}
+			}
+		}
 
-		// if (!this.textures.exists('userImage2')){
-		// 	this.load.image('userImage2', imagePlayer2);
-		// }
+		if (!this.textures.exists('userImage2')){
+			img2 = new Image();
+			if (imagePlayer2){
+				img2.src = imagePlayer2
+				img2.onload = () => {
+					this.textures.generate('userImage2', img2);
+				}
+			}
+		}
 
 
 
 		this.load.once(Phaser.Loader.Events.COMPLETE, () => {
-			Phaser.DOM.AddToDOM(imagePlayer1, 'userProfile1');
-			Phaser.DOM.AddToDOM(imagePlayer2, 'userProfile2');
+			if (imagePlayer1)
+				Phaser.DOM.AddToDOM(img, 'userProfile1');
+			if (imagePlayer2)
+				Phaser.DOM.AddToDOM(img2, 'userProfile2');
 		});
 	
 		this.load.start();
