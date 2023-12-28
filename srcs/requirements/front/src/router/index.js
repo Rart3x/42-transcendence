@@ -74,18 +74,18 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach(async (to, from, next) => {
-  let cookieUserId = Cookies.get('UserId');
-  let cookieJWT = Cookies.get('Bearer');
+// router.beforeEach(async (to, from, next) => {
+//   let cookieUserId = Cookies.get('UserId');
+//   let cookieJWT = Cookies.get('Bearer');
 
-  let user;
-  if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined')
-    user = await getUserByUserId(cookieUserId, cookieJWT);
-  const path = to.path;
-  if (!user && path !== "/" && path !== "/sign-in")
-    next('/');
-  else
-    next();
-});
+//   let user;
+//   if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined')
+//     user = await getUserByUserId(cookieUserId, cookieJWT);
+//   const path = to.path;
+//   if (!user && path !== "/" && path !== "/sign-in")
+//     next('/');
+//   else
+//     next();
+// });
 
 export default router;
