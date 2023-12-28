@@ -55,10 +55,9 @@ export class AuthController {
 
                     var user = await this.UserService.getUserByName(userData.login);
                     if (user){
-                        //If user already exist we set the cookies back
-                        const access_token = await this.JwtService.signAsync(payload);
+                            const access_token = await this.JwtService.signAsync(payload);
+
                         this.setCookie(res, user.userId, access_token);
-               
                         res.redirect("http://localhost:1505/settings");
                         return ;
                     }

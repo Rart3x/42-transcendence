@@ -65,6 +65,7 @@ export default {
 		await updateImage(this.user.userName, this.selectedFile, this.cookieJWT);
 		window.location.reload(); // Refresh the page but ugly
 	}
+<<<<<<< HEAD
  },
  async mounted() {
    let cookieUserId = Cookies.get('UserId');
@@ -81,6 +82,23 @@ export default {
    }
  }
 };
+=======
+
+	onMounted(async () => {
+		let cookieUserId = Cookies.get('UserId');
+		cookieJWT.value = Cookies.get('Bearer');
+		if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
+			user.value = await getUserByUserId(cookieUserId, cookieJWT.value);
+			// if (!user.value){
+			// 	window.location.href = "/";
+			// }
+			userName.value = user.value.displayName;
+			if (user.value.A2F)
+				dataURL.value = await qrcode.toDataURL(user.value.A2FUrl);
+			A2FEnabled.value = user.value.A2F;
+		}
+	});
+>>>>>>> 7d8a7c808419b4d852c6568ddb10427e5ade436f
 </script>
 
 <template>

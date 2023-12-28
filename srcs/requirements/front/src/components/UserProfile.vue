@@ -10,6 +10,7 @@
   import { removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
+  import store from "../store/socket";
   import { useStore } from "vuex";
 
   export const inviteFriendInGameEXPORT = async function (userName, userId, userSocket, userStatus, user) {
@@ -25,6 +26,9 @@
 
   export default {
     name: "UserProfile",
+    async created() {
+      await store.dispatch('initializeSocket');
+    },
     components: {
       Alert,
       History,
