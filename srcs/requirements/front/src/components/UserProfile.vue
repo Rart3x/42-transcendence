@@ -278,7 +278,6 @@
     },
 
     async mounted() {
-      // console.log(this.$store.state.socket.id)
       let cookieUserId = Cookies.get('UserId');
 		  this.cookieJWT  = Cookies.get('Bearer');
 

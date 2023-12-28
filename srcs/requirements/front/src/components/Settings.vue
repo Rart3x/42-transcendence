@@ -4,8 +4,6 @@ import qrcode from 'qrcode';
 import UserStatHeader from './UserStatHeader.vue';
 import { updateImage, updateUsername, updateA2F } from './api/post.call';
 import { getUserByUserId } from './api/get.call';
-import { onMounted } from 'vue';
-import { useRouter } from "vue-router";
 
 export default {
  components: {
@@ -89,7 +87,7 @@ export default {
 	<div class="overflow-x-auto min-h-screen bg-base-200">
 	<UserStatHeader v-if="user" :userName="user.userName" :gamePlayed="user.gamePlayed" :gameWon="user.gameWon" />
 		<div class="buttons bg-base-200">
-			<button class="btn glass" @click="showContent('username')">Change usernamSUUUU</button>
+			<button class="btn glass" @click="showContent('username')">Change username</button>
 			<button class="btn glass" @click="showContent('image')">Change image</button>
 			<button class="btn glass" @click="showContent('2FA')">2FA</button>
 		</div>

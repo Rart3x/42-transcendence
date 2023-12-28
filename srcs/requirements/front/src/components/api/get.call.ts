@@ -503,7 +503,7 @@ export async function getUserByUserName(username : string, jwtToken: string) {
 
 export async function getAllUsers(jwtToken: string) {
   try {
-    const response = await fetch("http://localhost:3000/user/getAllUsers/", {
+    const response = await fetch("http://localhost:3000/user/getAllUsers", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

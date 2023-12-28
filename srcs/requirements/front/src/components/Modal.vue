@@ -28,9 +28,9 @@
         emits: ['update:passwordCheckBox'],
         methods: {
             async loadSenderImage(senderName) {
-                const user = await getUserByUserName(senderName);
+                const user = await getUserByUserName(senderName, this.$props.jwtToken);
                 if (user){
-                    this.senderImageSrc = await getImage(user.image)
+                    this.senderImageSrc = await getImage(user.image, this.$props.jwtToken);
                 }
             },
 
@@ -84,6 +84,8 @@
             muteUserFromChannelInDB: Function,
             removeFriendFromDB: Function,
             togglePasswordInput: Function,
+
+            jwtToken: String,
         },
         watch: {
             senderName(newSenderName) {
@@ -177,7 +179,7 @@
                     </div>
                 </div>
                 <div class="message-box">
-                    <form class="message-form" @submit.prevent="createPrivateMessageInDB(userName, senderName, message_text)">
+                    <form class="message-form" @submit.prevent="createPrivateMessageInDB(senderName, userName, message_text)">
                         <input type="text" class="message-input" placeholder="/game to game" v-model="message_text">
                         <button type="submit" class="message-submit">Send</button>
                     </form>

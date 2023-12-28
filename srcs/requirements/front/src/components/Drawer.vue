@@ -1,7 +1,7 @@
 <script>
   import { RouterLink } from "vue-router";
   import Modal from './Modal.vue';
-  import { getAllUsers, getLastMessage, getPrivateMessages} from "./api/get.call";
+  import { getAllUsers, getPrivateMessages} from "./api/get.call";
 
     export default {
     name: 'Drawer',
@@ -28,11 +28,11 @@
     },
     methods: {
       async checkName() {
-        const users = await getAllUsers();
+        const users = await getAllUsers(this.$props.jwtToken);
         const nameExists = users.some(user => user.userName === this.enteredName);
 
         if (nameExists) {
-          const privateMessage = await getPrivateMessages(this.$props.user.userName, this.enteredName);
+          const privateMessage = await getPrivateMessages(this.$props.user.userName, this.enteredName, this.$props.jwtToken);
           this.openMessageModal(this.$props.user.userName, privateMessage)
         }
       },
@@ -59,13 +59,14 @@
       logout: Function,
       openMessageModal: Function,
       closeMessageModal: Function,
+      jwtToken: String,
     },
   };
 </script>
 
 <template>
   <Modal :parent="'drawer'" :modalMessage="modalMessage" :currentUserName="currentUserName" :senderName="senderName"
-    :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" :privateMessages="privateMessages" :userName="userName"
+    :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" :privateMessages="privateMessages" :userName="userName" :jwtToken="jwtToken"
   />
   <!--Game Drawer-->
   <div v-if="!display" class="drawer z-[1]">
@@ -106,7 +107,7 @@
             <input v-model="enteredName" type="text" placeholder="Enter a name" class="input input-bordered w-full mb" @keyup.enter="checkName"/>
           </div>
         </form>
-        <li v-for="(pairMessages, pairKey) in uniqueMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">
+        <li v-for="(pairMessages, pairKey) in privateMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">
           <div class="flex justify-between items-center">
             <div class="flex flex-col items-start">
               <span class="font-semibold">

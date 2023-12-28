@@ -9,7 +9,6 @@
   import { RouterLink } from "vue-router";
   import axios from 'axios';
 
-
   export default {
     components: {
       Alert,
@@ -59,8 +58,7 @@
           this.modalMessage = false;
           inviteFriendInGameEXPORT(user1.userName, user1.userId, user1.userSocket, user1.userStatus, this.user, this.cookieJWT);
         }
-        const response = createPrivateMessage(userName, senderName, message_text, this.cookieJWT);
-        message_text = "";
+        const response = createPrivateMessage(userName, this.user.userName, message_text, this.cookieJWT);
         this.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       },
       logout() {
@@ -75,7 +73,7 @@
     async mounted() {
       let cookieUserId = Cookies.get('UserId');
 		  this.cookieJWT = Cookies.get('Bearer');
-  
+
       if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined'){
         this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
       }
@@ -91,7 +89,7 @@
   <Alert :inviteInGameFailed="inviteInGameFailed" :inviteInGameSuccess="inviteInGameSuccess" :invitationInGameSuccess="invitationInGameSuccess" />
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :userName="userName"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :userName="userName" :jwtToken="cookieJWT"/>
     </div>
     <div class="navbar-center">
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
@@ -104,6 +102,7 @@
         :display="true"
         :imageSrc="imageSrc"
         :user="user"
+        :jwtToken="cookieJWT"
 
         :currentUserName="currentUserName"
         :senderName="senderName"
@@ -117,7 +116,7 @@
         :createPrivateMessageInDB="createPrivateMessageInDB"
         :logout="logout"
       />
-      <Modal :senderName="senderName" />
+      <Modal :senderName="senderName" :jwtToken="cookieJWT" :userName="userName"/>
     </div>
   </div>
 </template>

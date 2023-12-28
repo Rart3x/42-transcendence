@@ -117,7 +117,7 @@ export class UserController {
   }
 
   @Get('getAllUsers/')
-  async getAllUsers(): Promise<PartialUserDTO[]> {
+  async getAllUsers(): Promise<User[]> {
     return await this.userService.getAllUsers();
   }
 

@@ -379,17 +379,25 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     var user = this.getUserById(userId);
   }
   
-  async getAllUsers(): Promise<PartialUserDTO[]> {
-    return await this.prisma.user.findMany({
+  async getAllUsers(): Promise<User[]> {
+    const users = await this.prisma.user.findMany({
       select: {
+        userId: true,
         userName: true,
-        displayName: true,
-        image: true,
+        matchmakingScore: true,
         gamePlayed: true,
         gameWon: true,
-        matchmakingScore: true
+        displayName: true,
+        image: true,
+        isChecked: true,
+        socket: true,
+        status: true,
+        A2F: true,
+        A2FSecret: true,
+        A2FUrl: true,
       },
     });
+    return users;
   }
 /*-----------------------------------------------UTILS-----------------------------------------------*/
   async  setSocket(userId: number, socket: string): Promise<User> {
