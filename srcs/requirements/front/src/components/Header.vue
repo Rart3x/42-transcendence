@@ -10,6 +10,7 @@
   import axios from 'axios';
 
   export default {
+    name: 'Header',
     components: {
       Alert,
       Drawer,
@@ -29,7 +30,7 @@
         invitationInGameSuccess: false,
         inviteInGameSuccess: false,
         inviteInGameFailed: false,
-        cookieJWT: null,
+        cookieJWT: null
       };
     },
     computed: {
@@ -62,7 +63,7 @@
         this.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       },
       logout() {
-        Cookies.remove("userId");
+        Cookies.remove("UserId");
         Cookies.remove("Bearer");
         setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";

@@ -1,70 +1,77 @@
-<script setup>
+<script>
   import Cookies from "js-cookie";
   import { onMounted, ref, computed } from "vue";
   import { getPastGameRoomsByUserId, getUserByUserId, getAllUserScore, getScoreByRoomId, getUserByUserName, getGameWinner, getImage } from "./api/get.call";
 
-  let games = ref([]);
-  let user = ref(null);
-  let scores = ref([]);
-  let userScores = ref([]);
-  let versusImage = ref(null);
-  let winners = ref([]);
-
-  const props = defineProps({
-    userName: {
-      type: String,
-      required: true
-    }
-  });
-
-  const timeAgo = (timestamp) => {
-    const now = new Date();
-    const past = new Date(timestamp);
-    const diff = now.getTime() - past.getTime();
-
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return `${days} days ago`;
-    if (hours > 0) return `${hours} hours ago`;
-    if (minutes > 0) return `${minutes} minutes ago`;
-    if (seconds > 0) return `${seconds} seconds ago`;
-    return "Just now";
-  }
-
-  const combinedData = computed(() => {
-   return games.value.map((game, index) => {
-     return {
-       game: game,
-       winner: winners.value[index],
-       scores: scores.value[index],
-       userScores: userScores.value[index]
-     };
-   });
-  });
-
-  onMounted(async () => {
-    user.value = await getUserByUserName(props.userName);
-
-    if (!user.value)
-      window.location.href = "/";
-  
-    versusImage.value = "./assets/vs.png";
-    games.value = await getPastGameRoomsByUserId(user.value.userId);
-    if (!games.value)
-      window.location.href = "/";
-
-    for (let i = 0; i < games.value.length; i++) {
-      for (let j = 0; j < games.value[i].users.length; j++) {
-        games.value[i].users[j].imageSrc = await getImage(games.value[i].users[j].image);
+  export default{
+    name: 'History',
+    data(){
+      return {
+        games: [],
+        user: null,
+        scores: [],
+        userScores: [],
+        versusImage: null,
+        winners: []
       }
-      userScores.value.push(await getAllUserScore(games.value[i].id));
-      scores.value.push(await getScoreByRoomId(games.value[i].id));
-      winners.value.push(await getGameWinner(games.value[i].id));
-    }
-  });
+    },
+    computed: {
+      combinedData : function() {
+        return this.games.map((game, index) => {
+          return {
+            game: game,
+            winner: this.winners[index],
+            scores: this.scores[index],
+            userScores: this.userScores[index]
+          };
+        });
+      }
+    }, 
+    methods: {
+      timeAgo(timestamp) {
+        const now = new Date();
+        const past = new Date(timestamp);
+        const diff = now.getTime() - past.getTime();
+
+        const seconds = Math.floor(diff / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+
+        if (days > 0) return `${days} days ago`;
+        if (hours > 0) return `${hours} hours ago`;
+        if (minutes > 0) return `${minutes} minutes ago`;
+        if (seconds > 0) return `${seconds} seconds ago`;
+        return "Just now";
+      }
+    },
+    async mounted(){
+      console.log("test username value: ", this.userName)
+      this.user = await getUserByUserName(this.userName);
+      if (!this.user)
+        window.location.href = "/";
+
+      this.versusImage = "./assets/vs.png";
+      this.games = await getPastGameRoomsByUserId(this.user.userId);
+      if (!this.games)
+        window.location.href = "/";
+
+      for (let i = 0; i < this.games.length; i++) {
+        for (let j = 0; j < this.games[i].users.length; j++) {
+          this.games[i].users[j].imageSrc = await getImage(this.games[i].users[j].image);
+        }
+        this.userScores.push(await getAllUserScore(this.games[i].id));
+        this.scores.push(await getScoreByRoomId(this.games[i].id));
+        this.winners.push(await getGameWinner(this.games[i].id));
+      }
+    },
+    props :{ 
+      userName: {
+        type: String,
+        required: true
+      }
+    },
+  }
 </script>
 
 <template>

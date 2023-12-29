@@ -1,9 +1,9 @@
 <script setup>
   import Cookies from "js-cookie";
   import Header from "@/components/Header.vue";
+  import Footer from "@/components/Footer.vue";
   import { onMounted, ref } from "vue";
   import { getUserByUserId } from "./components/api/get.call";
-  import { setClientSocket } from "./components/api/post.call";
   import "./assets/main.css"
 
   let user = ref(null);
@@ -23,8 +23,5 @@
     <Header v-if="user" />
     <router-view></router-view>
   </body>
+  <Footer></Footer>
 </template>
-
-<style scoped>
-
-</style>

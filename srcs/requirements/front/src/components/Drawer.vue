@@ -3,7 +3,7 @@
   import Modal from './Modal.vue';
   import { getAllUsers, getPrivateMessages} from "./api/get.call";
 
-    export default {
+  export default {
     name: 'Drawer',
     components: {
       Modal
@@ -17,7 +17,7 @@
             uniquePairs[key] = pairMessages;
           }
         }
-      return Object.values(uniquePairs);
+        return Object.values(uniquePairs);
       }
     },
     data() {
@@ -88,7 +88,7 @@
     </div>
   </div>
   <!--Messages Drawer-->
-  <div v-if="display" class="drawer-end z-[1]">
+  <div v-if="display" class="drawer-end z-[1] mr-4">
     <input id="my-drawer-1" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
       <button class="btn btn-ghost btn-circle">
@@ -126,27 +126,22 @@
       </ul>
     </div>
   </div>
-  <!--Settings Drawer-->
-  <div v-if="display" class="drawer-end">
-    <input id="my-drawer-3" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content">
-      <label for="my-drawer-3" tabindex="0" class="btn btn-ghost btn-circle">
-        <div class="avatar">
-          <div class="w-15 mask mask-squircle">
-            <img :src="imageSrc" />
-          </div>
+  <!--Settings Dropdown-->
+  <div v-if="display" class="dropdown dropdown-end">
+    <div class="flex flex-row items-center">
+      <span tabindex="0" class="lowercase text-xl mr-4 ">{{ user.userName }}</span>
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+        <div class="w-10 rounded-full">
+          <img :src="imageSrc" />
         </div>
-      </label>
-    </div> 
-    <div class="drawer-side z-[1] font-mono">
-      <label for="my-drawer-3" aria-label="close sidebar" class="drawer-overlay"></label>
-      <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-        <li> <router-link to="/about"> About </router-link> </li>
-        <li> <router-link to="/profile"> Profile </router-link> </li>
-        <li> <router-link to="/settings"> Settings </router-link> </li>
-        <li> <button @click="logout">Logout</button> </li>
-      </ul>
+      </div>
     </div>
+    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 w-52">
+      <li><router-link to="/about">About</router-link></li>
+      <li><router-link to="/profile">Profile</router-link></li>
+      <li><router-link to="/settings">Settings</router-link></li>
+      <li><button @click="logout"><span class="font-bold">Logout</span></button></li>
+    </ul>
   </div>
 </template>
 

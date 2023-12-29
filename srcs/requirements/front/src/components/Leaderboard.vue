@@ -1,31 +1,38 @@
-<script setup>
+<script>
   import UserStatHeader from "./UserStatHeader.vue";
   import { onMounted, ref } from "vue";
-  import { getAllUsers, getUserByUserId } from "./api/get.call";
+  import { getAllUsers, getUserByUserId, getImage } from "./api/get.call";
   import Cookies from "js-cookie";
 
-  let users = ref([]);
-  let userImage = ref([]);
-  let user = ref(null);
-  let cookieJWT = ref(null);
-
-  onMounted(async () => {
-    console.log(this.$store.state.socket.id)
-		cookieJWT.value = Cookies.get('Bearer');
-    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
-      user.value = await getUserByUserId(cookieUserId, cookieJWT.value);
-      users.value = await getAllUsers(cookieJWT.value);
-      users.value = users.value.sort((a, b) => b.matchmakingScore - a.matchmakingScore);
-      if (users.value){
-        users.value.forEach((user, index) => {
-          let imagePath = user.image;
-          import(/* @vite-ignore */ imagePath).then((image) => {
-            userImage.value.push(image.default);
-          });
-        })
+  export default {
+    name: 'Leaderboard',
+    components: {
+      UserStatHeader
+    },
+    data(){
+      return {
+        users: [],
+        userImages: [],
+        user: null,
+        cookieJWT: null
+      }
+    },
+    async mounted(){
+      const cookieUserId = Cookies.get('UserId');
+      this.cookieJWT = Cookies.get('Bearer');
+      if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined'){
+        this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
+        this.users = await getAllUsers(this.cookieJWT);
+        this.users = this.users.sort((a, b) => b.matchmakingScore - a.matchmakingScore);
+        if (this.users){
+          this.users.forEach(async (user, index) => {
+            let imagePath = await getImage(user.image);
+            this.userImages.push(imagePath);
+          })
+        }
       }
     }
-  })
+  }
 </script>
 
 <template>
@@ -49,7 +56,7 @@
           <div class="grid col-start-2">
             <div class="avatar">
           <div class="w-24 rounded-full">
-            <img :src=userImage[index] alt="logo"/>
+            <img :src=userImages[index] alt="logo"/>
           </div>
           </div>
         </div>
