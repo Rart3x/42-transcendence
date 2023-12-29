@@ -4,10 +4,10 @@
   import History from "./History.vue";
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllUsers, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
   import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
   import { deleteGameRoomById } from "./api/delete.call";
-  import { removeFriend } from "./api/delete.call";
+  import { removeChannel, removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
@@ -83,7 +83,7 @@
             this.addChannelFailed = false;
           }, 3000);
         }
-        this.channelName = '';
+        this.newChannelName = '';
       },
   
       async inviteFriendInGame (userName, userId, userSocket, userStatus) {
@@ -233,14 +233,12 @@
             this.inviteInGameFailed = false;
           }, 5000);
         });
-  
+
         this.store.state.socket.on('friendRemoved', () => {
-          console.log("you were removed from a friends buddy list")
           this.updateFriends()
         })
       
         this.store.state.socket.on('friendAdded', () => {
-          console.log("you were added by someone")
           this.updateFriends()
         })
       },

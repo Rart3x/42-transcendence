@@ -121,7 +121,29 @@ export async function deleteGameRoomById(gameRoomId: string, jwtToken : string) 
 	  }
 	}
 	catch (error) {
-	  console.error('error: sending POST request', error);
+	  console.error('error: sending DELETE request', error);
 	}
 }
   
+
+/*-----------------------------------------------USER-----------------------------------------------*/
+
+export async function deleteUser(userName: string, jwtToken : string) {
+	try { 
+		const response = await fetch(`http://localhost:3000/user/delete/${userName}`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${jwtToken}`
+			},
+			body: JSON.stringify({ userName: userName }),
+		});
+		if (response.ok) {
+		const responseData = await response.json();
+		return responseData;
+		}
+	}
+	catch (error) {
+		console.error("error: sending DELETE request", error);
+	}
+}

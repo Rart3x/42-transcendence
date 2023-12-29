@@ -35,6 +35,11 @@ export class UserController {
     return { success: result };
   }
 
+  @Delete('delete/:userName')
+  async deleteUser(@Param('userName') userName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.deleteUser(userName);
+    return { success: result };
+  }
   @Get('isFriend/:userName/:friendName')
   async isFriend(@Param('userName') userName: string, @Param('friendName') friendName: string): Promise<{ success: boolean }> {
     const result =  await this.userService.isFriend(userName, friendName);
@@ -65,18 +70,6 @@ export class UserController {
     const result = await this.userService.getSocket(userId);
     return result;
   }
-
-  // @Post()
-  // async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
-  //   try {
-  //     await validateOrReject(createUserDTO);
-
-  //     return this.userService.createUser(createUserDTO);
-  //   }
-  //   catch (validationErrors) {
-  //     throw new BadRequestException(validationErrors);
-  //   }
-  // }
 
   @Get(':userName/isBlock/:blockedUserName')
   async isBlock(@Param('userName') userName: string, @Param('blockedUserName') blockedUserName: string): Promise<{ success: boolean }> {

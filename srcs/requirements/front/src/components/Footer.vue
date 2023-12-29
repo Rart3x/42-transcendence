@@ -6,19 +6,59 @@
 
 <template>
     <footer class="footer p-10 bg-base-100 text-neutral-content">
-    <aside>
-        <img src="../assets/42_Logo.svg" width="50" height="50" />
-        <p>Made by kramjatt, dguillau, fsanna and nicarpen 😎</p>
-    </aside> 
-    <nav>
-        <header class="footer-title">Social</header> 
-        <div class="grid grid-flow-col gap-4">
-            <a href="https://github.com/Rart3x"><img src="../assets/iconmonstr-github-1.svg" width="24" height="24"/></a>
-            <a href="https://github.com/Centiso"><img src="../assets/iconmonstr-github-1.svg" width="24" height="24"/></a>
-            <a href="https://github.com/snyk-bot"><img src="../assets/iconmonstr-github-1.svg" width="24" height="24"/></a>
-            <a href="https://github.com/damienglld"><img src="../assets/iconmonstr-github-1.svg" width="24" height="24"/></a>
-        </div>
-    </nav>
+        <nav style="text-align: center; align-items: center;">
+            <div class="grid grid-flow-col gap-4">
+                <a href="https://github.com/Rart3x">
+                    <button class="btn btn-ghost btn-circle">
+                        <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
+                        <div class="indicator">
+                            <img src="../assets/iconmonstr-github-1.svg" />
+                        </div>
+                        </label>
+                    </button>
+                    <span class="text-sm">Kramjatt</span>
+                </a>
+                <a href="https://github.com/Centiso">
+                    <button class="btn btn-ghost btn-circle">
+                        <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
+                        <div class="indicator">
+                            <img src="../assets/iconmonstr-github-1.svg" />
+                        </div>
+                        </label>
+                    </button>
+                    <span class="text-sm">Centiso</span>
+                </a>
+                <a href="https://github.com/snyk-bot">
+                    <button class="btn btn-ghost btn-circle">
+                        <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
+                        <div class="indicator">
+                            <img src="../assets/iconmonstr-github-1.svg" />
+                        </div>
+                        </label>
+                    </button>
+                    <span class="text-sm">Nicarpen</span>
+                </a>
+                <a href="https://github.com/damienglld">
+                    <button class="btn btn-ghost btn-circle">
+                        <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
+                        <div class="indicator">
+                            <img src="../assets/iconmonstr-github-1.svg" />
+                        </div>
+                        </label>
+                    </button>
+                    <span class="text-sm">Dguillau</span>
+                </a>
+            </div>
+        </nav>
     </footer>
- </template>
+</template>
+
+<style>
+    .footer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+</style>
  

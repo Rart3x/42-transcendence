@@ -45,21 +45,22 @@
     props: {
       display : Boolean,
       modalMessage: Boolean,
-
+      start: Boolean,
+  
       privateMessages: Object,
-
       user: Object,
 
       currentUserName: String,
+      displayName: String,
       senderName: String,
       userName: String,
       imageSrc: String,
+      jwtToken: String,
 
       createPrivateMessageInDB: Function,
       logout: Function,
       openMessageModal: Function,
       closeMessageModal: Function,
-      jwtToken: String,
     },
   };
 </script>
@@ -127,9 +128,12 @@
     </div>
   </div>
   <!--Settings Dropdown-->
+  <div v-if="!start">
+    <span v-if="displayName" tabindex="0" class="lowercase text-xl mr-4 ">{{ displayName }}</span>
+    <span v-else tabindex="0" class="lowercase text-xl mr-4 ">{{ user.userName }}</span>
+  </div>
   <div v-if="display" class="dropdown dropdown-end">
     <div class="flex flex-row items-center">
-      <span tabindex="0" class="lowercase text-xl mr-4 ">{{ user.userName }}</span>
       <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
         <div class="w-10 rounded-full">
           <img :src="imageSrc" />

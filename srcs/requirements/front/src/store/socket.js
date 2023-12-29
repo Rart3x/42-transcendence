@@ -11,18 +11,6 @@ const store = createStore({
     },
   },
   actions: {
-    initializeSocket({ commit }) {
-      const socket = io('http://localhost:3000');
-      commit('SET_SOCKET', socket);
-    },
-    invitationInGame(context, body) {
-      const socket = context.state.socket;
-      if (socket){
-        socket.emit('invitationInGame', body);
-      }
-      else
-        console.error('error: socket uninitialized');
-    },
     friendAdded(context, body) {
       const socket = context.state.socket;
       if (socket){
@@ -39,8 +27,18 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
-    test(context) { 
-    }
+    initializeSocket({ commit }) {
+      const socket = io('http://localhost:3000');
+      commit('SET_SOCKET', socket);
+    },
+    invitationInGame(context, body) {
+      const socket = context.state.socket;
+      if (socket){
+        socket.emit('invitationInGame', body);
+      }
+      else
+        console.error('error: socket uninitialized');
+    },
   }
 });
 

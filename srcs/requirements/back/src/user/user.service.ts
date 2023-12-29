@@ -223,6 +223,13 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     });
   }
 
+  async deleteUser(userName: string): Promise<boolean> {
+    await this.prisma.user.delete({
+      where: { userName: userName },
+    });
+    return true;
+  }
+
   async isBlock(userName: string, blockedUserName: string): Promise<boolean> {
     const user = await this.getUserByName(userName);
     const blockedUser = await this.getUserByName(blockedUserName);

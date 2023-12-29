@@ -90,7 +90,7 @@
   <Alert :inviteInGameFailed="inviteInGameFailed" :inviteInGameSuccess="inviteInGameSuccess" :invitationInGameSuccess="invitationInGameSuccess" />
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :userName="userName" :jwtToken="cookieJWT"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :userName="userName" :jwtToken="cookieJWT" :start="true"/>
     </div>
     <div class="navbar-center">
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
@@ -106,6 +106,7 @@
         :jwtToken="cookieJWT"
 
         :currentUserName="currentUserName"
+        :displayName="user.displayName"
         :senderName="senderName"
         :userName="userName"
 
@@ -116,6 +117,8 @@
 
         :createPrivateMessageInDB="createPrivateMessageInDB"
         :logout="logout"
+
+        :start="false"
       />
       <Modal :senderName="senderName" :jwtToken="cookieJWT" :userName="userName"/>
     </div>
