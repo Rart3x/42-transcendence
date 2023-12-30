@@ -130,7 +130,7 @@
   <!--Settings Dropdown-->
   <div v-if="!start">
     <span v-if="displayName" tabindex="0" class="lowercase text-xl mr-4 ">{{ displayName }}</span>
-    <span v-else tabindex="0" class="lowercase text-xl mr-4 ">{{ user.userName }}</span>
+    <span v-else-if="user.userName" tabindex="0" class="lowercase text-xl mr-4 ">{{ user.userName }}</span>
   </div>
   <div v-if="display" class="dropdown dropdown-end">
     <div class="flex flex-row items-center">

@@ -203,21 +203,21 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     
     if (user)
       return user;
-
+ 
     const imagePath = data.image;
   
     let parts = imagePath.split('/');
     let imageNameWithExtension = parts.pop();
-
-
+ 
     await downloadImage(data.image, imageNameWithExtension);
-
+ 
     data.image = imageNameWithExtension;
-
+ 
     const createUserInput: Prisma.UserCreateInput = {
       ...data,
+      displayName: data.userName,
     };
-
+ 
     return this.prisma.user.create({
       data: createUserInput,
     });

@@ -314,7 +314,7 @@
     :gamePlayed="user.gamePlayed"
     :gameWon="user.gameWon"
   />
-  <div class="overflow-x-auto min-h-screen bg-base-200 font-mono">
+  <div class="overflow-x-auto bg-base-200 font-mono place-items-center shadow border-2 border-gray-500 content">
     <div class="buttons">
       <button class="btn glass" @click="showContent('friends')">Friends</button>
       <button class="btn glass" @click="showContent('channels')">Channels</button>
@@ -490,6 +490,7 @@
 <style>
   body { min-height: 82.2vh; }
   .buttons { text-align: center; }
+	.content { flex-grow: 1; min-height: 70vh; max-height: 70vh;}
   .dark-row:hover { background-color: #364e6e; }
   .dialogModal { text-align:center; }
   .underStat { display: center; text-align: center; }

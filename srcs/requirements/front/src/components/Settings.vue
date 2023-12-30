@@ -102,38 +102,38 @@
 </script>
 
 <template>
-	<div class="grid h-screen place-items-center grid-cols-1 bg-base-200 shadow border-2 border-gray-500">
-		<div class="items-center">
+	<UserStatHeader v-if="user"
+		:userName="userName"
+		:gamePlayed="user.gamePlayed"
+		:gameWon="user.gameWon"
+  	/>
+	<div class="grid grid-cols-1 overflow-x-auto bg-base-200 font-mono place-items-center shadow border-2 border-gray-500 content">
+		<div class="items-center my-4">
 			<label class="block text-base font-medium">Username</label>
 			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" />
 		</div>
-		<div class="items-center">
+		<div class="items-center my-4">
 			<label class="block text-base font-medium">Image</label>
 			<input type="file" class="file-input file-input-bordered w-full max-w-xs">
-			<button class="btn btn-success" @click="uploadImage">Upload</button>
+			<button class="btn btn-success mt-2" @click="uploadImage">Upload</button>
 		</div>
-		<div>
+		<div class="items-center my-4">
 			<label for="enable2FA" class="text-base font-medium">Two-Factor Authentication (2FA)</label>
-			<div class="items-center">
-				<button v-if="A2FEnabled" class="btn btn-error ml-4" @click="changeA2F">Disable</button>
-				<button v-else class="btn btn-success ml-4" @click="changeA2F">Enable</button>
+			<div>
+				<button v-if="A2FEnabled" class="btn btn-error" @click="changeA2F">Disable</button>
+				<button v-else class="btn btn-success" @click="changeA2F">Enable</button>
 			</div>
 		</div>
-		<div class="text-right">
-			<button class="btn btn-danger ml-4" @click="deleteAccount">Delete Account</button>
+		<div class="flex justify-end my-4">
+			<button class="btn btn-danger mr-2" @click="deleteAccount">Delete Account</button>
 			<button type="submit" class="btn btn-primary" @click="saveAll">Apply</button>
-			<button class="btn btn-secondary ml-4" @click="toggleTheme">Switch Theme</button>
+			<button class="btn btn-secondary ml-2" @click="toggleTheme">Switch Theme</button>
 		</div>
 	</div>
 </template>
-   
+  
 <style>
-	form { text-align: center; }
-	label { text-align: center; }
-	
-	.button-container { display: flex; justify-content: center; }
-	.buttons { text-align: center; }
-	.content { display: flex; flex-direction: column; align-items: center; }
-	.stats { border-radius: unset; }
+	.content { display: flex; flex-direction: column; align-items: center; min-height: 70vh; max-height: 70vh;}
+	.items-center { margin-top: 1.5rem; margin-bottom: 1.5rem; text-align: center;}
 	.qrcode { display: flex; flex-direction: column; align-items: center; }
 </style>

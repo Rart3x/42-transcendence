@@ -106,7 +106,7 @@
         :jwtToken="cookieJWT"
 
         :currentUserName="currentUserName"
-        :displayName="user.displayName"
+        :displayName="this.user.displayName"
         :senderName="senderName"
         :userName="userName"
 
