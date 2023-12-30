@@ -9,7 +9,7 @@ import '@geckos.io/snapshot-interpolation';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
 //Socket communication
-import { io } from 'store.state.socket.io-client';
+import io from 'socket.io-client';
 
 //Game library
 import Phaser from 'phaser';
