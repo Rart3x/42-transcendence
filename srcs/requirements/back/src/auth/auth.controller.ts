@@ -58,14 +58,16 @@ export class AuthController {
                         //If user already exist we set the cookies back
                         const access_token = await this.JwtService.signAsync(payload);
                         this.setCookie(res, user.userId, access_token);
-               
-                        res.redirect("http://localhost:1505/settings");
+                        if (user.A2F)
+                            res.redirect("https://localhost:1505/2fa");
+                        else
+                            res.redirect("http://localhost:1505/settings");
                         return ;
                     }
                     const newUser = await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
                     const access_token = await this.JwtService.signAsync(payload);
                     this.setCookie(res, newUser.userId, access_token);
-                    res.redirect("http://localhost:1505/settings")
+                    res.redirect("http://localhost:1505/settings");
                 }
             }
         }

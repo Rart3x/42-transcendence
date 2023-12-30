@@ -30,11 +30,14 @@
 			},
 			async changeA2F(){
 				this.user.A2F = !this.user.A2F;
-				this.user = await updateA2F(this.user.userName, user.A2F, this.cookieJWT);
-				this.dataURL = ref(null);
+				console.log(this.user.userName, this.user.A2F, this.cookieJWT);
+				this.user = await updateA2F(this.user.userName, this.user.A2F, this.cookieJWT);
+				this.dataURL = null;
 				if (this.user.A2F)
 					this.dataURL = await qrcode.tothis.DataURL(this.user.A2FUrl);
 				this.A2FEnabled = this.user.A2F;
+				console.log("2FAEnable", this.user.A2F);
+
 			},
 			async deleteAccount(){
 				if (confirm('Are you sure you want to delete your account?')) {
@@ -93,7 +96,7 @@
 				}
 				this.userName = this.user.displayName;
 				if (this.user.A2F) { 
-					this.this.dataURL = await qrcode.tothis.DataURL(this.user.A2FUrl);
+					this.this.dataURL = await qrcode.toDataURL(this.user.A2FUrl);
 					this.A2FEnabled = this.user.A2F;
 				}
 			}
@@ -110,18 +113,18 @@
 	<div class="grid grid-cols-1 overflow-x-auto bg-base-200 font-mono place-items-center shadow border-2 border-gray-500 content">
 		<div class="items-center my-4">
 			<label class="block text-base font-medium">Username</label>
-			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" />
+			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" maxlength="20" pattern="^[A-Za-z0-9_"/>
 		</div>
 		<div class="items-center my-4">
 			<label class="block text-base font-medium">Image</label>
-			<input type="file" class="file-input file-input-bordered w-full max-w-xs">
-			<button class="btn btn-success mt-2" @click="uploadImage">Upload</button>
+			<input type="file" class="file-input file-input-bordered w-full max-w-xs" @change="onFileChange">
 		</div>
 		<div class="items-center my-4">
 			<label for="enable2FA" class="text-base font-medium">Two-Factor Authentication (2FA)</label>
 			<div>
 				<button v-if="A2FEnabled" class="btn btn-error" @click="changeA2F">Disable</button>
 				<button v-else class="btn btn-success" @click="changeA2F">Enable</button>
+				<img v-if="dataURL" :src="dataURL" class="qrcode" />
 			</div>
 		</div>
 		<div class="flex justify-end my-4">

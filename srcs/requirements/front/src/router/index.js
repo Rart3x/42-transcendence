@@ -15,9 +15,9 @@ const router = createRouter({
       component: () => import("@/components/Home.vue"),
     },
     {
-      path: "/about",
-      name: "about",
-      component: () => import("@/components/About.vue"),
+      path: "/2fa",
+      name: "2fa",
+      component: () => import("@/components/2FA.vue"),
     },
     {
       path: "/channel/:channelName",
