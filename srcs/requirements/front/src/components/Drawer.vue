@@ -11,14 +11,14 @@
     computed: {
       uniqueMessages() {
         const uniquePairs = {};
-        for (const pairMessages of Object.values(this.privateMessages)) {
+        for (const [pairKey, pairMessages] of Object.entries(this.$props.privateMessages)) {
           const key = this.getPairKey(pairMessages);
-          if (!uniquePairs[key]) {
+          const newPrivateMessageDate = new Date(pairMessages.privateMessageDate);
+          if (!uniquePairs[key] || new Date(uniquePairs[key].privateMessageDate) < newPrivateMessageDate)
             uniquePairs[key] = pairMessages;
-          }
         }
         return Object.values(uniquePairs);
-      }
+      },
     },
     data() {
       return {
@@ -108,11 +108,11 @@
             <input v-model="enteredName" type="text" placeholder="Enter a name" class="input input-bordered w-full mb" @keyup.enter="checkName"/>
           </div>
         </form>
-        <li v-for="(pairMessages, pairKey) in privateMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">
+        <li v-for="(pairMessages, pairKey) in uniqueMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">
           <div class="flex justify-between items-center">
             <div class="flex flex-col items-start">
               <span class="font-semibold">
-                  {{ pairMessages[pairMessages.length - 1].senderName === user.userName ? pairMessages[pairMessages.length - 1].receiverName : pairMessages[pairMessages.length - 1].senderName }}
+                {{ pairMessages[pairMessages.length - 1].senderName === user.userName ? pairMessages[pairMessages.length - 1].receiverName : pairMessages[pairMessages.length - 1].senderName }}
               </span>
               <span v-if="pairMessages[pairMessages.length - 1].messageContent.length <= 20" class="text-sm text-gray-500">
                 {{ pairMessages[pairMessages.length - 1].messageContent.substring(0, 20) }}

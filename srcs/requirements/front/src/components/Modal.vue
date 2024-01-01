@@ -27,8 +27,8 @@
         },
         emits: ['update:passwordCheckBox'],
         methods: {
-            async createPrivateMessageInModal(senderName, userName, message_text) {
-                await this.createPrivateMessageInDB(senderName, userName, message_text);
+            async createPrivateMessageInModal(userName, senderName, message_text) {
+                await this.createPrivateMessageInDB(userName, senderName, message_text);
                 this.message_text = '';
             },
             async loadSenderImage(senderName) {
@@ -166,18 +166,18 @@
                             <div v-for="(pairMessages, pairIndex) in privateMessages" :key="pairIndex">
                                 <div v-for="(message, index) in pairMessages" :key="index">
                                     <div v-if="message.senderName === userName && message.receiverName === senderName && message.messageContent" class="message message-right">
-                                    {{ message.messageContent }}
-                                </div>
-                                <div v-else-if="message.senderName === senderName && message.receiverName === userName && message.messageContent" class="message message-left">
-                                    {{ message.messageContent }}
-                                </div>
+                                        {{ message.messageContent }}
+                                    </div>
+                                    <div v-else-if="message.senderName === senderName && message.receiverName === userName && message.messageContent" class="message message-left">
+                                        {{ message.messageContent }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="message-box">
-                    <form class="message-form" @submit.prevent="createPrivateMessageInModal(senderName, userName, message_text)">
+                    <form class="message-form" @submit.prevent="createPrivateMessageInModal(userName, senderName, message_text)">
                         <input type="text" class="message-input" placeholder="/game to game" v-model="message_text">
                         <button type="submit" class="message-submit">Send</button>
                     </form>

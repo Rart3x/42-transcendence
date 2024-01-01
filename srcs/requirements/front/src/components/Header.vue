@@ -52,15 +52,15 @@
       }
     },
     methods: {
-      createPrivateMessageInDB(userName, senderName, message_text) {
+      async createPrivateMessageInDB(userName, senderName, message_text) {
         if (message_text === "/game") { 
-          const user1 = getUserByUserName(senderName, this.cookieJWT);
+          const user1 = await getUserByUserName(senderName, this.cookieJWT);
           message_text = "";
           this.modalMessage = false;
           inviteFriendInGameEXPORT(user1.userName, user1.userId, user1.userSocket, user1.userStatus, this.user, this.cookieJWT);
         }
-        const response = createPrivateMessage(userName, this.user.userName, message_text, this.cookieJWT);
-        this.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+        const response = await createPrivateMessage(userName, senderName, message_text, this.cookieJWT);
+        this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       },
       logout() {
         Cookies.remove("UserId");

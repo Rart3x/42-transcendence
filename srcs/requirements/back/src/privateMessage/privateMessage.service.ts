@@ -8,9 +8,12 @@ export class PrivateMessageService {
   constructor(private prisma: PrismaService, private userService: UserService) {}
 
   async createPrivateMessage(senderName: string, receiverName: string, privateMessageText: string): Promise<boolean> {
+    if (!privateMessageText.trim())
+      return false;
+  
     const user1 = await this.userService.getUserByName(senderName);
     const user2 = await this.userService.getUserByName(receiverName);
-
+  
     if (!user1 || !user2)
       return false;
     
