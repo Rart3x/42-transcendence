@@ -13,17 +13,15 @@ const store = createStore({
   actions: {
     friendAdded(context, body) {
       const socket = context.state.socket;
-      if (socket){
+      if (socket)
         socket.emit('friendAdded', body);
-      }
       else
         console.error('error: socket uninitialized');
     },
     friendRemoved(context, body) {
       const socket = context.state.socket;
-      if (socket){
+      if (socket)
         socket.emit('friendRemoved', body);
-      }
       else
         console.error('error: socket uninitialized');
     },
@@ -33,12 +31,18 @@ const store = createStore({
     },
     invitationInGame(context, body) {
       const socket = context.state.socket;
-      if (socket){
+      if (socket)
         socket.emit('invitationInGame', body);
-      }
       else
         console.error('error: socket uninitialized');
     },
+    sendPrivateMessage(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('sendPrivateMessage', body);
+      else
+        console.error('error: socket uninitialized');
+    }
   }
 });
 

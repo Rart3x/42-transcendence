@@ -8,7 +8,6 @@
   import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName, getImage } from './api/get.call';
   import { addFriend, blockUser, createChannel, createPrivateMessage, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
-  import axios from 'axios';
 
   let actualUser = ref(null);
   let user = ref(null);

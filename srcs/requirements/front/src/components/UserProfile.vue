@@ -233,19 +233,17 @@
             this.inviteInGameFailed = false;
           }, 5000);
         });
-
-        this.store.state.socket.on('friendRemoved', () => {
-          this.updateFriends()
-        })
       
         this.store.state.socket.on('friendAdded', () => {
           this.updateFriends()
         })
+
+        this.store.state.socket.on('friendRemoved', () => {
+          this.updateFriends()
+        })
       },
 
-      showContent(tab) {
-        this.activeTab = tab;
-      },
+      showContent(tab) { this.activeTab = tab; },
 
       async updateFriends() {
         this.friendsData = await getAllFriends(this.user.userName, this.cookieJWT);
@@ -279,9 +277,8 @@
       let cookieUserId = Cookies.get('UserId');
 		  this.cookieJWT  = Cookies.get('Bearer');
 
-      if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined'){
+      if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined')
         this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
-      }
       if (this.user){
         await new Promise((resolve) => {
           const interval = setInterval(() => {
@@ -293,9 +290,8 @@
         });
         await setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
 
-        if (this.store && this.store.state.socket){
+        if (this.store && this.store.state.socket)
           this.socketOn();
-        }
 
         this.userName = this.user.userName;
         this.adminImage = this.user.image;

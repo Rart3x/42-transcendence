@@ -1,7 +1,9 @@
 <script>
-  import { RouterLink } from "vue-router";
+  import Cookies from "js-cookie";
   import Modal from './Modal.vue';
-  import { getAllUsers, getPrivateMessages} from "./api/get.call";
+  import { getAllUsers, getPrivateMessages, getPrivateMessagesByUserName } from "./api/get.call";
+  import { RouterLink } from "vue-router";
+  import { useStore } from "vuex";
 
   export default {
     name: 'Drawer',
@@ -24,6 +26,9 @@
       return {
         enteredName: '',
         messageText: '',
+        store: useStore(),
+
+        cookieJWT: null,
       };
     },
     methods: {
@@ -41,6 +46,9 @@
         const receiver = pairMessages[pairMessages.length - 1].receiverName;
         return sender < receiver ? `${sender}-${receiver}` : `${receiver}-${sender}`;
       },
+    },
+    async mounted() {
+		  this.cookieJWT = Cookies.get('Bearer');
     },
     props: {
       display : Boolean,

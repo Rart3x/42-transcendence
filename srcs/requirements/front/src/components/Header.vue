@@ -7,7 +7,7 @@
   import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName, getImage } from "./api/get.call.ts";
   import { createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
   import { RouterLink } from "vue-router";
-  import axios from 'axios';
+  import { useStore } from "vuex";
 
   export default {
     name: 'Header',
@@ -22,15 +22,22 @@
         modalMessage: false,
         privateMessages: [],
         searchInput: "",
+  
         user: null,
         users: [],
+
         currentUserName: "",
+        messageSenderName: "",
         senderName: "",
         userName: "",
+
         invitationInGameSuccess: false,
         inviteInGameSuccess: false,
         inviteInGameFailed: false,
-        cookieJWT: null
+        messageSuccess: false,
+
+        cookieJWT: null,
+        store: useStore(),
       };
     },
     computed: {
@@ -53,13 +60,15 @@
     },
     methods: {
       async createPrivateMessageInDB(userName, senderName, message_text) {
+        const user1 = await getUserByUserName(senderName, this.cookieJWT);
+        const socket = user1.socket;
         if (message_text === "/game") { 
-          const user1 = await getUserByUserName(senderName, this.cookieJWT);
           message_text = "";
           this.modalMessage = false;
           inviteFriendInGameEXPORT(user1.userName, user1.userId, user1.userSocket, user1.userStatus, this.user, this.cookieJWT);
         }
-        const response = await createPrivateMessage(userName, senderName, message_text, this.cookieJWT);
+        await createPrivateMessage(userName, senderName, message_text, this.cookieJWT);
+        await this.store.dispatch('sendPrivateMessage', { senderName, socket, userName } );
         this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       },
       logout() {
@@ -68,29 +77,44 @@
         setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";
       },
+      async socketOn() { 
+        this.store.state.socket.on('receiveMessage', (body) => {
+          this.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+          this.messageSenderName = body.userName;
+          this.messageSuccess = true;
+          setTimeout(() => {
+            this.messageSuccess = false;
+          }, 3000);
+        });
+      },
+
       closeMessageModal() { this.modalMessage = false; },
-      openMessageModal(userName, message) { this.modalMessage = true; this.currentUserName = userName; this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; },
+      openMessageModal(userName, message) { console.log(userName, message); this.modalMessage = true; this.currentUserName = userName; this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; },
+      openMessageModalFromAlert(senderName, userName) { this.modalMessage = true; this.currentUserName = userName; this.senderName = senderName; },
     },
     async mounted() {
       let cookieUserId = Cookies.get('UserId');
 		  this.cookieJWT = Cookies.get('Bearer');
 
-      if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined'){
+      if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined')
         this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
-      }
       this.userName = this.user.displayName;
       this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       this.imageSrc = await getImage(this.user.image);
       this.users = await getAllUsers(this.cookieJWT);
+      await setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
+      this.socketOn();
     }
   };
 </script>
 
 <template>
-  <Alert :inviteInGameFailed="inviteInGameFailed" :inviteInGameSuccess="inviteInGameSuccess" :invitationInGameSuccess="invitationInGameSuccess" />
+  <Alert :inviteInGameFailed="inviteInGameFailed" :inviteInGameSuccess="inviteInGameSuccess" :invitationInGameSuccess="invitationInGameSuccess"
+    :messageSuccess="messageSuccess" :messageSenderName="messageSenderName" :userName="userName" :privateMessage="privateMessages" :openMessageModalFromAlert="openMessageModalFromAlert"
+  />
   <div class="navbar bg-base-100">
     <div class="navbar-start">
-      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :privateMessages="privateMessages" :userName="userName" :jwtToken="cookieJWT" :start="true"/>
+      <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :userName="userName" :jwtToken="cookieJWT" :start="true"/>
     </div>
     <div class="navbar-center">
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>

@@ -1,39 +1,36 @@
 <script>
-import { getUserByUserId } from './api/get.call';
+    import { getUserByUserId } from './api/get.call';
 
-
-export default {
-    data(){
-        return {
-            userToken: null,
-            user: null,
-        }
-    },
-    methods: {
-       async verifyToken(){
-            try {
-                const isValid = await checkA2F(this.user.userName, this.userToken);
-                if (isValid) {
-                    window.location.href = "/settings";
+    export default {
+        data(){
+            return {
+                userToken: null,
+                user: null,
+            }
+        },
+        methods: {
+        async verifyToken(){
+                try {
+                    const isValid = await checkA2F(this.user.userName, this.userToken);
+                    if (isValid)
+                        window.location.href = "/settings";
+                }
+                catch (error) {
+                    Cookies.remove("UserId");
+                    Cookies.remove("Bearer");
+                    window.location.href = "/";
                 }
             }
-            catch (error) {
-                Cookies.remove("UserId");
-                Cookies.remove("Bearer");
+        },
+        async mounted(){
+            const cookieJWT = Cookies.get('Bearer');
+            const cookieUserId = Cookies.get('UserId');
+            if (typeof cookieJWT != 'undefined' && typeof cookieUserId != 'undefined')
+                this.user = await getUserByUserId(cookieUserId);
+            else
                 window.location.href = "/";
-            }
-        }
-    },
-    async mounted(){
-        const cookieJWT = Cookies.get('Bearer');
-        const cookieUserId = Cookies.get('UserId');
-        if (typeof cookieJWT != 'undefined' && typeof cookieUserId != 'undefined')
-            this.user = await getUserByUserId(cookieUserId);
-        else{
-            window.location.href = "/";
         }
     }
-}
 </script>
 
 <template>

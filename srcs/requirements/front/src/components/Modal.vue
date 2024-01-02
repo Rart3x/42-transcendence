@@ -1,7 +1,8 @@
 <script>
     import Alert from './Alert.vue';
+    import Cookies from "js-cookie";
     import { ref } from 'vue';
-    import { getUserByUserName, getImage } from './api/get.call';
+    import { getUserByUserName, getImage, getPrivateMessagesByUserName } from './api/get.call';
 
     export default {
         name: 'Modal',
@@ -89,6 +90,12 @@
             senderName(newSenderName) {
                 this.loadSenderImage(newSenderName);
             },
+        },
+        async mounted() {
+		    this.cookieJWT = Cookies.get('Bearer');
+            if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined')
+                this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
+            this.$props.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
         },
     };
 </script>

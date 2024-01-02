@@ -1,17 +1,12 @@
 import { OnModuleInit } from '@nestjs/common';
-import { MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { Socket } from 'socket.io';
-import { Cookies } from 'js-cookie';
 import { UserService } from '../user/user.service';
-
-//Gateway
 
 @WebSocketGateway({
 	cors : {
 		origin: '*',
 	},
-  // path: '/invite'
 })
 export class AppGateway implements OnModuleInit{
 
@@ -28,14 +23,16 @@ export class AppGateway implements OnModuleInit{
 		});
 	}
 
-	// handleConnection(socket: Socket){
-  //   const userId = Cookies.get("userId")
-  //   if (userId){
-  //     this.UserService.setSocket(userId, socket.toString())
-  //   }
-  // }
+  @SubscribeMessage('friendAdded')
+  handleFriendAdded(@MessageBody() body): any {
+    this.server.to(body.socket).emit('friendAdded');
+  }
 
-  
+  @SubscribeMessage('friendRemoved')
+  handleFriendRemoved(@MessageBody() body): any {
+    this.server.to(body.socket).emit('friendRemoved');
+  }
+
   @SubscribeMessage('invitationInGame')
   handleInvitationInGame(@MessageBody() body): any {
     this.server.to(body.socket).emit('invitedInGame', body);
@@ -51,13 +48,9 @@ export class AppGateway implements OnModuleInit{
     this.server.to(body.socket).emit('invitationDeclined', body);
   }
 
-  @SubscribeMessage('friendAdded')
-  handleFriendAdded(@MessageBody() body): any {
-    this.server.to(body.socket).emit('friendAdded');
+  @SubscribeMessage('sendPrivateMessage')
+  handleSendPrivateMessage(@MessageBody() body): any {
+    this.server.to(body.socket).emit('receiveMessage', body);
   }
 
-  @SubscribeMessage('friendRemoved')
-  handleFriendRemoved(@MessageBody() body): any {
-    this.server.to(body.socket).emit('friendRemoved');
-  }
 }

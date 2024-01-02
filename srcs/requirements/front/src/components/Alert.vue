@@ -2,6 +2,8 @@
 	export default {
 		name: 'Alert',
 		props: {
+			privateMessage: Array,
+
 			addChannelSuccess: Boolean,
 			addChannelFailed: Boolean,
 			addFriendSuccess: Boolean,
@@ -20,6 +22,7 @@
 			joinChannelFailed: Boolean,
 			kickSuccess: Boolean,
 			kickFailed: Boolean,
+			messageSuccess: Boolean,
 			muteSuccess: Boolean,
 			muteFailed: Boolean,
 			removeChannelSuccess: Boolean,
@@ -33,9 +36,12 @@
 			unsetPassSuccess: Boolean,
 			unsetPassFailed: Boolean,
 
-			hostName: String,
-
+			openMessageModalFromAlert: Function,
 			socketEmit: Function,
+
+			hostName: String,
+			messageSenderName: String,
+			userName: String,
 		},
 	};
 </script>
@@ -153,6 +159,16 @@
 	<div v-if="kickFailed" class="toast toast-start">
 		<div class="alert alert-error">
 			<span>Failed to kick User</span>
+		</div>
+	</div>
+	<!--Message-->
+	<div v-if="messageSuccess" class="toast toast-start">
+		<div role="alert" class="alert shadow-lg">
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+			<div>
+				<h3 class="font-bold">New message from {{ messageSenderName }}</h3>
+			</div>
+			<button class="btn btn-sm" @click="openMessageModalFromAlert(messageSenderName, userName)">Open</button>
 		</div>
 	</div>
 	<!--Mute-->

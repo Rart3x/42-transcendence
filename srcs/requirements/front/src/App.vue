@@ -23,20 +23,13 @@
       <div class="main-content">
         <Header v-if="user" />
         <router-view></router-view>
-        <Footer />
+        <!-- <Footer /> -->
       </div>
     </body>
   </div>
 </template>
 
 <style>
-  .wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  .main-content {
-    flex-grow: 1;
-  }
+  .main-content { flex-grow: 1; }
+  .wrapper { display: flex; flex-direction: column; min-height: 100vh;}
 </style>
