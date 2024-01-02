@@ -78,8 +78,8 @@
         window.location.href = "/";
       },
       async socketOn() { 
-        this.store.state.socket.on('receiveMessage', (body) => {
-          this.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+        this.store.state.socket.on('receiveMessage', async (body) => {
+          this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
           this.messageSenderName = body.userName;
           this.messageSuccess = true;
           setTimeout(() => {

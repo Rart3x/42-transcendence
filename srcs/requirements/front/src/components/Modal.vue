@@ -39,7 +39,7 @@
             },
 
             submitMuteForm(selectedDuration) {
-                this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration);
+                this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration, this.$props.jwtToken);
                 this.closeMuteModal();
             },
 
