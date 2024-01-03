@@ -26,6 +26,7 @@ const router = createRouter({
       beforeEnter: async (to, from, next) => {
         let cookieJWT = Cookies.get('Bearer');
         let cookieUserId = Cookies.get('UserId');
+
         const channelName = to.params.channelName;
         const channel = await getChannelByName(channelName, cookieJWT);
         const actualUser = await getUserByUserId(cookieUserId, cookieJWT);
@@ -79,8 +80,8 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   let cookieUserId = Cookies.get('UserId');
   let cookieJWT = Cookies.get('Bearer');
-
   let user;
+
   if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined')
     user = await getUserByUserId(cookieUserId, cookieJWT);
   const path = to.path;

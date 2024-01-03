@@ -41,7 +41,7 @@
     :gamePlayed="user.gamePlayed"
     :gameWon="user.gameWon"
   />
-  <div class="mt-8 overflow-x-auto min-h-screen bg-base-200">
+  <div class="overflow-x-auto min-h-screen bg-base-200">
     <div v-for="(user,index) in users" :key="user">
       <div class="stats shadow flex flex-row">
         <div class="stat">

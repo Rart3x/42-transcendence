@@ -48,6 +48,13 @@ export class AppGateway implements OnModuleInit{
     this.server.to(body.socket).emit('invitationDeclined', body);
   }
 
+  @SubscribeMessage('messageToChannel')
+  handleMessageToChannel(@MessageBody() body): any {
+    for (const user of body.usersInChannel) {
+      this.server.to(user.socket).emit('messageToChannel', body);
+    }
+  }
+
   @SubscribeMessage('sendPrivateMessage')
   handleSendPrivateMessage(@MessageBody() body): any {
     this.server.to(body.socket).emit('receiveMessage', body);

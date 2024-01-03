@@ -36,6 +36,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    messageToChannel(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('messageToChannel', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     sendPrivateMessage(context, body) {
       const socket = context.state.socket;
       if (socket)
