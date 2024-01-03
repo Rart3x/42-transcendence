@@ -190,7 +190,7 @@
     :gameWon="user.gameWon"
   />
 
-  <div class="overflow-x-auto bg-base-200 font-mono place-items-center shadow border-2 border-gray-500 content">
+  <div class="bg-base-200 overflow-x-auto min-h-screen font-mono place-items-center shadow border-2 border-gray-500">
     <div class="stats shadow flex justify-center">
       <div class="stat" v-if="!isBlockBool">
         <button class="btn" v-if="user && !isFriendBool" @click="addFriendFromDB(user.userName, $route.params.userName)">
@@ -223,7 +223,7 @@
         </button>
       </div>
     </div>
-    <History v-if="user" :userName="$route.params.userName"/>
+    <History v-if="user" :userName="$route.params.userName"  :visitedProfile="true"/>
   </div>
   <!--Alerts-->
   <Alert
@@ -252,6 +252,9 @@
   .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }
 
+
+  .stats { border-radius: unset; }
+
   .rounded-image {
     width: 150px;
     height: 150px;
@@ -265,5 +268,5 @@
     display: block;
   }
 
-  .stats{ border-radius: unset; }
+  /* .stats{ border-radius: unset; } */
 </style>

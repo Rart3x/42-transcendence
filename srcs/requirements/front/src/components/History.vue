@@ -33,10 +33,10 @@
       }
     },
     async mounted(){
-      const cookieUserId = Cookies.get("UserId");
+      // console.log("Visited profile", this.visitedProfile)
       this.jwtToken = Cookies.get("Bearer");
-      if (typeof cookieUserId !== 'undefined' && typeof this.jwtToken !== 'undefined')
-        this.user = await getUserByUserId(cookieUserId, this.jwtToken);
+      if (typeof this.jwtToken !== 'undefined')
+        this.user = await getUserByUserName(this.userName, this.jwtToken);
       if (!this.user)
         window.location.href = "/";
       this.versusImage = "../images/vs.png";
@@ -55,12 +55,16 @@
           }});
        }
     },
-    props :{ 
+    props: {
       userName: {
         type: String,
         required: true
+      },
+      visitedProfile:{
+        type: Boolean,
+        required: true
       }
-    },
+    }
   }
 </script>
 
@@ -176,14 +180,14 @@
                 <div class="collapse-content flex flex-col items-center justify-center">
                   <p v-for="(score, idx) in item.gameUserScores" :key="idx" class="dark-row">
                     <span>
-                      <span  v-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
-                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
-                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
-                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
+                      <span  v-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
+                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
+                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
+                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
+                      <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
+                      <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
+                      <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
+                      <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
                     </span>
                   </p>
                 </div>
@@ -200,8 +204,8 @@
   .avatar { display: flex; align-items: center; justify-content: center; margin: 0 10px; }
   .collapse-title { display: flex; align-items: center; }
   .dark-row:hover { background-color: #364e6e; }
+  .table { border-radius: unset; }
   .stats { border-radius: unset; }
-  .table{ border-radius: unset; }
   .text-before { margin-right: auto; }
   .text-after { margin-left: auto; }
   .versus-image { max-width: 100%; max-height: 100%;  }

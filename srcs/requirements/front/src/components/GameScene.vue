@@ -107,7 +107,7 @@ export default class Game extends Phaser.Scene {
 			</div>');
 			let customGameModeButton = self.UIElement.node.querySelector("#choseCustomGameMode") as HTMLElement;
 			let normalGameModeButton = self.UIElement.node.querySelector("#choseNormalGameMode") as HTMLElement;
-			
+
 			const parentElement = document.getElementById('parent') as HTMLElement;
 
 			parentElement.addEventListener('click', function(event) {

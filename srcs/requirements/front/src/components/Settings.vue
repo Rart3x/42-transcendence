@@ -27,6 +27,7 @@
 			toggleTheme() {
 				this.theme = this.theme === 'dark' ? 'night' : 'dark';
 				document.documentElement.setAttribute('data-theme', this.theme);
+				//Saving the theme in web cache in case of refresh
 				localStorage.setItem('theme', this.theme);
 			},
 			async changeA2F(){
@@ -109,16 +110,16 @@
 		:gamePlayed="user.gamePlayed"
 		:gameWon="user.gameWon"
   	/>
-	<div class="grid grid-cols-1 bg-base-200 font-mono place-items-center shadow border-2 border-gray-500 content">
-		<div class="items-center my-4">
+	<div class="grid grid-cols-1 grid-rows-6 bg-base-200 min-h-screen font-mono place-items-center border-2 border-gray-500">
+		<div class="items-center">
 			<label class="block text-base font-medium">Username</label>
 			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" maxlength="20" pattern="^[A-Za-z0-9_"/>
 		</div>
-		<div class="items-center my-4">
+		<div class="items-center">
 			<label class="block text-base font-medium">Image</label>
 			<input type="file" class="file-input file-input-bordered w-full max-w-xs" @change="onFileChange">
 		</div>
-		<div class="items-center my-4">
+		<div class="items-center">
 			<label for="enable2FA" class="text-base font-medium">Two-Factor Authentication (2FA)</label>
 			<div>
 				<button v-if="A2FEnabled" class="btn btn-error" @click="changeA2F">Disable</button>
@@ -126,7 +127,7 @@
 				<img v-if="dataURL" :src="dataURL" class="qrcode" />
 			</div>
 		</div>
-		<div class="flex justify-end my-4">
+		<div class="flex justify-end">
 			<button class="btn btn-danger mr-2" @click="deleteAccount">Delete Account</button>
 			<button type="submit" class="btn btn-primary" @click="saveAll">Apply</button>
 			<button class="btn btn-secondary ml-2" @click="toggleTheme">Switch Theme</button>

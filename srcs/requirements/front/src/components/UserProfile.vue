@@ -261,7 +261,7 @@
     :gamePlayed="user.gamePlayed"
     :gameWon="user.gameWon"
   />
-  <div class="overflow-x-auto bg-base-200 font-mono place-items-center shadow border-2 border-gray-500 content">
+  <div class="bg-base-200 min-h-screen overflow-x-auto font-mono place-items-center border-2 border-gray-500">
     <div class="buttons">
       <button class="btn glass" @click="showContent('friends')">Friends</button>
       <button class="btn glass" @click="showContent('channels')">Channels</button>
@@ -378,7 +378,7 @@
         </table>
       </div>
       <div v-if="activeTab === 'history'" class="p-4">
-        <History :userName="user.userName"/>
+        <History :userName="user.userName" :visitedProfile="false"/>
       </div>
     </div>
   </div>
@@ -437,7 +437,7 @@
   .dark-row:hover { background-color: #364e6e; }
   .dialogModal { text-align:center; }
   .underStat { display: center; text-align: center; }
-
+  .stats { border-radius: unset; }
   .requestTable { overflow-x: auto; }
   .requestTable::-webkit-scrollbar { width: 10px; }
   .requestTable::-webkit-scrollbar-thumb { background: #888; border-radius: 5px; }
