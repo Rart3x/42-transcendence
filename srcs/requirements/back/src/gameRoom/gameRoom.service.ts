@@ -95,7 +95,6 @@ export class GameRoomService {
       where: { id: id - 0 },
       include : {
         users: true,
-        score: true
       }
     });
   }
