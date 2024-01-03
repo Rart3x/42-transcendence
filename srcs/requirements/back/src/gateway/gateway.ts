@@ -35,12 +35,12 @@ export class AppGateway implements OnModuleInit{
 
   @SubscribeMessage('friendRequest')
   handleFriendRequest(@MessageBody() body): any {
-    this.server.to(body.socket).emit('friendRequest');
+    this.server.to(body.socket).emit('friendRequest', body);
   }
 
   @SubscribeMessage('friendRequestAccepted')
   handleFriendRequestAccepted(@MessageBody() body): any {
-    this.server.to(body.socket).emit('friendRequestAccepted');
+    this.server.to(body.socket).emit('friendRequestAccepted', body);
   }
 
   @SubscribeMessage('friendRequestDeclined')
@@ -50,12 +50,12 @@ export class AppGateway implements OnModuleInit{
 
   @SubscribeMessage('invitationInChannel')
   handleInvitationInChannel(@MessageBody() body): any {
-    this.server.to(body.socket).emit('invitedInChannel', body);
+    this.server.to(body.socket).emit('invitationInChannel', body);
   }
 
   @SubscribeMessage('invitationInGame')
   handleInvitationInGame(@MessageBody() body): any {
-    this.server.to(body.socket).emit('invitedInGame', body);
+    this.server.to(body.socket).emit('invitationInGame', body);
   }
 
   @SubscribeMessage('invitationInChannelAccepted')
@@ -70,12 +70,12 @@ export class AppGateway implements OnModuleInit{
 
   @SubscribeMessage('invitationInGameAccepted')
   handleInvitationInGameAccepted(@MessageBody() body): any {
-    this.server.to(body.socket).emit('invitationAccepted', body);
+    this.server.to(body.socket).emit('invitationInGameAccepted', body);
   }
 
   @SubscribeMessage('invitationInGameDeclined')
   handleInvitationInGameDeclined(@MessageBody() body): any {
-    this.server.to(body.socket).emit('invitationDeclined', body);
+    this.server.to(body.socket).emit('invitationInGameDeclined', body);
   }
 
   @SubscribeMessage('messageToChannel')

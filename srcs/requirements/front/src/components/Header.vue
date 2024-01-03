@@ -3,9 +3,9 @@
   import Cookies from "js-cookie";
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
-  import { inviteFriendInGameEXPORT, socketOnEXPORT } from "./UserProfile.vue";
+  import { inviteFriendInGameEXPORT } from "./UserProfile.vue";
   import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName, getImage } from "./api/get.call.ts";
-  import { createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
+  import { addFriend, createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
   import { deleteGameRoomById } from "./api/delete.call.ts";
   import { RouterLink } from "vue-router";
   import { useRouter } from "vue-router";
@@ -34,6 +34,11 @@
         hostName: "",
         senderName: "",
         userName: "",
+
+        invitationFriendSuccess: false,
+
+        friendRequestAccepted: false,
+        friendRequestDeclined: false,
 
         invitationInGameSuccess: false,
         inviteInGameSuccess: false,
@@ -92,12 +97,52 @@
           this.router.push('/game');
           this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id })
         }
-        this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket,  hostGameId: this.hostGame.id });
+        if (emit == "friendRequestAccepted" || emit == "friendRequestDeclined")
+          this.invitationFriendSuccess = false;
+        if (emit == "friendRequestAccepted") {
+          await this.store.dispatch('friendAdded', { sock: this.user.socket })
+          this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket, invitedUserName: this.user.userName });
+        }
+        else if (emit == "friendRequestDeclined")
+          this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket, invitedUserName: this.user.userName });
+        else if (emit == "invitationInGameAccepted")
+          this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket, hostGameId: this.hostGame.id });
+        else if (emit == "invitationInGameDeclined")
+          this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket, hostGameId: this.hostGame.id });
+        else
+          this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket, invitedUserName: this.user.userName });
       },
 
       async socketOn() {
 
-        this.store.state.socket.on('invitedInGame', (body) => {
+        this.store.state.socket.on('friendRequest', (body) => {
+          this.hostName = body.host;
+          this.invitationFriendSuccess = true;
+          setTimeout(() => {
+            this.invitationFriendSuccess = false;
+          }, 5000);
+        });
+
+        this.store.state.socket.on('friendRequestAccepted', async (body) => {
+          this.friendRequestAccepted = true;
+          await addFriend(this.user.userName, body.invitedUserName, this.cookieJWT)
+          const invitedUser = await getUserByUserName(body.invitedUserName, this.cookieJWT);
+          const hostUser = await getUserByUserName(body.host, this.cookieJWT);
+          await this.store.dispatch('friendAdded', { socket: hostUser.socket });
+          await this.store.dispatch('friendAdded', { socket: invitedUser.socket });
+          setTimeout(() => {
+            this.friendRequestAccepted = false;
+          }, 3000);
+        });
+
+        this.store.state.socket.on('friendRequestDeclined', (body) => {
+          this.friendRequestDeclined = true;
+          setTimeout(() => {
+            this.friendRequestDeclined = false;
+          }, 3000);
+        });
+
+        this.store.state.socket.on('invitationInGame', (body) => {
           this.hostGame = body.gameRoom;
           this.hostName = body.host;
           this.invitationInGameSuccess = true;
@@ -106,13 +151,13 @@
           }, 30000);
         });
 
-        this.store.state.socket.on('invitationAccepted', (body) => {
+        this.store.state.socket.on('invitationInGameAccepted', (body) => {
           this.hostName = body.host;
           this.router.push('/game');
           this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
         });
 
-        this.store.state.socket.on('invitationDeclined', (body) => {
+        this.store.state.socket.on('invitationInGameDeclined', (body) => {
           this.hostName = body.host;
           deleteGameRoomById(body.hostGameId.toString());
           this.inviteInGameFailed = true;
@@ -157,6 +202,7 @@
   <Alert :inviteInGameFailed="inviteInGameFailed" :inviteInGameSuccess="inviteInGameSuccess" :invitationInGameSuccess="invitationInGameSuccess"
     :messageSuccess="messageSuccess" :messageSenderName="messageSenderName" :userName="userName" :hostName="hostName"
     :privateMessage="privateMessages" :openMessageModalFromAlert="openMessageModalFromAlert" :socketEmit="socketEmit"
+    :invitationFriendSuccess="invitationFriendSuccess" :friendRequestAccepted="friendRequestAccepted" :friendRequestDeclined="friendRequestDeclined"
   />
   <div class="navbar bg-base-100">
     <div class="navbar-start">

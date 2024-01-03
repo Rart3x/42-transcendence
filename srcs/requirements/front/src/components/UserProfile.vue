@@ -45,25 +45,8 @@
     },
     methods: {
       async addFriendFromDB(userName, friendName) {
-        const response = await addFriend(userName, friendName, this.cookieJWT);
-    
-        if (response && response.success) {
-          this.addFriendSuccess = true;
-          setTimeout(() => {
-            this.addFriendSuccess = false;
-          }, 3000);
-          const addedUser = await getUserByUserName(friendName, this.cookieJWT);
-          const socket = addedUser.socket;
-          //Update added user's buddy list
-          await this.store.dispatch('friendAdded', { socket })
-          this.updateFriends();
-        } else {
-          this.addFriendFailed = true;
-          setTimeout(() => {
-            this.addFriendFailed = false;
-          }, 3000);
-        }
-        this.friendName = '';
+        const friend = await getUserByUserName(friendName, this.cookieJWT);
+        await this.store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
       },
 
       async createChannelInDB(channelName, userName, currentUserName) {
@@ -94,7 +77,7 @@
         const socket = invitedPlayer.socket;
         var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName, this.cookieJWT);
         if (gameRoom)
-          await this.store.dispatch('invitationInGame', { host,  gameRoom, userName, userId, socket, userStatus });
+          await this.store.dispatch('invitationInGame', { host, gameRoom, userName, userId, socket, userStatus });
       },
 
       async joinChannelInDB(channelName, userName) {
