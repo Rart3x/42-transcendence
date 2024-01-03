@@ -33,9 +33,39 @@ export class AppGateway implements OnModuleInit{
     this.server.to(body.socket).emit('friendRemoved');
   }
 
+  @SubscribeMessage('friendRequest')
+  handleFriendRequest(@MessageBody() body): any {
+    this.server.to(body.socket).emit('friendRequest');
+  }
+
+  @SubscribeMessage('friendRequestAccepted')
+  handleFriendRequestAccepted(@MessageBody() body): any {
+    this.server.to(body.socket).emit('friendRequestAccepted');
+  }
+
+  @SubscribeMessage('friendRequestDeclined')
+  handleFriendRequestDeclined(@MessageBody() body): any {
+    this.server.to(body.socket).emit('friendRequestDeclined');
+  }
+
+  @SubscribeMessage('invitationInChannel')
+  handleInvitationInChannel(@MessageBody() body): any {
+    this.server.to(body.socket).emit('invitedInChannel', body);
+  }
+
   @SubscribeMessage('invitationInGame')
   handleInvitationInGame(@MessageBody() body): any {
     this.server.to(body.socket).emit('invitedInGame', body);
+  }
+
+  @SubscribeMessage('invitationInChannelAccepted')
+  handleInvitationInChannelAccepted(@MessageBody() body): any {
+    this.server.to(body.socket).emit('invitationAccepted', body);
+  }
+
+  @SubscribeMessage('invitationInChannelDeclined')
+  handleInvitationInChannelDeclined(@MessageBody() body): any {
+    this.server.to(body.socket).emit('invitationDeclined', body);
   }
 
   @SubscribeMessage('invitationInGameAccepted')
@@ -55,9 +85,15 @@ export class AppGateway implements OnModuleInit{
     }
   }
 
+  @SubscribeMessage('newChannelSuggestion')
+  handleNewChannelSuggestion(@MessageBody() body): any {
+    for (const user of body.allUsers) {
+      this.server.to(user.socket).emit('newChannelSuggestion', body);
+    }  
+  }
+
   @SubscribeMessage('sendPrivateMessage')
   handleSendPrivateMessage(@MessageBody() body): any {
     this.server.to(body.socket).emit('receiveMessage', body);
   }
-
 }

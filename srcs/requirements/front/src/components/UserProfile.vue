@@ -71,6 +71,8 @@
         this.modalStates.modalChannel = false;
 
         if (response && response.success) {
+          const allUsers = await getAllUsers(this.cookieJWT);
+          await this.store.dispatch('newChannelSuggestion', { allUsers });
           this.addChannelSuccess = true;
           setTimeout(() => {
             this.addChannelSuccess = false;
@@ -203,6 +205,9 @@
         })
         this.store.state.socket.on('friendRemoved', () => {
           this.updateFriends()
+        })
+        this.store.state.socket.on('newChannelSuggestion', () => {
+          this.updateAllChannels()
         })
       },
 

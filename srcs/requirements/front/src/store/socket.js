@@ -25,6 +25,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    friendRequest(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('friendRequest', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     initializeSocket({ commit }) {
       const socket = io('http://localhost:3000');
       commit('SET_SOCKET', socket);
@@ -40,6 +47,13 @@ const store = createStore({
       const socket = context.state.socket;
       if (socket)
         socket.emit('messageToChannel', body);
+      else
+        console.error('error: socket uninitialized');
+    },
+    newChannelSuggestion(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('newChannelSuggestion', body);
       else
         console.error('error: socket uninitialized');
     },
