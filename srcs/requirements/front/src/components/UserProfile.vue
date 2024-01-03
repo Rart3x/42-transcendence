@@ -6,7 +6,6 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllUsers, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
   import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
-  import { deleteGameRoomById } from "./api/delete.call";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
@@ -34,7 +33,7 @@
     data() {
       return {
         adminImage: null,
-        currentUserName: "", channelName: "", friendName: "", hostName: "", newChannelName: "", senderName: "", userName: "",
+        currentUserName: "", channelName: "", friendName: "", newChannelName: "", senderName: "", userName: "",
         modalStates: { modalChannel: false, modalManageChannel: false, }, modalMessage: false,
         allChannels: null, channels: [], currentUser: null, friends: [], hostGame: null, privateMessages: [], user: null,
         addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false, setPassSuccess: false, unsetPassSuccess: false, 
@@ -198,46 +197,10 @@
         this.channelName = channel; this.modalStates.modalManageChannel = true;      
       },
 
-      async socketEmit(emit) {
-        const hostUser = await getUserByUserName(this.hostName, this.cookieJWT);
-        if (emit == "invitationInGameAccepted" || emit == "invitationInGameDeclined")
-          this.invitationInGameSuccess = false;
-        if (emit == "invitationInGameAccepted"){
-          this.router.push('/game');
-          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id })
-        }
-        this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket,  hostGameId: this.hostGame.id });
-      },
-
       socketOn() {
-        this.store.state.socket.on('invitedInGame', (body) => {
-          this.hostGame = body.gameRoom;
-          this.hostName = body.host;
-          this.invitationInGameSuccess = true;
-          setTimeout(() => {
-            this.invitationInGameSuccess = false;
-          }, 30000);
-        });
-
-        this.store.state.socket.on('invitationAccepted', (body) => {
-          this.hostName = body.host;
-          this.router.push('/game');
-          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
-        });
-
-        this.store.state.socket.on('invitationDeclined', (body) => {
-          this.hostName = body.host;
-          deleteGameRoomById(body.hostGameId.toString());
-          this.inviteInGameFailed = true;
-          setTimeout(() => {
-            this.inviteInGameFailed = false;
-          }, 5000);
-        });
-      
         this.store.state.socket.on('friendAdded', () => {
           this.updateFriends()
         })
-
         this.store.state.socket.on('friendRemoved', () => {
           this.updateFriends()
         })
@@ -453,10 +416,6 @@
     :removeFriendFailed="removeFriendFailed"
     :setPassFailed="setPassFailed"
     :unsetPassFailed="unsetPassFailed"
-
-    :hostName="hostName"
-
-    :socketEmit="socketEmit"
   />
   <!--Modals-->
   <Modal
