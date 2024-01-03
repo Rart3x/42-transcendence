@@ -30,14 +30,11 @@
 			},
 			async changeA2F(){
 				this.user.A2F = !this.user.A2F;
-				console.log(this.user.userName, this.user.A2F, this.cookieJWT);
 				this.user = await updateA2F(this.user.userName, this.user.A2F, this.cookieJWT);
 				this.dataURL = null;
 				if (this.user.A2F)
-					this.dataURL = await qrcode.tothis.DataURL(this.user.A2FUrl);
+					this.dataURL = await qrcode.toDataURL(this.user.A2FUrl);
 				this.A2FEnabled = this.user.A2F;
-				console.log("2FAEnable", this.user.A2F);
-
 			},
 			async deleteAccount(){
 				if (confirm('Are you sure you want to delete your account?')) {
@@ -48,7 +45,8 @@
 				}
 			},
 			async handleSubmit(){
-				if (!this.newUserName || this.newUserNamelength > 20 || this.newUserNamelength < 3 || !/^[A-Za-z0-9_\-]+$/.test(this.newUserName)) {
+				if (!this.newUserName || this.newUserNamelength > 20 || this.newUserNamelength < 3 
+					|| !/^[A-Za-z0-9_\-]+$/.test(this.newUserName)) {
 					alert('Invalid username');
 					return;
 				}

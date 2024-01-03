@@ -72,9 +72,11 @@
         this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       },
       logout() {
+        //Remove cookies and set user status to "offline"
         Cookies.remove("UserId");
         Cookies.remove("Bearer");
-        setStatus(this.user.userName, "offline", this.cookieJWT);
+        if (this.user)
+          setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";
       },
       async socketOn() { 
@@ -98,6 +100,8 @@
 
       if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined')
         this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
+      else
+        return ;
       this.userName = this.user.displayName;
       this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       this.imageSrc = await getImage(this.user.image);
@@ -123,7 +127,7 @@
       </div>
     </div>
     <div class="navbar-end">
-      <Drawer
+      <Drawer v-if="user"
         :display="true"
         :imageSrc="imageSrc"
         :user="user"

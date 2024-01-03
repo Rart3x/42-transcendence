@@ -73,11 +73,11 @@
             <span v-else> &nbsp; </span>
           </template>
         </h1>
-        <ul class="list-disc py-6 font-mono space-y-3 marker:text-secondary">
+          <ul class="list-disc py-6 font-mono space-y-3 marker:text-secondary">
            <li>Pong game with normal and custom game in multiplayer</li>
            <li>Chat with clients, channels, ...</li>
            <li>Profile customization, friends list, 2FA authentication</li>
-         </ul>
+          </ul>
          <ul class="list-disc" style="list-style-type: none;">
           <li>
             <button v-if="!user" class="btn btn-glass flex-grow w-64 bg-primary text-white opacity-70" @click="signInWithIntra">

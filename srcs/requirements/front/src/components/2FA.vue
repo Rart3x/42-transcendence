@@ -1,5 +1,6 @@
 <script>
     import { getUserByUserId } from './api/get.call';
+	import Cookies from 'js-cookie';
 
     export default {
         data(){
@@ -16,9 +17,8 @@
                         window.location.href = "/settings";
                 }
                 catch (error) {
-                    Cookies.remove("UserId");
-                    Cookies.remove("Bearer");
-                    window.location.href = "/";
+                    alert('Invalid 2fa code');
+                    this.userToken = '';
                 }
             }
         },
@@ -34,11 +34,13 @@
 </script>
 
 <template>
-    <h1 class="title">Sign In with A2F</h1>
-    <div class="flex justify-center">
-      <form @submit.prevent="verifyToken">
-        <input class="input input-bordered" type="text" v-model="userToken" placeholder="Enter your token" required pattern="\d{6}" />
-        <button class="btn" type="submit">Sign In</button>
+    <div class="grid grid-cols-1 flex flex-col items-center overflow-x-auto font-mono bg-base-200 place-items-center shadow  border-2 border-gray-500 content">
+        <h1 class="text-2xl">Sign In with A2F</h1>
+        <form @submit.prevent="verifyToken">
+        <div class="my-4">
+            <input class="input input-bordered" type="text" v-model="userToken" placeholder="Enter your token" required pattern="\d{6}" />
+        </div>
+        <button class="btn btn-secondary text-white font-bold my-4" type="submit">Sign In</button>
       </form>
     </div>
 </template>

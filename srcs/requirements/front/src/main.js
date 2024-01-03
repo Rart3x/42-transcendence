@@ -7,4 +7,5 @@ const app = createApp(App);
 app.config.productionTip = false;
 
 app.use(store).use(router).mount('#app');
+
 store.dispatch('initializeSocket');

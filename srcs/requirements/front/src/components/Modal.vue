@@ -95,7 +95,8 @@
 		    this.cookieJWT = Cookies.get('Bearer');
             if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined')
                 this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
-            this.$props.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+            if (this.user)
+                this.$props.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
         },
     };
 </script>
