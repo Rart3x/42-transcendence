@@ -18,6 +18,17 @@ const router = createRouter({
       path: "/2fa",
       name: "2fa",
       component: () => import("@/components/2FA.vue"),
+      beforeEnter: async(to, from, next) => {
+        let cookieJWT = Cookies.get('Bearer');
+        let cookieUserId = Cookies.get('UserId');
+
+        const actualUser = await getUserByUserId(cookieUserId, cookieJWT);
+
+        if (actualUser.status != 'offline')
+          next('/error')
+        else
+          next()
+      }
     },
     {
       path: "/channel/:channelName",

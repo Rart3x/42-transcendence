@@ -146,20 +146,8 @@
     isBlockBool.value = isBlockFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
     
     messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName, cookieJWT.value);
-
-    // let imagePath =  actualUser.value.image;
-    // actualUser.value.imageSrc = await getImage(this.user.image);
-  
     this.imageSrc = await getImage(this.user.image);
-
- 
     this.users = await getAllUsers(this.cookieJWT);
-
-    // let imagePathUser = "http://localhost:3000/public/" + user.value.image;
-    // console.log(imagePathUser)
-    // await import(imagePathUser).then((image) => {
-    //   user.value.imageSrc = image.default;
-    // });
   });
 
   const unblockFromDB = async (userName, unblockedUserName) => {

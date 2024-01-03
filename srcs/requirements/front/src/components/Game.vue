@@ -8,4 +8,4 @@
   </div>
 </template>
 
-<style scoped> #game{ position: absolute; max-height: 92.8vh; } </style>
+<style scoped> #game{ position: absolute; max-height: 92.8vh; display: block } </style>

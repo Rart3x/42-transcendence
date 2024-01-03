@@ -121,7 +121,10 @@ export class UserController {
     if (!user) {
       console.warn("error: user not found");
     }
-    return authenticator.check(token, user.A2FSecret);
+    const checkVal = authenticator.check(token, user.A2FSecret);
+    if (checkVal)
+      this.userService.setStatus(user.userName, "online");
+    return checkVal
   }
 
   @Post('updateA2F/:userName')

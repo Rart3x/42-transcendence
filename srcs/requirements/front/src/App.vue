@@ -23,7 +23,7 @@
       <div class="main-content">
         <Header v-if="user" />
         <router-view></router-view>
-        <Footer />
+        <Footer v-if="$route.path !== '/game'"/>
       </div>
     </body>
   </div>

@@ -38,7 +38,7 @@
 				<div v-if="(winrate.toFixed(0) < 50 && winrate.toFixed(0) >= 30)" class="stat-value text-yellow-500"> {{ winrate.toFixed(2) }} % </div>
 				<div v-if="(winrate.toFixed(0) < 30)" class="stat-value text-red-500"> {{ winrate.toFixed(2) }} % </div>
 			</div>
-			<div v-else class="stat-value text-green-500">{{ 100 }} % </div>        
+			<div v-else class="stat-value">N/A</div>        
 		</div>
 	</div>
 </template>
