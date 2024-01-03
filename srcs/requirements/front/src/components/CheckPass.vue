@@ -1,5 +1,6 @@
 <script setup>
   import Alert from './Alert.vue';
+  import Cookies from "js-cookie";
   import Modal from './Modal.vue';
   import sha256 from 'js-sha256';
   import { ref, onMounted } from 'vue';
@@ -14,9 +15,11 @@
 
   let modalCheckPass = ref(false);
 
+  let cookieJWT = ref(null);
+
   const checkPassInDB = async (password) => {
     const hashedPassword = sha256(password);
-    const response = await checkPass(route.params.channelName, hashedPassword);
+    const response = await checkPass(route.params.channelName, hashedPassword, cookieJWT.value);
     
     if (response && response.success){
       modalCheckPass.value = false;
@@ -30,7 +33,10 @@
     }
   };
   
-  onMounted(() => { modalCheckPass.value = true; });
+  onMounted(() => { 
+    cookieJWT.value  = Cookies.get('Bearer');
+    modalCheckPass.value = true;
+  });
 </script>
 
 <template>

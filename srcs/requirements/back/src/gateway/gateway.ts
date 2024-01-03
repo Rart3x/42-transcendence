@@ -33,24 +33,67 @@ export class AppGateway implements OnModuleInit{
     this.server.to(body.socket).emit('friendRemoved');
   }
 
+  @SubscribeMessage('friendRequest')
+  handleFriendRequest(@MessageBody() body): any {
+    this.server.to(body.socket).emit('friendRequest', body);
+  }
+
+  @SubscribeMessage('friendRequestAccepted')
+  handleFriendRequestAccepted(@MessageBody() body): any {
+    this.server.to(body.socket).emit('friendRequestAccepted', body);
+  }
+
+  @SubscribeMessage('friendRequestDeclined')
+  handleFriendRequestDeclined(@MessageBody() body): any {
+    this.server.to(body.socket).emit('friendRequestDeclined');
+  }
+
+  @SubscribeMessage('invitationInChannel')
+  handleInvitationInChannel(@MessageBody() body): any {
+    this.server.to(body.socket).emit('invitationInChannel', body);
+  }
+
   @SubscribeMessage('invitationInGame')
   handleInvitationInGame(@MessageBody() body): any {
-    this.server.to(body.socket).emit('invitedInGame', body);
+    this.server.to(body.socket).emit('invitationInGame', body);
+  }
+
+  @SubscribeMessage('invitationInChannelAccepted')
+  handleInvitationInChannelAccepted(@MessageBody() body): any {
+    this.server.to(body.socket).emit('invitationAccepted', body);
+  }
+
+  @SubscribeMessage('invitationInChannelDeclined')
+  handleInvitationInChannelDeclined(@MessageBody() body): any {
+    this.server.to(body.socket).emit('invitationDeclined', body);
   }
 
   @SubscribeMessage('invitationInGameAccepted')
   handleInvitationInGameAccepted(@MessageBody() body): any {
-    this.server.to(body.socket).emit('invitationAccepted', body);
+    this.server.to(body.socket).emit('invitationInGameAccepted', body);
   }
 
   @SubscribeMessage('invitationInGameDeclined')
   handleInvitationInGameDeclined(@MessageBody() body): any {
-    this.server.to(body.socket).emit('invitationDeclined', body);
+    this.server.to(body.socket).emit('invitationInGameDeclined', body);
+  }
+
+  @SubscribeMessage('messageToChannel')
+  handleMessageToChannel(@MessageBody() body): any {
+    for (const user of body.usersInChannel) {
+      this.server.to(user.socket).emit('messageToChannel', body);
+    }
+  }
+
+  @SubscribeMessage('newChannelSuggestion')
+  handleNewChannelSuggestion(@MessageBody() body): any {
+    for (const user of body.allUsers) {
+      this.server.to(user.socket).emit('newChannelSuggestion', body);
+    }  
   }
 
   @SubscribeMessage('sendPrivateMessage')
   handleSendPrivateMessage(@MessageBody() body): any {
     this.server.to(body.socket).emit('receiveMessage', body);
   }
-
 }

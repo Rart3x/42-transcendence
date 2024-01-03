@@ -6,7 +6,6 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllUsers, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
   import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
-  import { deleteGameRoomById } from "./api/delete.call";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
@@ -34,9 +33,9 @@
     data() {
       return {
         adminImage: null,
-        currentUserName: "", channelName: "", friendName: "", hostName: "", newChannelName: "", senderName: "", userName: "",
+        currentUserName: "", channelName: "", friendName: "", newChannelName: "", senderName: "", userName: "",
         modalStates: { modalChannel: false, modalManageChannel: false, }, modalMessage: false,
-        allChannels: null, channels: [], currentUser: null, friends: [], hostGame: null, privateMessages: [], user: null,
+        allChannels: null, channels: [], currentUser: null, friends: [], privateMessages: [], user: null,
         addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false, setPassSuccess: false, unsetPassSuccess: false, 
         addChannelFailed: false, addFriendFailed: false, addMessageFailed: false, inviteInGameFailed: false, joinChannelFailed: false, removeChannelFailed: false, removeFriendFailed: false, setPassFailed: false, unsetPassFailed: false,
         message_text: "", password: "", friendsData: [], 
@@ -46,25 +45,8 @@
     },
     methods: {
       async addFriendFromDB(userName, friendName) {
-        const response = await addFriend(userName, friendName, this.cookieJWT);
-    
-        if (response && response.success) {
-          this.addFriendSuccess = true;
-          setTimeout(() => {
-            this.addFriendSuccess = false;
-          }, 3000);
-          const addedUser = await getUserByUserName(friendName, this.cookieJWT);
-          const socket = addedUser.socket;
-          //Update added user's buddy list
-          await this.store.dispatch('friendAdded', { socket })
-          this.updateFriends();
-        } else {
-          this.addFriendFailed = true;
-          setTimeout(() => {
-            this.addFriendFailed = false;
-          }, 3000);
-        }
-        this.friendName = '';
+        const friend = await getUserByUserName(friendName, this.cookieJWT);
+        await this.store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
       },
 
       async createChannelInDB(channelName, userName, currentUserName) {
@@ -72,6 +54,8 @@
         this.modalStates.modalChannel = false;
 
         if (response && response.success) {
+          const allUsers = await getAllUsers(this.cookieJWT);
+          await this.store.dispatch('newChannelSuggestion', { allUsers });
           this.addChannelSuccess = true;
           setTimeout(() => {
             this.addChannelSuccess = false;
@@ -93,7 +77,7 @@
         const socket = invitedPlayer.socket;
         var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName, this.cookieJWT);
         if (gameRoom)
-          await this.store.dispatch('invitationInGame', { host,  gameRoom, userName, userId, socket, userStatus });
+          await this.store.dispatch('invitationInGame', { host, gameRoom, userName, userId, socket, userStatus });
       },
 
       async joinChannelInDB(channelName, userName) {
@@ -198,48 +182,15 @@
         this.channelName = channel; this.modalStates.modalManageChannel = true;      
       },
 
-      async socketEmit(emit) {
-        const hostUser = await getUserByUserName(this.hostName, this.cookieJWT);
-        if (emit == "invitationInGameAccepted" || emit == "invitationInGameDeclined")
-          this.invitationInGameSuccess = false;
-        if (emit == "invitationInGameAccepted"){
-          this.router.push('/game');
-          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id })
-        }
-        this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket,  hostGameId: this.hostGame.id });
-      },
-
       socketOn() {
-        this.store.state.socket.on('invitedInGame', (body) => {
-          this.hostGame = body.gameRoom;
-          this.hostName = body.host;
-          this.invitationInGameSuccess = true;
-          setTimeout(() => {
-            this.invitationInGameSuccess = false;
-          }, 30000);
-        });
-
-        this.store.state.socket.on('invitationAccepted', (body) => {
-          this.hostName = body.host;
-          this.router.push('/game');
-          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
-        });
-
-        this.store.state.socket.on('invitationDeclined', (body) => {
-          this.hostName = body.host;
-          deleteGameRoomById(body.hostGameId.toString());
-          this.inviteInGameFailed = true;
-          setTimeout(() => {
-            this.inviteInGameFailed = false;
-          }, 5000);
-        });
-      
         this.store.state.socket.on('friendAdded', () => {
           this.updateFriends()
         })
-
         this.store.state.socket.on('friendRemoved', () => {
           this.updateFriends()
+        })
+        this.store.state.socket.on('newChannelSuggestion', () => {
+          this.updateAllChannels()
         })
       },
 
@@ -453,10 +404,6 @@
     :removeFriendFailed="removeFriendFailed"
     :setPassFailed="setPassFailed"
     :unsetPassFailed="unsetPassFailed"
-
-    :hostName="hostName"
-
-    :socketEmit="socketEmit"
   />
   <!--Modals-->
   <Modal

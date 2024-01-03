@@ -511,10 +511,8 @@ export async function getAllUsers(jwtToken: string) {
       }
     });
 
-    if (response.ok) {
-      const responseData = await response.json();
-      return responseData;
-    }
+    if (response.ok)
+      return await response.json();
   } 
   catch (error) {
     console.error('error: sending GET request', error);

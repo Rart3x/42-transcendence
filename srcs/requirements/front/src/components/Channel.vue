@@ -7,6 +7,7 @@
   import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel, setAdmin } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
+  import { useStore } from "vuex";
 
   let actualUser = ref(null);
   let channel = ref(null);
@@ -35,6 +36,7 @@
   const router = useRouter();
 
   let cookieJWT = ref(null);
+  const store = useStore();
 
   const addOperatorInDB = async (channelName, userName) => {
     const response = await addOperator(channelName, userName, cookieJWT.value);
@@ -145,17 +147,24 @@
 
   const sendMessage = async () => {
     if (message_text.value) {
-      await insertMessageToChannel(
-        route.params.channelName,
-        message_text.value,
-        actualUser.value,
-        cookieJWT.value
-      );
+      await insertMessageToChannel( route.params.channelName, message_text.value, actualUser.value, cookieJWT.value );
       messages.value = await getMessagesFromChannel(route.params.channelName, cookieJWT.value);
       await nextTick();
       scrollToBottom();
       message_text.value = "";
+
+      const usersInChannel = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+      await store.dispatch('messageToChannel', { usersInChannel } );
     }
+  };
+
+  const socketOn = async () => {
+    store.state.socket.on('messageToChannel', async (body) => {
+      messages.value = await getMessagesFromChannel(route.params.channelName, cookieJWT.value);
+      await updateMessageSenders(messages.value);
+      await nextTick();
+      scrollToBottom();
+    });
   };
 
   const scrollToBottom = () => {
@@ -249,6 +258,7 @@
       scrollToBottom();
       await updateMessageSenders(messages.value, cookieJWT.value);
       users.value.splice(0, users.value.length, ...usersData);
+      socketOn();
 		}
   });
 </script>
@@ -320,7 +330,7 @@
                   </label>
                 </router-link>
                 <div class="chat-bubble">{{ message.message_text }}</div>
-                <div class="message-timestamp"> {{ message.message_date }} </div>
+                <div class="message-timestamp"> {{ message.message_date.substring(11, 16) }} </div>
                 </div>
             </div>
             <div v-else-if="message.message_text">

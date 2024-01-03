@@ -270,7 +270,7 @@ export class ChannelService {
       }, 
     });
     if (!channel)
-      console.error("error: channel not found");
+      return null;
     return channel;
   }
 
