@@ -12,7 +12,7 @@
                     <button class="btn btn-ghost btn-circle">
                         <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
                         <div class="indicator">
-                            <img src="../assets/iconmonstr-github-1.svg" />
+                            <img src="../assets/github-svgrepo-com.svg" />
                         </div>
                         </label>
                     </button>
@@ -22,7 +22,7 @@
                     <button class="btn btn-ghost btn-circle">
                         <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
                         <div class="indicator">
-                            <img src="../assets/iconmonstr-github-1.svg" />
+                            <img src="../assets/github-svgrepo-com.svg" />
                         </div>
                         </label>
                     </button>
@@ -32,7 +32,7 @@
                     <button class="btn btn-ghost btn-circle">
                         <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
                         <div class="indicator">
-                            <img src="../assets/iconmonstr-github-1.svg" />
+                            <img src="../assets/github-svgrepo-com.svg" />
                         </div>
                         </label>
                     </button>
@@ -42,7 +42,7 @@
                     <button class="btn btn-ghost btn-circle">
                         <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
                         <div class="indicator">
-                            <img src="../assets/iconmonstr-github-1.svg" />
+                            <img src="../assets/github-svgrepo-com.svg" />
                         </div>
                         </label>
                     </button>

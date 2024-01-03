@@ -27,6 +27,7 @@
 			toggleTheme() {
 				this.theme = this.theme === 'dark' ? 'night' : 'dark';
 				document.documentElement.setAttribute('data-theme', this.theme);
+				localStorage.setItem('theme', this.theme);
 			},
 			async changeA2F(){
 				this.user.A2F = !this.user.A2F;
@@ -108,7 +109,7 @@
 		:gamePlayed="user.gamePlayed"
 		:gameWon="user.gameWon"
   	/>
-	<div class="grid grid-cols-1 overflow-x-auto bg-base-200 font-mono place-items-center shadow border-2 border-gray-500 content">
+	<div class="grid grid-cols-1 bg-base-200 font-mono place-items-center shadow border-2 border-gray-500 content">
 		<div class="items-center my-4">
 			<label class="block text-base font-medium">Username</label>
 			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" maxlength="20" pattern="^[A-Za-z0-9_"/>
@@ -132,7 +133,7 @@
 		</div>
 	</div>
 </template>
-  
+
 <style>
 	.content { display: flex; flex-direction: column; align-items: center; min-height: 70vh; max-height: 70vh;}
 	.items-center { margin-top: 1.5rem; margin-bottom: 1.5rem; text-align: center;}

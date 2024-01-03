@@ -181,6 +181,11 @@
       openMessageModalFromAlert(senderName, userName) { this.modalMessage = true; this.currentUserName = userName; this.senderName = senderName; this.messageSuccess = false;},
     },
     async mounted() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        this.theme = savedTheme;
+        document.documentElement.setAttribute('data-theme', this.theme);
+      }
       let cookieUserId = Cookies.get('UserId');
 		  this.cookieJWT = Cookies.get('Bearer');
 
@@ -208,7 +213,8 @@
     <div class="navbar-start">
       <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :userName="userName" :jwtToken="cookieJWT" :start="true"/>
     </div>
-    <div class="navbar-center">
+    <div class="navbar-center flex space-x-4">
+      <img src="../assets/search-svgrepo-com.svg" width="32" height="32"/>
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
       <div v-show="searchInput" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
         <router-link v-for="user in filteredUsers" :key="user.id" :to="'/profile/' + user.userName" class="dropdown-item">{{ user.userName }}</router-link>

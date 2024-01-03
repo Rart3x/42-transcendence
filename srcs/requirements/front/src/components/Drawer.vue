@@ -38,7 +38,8 @@
 
         if (nameExists) {
           const privateMessage = await getPrivateMessages(this.$props.user.userName, this.enteredName, this.$props.jwtToken);
-          this.openMessageModal(this.$props.user.userName, privateMessage)
+          this.openMessageModal(this.$props.user.userName, privateMessage);
+          this.enteredName = ''
         }
       },
       getPairKey(pairMessages) {
@@ -90,9 +91,9 @@
     <div class="drawer-side font-mono">
         <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
         <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-          <li> <router-link to="/"> Home </router-link> </li>
-          <li> <router-link to="/game"> Game </router-link> </li>
-          <li> <router-link to="/leaderboard"> Leaderboard </router-link> </li>
+          <li> <router-link to="/"> <img src="../assets/home-svgrepo-com.svg" width="40" height="40"/>Home </router-link> </li>
+          <li> <router-link to="/game"> <img src="../assets/arcade-game-pong-gaming-svgrepo-com.svg" width="36" height="36"/>  Game </router-link> </li>
+          <li> <router-link to="/leaderboard"> <img src="../assets/leaderboard-star-svgrepo-com.svg" width="36" height="36"/>Leaderboard </router-link> </li>
         </ul>
     </div>
   </div>
@@ -103,7 +104,7 @@
       <button class="btn btn-ghost btn-circle">
         <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
           <div class="indicator">
-            <img src="../assets/messages.png" />
+            <img src="../assets/messages-3-svgrepo-com.svg" width="36" height="36"/>
           </div>
         </label>
       </button>
@@ -149,10 +150,10 @@
       </div>
     </div>
     <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 w-52">
-      <li><router-link to="/about">About</router-link></li>
-      <li><router-link to="/profile">Profile</router-link></li>
-      <li><router-link to="/settings">Settings</router-link></li>
-      <li><button @click="logout"><span class="font-bold">Logout</span></button></li>
+      <li><router-link to="/about">About <img src="../assets/about-svgrepo-com.svg" width="32" height="32"/></router-link></li>
+      <li><router-link to="/profile">Profile <img src="../assets/profile-1335-svgrepo-com.svg" width="30" height="30"/></router-link></li>
+      <li><router-link to="/settings">Settings <img src="../assets/settings-svgrepo-com.svg" width="32" height="32"/></router-link></li>
+      <li><button @click="logout"><span class="font-bold">Logout </span> <img src="../assets/logout-2-svgrepo-com.svg" width="32" height="32"/></button></li>
     </ul>
   </div>
 </template>
