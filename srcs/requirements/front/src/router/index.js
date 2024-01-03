@@ -24,6 +24,8 @@ const router = createRouter({
       name: "channel",
       component: () => import("@/components/Channel.vue"),
       beforeEnter: async (to, from, next) => {
+        let cookieJWT = Cookies.get('Bearer');
+        let cookieUserId = Cookies.get('UserId');
         const channelName = to.params.channelName;
         const channel = await getChannelByName(channelName, cookieJWT);
         const actualUser = await getUserByUserId(cookieUserId, cookieJWT);
@@ -35,6 +37,11 @@ const router = createRouter({
         else (channel)
           next();
       },
+    },
+    {
+      path: "/checkPass/:channelName",
+      name: "checkPass",
+      component: () => import("@/components/CheckPass.vue"),
     },
     {
       path: "/error",
@@ -66,11 +73,6 @@ const router = createRouter({
       name: "leaderboard",
       component: () => import("@/components/Leaderboard.vue"),
     },
-    {
-      path: "/checkPass/:channelName",
-      name: "checkPass",
-      component: () => import("@/components/CheckPass.vue"),
-    }
   ],
 });
 

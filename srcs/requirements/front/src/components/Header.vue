@@ -90,7 +90,7 @@
           this.invitationInGameSuccess = false;
         if (emit == "invitationInGameAccepted"){
           this.router.push('/game');
-          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id })
+          this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id })
         }
         this.store.state.socket.emit(emit, { host: hostUser.userName, socket: hostUser.socket,  hostGameId: this.hostGame.id });
       },
@@ -109,7 +109,7 @@
         this.store.state.socket.on('invitationAccepted', (body) => {
           this.hostName = body.host;
           this.router.push('/game');
-          // this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
+          this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
         });
 
         this.store.state.socket.on('invitationDeclined', (body) => {
@@ -127,13 +127,13 @@
           this.messageSuccess = true;
           setTimeout(() => {
             this.messageSuccess = false;
-          }, 3000);
+          }, 5000);
         });
       },
 
       closeMessageModal() { this.modalMessage = false; },
-      openMessageModal(userName, message) { console.log(userName, message); this.modalMessage = true; this.currentUserName = userName; this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; },
-      openMessageModalFromAlert(senderName, userName) { this.modalMessage = true; this.currentUserName = userName; this.senderName = senderName; },
+      openMessageModal(userName, message) { this.modalMessage = true; this.currentUserName = userName; this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; },
+      openMessageModalFromAlert(senderName, userName) { this.modalMessage = true; this.currentUserName = userName; this.senderName = senderName; this.messageSuccess = false;},
     },
     async mounted() {
       let cookieUserId = Cookies.get('UserId');

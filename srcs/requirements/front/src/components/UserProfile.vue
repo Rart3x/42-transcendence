@@ -35,7 +35,7 @@
         adminImage: null,
         currentUserName: "", channelName: "", friendName: "", newChannelName: "", senderName: "", userName: "",
         modalStates: { modalChannel: false, modalManageChannel: false, }, modalMessage: false,
-        allChannels: null, channels: [], currentUser: null, friends: [], hostGame: null, privateMessages: [], user: null,
+        allChannels: null, channels: [], currentUser: null, friends: [], privateMessages: [], user: null,
         addChannelSuccess: false, addFriendSuccess: false, addMessageSuccess: false, invitationInGameSuccess: false, inviteInGameSuccess: false, joinChannelSuccess: false, removeChannelSuccess: false, removeFriendSuccess: false, setPassSuccess: false, unsetPassSuccess: false, 
         addChannelFailed: false, addFriendFailed: false, addMessageFailed: false, inviteInGameFailed: false, joinChannelFailed: false, removeChannelFailed: false, removeFriendFailed: false, setPassFailed: false, unsetPassFailed: false,
         message_text: "", password: "", friendsData: [], 
