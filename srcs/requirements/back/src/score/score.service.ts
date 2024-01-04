@@ -19,9 +19,9 @@ export class ScoreService {
         });
 
         //If win by afk no scorer
-        const scorer = scorerId ? { connect: { userId: scorerId }} : {};
+        const scorer = scorerId != undefined ? { connect: { userId: scorerId } } : {};
 
-        const scorePayload = scorerId ? { create : { time: new Date(), scoreA: scoreIdPlayer1, scoreB: scoreIdPlayer2, scorerId: scorerId } } :
+        const scorePayload = scorerId != undefined ? { create : { time: new Date(), scoreA: scoreIdPlayer1, scoreB: scoreIdPlayer2, scorerId: scorerId } } :
                                         { create : { time: new Date(), scoreA: scoreIdPlayer1, scoreB: scoreIdPlayer2 } };
 
         if (!score){

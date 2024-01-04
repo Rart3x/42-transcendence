@@ -108,12 +108,16 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		for (let i = 0; i < this.gameRooms.length; i++){
 			if (this.gameRooms[i].finish == false && this.gameRooms[i].running == true
 					&& this.gameRooms[i].player1Spawn == true && this.gameRooms[i].player2Spawn == true){
-				if (this.gameRooms[i].player1SocketId == socket.id){
-					this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
-						winUserId: this.gameRooms[i].player2UserId
-					});
-					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+					if (this.gameRooms[i].player1SocketId == socket.id){
+						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
+							winUserId: this.gameRooms[i].player2UserId,
+							scoreWinner: 3,
+							scoreLooser: 0 ,
+							opponentAfk: true 
+					  });
+					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "offline");
 					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+
 					this.GameRoomService.updateGameRoom(
 						this.gameRooms[i].roomId,
 						this.gameRooms[i].player1SocketId,
@@ -138,10 +142,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				}
 				else if (this.gameRooms[i].player2SocketId == socket.id){
 					this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-						winUserId: this.gameRooms[i].player1UserId
+						winUserId: this.gameRooms[i].player1UserId,
+						scoreWinner: 3,
+						scoreLooser: 0,
+						opponentAfk: true 
 					});
 					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "offline");
 					this.GameRoomService.updateGameRoom(
 						this.gameRooms[i].roomId,
 						this.gameRooms[i].player1SocketId,
@@ -234,12 +241,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 								winUserId: this.gameRooms[i].player1UserId,
 								scoreWinner: scorePlayer1,
-								scoreLooser: scorePlayer2
+								scoreLooser: scorePlayer2,
+								opponentAfk: false
 							});
 							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
 								winUserId: this.gameRooms[i].player1UserId,
 								scoreWinner: scorePlayer1,
-								scoreLooser: scorePlayer2
+								scoreLooser: scorePlayer2,
+								opponentAfk: false
 							});
 						}
 						else{
@@ -251,12 +260,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 								winUserId: this.gameRooms[i].player2UserId,
 								scoreWinner: scorePlayer2,
-								scoreLooser: scorePlayer1
+								scoreLooser: scorePlayer1,
+								opponentAfk: false 
 							});
 							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
 								winUserId: this.gameRooms[i].player2UserId,
 								scoreWinner: scorePlayer2,
-								scoreLooser: scorePlayer1
+								scoreLooser: scorePlayer1,
+								opponentAfk: false
 							});
 						}
 						this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");

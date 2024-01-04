@@ -72,7 +72,7 @@
     <div v-if="combinedData && combinedData.length > 0" class="table grid grid-cols-4">
       <table class="table table-fixed w-full">
         <tbody>
-          <tr v-for="(item, index) in combinedData" :key="index" v-if="combinedData && user">
+          <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index" v-if="combinedData && user">
             <td :class="user.userId == item.game.score.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
               <div >
                 <label class="text-xl font-medium font-bold">
@@ -95,7 +95,7 @@
       </table>
       <table class="table col-start-2 col-span-3">
         <tbody>
-          <tr v-for="(item, index) in combinedData" :key="index" v-if="combinedData && user">
+          <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index" v-if="combinedData && user">
             <td :class="user.userId == item.game.score.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
               <div class="collapse">
                 <label for="collapse1" class="collapse-title text-xl font-medium">
@@ -162,8 +162,8 @@
                         <span v-if="user.userName == item.game.users[0].userName" class="font-little font-bold">{{ item.game.users[1].userName }}</span>
                         <span v-if="user.userName == item.game.users[1].userName" class="font-little font-bold">{{ item.game.users[0].userName }}</span>
                       </span>
-                      <span v-else>
-                        <span v-if="item.game.score.winnerId && item.game.score.winnerId == item.game.users[0].userId">
+                      <span v-else-if="item.game.score.winnerId">
+                        <span v-if="item.game.score.winnerId == item.game.users[0].userId">
                           <span v-if="user.userName == item.game.users[0].userName" class="font-little font-bold">{{ item.game.users[1].userName }}(AFK)</span>
                           <span v-if="user.userName == item.game.users[1].userName" class="font-little font-bold">{{ item.game.users[0].userName }}</span>
                         </span>
@@ -179,14 +179,22 @@
                 <div class="collapse-content flex flex-col items-center justify-center">
                   <p v-for="(score, idx) in item.gameUserScores" :key="idx" class="dark-row">
                     <span>
-                      <span  v-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
-                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
-                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
-                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.users[1].userId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.users[0].userId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }} <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span></span>
+                      <span  v-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.player2UserId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
+                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreA }}</span>
+                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.player2UserId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
+                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
+                      <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.player2UserId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }}
+						  <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
+					  </span>
+                      <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }}
+						  <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
+					  </span>
+                      <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.player2UserId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }}
+						  <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
+					  </span>
+					  <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }}
+						  <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
+					  </span>
                     </span>
                   </p>
                 </div>

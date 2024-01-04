@@ -476,6 +476,7 @@ export default class Game extends Phaser.Scene {
 
 		store.state.socket.on('gameFinish', (data) => {
 			this.gameRoom.finish = true;
+			console.log(this.gameRoom);
 			this.children.removeAll();
 			this.destroyUI();
 			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
@@ -487,29 +488,44 @@ export default class Game extends Phaser.Scene {
 			')
 
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
-
+			
 			var scoreWinner = data.scoreWinner.toString();
 			var scoreLooser = data.scoreLooser.toString();
 
 			if (this.gameRoom){
 				if (this.user.userId == data.winUserId){
 					if (this.user.userId == this.gameRoom.player1UserId){
-	
-						winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName + "\n " + scoreWinner + " - "  + scoreLooser;
+						if (data.opponentAfk == false)
+						  winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName + "\n " + scoreWinner + " - "  + scoreLooser;
+						else 
+						  winLooseMessage.innerText = "You won against " + this.gameRoom.player2UserName + "\n " + scoreWinner + " - "  + scoreLooser + " by afk";
 					}
 					else{
-						winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName + "\n " + scoreWinner + " - "  + scoreLooser;
+						if (data.opponentAfk == false)
+						  winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName + "\n " + scoreWinner + " - "  + scoreLooser;
+						else 
+						  winLooseMessage.innerText = "You won against " + this.gameRoom.player1UserName + "\n " + scoreWinner + " - "  + scoreLooser + " by afk";
 					}
 				}
 				else{
 					if (this.user.userId == this.gameRoom.player1UserId){
-						winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName + "\n " + scoreLooser + " - "  + scoreWinner;
+						if (data.opponentAfk == false)
+						  winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName + "\n " + scoreLooser + " - "  + scoreWinner;
+						else 
+						  winLooseMessage.innerText = "You lost against " + this.gameRoom.player2UserName + "\n " + scoreLooser + " - "  + scoreWinner + " by afk";
 					}
 					else{
-						winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName + "\n " + scoreLooser + " - "  + scoreWinner;
+						if (data.opponentAfk == false)
+						  winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName + "\n " + scoreLooser + " - "  + scoreWinner;
+						else 
+						  winLooseMessage.innerText = "You lost against " + this.gameRoom.player1UserName + "\n " + scoreLooser + " - "  + scoreWinner + " by afk";
 					}
 				}
 				let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
+				if (data.opponentAfk == true){
+				  console.log("opponent is afk so no play again")
+				  document.getElementById("replayButton").remove();
+				}
 				let stopButton = this.UIElement.node.querySelector("#stopButton") as HTMLElement;
 				playAgainButton.addEventListener('click', () => {
 					if (this.gameRoom.playAgain == true){
