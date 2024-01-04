@@ -33,7 +33,7 @@ import Player from "../player/player";
 
 
 //Store (socket)
-import store from '../store/socket.js';
+import store from '../store/store.js';
 import { useStore } from "vuex";
 
 //Initialize snapshot library

@@ -47,6 +47,7 @@
       async addFriendFromDB(userName, friendName) {
         const friend = await getUserByUserName(friendName, this.cookieJWT);
         await this.store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
+        this.friendName = ''
       },
 
       async createChannelInDB(channelName, userName, currentUserName) {
