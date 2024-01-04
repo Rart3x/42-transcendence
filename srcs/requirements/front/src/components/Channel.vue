@@ -244,10 +244,8 @@
         if (!userWithSameId) window.location.href = "/profile";
       }
 
-      if (actualUser.value.image) {
-        let userImagePath =  actualUser.value.image;
+      if (actualUser.value.image)
         actualUser.value.image = await getImage(actualUser.value.image);
-      }
       actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId, cookieJWT.value);
 
       let usersData = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
@@ -311,7 +309,7 @@
           </table>
         </div>
       </div>
-      <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="No Members" disabled />
+      <div v-else class="error_div"> <p> No channel's member </p> </div>
     </div>
     <!--Chat-->
     <div class="overflow-x-auto min-h-screen bg-base-200 chat-box" style="text-align: center">
@@ -351,13 +349,13 @@
           </div>
         </div>
       </div>
-      <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="No Messages" disabled/>
+      <div v-else class="error_div"> <p> No message </p> </div>
       <div class="chat-input">
-        <div class="userMutedOrNot" v-if="!actualUserMuted" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
+        <div v-if="!actualUserMuted" class="userMutedOrNot" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
           <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
           <button class="btn glass btn-primary" @click="sendMessage(message_text)">Send</button>
         </div>
-        <input v-else type="text" class="input input-bordered w-full max-w-xs" placeholder="You are muted" disabled/>
+        <div v-else class="error_div"> <p> You are muted </p> </div>
       </div>
     </div>
   </div>
@@ -384,7 +382,9 @@
   .chat-messages::-webkit-scrollbar-thumb { background: #888; }
   .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }
-  
+  .error_div { color: white; display: flex; justify-content: center; align-items: center; height: 50vh; font-family: monospace; }
+  .error_div p::before {content: "😢 ";}
+  .error_div p::after {content: " 😢";}
   .friend-list { max-height: 85vh; overflow-x: auto; }
   .friend-list::-webkit-scrollbar-thumb { background: #888; }
   .friend-list::-webkit-scrollbar-thumb:hover { background: #555; }

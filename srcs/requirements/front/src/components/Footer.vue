@@ -1,6 +1,6 @@
 <script>
     export default {
-        name: 'Header'
+        name: 'Footer'
     }
 </script>
 
@@ -16,6 +16,7 @@
                         </div>
                         </label>
                     </button>
+                    <br>
                     <span class="text-sm">Kramjatt</span>
                 </a>
                 <a href="https://github.com/Centiso">
@@ -26,6 +27,7 @@
                         </div>
                         </label>
                     </button>
+                    <br>
                     <span class="text-sm">Centiso</span>
                 </a>
                 <a href="https://github.com/snyk-bot">
@@ -36,6 +38,7 @@
                         </div>
                         </label>
                     </button>
+                    <br>
                     <span class="text-sm">Nicarpen</span>
                 </a>
                 <a href="https://github.com/damienglld">
@@ -46,6 +49,7 @@
                         </div>
                         </label>
                     </button>
+                    <br>
                     <span class="text-sm">Dguillau</span>
                 </a>
             </div>

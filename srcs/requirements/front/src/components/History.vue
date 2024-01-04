@@ -33,7 +33,6 @@
       }
     },
     async mounted(){
-      // console.log("Visited profile", this.visitedProfile)
       this.jwtToken = Cookies.get("Bearer");
       if (typeof this.jwtToken !== 'undefined')
         this.user = await getUserByUserName(this.userName, this.jwtToken);
@@ -197,7 +196,7 @@
         </tbody>
       </table>
     </div>
-    <div v-else class="error_div"> <p> You have no game played! </p> </div>
+    <div v-else class="error_div"> <p> No game played! </p> </div>
   </div>
 </template>
 

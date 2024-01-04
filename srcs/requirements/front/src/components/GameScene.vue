@@ -64,12 +64,8 @@ export default class Game extends Phaser.Scene {
 	
 		if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined'){
 			this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
-			if (this.user){
-				console.log(this.user.userId);
-			}
-			else{
+			if (!this.user)
 				console.log("user not set");
-			}
 		}
 	}
 
@@ -221,7 +217,6 @@ export default class Game extends Phaser.Scene {
 		});
 
 		store.state.socket.on('lobby', (data) => {
-			// console.log("Inside lobby");
 			this.UIElement.destroy();
 			this.startLobby(data);
 		});
@@ -493,8 +488,6 @@ export default class Game extends Phaser.Scene {
 
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
 
-			// console.log(data);
-
 			var scoreWinner = data.scoreWinner.toString();
 			var scoreLooser = data.scoreLooser.toString();
 
@@ -704,8 +697,6 @@ export default class Game extends Phaser.Scene {
 		});
 
 		startButton.addEventListener('click', function() {
-			console.log("click");
-			console.log(store.state.socket.id, self.gameRoom?.player1SocketId, self.gameRoom?.player2SocketId);
 			if (store.state.socket.id == self.gameRoom?.player2SocketId){
 				if (self.gameRoom?.player2Ready == false){
 					self.gameRoom.player2Ready = true;

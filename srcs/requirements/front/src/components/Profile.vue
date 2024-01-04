@@ -1,12 +1,12 @@
 <script setup>
   import Alert from './Alert.vue';
-  import UserStatHeader from "./UserStatHeader.vue";
-  import History from "./History.vue";
   import Cookies from "js-cookie";
+  import History from "./History.vue";
+  import UserStatHeader from "./UserStatHeader.vue";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName, getImage } from './api/get.call';
-  import { addFriend, blockUser, createChannel, createPrivateMessage, unblockUser } from './api/post.call';
+  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName } from './api/get.call';
+  import { addFriend, blockUser, createChannel, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
 
   let actualUser = ref(null);
@@ -137,17 +137,14 @@
   onMounted(async () => {
     let cookieUserId = Cookies.get('UserId');
 		cookieJWT.value = Cookies.get('Bearer');
-    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
+    if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined')
       user.value = await getUserByUserId(cookieUserId, cookieJWT.value);
-    }
     actualUser.value = await getUserByUserName(route.params.userName, cookieJWT.value);
-    
+
     isFriendBool.value = isFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
     isBlockBool.value = isBlockFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
     
     messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName, cookieJWT.value);
-    this.imageSrc = await getImage(this.user.image);
-    this.users = await getAllUsers(this.cookieJWT);
   });
 
   const unblockFromDB = async (userName, unblockedUserName) => {
@@ -189,7 +186,7 @@
           Remove {{ $route.params.userName }}
         </button>
       </div>
-      <div class="stat" v-if="!isBlockBool">
+      <div v-if="user && actualUser && user.userName != actualUser.userName && !isBlockBool" class="stat">
         <button class="btn" @click="openChannelModal(user.userName)"> Invite {{ $route.params.userName }} in Channel </button>
         <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalChannel">
           <div class="modal-box w-11/12 max-w-5xl">
@@ -200,7 +197,7 @@
           </div>
         </dialog>
       </div>
-      <div class="stat">
+      <div v-if="user && actualUser && user.userName != actualUser.userName" class="stat">
         <button class="btn btn-error" v-if="user && !isBlockBool" @click="blockFromDB(user.userName, $route.params.userName)">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           Block {{ $route.params.userName }}
@@ -231,30 +228,11 @@
 <style>
   .addingFriend { text-align: center; }
   .dialogModalChannel {  text-align:center; }
-
-  .chat-messages {
-    max-height: 55vh;
-    overflow-x: auto;
-  }
+  .chat-messages { max-height: 55vh; overflow-x: auto; }
   .chat-messages::-webkit-scrollbar-thumb { background: #888; }
   .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }
-
-
+  .rounded-image { width: 150px; height: 150px; border-radius: 50%; overflow: hidden; }
+  .rounded-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .stats { border-radius: unset; }
-
-  .rounded-image {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    overflow: hidden;
-  }
-  .rounded-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  /* .stats{ border-radius: unset; } */
 </style>

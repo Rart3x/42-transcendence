@@ -106,7 +106,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	handleDisconnect(socket: Socket) {
 		//If disconnected user was inside a game room
 		for (let i = 0; i < this.gameRooms.length; i++){
-			// console.log(this.gameRooms[i].finish, this.gameRooms[i].started, this.gameRooms[i].running)
 			if (this.gameRooms[i].finish == false && this.gameRooms[i].running == true
 					&& this.gameRooms[i].player1Spawn == true && this.gameRooms[i].player2Spawn == true){
 				if (this.gameRooms[i].player1SocketId == socket.id){
@@ -344,7 +343,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 		if (customGameMode){
 			for (let i = 0; i < 2; i++){
-				// console.log("test collision added")
 				Matter.World.add(world,  entities.obstacles[i].gameObject);
 			}
 		}
@@ -790,8 +788,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() data : { playerId: number, hostGameId: number } ) {
 		setTimeout(async () => {
-			// console.log(data.playerId);
-			
 			const gameRoom = await this.GameRoomService.getGameRoomById(data.hostGameId);
 			var user1 : any;
 			var user2 : any;
@@ -802,7 +798,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				if (!this.findCorrespondingGame(gameRoom.id)){
 					var localRoom = this.createGameRoomLocal(gameRoom.id, [user1.userId, user1.socket] , [user2.userId, user2.socket], false);
 					this.gameRooms.push(localRoom);
-					// console.log(localRoom);
 				}
  
 				var receiverSocketId : string;
