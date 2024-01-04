@@ -277,7 +277,7 @@
             <input type="text" id="friendName" v-model="friendName" class="input input-bordered w-full max-w-xs" />
           </form>
         </div>
-      <div class="requestTable table-border">
+      <div v-if="friends.length > 0" class="requestTable table-border">
         <table class="table">
           <tbody>
             <tr class="dark-row" v-for="(user, index) in friends" :key="index">
@@ -306,6 +306,7 @@
           </tbody>
         </table>
       </div>
+      <div v-else class="error_div"> <p> You have no friends! </p> </div>
       </div>
       <!--ChannelList-->
       <div v-if="activeTab === 'channels'" class="p-4">
@@ -315,7 +316,7 @@
             <input type="text" id="newChannelName" v-model="newChannelName" class="input input-bordered w-full max-w-xs" />
           </form>
         </div>
-        <div class="requestTable table-border">
+      <div v-if="channels.length > 0" class="requestTable table-border">
         <table class="table">
           <tbody>
             <tr v-for="(channel, index) in channels" :key="index" class="dark-row" >
@@ -348,9 +349,11 @@
           </tbody>
         </table>
       </div>
+      <div v-else class="error_div"> <p> You have no channels! </p>
+      </div>
       </div>
       <!--Suggestions-->
-      <div v-if="activeTab === 'suggestions'" class="p-4">
+      <div v-if="activeTab === 'suggestions' && allChannels.length > 0" class="p-4">
         <table class="table">
           <tbody>
             <tr v-for="(channel, index) in allChannels" :key="index" class="dark-row">
@@ -377,6 +380,7 @@
           </tbody>
         </table>
       </div>
+      <div v-else-if="activeTab === 'suggestions' && allChannels.length == 0" class="error_div"> <p> There are no suggestions for you! </p> </div>
       <div v-if="activeTab === 'history'" class="p-4">
         <History :userName="user.userName" :visitedProfile="false"/>
       </div>
@@ -436,6 +440,9 @@
 	.content { flex-grow: 1; min-height: 70vh; max-height: 70vh;}
   .dark-row:hover { background-color: #364e6e; }
   .dialogModal { text-align:center; }
+  .error_div { display: flex; justify-content: center; align-items: center; height: 50vh; font-family: monospace; }
+  .error_div p::before {content: "😢 ";}
+  .error_div p::after {content: " 😢";}
   .underStat { display: center; text-align: center; }
   .stats { border-radius: unset; }
   .requestTable { overflow-x: auto; }

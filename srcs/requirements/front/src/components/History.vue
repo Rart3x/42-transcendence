@@ -70,7 +70,7 @@
 
 <template>
   <div class="overflow-x-auto min-h-screen bg-base-200">
-    <div class="table grid grid-cols-4">
+    <div v-if="combinedData && combinedData.length > 0" class="table grid grid-cols-4">
       <table class="table table-fixed w-full">
         <tbody>
           <tr v-for="(item, index) in combinedData" :key="index" v-if="combinedData && user">
@@ -197,6 +197,7 @@
         </tbody>
       </table>
     </div>
+    <div v-else class="error_div"> <p> You have no game played! </p> </div>
   </div>
 </template>
 
@@ -204,6 +205,9 @@
   .avatar { display: flex; align-items: center; justify-content: center; margin: 0 10px; }
   .collapse-title { display: flex; align-items: center; }
   .dark-row:hover { background-color: #364e6e; }
+  .error_div { display: flex; justify-content: center; align-items: center; height: 50vh; font-family: monospace; }
+  .error_div p::before {content: "😢 ";}
+  .error_div p::after {content: " 😢";}
   .table { border-radius: unset; }
   .stats { border-radius: unset; }
   .text-before { margin-right: auto; }
