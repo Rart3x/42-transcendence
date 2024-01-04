@@ -205,7 +205,7 @@
   .avatar { display: flex; align-items: center; justify-content: center; margin: 0 10px; }
   .collapse-title { display: flex; align-items: center; }
   .dark-row:hover { background-color: #364e6e; }
-  .error_div { display: flex; justify-content: center; align-items: center; height: 50vh; font-family: monospace; }
+  .error_div { color: white; display: flex; justify-content: center; align-items: center; height: 50vh; font-family: monospace; }
   .error_div p::before {content: "😢 ";}
   .error_div p::after {content: " 😢";}
   .table { border-radius: unset; }

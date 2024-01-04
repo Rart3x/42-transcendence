@@ -440,7 +440,7 @@
 	.content { flex-grow: 1; min-height: 70vh; max-height: 70vh;}
   .dark-row:hover { background-color: #364e6e; }
   .dialogModal { text-align:center; }
-  .error_div { display: flex; justify-content: center; align-items: center; height: 50vh; font-family: monospace; }
+  .error_div { color: white; display: flex; justify-content: center; align-items: center; height: 50vh; font-family: monospace; }
   .error_div p::before {content: "😢 ";}
   .error_div p::after {content: " 😢";}
   .underStat { display: center; text-align: center; }

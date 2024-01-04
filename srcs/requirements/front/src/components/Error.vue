@@ -5,6 +5,6 @@
 </template>
 
 <style scoped>
-	.error-container { display: flex; justify-content: center; align-items: center; height: 100vh; }
+	.error-container { display: flex; justify-content: center; align-items: center; height: 50vh; }
 	.error-message { font-family: monospace; color: white; }
 </style>

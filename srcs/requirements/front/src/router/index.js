@@ -6,15 +6,6 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: "/:catchAll(.*)",
-      redirect: "/error"
-    },
-    {
-      path: "/",
-      name: "home",
-      component: () => import("@/components/Home.vue"),
-    },
-    {
       path: "/2fa",
       name: "2fa",
       component: () => import("@/components/2FA.vue"),
@@ -29,6 +20,11 @@ const router = createRouter({
         else
           next()
       }
+    },
+    {
+      path: "/about",
+      name: "about",
+      component: () => import("@/components/About.vue"),
     },
     {
       path: "/channel/:channelName",
@@ -56,6 +52,10 @@ const router = createRouter({
       component: () => import("@/components/CheckPass.vue"),
     },
     {
+      path: "/:catchAll(.*)",
+      redirect: "/error"
+    },
+    {
       path: "/error",
       name: "error",
       component: () => import("@/components/Error.vue"),
@@ -64,6 +64,16 @@ const router = createRouter({
       path: "/game",
       name: "game",
       component: () => import("@/components/Game.vue"),
+    },
+    {
+      path: "/",
+      name: "home",
+      component: () => import("@/components/Home.vue"),
+    },
+    {
+      path: "/leaderboard",
+      name: "leaderboard",
+      component: () => import("@/components/Leaderboard.vue"),
     },
     {
       path: "/profile",
@@ -79,11 +89,6 @@ const router = createRouter({
       path: "/settings",
       name: "settings",
       component: () => import("@/components/Settings.vue"),
-    },
-    {
-      path: "/leaderboard",
-      name: "leaderboard",
-      component: () => import("@/components/Leaderboard.vue"),
     },
   ],
 });
