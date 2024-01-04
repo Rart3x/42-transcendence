@@ -431,6 +431,26 @@ export async function isBlock(userName : string, blockedUserName : string, jwtTo
   return null;
 }
 
+export async function isBlocked(userName : string, blockedUserName : string, jwtToken: string){
+  try {
+    const response = await fetch(`http://localhost:3000/user/${userName}/isBlocked/${blockedUserName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
+      },
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+  return null;
+}
+
 export async function getSocketByUserId(userId: number, jwtToken: string ) { 
   try {
     const response = await fetch(`http://localhost:3000/user/getSocket/${userId}`, {

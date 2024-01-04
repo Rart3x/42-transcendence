@@ -5,9 +5,10 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName } from './api/get.call';
-  import { addFriend, blockUser, createChannel, unblockUser } from './api/post.call';
+  import { isBlock, isBlocked, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName } from './api/get.call';
+  import { blockUser, createChannel, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
+  import { useStore } from 'vuex';
 
   let actualUser = ref(null);
   let user = ref(null);
@@ -26,6 +27,7 @@
 
   let isFriendBool = ref(false);
   let isBlockBool = ref(false);
+  let isBlockedBool = ref(false);
 
   const route = useRoute();
 
@@ -36,35 +38,28 @@
   let message_text = ref(null);
 
   let cookieJWT = ref(null);
+  let store = useStore();
 
   const addFriendFromDB = async (userName, friendName) => {
-    const response = await addFriend(userName, friendName, cookieJWT.value);
-
-    if (response && response.success) {
-      addFriendSuccess.value = true;
-      setTimeout(() => {
-        addFriendSuccess.value = false;
-      }, 3000);
-      isFriendBool.value = true;
-    } 
-    else {
-      addFriendFailed.value = true;
-      setTimeout(() => {
-        addFriendFailed.value = false;
-      }, 3000);
-    }
+    const friend = await getUserByUserName(friendName, cookieJWT.value);
+    await store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
+    isFriendBool.value = true;
   };
 
   const blockFromDB = async (userName, blockedUserName) => {
     const response = await blockUser(userName, blockedUserName, cookieJWT.value);
+    const removedUser = await getUserByUserName(blockedUserName, cookieJWT.value);
 
     if (response && response.success) {
       blockSuccess.value = true;
+      await store.dispatch('friendRemoved', { socket: removedUser.socket })
+      await store.dispatch('blockUser', { socket: removedUser.socket })
       setTimeout(() => {
         blockSuccess.value = false;
       }, 3000);
       isBlockBool.value = true;
-      await removeFriendFromDB(userName, blockedUserName, cookieJWT.value);
+      if (isFriendBool.value)
+        await removeFriendFromDB(userName, blockedUserName, cookieJWT.value);
     } 
     else {
       blockFailed.value = true;
@@ -118,9 +113,11 @@
 
   const removeFriendFromDB = async (userName, friendName) => {
     const response = await removeFriend(userName, friendName, cookieJWT.value);
+    const removedUser = await getUserByUserName(friendName, cookieJWT.value);
     
     if (response && response.success) {
       removeFriendSuccess.value = true;
+      await store.dispatch('friendRemoved', { socket: removedUser.socket })
       setTimeout(() => {
         removeFriendSuccess.value = false;
       }, 3000);
@@ -134,6 +131,20 @@
     }
   };
 
+  const socketOn = async () => {
+    store.state.socket.on('blocked', async () => {
+      isBlockBool.value = true;
+      isBlockedBool.value = true;
+      if (isFriendBool.value)
+        await removeFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
+    })
+
+    store.state.socket.on('unblocked', async () => {
+      isBlockBool.value = false;
+      isBlockedBool.value = false;
+    })
+  }
+
   onMounted(async () => {
     let cookieUserId = Cookies.get('UserId');
 		cookieJWT.value = Cookies.get('Bearer');
@@ -143,15 +154,19 @@
 
     isFriendBool.value = isFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
     isBlockBool.value = isBlockFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
+    isBlockedBool.value = isBlocked(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
     
     messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName, cookieJWT.value);
+    socketOn();
   });
 
   const unblockFromDB = async (userName, unblockedUserName) => {
     const response = await unblockUser(userName, unblockedUserName, cookieJWT.value);
+    const unblockedUser = await getUserByUserName(unblockedUserName, cookieJWT.value);
 
     if (response && response.success) {
       unblockSuccess.value = true;
+      await store.dispatch('unblockUser', { socket: unblockedUser.socket })
       setTimeout(() => {
         unblockSuccess.value = false;
       }, 3000);
@@ -202,7 +217,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           Block {{ $route.params.userName }}
         </button>
-        <button class="btn" v-else="user && isBlockBool" @click="unblockFromDB(user.userName, $route.params.userName)">
+        <button class="btn" v-else-if="user && isBlockBool && !isBlockedBool" @click="unblockFromDB(user.userName, $route.params.userName)">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           Unblock {{ $route.params.userName }}
         </button>

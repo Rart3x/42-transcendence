@@ -124,9 +124,8 @@
             this.removeFriendSuccess = false;
           }, 3000);
           const removedUser = await getUserByUserName(friendName, this.cookieJWT);
-          const socket = removedUser.socket;
           //Update added user's buddy list
-          await this.store.dispatch('friendRemoved', { socket })
+          await this.store.dispatch('friendRemoved', { socket: removedUser.socket })
           this.updateFriends();
         } else {
           this.removeFriendFailed = true;

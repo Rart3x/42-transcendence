@@ -77,6 +77,12 @@ export class UserController {
     return { success: result };
   }
 
+  @Get(':userName/isBlocked/:blockedUserName')
+  async isBlocked(@Param('userName') userName: string, @Param('blockedUserName') blockedUserName: string): Promise<{ success: boolean }> {
+    const result = await this.userService.isBlocked(userName, blockedUserName);
+    return { success: result };
+  }
+
   @Post(':userName/setStatus')
   async setStatus(@Body('userName') userName: string, @Body('status') status: string): Promise<{ success: boolean }> {
     const result = await this.userService.setStatus(userName, status);

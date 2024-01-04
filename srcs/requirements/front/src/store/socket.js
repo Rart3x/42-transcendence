@@ -11,6 +11,13 @@ const store = createStore({
     },
   },
   actions: {
+    blockUser(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('blockUser', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     friendAdded(context, body) {
       const socket = context.state.socket;
       if (socket)
@@ -61,6 +68,13 @@ const store = createStore({
       const socket = context.state.socket;
       if (socket)
         socket.emit('sendPrivateMessage', body);
+      else
+        console.error('error: socket uninitialized');
+    },
+    unblockUser(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('unblockUser', body);
       else
         console.error('error: socket uninitialized');
     }

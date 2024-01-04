@@ -264,6 +264,29 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return false;
   }
 
+  async isBlocked(userName: string, blockedUserName: string): Promise<boolean> {
+    const user = await this.getUserByName(userName);
+    const blockedUser = await this.getUserByName(blockedUserName);
+
+    if (!user || !blockedUser)
+      return false;
+
+    const blockOf = await this.prisma.user.findMany({
+      where: {
+        userId: user.userId,
+        blockOf: {
+          some: {
+            userId: blockedUser.userId,
+          },
+        },
+      },
+    });
+
+    if (blockOf.length > 0)
+      return true;
+    return false;
+  }
+
   async getSocket(userId: number) { 
     const user = await this.prisma.user.findFirst({
       where: { userId : userId },

@@ -23,6 +23,11 @@ export class AppGateway implements OnModuleInit{
 		});
 	}
 
+  @SubscribeMessage('blockUser')
+  handleBlockUser(@MessageBody() body): any {
+    this.server.to(body.socket).emit('blocked', body);
+  }
+
   @SubscribeMessage('friendAdded')
   handleFriendAdded(@MessageBody() body): any {
     this.server.to(body.socket).emit('friendAdded');
@@ -95,5 +100,10 @@ export class AppGateway implements OnModuleInit{
   @SubscribeMessage('sendPrivateMessage')
   handleSendPrivateMessage(@MessageBody() body): any {
     this.server.to(body.socket).emit('receiveMessage', body);
+  }
+
+  @SubscribeMessage('unblockUser')
+  handleUnblockUser(@MessageBody() body): any {
+    this.server.to(body.socket).emit('unblocked', body);
   }
 }
