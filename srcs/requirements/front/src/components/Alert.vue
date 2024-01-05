@@ -27,6 +27,7 @@
 			kickSuccess: Boolean,
 			kickFailed: Boolean,
 			messageSuccess: Boolean,
+			mutedSuccess: Boolean,
 			muteSuccess: Boolean,
 			muteFailed: Boolean,
 			removeChannelSuccess: Boolean,
@@ -43,6 +44,7 @@
 			openMessageModalFromAlert: Function,
 			socketEmit: Function,
 
+			channelNameMuted: String,
 			hostName: String,
 			messageSenderName: String,
 			userName: String,
@@ -212,6 +214,12 @@
 	<div v-if="muteFailed" class="toast toast-start">
 		<div class="alert alert-error">
 			<span>Failed to mute User</span>
+		</div>
+	</div>
+	<!--Muted-->
+	<div v-if="mutedSuccess" class="toast toast-start">
+		<div class="alert alert-warning">
+			<span>You have been muted in {{ channelNameMuted }}</span>
 		</div>
 	</div>
 	<!--RemoveChannel-->

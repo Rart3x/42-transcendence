@@ -90,6 +90,11 @@ export class AppGateway implements OnModuleInit{
     }
   }
 
+  @SubscribeMessage('muteUser')
+  handleMuteUser(@MessageBody() body): any {
+    this.server.to(body.socket).emit('muted', body);
+  }
+
   @SubscribeMessage('newChannelSuggestion')
   handleNewChannelSuggestion(@MessageBody() body): any {
     for (const user of body.allUsers) {

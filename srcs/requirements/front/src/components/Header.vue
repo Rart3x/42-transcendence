@@ -29,6 +29,7 @@
         user: null,
         users: [],
 
+        channelNameMuted: "",
         currentUserName: "",
         messageSenderName: "",
         hostName: "",
@@ -44,6 +45,7 @@
         inviteInGameSuccess: false,
         inviteInGameFailed: false,
         messageSuccess: false,
+        mutedSuccess: false,
 
         cookieJWT: null,
         store: useStore(),
@@ -166,6 +168,15 @@
           }, 5000);
         });
 
+        this.store.state.socket.on('muted', (body) => {
+          this.hostName = body.host;
+          this.channelNameMuted = body.channelName;
+          this.mutedSuccess = true;
+          setTimeout(() => {
+            this.mutedSuccess = false;
+          }, 5000);
+        });
+
         this.store.state.socket.on('receiveMessage', async (body) => {
           this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
           this.messageSenderName = body.userName;
@@ -208,6 +219,7 @@
     :messageSuccess="messageSuccess" :messageSenderName="messageSenderName" :userName="userName" :hostName="hostName"
     :privateMessage="privateMessages" :openMessageModalFromAlert="openMessageModalFromAlert" :socketEmit="socketEmit"
     :invitationFriendSuccess="invitationFriendSuccess" :friendRequestAccepted="friendRequestAccepted" :friendRequestDeclined="friendRequestDeclined"
+    :mutedSuccess="mutedSuccess" :channelNameMuted="channelNameMuted"
   />
   <div class="navbar bg-base-100">
     <div class="navbar-start">

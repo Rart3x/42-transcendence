@@ -3,7 +3,7 @@
   import Modal from './Modal.vue';
   import Cookies from "js-cookie";
   import { removeChannel, removeOperator, removeUserFromChannel, unmuteUser} from "./api/delete.call";
-  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByUserId, getImage } from "./api/get.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByUserId, getUserByUserName, getImage } from "./api/get.call";
   import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel, setAdmin } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
@@ -89,9 +89,11 @@
 
   const muteUserFromChannelInDB = async (channelNameMute, userName, selectedDuration) => {
     const response = await muteUserFromChannel(channelNameMute, userName, selectedDuration, cookieJWT.value);
-
+    const userMuted = await getUserByUserName(userName, cookieJWT.value);
+  
     if (response && response.success) {
       muteSuccess.value = true;
+      store.dispatch('muteUser', { socket: userMuted.socket, channelName: channelNameMute })
       setTimeout(() => {
         muteSuccess.value = false;
       }, 3000);
@@ -164,6 +166,10 @@
       await updateMessageSenders(messages.value);
       await nextTick();
       scrollToBottom();
+    });
+
+    store.state.socket.on('muted', async (body) => {
+      actualUserMuted.value = true;
     });
   };
 
@@ -312,7 +318,7 @@
       <div v-else class="error_div"> <p> No channel's member </p> </div>
     </div>
     <!--Chat-->
-    <div class="overflow-x-auto min-h-screen bg-base-200 chat-box" style="text-align: center">
+    <div class="overflow-x-auto bg-base-200 chat-box" style="text-align: center">
       <div v-if="messages && messages.length > 0" class="chat-messages">
         <div v-for="(message, index) in messages" :key="index" class="message">
           <div v-if="message.sender && !message.sender.isBan" class="message-row">
@@ -351,11 +357,13 @@
       </div>
       <div v-else class="error_div"> <p> No message </p> </div>
       <div class="chat-input">
-        <div v-if="!actualUserMuted" class="userMutedOrNot" style="position: absolute; bottom: 15vh; left: 75%; transform: translateX(-50%);">
+        <div v-if="!actualUserMuted" class="userMutedOrNot" style="position: absolute; top: 74%; left: 75%; transform: translateX(-50%);">
           <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
           <button class="btn glass btn-primary" @click="sendMessage(message_text)">Send</button>
         </div>
-        <div v-else class="error_div"> <p> You are muted </p> </div>
+        <div v-if="actualUserMuted" class="userMutedOrNot" style="position: absolute; top: 74%; left: 75%; transform: translateX(-50%);">
+          <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Muted" v-model="message_text" disabled/>
+        </div>
       </div>
     </div>
   </div>

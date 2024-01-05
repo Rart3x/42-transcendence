@@ -57,6 +57,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    muteUser(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('muteUser', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     newChannelSuggestion(context, body) {
       const socket = context.state.socket;
       if (socket)
