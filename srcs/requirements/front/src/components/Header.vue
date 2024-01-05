@@ -56,18 +56,20 @@
     },
     computed: {
       filteredUsers() {
-        if (!this.users)
+        if (this.searchInput.length < 3)
           return [];
+        if (!this.users || !this.searchInput)
+          return this.users;
+
         try {
-          const searchInputValue = this.searchInput;
-          if (!searchInputValue || !this.users)
-            return [];
+          const searchInputValue = this.searchInput.trim();
+          const regex = new RegExp(`^${searchInputValue}`, 'i');
+
           return this.users.filter(user =>
-            user.userName && user.userName.includes(searchInputValue) ||
-            user.displayName && user.displayName.includes(searchInputValue)
+            (user.userName && regex.test(user.userName)) ||
+            (user.displayName && regex.test(user.displayName))
           );
-        }
-        catch (error) {
+        } catch (error) {
           return [];
         }
       }
@@ -240,7 +242,7 @@
     <div class="navbar-center flex space-x-4">
       <img src="../assets/search-svgrepo-com.svg" width="32" height="32"/>
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
-      <div v-show="searchInput" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+      <div v-if="filteredUsers.length > 0" v-show="searchInput" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
         <li v-for="user in filteredUsers" :key="user.id">
           <router-link :to="'/profile/' + user.userName" @click.native="resetSearchBar">{{ user.userName }}</router-link>
         </li>     
