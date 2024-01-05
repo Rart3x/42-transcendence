@@ -63,12 +63,13 @@ export default class Game extends Phaser.Scene {
 		//Keep track of this instance for arrow function
 		const self = this;
 		this.socket.on('updateScore', (data) => {
-				if (this.gameRoom && this.gameRoom.score){
-					this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
-					this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
-					this.updateUIScore();
-				}
-			});
+			if (this.gameRoom && this.gameRoom.score){
+				console.log(data.scorePlayer, data.scorePlayer2);
+				this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
+				this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
+				this.updateUIScore();
+			}
+		});
 
 		this.socket.on('currentGameInformation', (data) => {
 			this.gameRoom = new GameRoom(
@@ -128,7 +129,8 @@ export default class Game extends Phaser.Scene {
 				</div> \
 				<div class="row-start-5 col-start-2  ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
 				<div class="row-start-6 col-start-2 ..."><button id="leaveButton"class="btn btn-error ml-5 ...">LEAVE</button></div> \
-			</div>');
+			</div>'
+			);
 		})
 
 		this.socket.on('gameStart', () => {
@@ -151,10 +153,11 @@ export default class Game extends Phaser.Scene {
 
 		this.socket.on('scorePoint', (data) => {
 			console.log("point was score")
+			console.log(data)
 			if (this.gameRoom && this.gameRoom.entities){
 				if (this.gameRoom.player1Disconnected == false && this.gameRoom.player2Disconnected == false){
 					//Reset ball to the middle
-					if (this.gameRoom.entities?.ball.gameObject) {
+					if (this.gameRoom.entities.ball.gameObject) {
 						this.gameRoom.entities.ball.gameObject.x = 500;
 						this.gameRoom.entities.ball.gameObject.y = data.ball.y;
 						this.gameRoom.entities.ball.gameObject.setVelocity(0, 0);
@@ -163,8 +166,6 @@ export default class Game extends Phaser.Scene {
 					if (this.gameRoom.score && this.gameRoom.player1UserId && this.gameRoom.player2UserId){
 						this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.score.player1);
 						this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.score.player2);
-						var scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1UserId.toString());
-						var scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2UserId.toString());
 						this.updateUIScore();
 					}
 				}
@@ -172,12 +173,11 @@ export default class Game extends Phaser.Scene {
 		});
 
 		this.socket.on('gameFinish', (data) => {
-			console.log("game is finish")
-			this.destroyUI();
-            this.children.removeAll();
-			this.scene.start('EndGameScene', { user: this.user, gameRoom: this.gameRoom, UIElement: this.UIElement, endGameData: data });
+			this.scene.start('EndGameScene', { user: this.user, gameRoom: this.gameRoom, socket: this.socket, endGameData: data });
+			this.children.removeAll();
 			if (this.gameRoom)
 				this.gameRoom.finish = true;
+			this.destroyUI();
 		});
 
 		this.socket.on('snapshot', (data) => {
@@ -189,8 +189,8 @@ export default class Game extends Phaser.Scene {
 
 	setupGameHooks(){
 		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
-			if (this?.gameRoom?.entities){
-				if (this.gameRoom?.player1SocketId == this.socket.id){
+			if (this.gameRoom && this.gameRoom.entities){
+				if (this.gameRoom.player1SocketId == this.socket.id){
 					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
 					this.socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
@@ -203,7 +203,7 @@ export default class Game extends Phaser.Scene {
 						this.gameRoom.entities.players[0].gameObject.body.position.y = this.gameRoom.entities.players[0].y;
 					}
 				}
-				else if (this.gameRoom?.player2SocketId == this.socket.id){
+				else if (this.gameRoom.player2SocketId == this.socket.id){
 					this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 75, 725);
 					this.socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,

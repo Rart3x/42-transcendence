@@ -17,7 +17,7 @@
         init(data : any){
             console.log("EndGameScene called")
             //Receive data from GameScene.vue once game is finish
-            this.UIElement = data.UIElement;
+            // this.UIElement = data.UIElement;
             this.user = data.user;
             this.gameRoom = data.gameRoom;
             this.socket = data.socket;
@@ -147,7 +147,7 @@
 
         create(){
             this.createEndGameScreenHTML();
-			this.destroyUI();
+			// this.destroyUI();
 
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
 			
