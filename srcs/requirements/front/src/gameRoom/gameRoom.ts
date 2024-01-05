@@ -11,7 +11,7 @@ export default class GameRoom {
     id: number;
     customGameMode: boolean;
     player1SocketId: string;
-    player2SocketId: string | undefined;
+    player2SocketId: string;
     player1UserName: string;
     player2UserName: string | undefined;
     player1UserId: number;

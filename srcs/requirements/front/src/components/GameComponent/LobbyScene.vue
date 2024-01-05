@@ -20,6 +20,7 @@
         }
 
         init(data : any){
+            console.log("Entered Lobby Scene");
             this.user = data.user;
             this.socket = data.socket;
             this.UIElement = data.UIElement;
@@ -125,6 +126,55 @@
         }
 
         setupSocketEvents(){
+            const self = this;
+            this.socket.on('otherPlayerReady', () => {
+                let otherPlayerProfile : any;
+                let otherPlayerReadyButton : any;
+
+                if (this.socket && self.gameRoom){
+                    if (this.socket.id == self.gameRoom.player1SocketId){
+                        otherPlayerProfile = this.UIElement.node.querySelector("#userProfile2");
+                        otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
+                    }
+                    else if (this.socket.id == self.gameRoom.player2SocketId){
+                        otherPlayerProfile = this.UIElement.node.querySelector("#userProfile1");
+                        otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
+                    }
+                }
+                if (otherPlayerReadyButton){
+                    otherPlayerReadyButton.innerText = 'Ready';
+                    otherPlayerReadyButton.className = 'btn no-animation btn-active btn-accent';
+                }
+                if (otherPlayerProfile){
+                    otherPlayerProfile.className = 'avatar w-24 rounded-full ring ring-accent ring-offset-base-100 ring-offset-2';
+                }
+            });
+
+            this.socket.on('otherPlayerNotReady', () => {
+                let otherPlayerProfile : any;
+                let otherPlayerReadyButton : any;
+
+                if (this.socket && self.gameRoom){
+                    if (this.socket.id == self.gameRoom?.player1SocketId){
+                        self.gameRoom.player2Ready = false;
+                        otherPlayerProfile = this.UIElement.node.querySelector("#userProfile2");
+                        otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer2') as HTMLElement;
+                    }
+                    else if (this.socket.id == self.gameRoom?.player2SocketId){
+                        self.gameRoom.player1Ready = false;
+                        otherPlayerProfile = this.UIElement.node.querySelector("#userProfile1");
+                        otherPlayerReadyButton = this.UIElement.node.querySelector('#isReadyButtonPlayer1') as HTMLElement;
+                    }
+                }
+
+                if (otherPlayerReadyButton){
+                    otherPlayerReadyButton.innerText = 'Not ready';
+                    otherPlayerReadyButton.className = 'btn no-animation  btn-secondary';
+                }
+                if (otherPlayerProfile){
+                    otherPlayerProfile.className = 'avatar w-24 rounded-full ring ring-secondary ring-offset-base-100 ring-offset-2';
+                }
+            });
             this.socket.on('otherPlayerLeaveLobby', () => {
                 this.children.removeAll();
                 this.destroyUI();

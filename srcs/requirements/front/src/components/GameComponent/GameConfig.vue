@@ -4,6 +4,8 @@
   import { Game, Scale} from 'phaser'
   import BootScene from './BootScene.vue';
   import LobbyScene from './LobbyScene.vue';
+  import GameScene from './GameScene.vue';
+  import EndGameScene from './EndGameScene.vue';
   
   export default {
     name: 'GameConfig',
@@ -30,7 +32,7 @@
             default: 'matter',
             matter : { debug: false }
           },
-          scene: [BootScene, LobbyScene]
+          scene: [BootScene, LobbyScene, GameScene, EndGameScene]
         },
         initialize: true,
       }
