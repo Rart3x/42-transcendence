@@ -18,6 +18,7 @@
         min-height: 100vh;
         background: url(./images/kramjatt.jpg);
         background-size: cover;
+        background-position: center;
     }
     .box { position: relative; width: 200px; height: 200px; transform-style: preserve-3d; animation: animate 20s linear infinite; }
     .box span {
