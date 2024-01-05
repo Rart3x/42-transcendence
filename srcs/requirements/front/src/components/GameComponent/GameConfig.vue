@@ -1,8 +1,10 @@
 <script lang="ts">
 
   import Phaser from 'phaser';
-  import GameScene from './GameScene.vue';
-
+  import { Game, Scale} from 'phaser'
+  import BootScene from './BootScene.vue';
+  import LobbyScene from './LobbyScene.vue';
+  
   export default {
     name: 'GameConfig',
     data() {
@@ -13,8 +15,8 @@
           roundPixels: true,
           scale: {
             parent: 'game',
-            autoCenter: Phaser.Scale.CENTER_BOTH,
-            mode: Phaser.Scale.FIT,
+            autoCenter: Scale.CENTER_BOTH,
+            mode: Scale.FIT,
           },
           audio: {
             disableWebAudio: true
@@ -28,14 +30,14 @@
             default: 'matter',
             matter : { debug: false }
           },
-          scene: GameScene
+          scene: [BootScene, LobbyScene]
         },
         initialize: true,
       }
     },
     methods: {
       createGame(config : any){
-        const game = new Phaser.Game(config);
+        const game = new Game(config);
         this.initialize = true;
       }
     },
