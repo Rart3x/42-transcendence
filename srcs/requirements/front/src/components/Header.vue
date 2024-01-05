@@ -29,6 +29,7 @@
         user: null,
         users: [],
 
+        channelNameBanned: "",
         channelNameMuted: "",
         currentUserName: "",
         messageSenderName: "",
@@ -41,6 +42,7 @@
         friendRequestAccepted: false,
         friendRequestDeclined: false,
 
+        bannedSuccess: false,
         invitationInGameSuccess: false,
         inviteInGameSuccess: false,
         inviteInGameFailed: false,
@@ -117,6 +119,14 @@
 
       async socketOn() {
 
+        this.store.state.socket.on('banned', (body) => {
+          this.channelNameBanned = body.channelName;
+          this.bannedSuccess = true;
+          setTimeout(() => {
+            this.bannedSuccess = false;
+          }, 5000);
+        });
+
         this.store.state.socket.on('friendRequest', (body) => {
           this.hostName = body.host;
           this.invitationFriendSuccess = true;
@@ -169,7 +179,6 @@
         });
 
         this.store.state.socket.on('muted', (body) => {
-          this.hostName = body.host;
           this.channelNameMuted = body.channelName;
           this.mutedSuccess = true;
           setTimeout(() => {
@@ -219,7 +228,7 @@
     :messageSuccess="messageSuccess" :messageSenderName="messageSenderName" :userName="userName" :hostName="hostName"
     :privateMessage="privateMessages" :openMessageModalFromAlert="openMessageModalFromAlert" :socketEmit="socketEmit"
     :invitationFriendSuccess="invitationFriendSuccess" :friendRequestAccepted="friendRequestAccepted" :friendRequestDeclined="friendRequestDeclined"
-    :mutedSuccess="mutedSuccess" :channelNameMuted="channelNameMuted"
+    :mutedSuccess="mutedSuccess" :channelNameMuted="channelNameMuted" :bannedSuccess="bannedSuccess" :channelNameBanned="channelNameBanned"
   />
   <div class="navbar bg-base-100">
     <div class="navbar-start">

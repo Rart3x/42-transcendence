@@ -11,6 +11,13 @@ const store = createStore({
     },
   },
   actions: {
+    banUser(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('banUser', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     blockUser(context, body) {
       const socket = context.state.socket;
       if (socket)
@@ -61,6 +68,13 @@ const store = createStore({
       const socket = context.state.socket;
       if (socket)
         socket.emit('muteUser', body);
+      else
+        console.error('error: socket uninitialized');
+    },
+    newChannelMember(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('newChannelMember', body);
       else
         console.error('error: socket uninitialized');
     },

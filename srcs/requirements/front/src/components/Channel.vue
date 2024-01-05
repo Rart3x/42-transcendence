@@ -53,9 +53,11 @@
 
   const banUserFromChannelInDB = async (channelName, userName) => {
     const response = await banUserFromChannel(channelName, userName, cookieJWT.value);
+    const userBanned = await getUserByUserName(userName, cookieJWT.value);
 
     if (response && response.success) {
       banSuccess.value = true;
+      store.dispatch('banUser', { socket: userBanned.socket, channelName: channelName })
       setTimeout(() => {
         banSuccess.value = false;
       }, 3000);
@@ -66,7 +68,8 @@
         banFailed.value = false;
       }, 3000);
     }
-    updateBan(users.value, route.params.channelName, jwtToken);
+    users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+    updateBan(users.value, route.params.channelName, cookieJWT.value);
   };
 
   const isOperatorInDB = async (channelName, userId) => {
@@ -161,6 +164,10 @@
   };
 
   const socketOn = async () => {
+    store.state.socket.on('banned', async (body) => {
+      router.push("/profile")
+    });
+
     store.state.socket.on('messageToChannel', async (body) => {
       messages.value = await getMessagesFromChannel(route.params.channelName, cookieJWT.value);
       await updateMessageSenders(messages.value);
@@ -170,6 +177,11 @@
 
     store.state.socket.on('muted', async (body) => {
       actualUserMuted.value = true;
+    });
+
+    store.state.socket.on('newChannelMember', async (body) => {
+      users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+      updateUserImages(users.value);
     });
   };
 

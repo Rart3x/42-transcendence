@@ -4,8 +4,8 @@
   import History from "./History.vue";
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllUsers, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
-  import { addFriend, createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllUsers, getUsersFromChannel, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
+  import { createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
@@ -83,9 +83,11 @@
 
       async joinChannelInDB(channelName, userName) {
         const response = await joinChannel(channelName, userName, this.cookieJWT);
+        const channelUsers = await getUsersFromChannel(channelName, this.cookieJWT);
 
         if (response && response.success) {
           this.joinChannelSuccess = true;
+          await this.store.dispatch('newChannelMember', { users: channelUsers });
           setTimeout(() => {
             this.joinChannelSuccess = false;
           }, 3000);

@@ -11,6 +11,7 @@
 			addMessageSuccess: Boolean,
 			addMessageFailed: Boolean,
 			banSuccess: Boolean,
+			bannedSuccess: Boolean,
 			banFailed: Boolean,
 			blockSuccess: Boolean,
 			blockFailed: Boolean,
@@ -44,6 +45,7 @@
 			openMessageModalFromAlert: Function,
 			socketEmit: Function,
 
+			channelNameBanned: String,
 			channelNameMuted: String,
 			hostName: String,
 			messageSenderName: String,
@@ -96,6 +98,12 @@
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 		</svg>
 			<span>User has been banned successfully</span>
+		</div>
+	</div>
+	<!--Banned-->
+	<div v-if="bannedSuccess" class="toast toast-start">
+		<div class="alert alert-warning">
+			<span>You have been banned in {{ channelNameBanned }}</span>
 		</div>
 	</div>
 	<div v-if="banFailed" class="toast toast-start">

@@ -23,6 +23,11 @@ export class AppGateway implements OnModuleInit{
 		});
 	}
 
+  @SubscribeMessage('banUser')
+  handleBanUser(@MessageBody() body): any {
+    this.server.to(body.socket).emit('banned', body);
+  } 
+
   @SubscribeMessage('blockUser')
   handleBlockUser(@MessageBody() body): any {
     this.server.to(body.socket).emit('blocked', body);
@@ -93,6 +98,13 @@ export class AppGateway implements OnModuleInit{
   @SubscribeMessage('muteUser')
   handleMuteUser(@MessageBody() body): any {
     this.server.to(body.socket).emit('muted', body);
+  }
+
+  @SubscribeMessage('newChannelMember')
+  handleNewChannelMember(@MessageBody() body): any {
+    for (const user of body.users) {
+      this.server.to(user.socket).emit('newChannelMember', body);
+    }
   }
 
   @SubscribeMessage('newChannelSuggestion')
