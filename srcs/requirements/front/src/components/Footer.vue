@@ -10,44 +10,36 @@
             <div class="grid grid-flow-col gap-4">
                 <a href="https://github.com/Rart3x">
                     <button class="btn btn-ghost btn-circle">
-                        <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
                         <div class="indicator">
                             <img src="../assets/github-svgrepo-com.svg" />
                         </div>
-                        </label>
                     </button>
                     <br>
                     <span class="text-sm">Kramjatt</span>
                 </a>
                 <a href="https://github.com/Centiso">
                     <button class="btn btn-ghost btn-circle">
-                        <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
                         <div class="indicator">
                             <img src="../assets/github-svgrepo-com.svg" />
                         </div>
-                        </label>
                     </button>
                     <br>
                     <span class="text-sm">Centiso</span>
                 </a>
                 <a href="https://github.com/snyk-bot">
                     <button class="btn btn-ghost btn-circle">
-                        <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
                         <div class="indicator">
                             <img src="../assets/github-svgrepo-com.svg" />
                         </div>
-                        </label>
                     </button>
                     <br>
                     <span class="text-sm">Nicarpen</span>
                 </a>
                 <a href="https://github.com/damienglld">
                     <button class="btn btn-ghost btn-circle">
-                        <label for="my-drawer-1" tabindex="0" class="btn btn-ghost btn-circle">
                         <div class="indicator">
                             <img src="../assets/github-svgrepo-com.svg" />
                         </div>
-                        </label>
                     </button>
                     <br>
                     <span class="text-sm">Dguillau</span>
