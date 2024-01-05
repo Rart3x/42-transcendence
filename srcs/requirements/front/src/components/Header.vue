@@ -93,6 +93,9 @@
           setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";
       },
+      resetSearchBar() {
+        this.searchInput = '';
+      },
       async socketEmit(emit) {
         const hostUser = await getUserByUserName(this.hostName, this.cookieJWT);
         if (emit == "invitationInGameAccepted" || emit == "invitationInGameDeclined")
@@ -237,8 +240,10 @@
     <div class="navbar-center flex space-x-4">
       <img src="../assets/search-svgrepo-com.svg" width="32" height="32"/>
       <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
-      <div v-show="searchInput" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-        <router-link v-for="user in filteredUsers" :key="user.id" :to="'/profile/' + user.userName" class="dropdown-item">{{ user.userName }}</router-link>
+      <div v-show="searchInput" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+        <li v-for="user in filteredUsers" :key="user.id">
+          <router-link :to="'/profile/' + user.userName" @click.native="resetSearchBar">{{ user.userName }}</router-link>
+        </li>     
       </div>
     </div>
     <div class="navbar-end">
@@ -267,3 +272,8 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+.navbar-center { position: relative; }
+.menu { position: absolute; top: 100%; z-index: 1; }
+</style>

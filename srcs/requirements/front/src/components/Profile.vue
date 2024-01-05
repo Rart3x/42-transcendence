@@ -192,7 +192,7 @@
 
   <div class="bg-base-200 overflow-x-auto min-h-screen font-mono place-items-center shadow border-2 border-gray-500">
     <div class="stats shadow flex justify-center">
-      <div class="stat" v-if="!isBlockBool">
+      <div class="stat" v-if="user && actualUser && user.userName != actualUser.userName && !isBlockBool">
         <button class="btn" v-if="user && !isFriendBool" @click="addFriendFromDB(user.userName, $route.params.userName)">
           Add {{ $route.params.userName }}
         </button>
