@@ -85,7 +85,8 @@
         }
         else {
           await createPrivateMessage(userName, senderName, message_text, this.cookieJWT);
-          await this.store.dispatch('sendPrivateMessage', { senderName, socket, userName } );
+          if (user1.status === "online")
+            await this.store.dispatch('sendPrivateMessage', { senderName, socket, userName } );
           this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
         }
       },
