@@ -250,6 +250,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								scoreLooser: scorePlayer2,
 								opponentAfk: false
 							});
+
+							this.removeCollisionsEvent(this.gameRooms[i]);
+							World.clear(this.gameRooms[i].world);
+							Engine.clear(this.gameRooms[i].engine);
 						}
 						else{
 							this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
@@ -269,6 +273,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								scoreLooser: scorePlayer1,
 								opponentAfk: false
 							});
+							this.removeCollisionsEvent(this.gameRooms[i]);
+							World.clear(this.gameRooms[i].world);
+							Engine.clear(this.gameRooms[i].engine);
 						}
 						this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
 						this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");

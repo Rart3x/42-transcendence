@@ -24,19 +24,12 @@
         }
 
         createEndGameScreenHTML(){
-			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
-				<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
-				    <div class="row-start-1">\
-                        <h1 id="winLooseMessage" class="text-xl font-bold dark:text-white"></h1>\
-                    </div> \
-				    <div class="row-start-2 col-start-1 col-end-2">\
-                        <button id="replayButton" class="btn btn-accent">Play again 0/2</button>\
-                        </div> \
-				    <div class="row-start-3 col-start-1 col-end-2">\
-                        <button id="stopButton" class="btn btn-secondary">Stop</button>\
-                        </div> \
-				</div> \
-			')
+            this.UIElement = this.add.dom(450, 400).createFromHTML('\
+            <div class="flex flex-col items-center justify-center min-h-screen">\
+                <div id="winLooseMessage" class="text-xl font-bold dark:text-white mb-4"></div>\
+                <button id="replayButton" class="btn btn-accent">Play again 0/2</button>\
+                <button id="stopButton" class="btn btn-secondary mt-4">Stop</button>\
+            </div>');
         }
 
         setupEventListeners(){

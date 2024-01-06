@@ -133,10 +133,13 @@ export default class Game extends Phaser.Scene {
 					counter--;
 				}
 				let countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
-				countdownUI.style.setProperty('--value', counter.toString());
-				if (counter == 0){
-					this.UIElement.destroy();
-					clearInterval(refreshID);
+				if (countdownUI){
+					countdownUI.style.setProperty('--value', counter.toString());
+					if (counter == 0){
+						if (this.UIElement)
+							this.UIElement.destroy();
+						clearInterval(refreshID);
+					}
 				}
 			}, 1000);
 		})
@@ -166,6 +169,7 @@ export default class Game extends Phaser.Scene {
 			if (this.gameRoom)
 				this.gameRoom.finish = true;
 			this.destroyUI();
+			this.scene.stop('GameScene');
 		});
 
 		this.socket.on('snapshot', (data) => {
@@ -221,7 +225,7 @@ export default class Game extends Phaser.Scene {
 			if (this.socket)
 				this.socket.emit('readyAfterInitialisation', this.gameRoom.id);
 		}
-		
+
 		// if (this.user && this.user.userId != null){
 		// 	let gameRoom : any = await getLastGameRoomIfAfk(self.user.userId, self.cookieJWT);
 		// 	if (gameRoom){

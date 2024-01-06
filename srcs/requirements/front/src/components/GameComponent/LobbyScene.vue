@@ -36,7 +36,7 @@
 	    }
 
         createLobbyHTML(){
-            this.UIElement = this.add.dom(450, 400).createFromHTML(' \
+            this.UIElement = this.add.dom(400, 400).createFromHTML(' \
                 <div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
                     <div class="avatar row-start-2"> \
                         <div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."></div> \
@@ -215,7 +215,7 @@
 
             startButton.addEventListener('click', function() {
                 if (self.socket.id == self.gameRoom?.player2SocketId){
-                    if (self.gameRoom?.player2Ready == false){
+                    if (self.gameRoom.player2Ready == false){
                         self.gameRoom.player2Ready = true;
                         isReadyButtonPlayer2.innerText = 'Ready';
                         isReadyButtonPlayer2.className = 'btn no-animation btn-active btn-accent';
@@ -235,7 +235,7 @@
                     }
                 }
                 else if (self.socket.id == self.gameRoom?.player1SocketId){
-                    if (self.gameRoom?.player1Ready == false){
+                    if (self.gameRoom.player1Ready == false){
                         self.gameRoom.player1Ready = true;
                         isReadyButtonPlayer1.innerText = 'Ready';
                         isReadyButtonPlayer1.className = 'btn no-animation btn-active btn-accent';
