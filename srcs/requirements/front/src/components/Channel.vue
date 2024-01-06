@@ -57,7 +57,8 @@
 
     if (response && response.success) {
       banSuccess.value = true;
-      store.dispatch('banUser', { socket: userBanned.socket, channelName: channelName })
+      if (userBanned.status === "online")
+        store.dispatch('banUser', { socket: userBanned.socket, channelName: channelName })
       setTimeout(() => {
         banSuccess.value = false;
       }, 3000);
@@ -96,7 +97,8 @@
   
     if (response && response.success) {
       muteSuccess.value = true;
-      store.dispatch('muteUser', { socket: userMuted.socket, channelName: channelNameMute })
+      if (userMuted.status === "online")
+        store.dispatch('muteUser', { socket: userMuted.socket, channelName: channelNameMute })
       setTimeout(() => {
         muteSuccess.value = false;
       }, 3000);

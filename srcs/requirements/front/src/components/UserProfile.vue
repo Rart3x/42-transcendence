@@ -40,7 +40,8 @@
     methods: {
       async addFriendFromDB(userName, friendName) {
         const friend = await getUserByUserName(friendName, this.cookieJWT);
-        await this.store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
+        if (friend.status === 'online')
+          await this.store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
         this.friendName = ''
       },
 
@@ -50,6 +51,7 @@
 
         if (response && response.success) {
           const allUsers = await getAllUsers(this.cookieJWT);
+
           await this.store.dispatch('newChannelSuggestion', { allUsers });
           this.addChannelSuccess = true;
           setTimeout(() => {
@@ -71,7 +73,7 @@
         const host = hostPlayer.userName;
         const socket = invitedPlayer.socket;
         var gameRoom = await createGameRoom(hostPlayer.userName, invitedPlayer.userName, this.cookieJWT);
-        if (gameRoom)
+        if (gameRoom && invitedPlayer.status === 'online')
           await this.store.dispatch('invitationInGame', { host, gameRoom, userName, userId, socket, userStatus });
       },
 
@@ -122,7 +124,8 @@
           }, 3000);
           const removedUser = await getUserByUserName(friendName, this.cookieJWT);
           //Update added user's buddy list
-          await this.store.dispatch('friendRemoved', { socket: removedUser.socket })
+          if (removedUser.status === 'online')
+            await this.store.dispatch('friendRemoved', { socket: removedUser.socket })
           this.updateFriends();
         } else {
           this.removeFriendFailed = true;

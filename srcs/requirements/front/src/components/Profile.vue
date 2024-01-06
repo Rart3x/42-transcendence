@@ -42,7 +42,8 @@
 
   const addFriendFromDB = async (userName, friendName) => {
     const friend = await getUserByUserName(friendName, cookieJWT.value);
-    await store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
+    if (friend.status == 'online')
+      await store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
     isFriendBool.value = true;
   };
 
@@ -52,8 +53,10 @@
 
     if (response && response.success) {
       blockSuccess.value = true;
-      await store.dispatch('friendRemoved', { socket: removedUser.socket })
-      await store.dispatch('blockUser', { socket: removedUser.socket })
+      if (removedUser.status == 'online') { 
+        await store.dispatch('friendRemoved', { socket: removedUser.socket })
+        await store.dispatch('blockUser', { socket: removedUser.socket })
+      }
       setTimeout(() => {
         blockSuccess.value = false;
       }, 3000);
@@ -117,7 +120,8 @@
     
     if (response && response.success) {
       removeFriendSuccess.value = true;
-      await store.dispatch('friendRemoved', { socket: removedUser.socket })
+      if (removedUser.status == 'online')
+        await store.dispatch('friendRemoved', { socket: removedUser.socket })
       setTimeout(() => {
         removeFriendSuccess.value = false;
       }, 3000);
@@ -166,7 +170,8 @@
 
     if (response && response.success) {
       unblockSuccess.value = true;
-      await store.dispatch('unblockUser', { socket: unblockedUser.socket })
+      if (unblockedUser.status == 'online')
+        await store.dispatch('unblockUser', { socket: unblockedUser.socket })
       setTimeout(() => {
         unblockSuccess.value = false;
       }, 3000);

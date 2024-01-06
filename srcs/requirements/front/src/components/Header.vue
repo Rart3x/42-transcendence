@@ -80,7 +80,7 @@
           message_text = "";
           this.modalMessage = false;
           var gameRoom = await createGameRoom(userName, user1.userName, this.cookieJWT);
-          if (gameRoom)
+          if (gameRoom && user1.status === "online")
             await this.store.dispatch('invitationInGame', { host:userName, gameRoom, userName:user1.userName, userId:user1.userId, socket:user1.socket, userStatus:user1.status });
         }
         else {
@@ -149,8 +149,10 @@
           await addFriend(this.user.userName, body.invitedUserName, this.cookieJWT)
           const invitedUser = await getUserByUserName(body.invitedUserName, this.cookieJWT);
           const hostUser = await getUserByUserName(body.host, this.cookieJWT);
-          await this.store.dispatch('friendAdded', { socket: hostUser.socket });
-          await this.store.dispatch('friendAdded', { socket: invitedUser.socket });
+          if (invitedUser.status === "online")
+            await this.store.dispatch('friendAdded', { socket: invitedUser.socket });
+          if (hostUser.status === "online")
+            await this.store.dispatch('friendAdded', { socket: hostUser.socket });
           setTimeout(() => {
             this.friendRequestAccepted = false;
           }, 3000);
