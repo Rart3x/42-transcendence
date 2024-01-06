@@ -93,12 +93,9 @@ export class AppGateway implements OnModuleInit{
     this.server.to(body.socket).emit('kicked', body);
   }
 
-
   @SubscribeMessage('messageToChannel')
   handleMessageToChannel(@MessageBody() body): any {
-    for (const user of body.usersInChannel) {
-      this.server.to(user.socket).emit('messageToChannel', body);
-    }
+    this.server.to(body.socket).emit('messageToChannel', body);
   }
 
   @SubscribeMessage('muteUser')
@@ -108,16 +105,17 @@ export class AppGateway implements OnModuleInit{
 
   @SubscribeMessage('newChannelMember')
   handleNewChannelMember(@MessageBody() body): any {
-    for (const user of body.users) {
-      this.server.to(user.socket).emit('newChannelMember', body);
-    }
+    this.server.to(body.socket).emit('newChannelMember', body);
   }
 
   @SubscribeMessage('newChannelSuggestion')
   handleNewChannelSuggestion(@MessageBody() body): any {
-    for (const user of body.allUsers) {
-      this.server.to(user.socket).emit('newChannelSuggestion', body);
-    }  
+    this.server.to(body.socket).emit('newChannelSuggestion', body);
+  }
+
+  @SubscribeMessage('removeChannel')
+  handleRemoveChannel(@MessageBody() body): any {
+    this.server.to(body.socket).emit('removeChannel', body);
   }
 
   @SubscribeMessage('sendPrivateMessage')

@@ -252,7 +252,7 @@
     :privateMessage="privateMessages" :openMessageModalFromAlert="openMessageModalFromAlert" :socketEmit="socketEmit"
     :invitationFriendSuccess="invitationFriendSuccess" :friendRequestAccepted="friendRequestAccepted" :friendRequestDeclined="friendRequestDeclined"
     :mutedSuccess="mutedSuccess" :channelNameMuted="channelNameMuted" :bannedSuccess="bannedSuccess" :channelNameBanned="channelNameBanned"
-    :channelNameKicked="channelNameKicked" :kickedSuccess="kickedSuccess"
+    :channelNameKicked="channelNameKicked" :kickedSuccess="kickedSuccess" 
   />
   <div class="navbar bg-base-100">
     <div class="navbar-start">

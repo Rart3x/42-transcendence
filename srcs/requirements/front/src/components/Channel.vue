@@ -118,21 +118,27 @@
     const chan = await getChannelByName(channelName, cookieJWT.value);
     const removedUser = await getUserByUserName(userName, cookieJWT.value);
 
-    if (userName === chan.channelAdmin) { 
+    if (actualUser.value.userId === chan.channelAdmin) { 
       if (chan.channelOperators.length > 0) {
         const newAdmin = chan.channelOperators[Math.floor(Math.random() * chan.channelOperators.length)];
         await setAdmin(channelName, newAdmin.userName, cookieJWT.value);
         await removeOperator(channelName, newAdmin.userName, cookieJWT.value);
       }
-      else
+      else {
+        const removedUsers = await getUsersFromChannel(channelName, cookieJWT.value);
         await removeChannel(channelName, cookieJWT.value);
+        for (const user of removedUsers) {
+          if (user.status === "online") { 
+            await store.dispatch('removeChannel', { socket: user.socket, channelName: channelName })
+          } 
+        }
+        router.push("/profile");
+      }
     }
     else {
       const response = await removeUserFromChannel(channelName, userName, cookieJWT.value);
-      if (removedUser.status === "online"){ 
-        console.log("removedUser.socket")
+      if (removedUser.status === "online")
         await store.dispatch('kickUser', { socket: removedUser.socket, channelName: channelName })
-      }
       if (response && response.success) {
         kickSuccess.value = true;
         setTimeout(() => {
@@ -165,7 +171,10 @@
       message_text.value = "";
 
       const usersInChannel = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
-      await store.dispatch('messageToChannel', { usersInChannel } );
+      for (const user of usersInChannel) {
+        if (user.status === "online")
+          await store.dispatch('messageToChannel', { socket: user.socket} );
+      }
     }
   };
 
@@ -192,6 +201,11 @@
     store.state.socket.on('newChannelMember', async (body) => {
       users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
       updateUserImages(users.value);
+    });
+
+    store.state.socket.on('removeChannel', async (body) => {
+      if (body.channelName === route.params.channelName)
+        router.push("/profile");
     });
   };
 

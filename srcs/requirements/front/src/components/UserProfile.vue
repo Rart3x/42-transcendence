@@ -52,7 +52,10 @@
         if (response && response.success) {
           const allUsers = await getAllUsers(this.cookieJWT);
 
-          await this.store.dispatch('newChannelSuggestion', { allUsers });
+          for (let i = 0; i < allUsers.length; i++) {
+            if (allUsers[i].status === 'online')
+              await this.store.dispatch('newChannelSuggestion', { allUsers });
+          }
           this.addChannelSuccess = true;
           setTimeout(() => {
             this.addChannelSuccess = false;
@@ -83,7 +86,10 @@
 
         if (response && response.success) {
           this.joinChannelSuccess = true;
-          await this.store.dispatch('newChannelMember', { users: channelUsers });
+          for (let i = 0; i < channelUsers.length; i++) {
+            if (channelUsers[i].status === 'online')
+              await this.store.dispatch('newChannelMember', { socket: channelUsers[i].socket })
+          }
           setTimeout(() => {
             this.joinChannelSuccess = false;
           }, 3000);
@@ -183,15 +189,19 @@
 
       socketOn() {
         this.store.state.socket.on('kicked', () => {
-          this.updateAllChannels()
-          this.updateChannels()
+          this.updateAllChannels();
+          this.updateChannels();
         })
         this.store.state.socket.on('friendRemoved', () => {
-          this.updateFriends()
+          this.updateFriends();
         })
         this.store.state.socket.on('newChannelSuggestion', () => {
-          this.updateAllChannels()
+          this.updateAllChannels();
         })
+        this.store.state.socket.on('removeChannel', () => {
+          this.updateAllChannels();
+          this.updateChannels();
+        });
       },
 
       showContent(tab) { this.activeTab = tab; },
