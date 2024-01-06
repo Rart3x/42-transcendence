@@ -61,6 +61,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    kickUser(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('kickUser', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     messageToChannel(context, body) {
       const socket = context.state.socket;
       if (socket)

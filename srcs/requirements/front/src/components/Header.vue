@@ -29,6 +29,7 @@
         users: [],
 
         channelNameBanned: "",
+        channelNameKicked: "",
         channelNameMuted: "",
         currentUserName: "",
         messageSenderName: "",
@@ -45,6 +46,7 @@
         invitationInGameSuccess: false,
         inviteInGameSuccess: false,
         inviteInGameFailed: false,
+        kickedSuccess: false,
         messageSuccess: false,
         mutedSuccess: false,
 
@@ -191,6 +193,14 @@
           }, 5000);
         });
 
+        this.store.state.socket.on('kicked', (body) => {
+          this.channelNameKicked = body.channelName;
+          this.kickedSuccess = true;
+          setTimeout(() => {
+            this.kickedSuccess = false;
+          }, 5000);
+        });
+
         this.store.state.socket.on('muted', (body) => {
           this.channelNameMuted = body.channelName;
           this.mutedSuccess = true;
@@ -242,6 +252,7 @@
     :privateMessage="privateMessages" :openMessageModalFromAlert="openMessageModalFromAlert" :socketEmit="socketEmit"
     :invitationFriendSuccess="invitationFriendSuccess" :friendRequestAccepted="friendRequestAccepted" :friendRequestDeclined="friendRequestDeclined"
     :mutedSuccess="mutedSuccess" :channelNameMuted="channelNameMuted" :bannedSuccess="bannedSuccess" :channelNameBanned="channelNameBanned"
+    :channelNameKicked="channelNameKicked" :kickedSuccess="kickedSuccess"
   />
   <div class="navbar bg-base-100">
     <div class="navbar-start">

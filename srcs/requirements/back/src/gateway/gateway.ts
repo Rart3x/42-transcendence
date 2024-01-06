@@ -88,6 +88,12 @@ export class AppGateway implements OnModuleInit{
     this.server.to(body.socket).emit('invitationInGameDeclined', body);
   }
 
+  @SubscribeMessage('kickUser')
+  handleKickUser(@MessageBody() body): any {
+    this.server.to(body.socket).emit('kicked', body);
+  }
+
+
   @SubscribeMessage('messageToChannel')
   handleMessageToChannel(@MessageBody() body): any {
     for (const user of body.usersInChannel) {

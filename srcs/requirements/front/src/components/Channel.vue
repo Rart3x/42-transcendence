@@ -98,7 +98,7 @@
     if (response && response.success) {
       muteSuccess.value = true;
       if (userMuted.status === "online")
-        store.dispatch('muteUser', { socket: userMuted.socket, channelName: channelNameMute })
+        await store.dispatch('muteUser', { socket: userMuted.socket, channelName: channelNameMute })
       setTimeout(() => {
         muteSuccess.value = false;
       }, 3000);
@@ -116,8 +116,9 @@
 
   const removeUserFromChannelInDB = async (channelName, userName) => {
     const chan = await getChannelByName(channelName, cookieJWT.value);
+    const removedUser = await getUserByUserName(userName, cookieJWT.value);
 
-    if (actualUser.value.userId === chan.channelAdmin) { 
+    if (userName === chan.channelAdmin) { 
       if (chan.channelOperators.length > 0) {
         const newAdmin = chan.channelOperators[Math.floor(Math.random() * chan.channelOperators.length)];
         await setAdmin(channelName, newAdmin.userName, cookieJWT.value);
@@ -126,24 +127,27 @@
       else
         await removeChannel(channelName, cookieJWT.value);
     }
-
-    const response = await removeUserFromChannel(channelName, userName, cookieJWT.value);
-
-    if (response && response.success) {
-      kickSuccess.value = true;
-      setTimeout(() => {
-        kickSuccess.value = false;
-      }, 3000);
-    } 
     else {
-      kickFailed.value = true;
-      setTimeout(() => {
-        kickFailed.value = false;
-      }, 3000);
+      const response = await removeUserFromChannel(channelName, userName, cookieJWT.value);
+      if (removedUser.status === "online"){ 
+        console.log("removedUser.socket")
+        await store.dispatch('kickUser', { socket: removedUser.socket, channelName: channelName })
+      }
+      if (response && response.success) {
+        kickSuccess.value = true;
+        setTimeout(() => {
+          kickSuccess.value = false;
+        }, 3000);
+      } 
+      else {
+        kickFailed.value = true;
+        setTimeout(() => {
+          kickFailed.value = false;
+        }, 3000);
+      }
+      users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+      updateUserImages(users.value);
     }
-    users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
-    updateUserImages(users.value);
-    router.push("/profile");
   };
 
   const filteredUsers = computed(() => {
@@ -167,6 +171,10 @@
 
   const socketOn = async () => {
     store.state.socket.on('banned', async (body) => {
+      router.push("/profile")
+    });
+
+    store.state.socket.on('kicked', async (body) => {
       router.push("/profile")
     });
 

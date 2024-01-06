@@ -25,6 +25,7 @@
 			inviteInGameFailed: Boolean,
 			joinChannelSuccess: Boolean,
 			joinChannelFailed: Boolean,
+			kickedSuccess: Boolean,
 			kickSuccess: Boolean,
 			kickFailed: Boolean,
 			messageSuccess: Boolean,
@@ -46,6 +47,7 @@
 			socketEmit: Function,
 
 			channelNameBanned: String,
+			channelNameKicked: String,
 			channelNameMuted: String,
 			hostName: String,
 			messageSenderName: String,
@@ -198,6 +200,12 @@
 	<div v-if="kickFailed" class="toast toast-start">
 		<div class="alert alert-error">
 			<span>Failed to kick User</span>
+		</div>
+	</div>
+	<!--Kicked-->
+	<div v-if="kickedSuccess" class="toast toast-start">
+		<div class="alert alert-warning">
+			<span>You have been kicked from {{ channelNameKicked }}</span>
 		</div>
 	</div>
 	<!--Message-->

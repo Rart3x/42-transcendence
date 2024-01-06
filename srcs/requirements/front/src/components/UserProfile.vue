@@ -182,8 +182,9 @@
       },
 
       socketOn() {
-        this.store.state.socket.on('friendAdded', () => {
-          this.updateFriends()
+        this.store.state.socket.on('kicked', () => {
+          this.updateAllChannels()
+          this.updateChannels()
         })
         this.store.state.socket.on('friendRemoved', () => {
           this.updateFriends()
