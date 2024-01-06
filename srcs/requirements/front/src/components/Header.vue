@@ -66,8 +66,7 @@
           const regex = new RegExp(`^${searchInputValue}`, 'i');
 
           return this.users.filter(user =>
-            (user.userName && regex.test(user.userName)) ||
-            (user.displayName && regex.test(user.displayName))
+            (user.userName && regex.test(user.userName))
           );
         } catch (error) {
           return [];
@@ -221,7 +220,7 @@
         this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
       else
         return ;
-      this.userName = this.user.displayName;
+      this.userName = this.user.userName;
       this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
       this.imageSrc = await getImage(this.user.image);
       this.users = await getAllUsers(this.cookieJWT);
@@ -259,7 +258,7 @@
         :jwtToken="cookieJWT"
 
         :currentUserName="currentUserName"
-        :displayName="this.user.displayName"
+        :displayName="this.user.userName"
         :senderName="senderName"
         :userName="userName"
 

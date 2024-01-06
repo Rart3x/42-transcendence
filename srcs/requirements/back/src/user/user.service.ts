@@ -215,7 +215,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
  
     const createUserInput: Prisma.UserCreateInput = {
       ...data,
-      displayName: data.userName,
+      userName: data.userName,
     };
  
     return this.prisma.user.create({
@@ -365,7 +365,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   async updateUserName(userId: number, newUserName: string): Promise<User> {
     return this.prisma.user.update({
       where: { userId: userId },
-      data: { displayName: newUserName },
+      data: { userName: newUserName },
     });
   }
 

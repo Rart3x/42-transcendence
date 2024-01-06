@@ -27,7 +27,6 @@
 			toggleTheme() {
 				this.theme = this.theme === 'dark' ? 'night' : 'dark';
 				document.documentElement.setAttribute('data-theme', this.theme);
-				//Saving the theme in web cache in case of refresh
 				localStorage.setItem('theme', this.theme);
 			},
 			async changeA2F(){
@@ -47,7 +46,7 @@
 				}
 			},
 			async handleSubmit(){
-				if (!this.newUserName || this.newUserNamelength > 20 || this.newUserNamelength < 3 
+				if (!this.newUserName || this.newUserName.length > 20 || this.newUserName.length < 3 
 					|| !/^[A-Za-z0-9_\-]+$/.test(this.newUserName)) {
 					alert('Invalid username');
 					return;
@@ -77,13 +76,13 @@
 				}
 				const fileSizeInBytes = this.selectedFile.size;
 				const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-				const sizeLimit = 1; // Limit in MB
+				const sizeLimit = 1;
 				if (fileSizeInMB > sizeLimit) {
 					alert(`File size should not exceed ${sizeLimit}MB`);
 					return;
 				}
 				await updateImage(this.user.userName, this.selectedFile, this.cookieJWT);
-				window.location.reload(); // Refresh the page but ugly
+				window.location.reload();
 			}
 		},
 		async mounted() {
@@ -94,7 +93,7 @@
 				if (!this.user) { 
 					window.location.href = "/";
 				}
-				this.userName = this.user.displayName;
+				this.userName = this.user.userName;
 				if (this.user.A2F) { 
 					this.this.dataURL = await qrcode.toDataURL(this.user.A2FUrl);
 					this.A2FEnabled = this.user.A2F;
