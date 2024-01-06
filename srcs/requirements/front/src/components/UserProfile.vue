@@ -11,12 +11,6 @@
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
 
-  export const inviteFriendInGameEXPORT = async function (userName, userId, userSocket, userStatus, user) {
-    const host = user.userName;
-    var gameRoom = await createGameRoom(host, this.cookieJWT);
-    if (gameRoom) 
-      await store.dispatch('invitationInGame', { host, userName, userId, userSocket, userStatus });
-  }
 
   export const socketOnEXPORT = function() {
     socketOn();

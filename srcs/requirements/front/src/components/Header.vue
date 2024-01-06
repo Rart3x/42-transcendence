@@ -3,9 +3,8 @@
   import Cookies from "js-cookie";
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
-  import { inviteFriendInGameEXPORT } from "./UserProfile.vue";
   import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName, getImage } from "./api/get.call.ts";
-  import { addFriend, createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
+  import { addFriend, createGameRoom, createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
   import { deleteGameRoomById } from "./api/delete.call.ts";
   import { RouterLink } from "vue-router";
   import { useRouter } from "vue-router";
@@ -80,11 +79,15 @@
         if (message_text === "/game") { 
           message_text = "";
           this.modalMessage = false;
-          inviteFriendInGameEXPORT(user1.userName, user1.userId, user1.userSocket, user1.userStatus, this.user, this.cookieJWT);
+          var gameRoom = await createGameRoom(userName, user1.userName, this.cookieJWT);
+          if (gameRoom)
+            await this.store.dispatch('invitationInGame', { host:userName, gameRoom, userName:user1.userName, userId:user1.userId, socket:user1.socket, userStatus:user1.status });
         }
-        await createPrivateMessage(userName, senderName, message_text, this.cookieJWT);
-        await this.store.dispatch('sendPrivateMessage', { senderName, socket, userName } );
-        this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+        else {
+          await createPrivateMessage(userName, senderName, message_text, this.cookieJWT);
+          await this.store.dispatch('sendPrivateMessage', { senderName, socket, userName } );
+          this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+        }
       },
       logout() {
         //Remove cookies and set user status to "offline"
