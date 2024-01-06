@@ -67,6 +67,7 @@ export default class Game extends Phaser.Scene {
 				console.log(data.scorePlayer, data.scorePlayer2);
 				this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
 				this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
+
 				this.updateUIScore();
 			}
 		});
@@ -152,8 +153,6 @@ export default class Game extends Phaser.Scene {
 		})
 
 		this.socket.on('scorePoint', (data) => {
-			console.log("point was score")
-			console.log(data)
 			if (this.gameRoom && this.gameRoom.entities){
 				if (this.gameRoom.player1Disconnected == false && this.gameRoom.player2Disconnected == false){
 					//Reset ball to the middle
@@ -287,23 +286,27 @@ export default class Game extends Phaser.Scene {
 	}
 
 	createUIScore(){
-		this.UIScorePlayer1 = this.add.dom(400, 100).createFromHTML('<span class="countdown font-mono text-6xl"> \
+		this.UIScorePlayer1 = this.add.dom(400, 100).createFromHTML('\
+		<span class="countdown font-mono text-6xl"> \
 			<span id="scorePlayer1" style="--value:0;"></span> \
-		</span>');
-		this.UIScorePlayer2 = this.add.dom(600, 100).createFromHTML('<span class="countdown font-mono text-6xl"> \
+		</span>'
+		);
+		this.UIScorePlayer2 = this.add.dom(600, 100).createFromHTML('\
+		<span class="countdown font-mono text-6xl"> \
 			<span id="scorePlayer2" style="--value:0;"></span> \
-		</span>');
+		</span>'
+		);
 	}
 
 	updateUIScore(){
 		if (this.gameRoom && this.gameRoom.score){
-			console.log("updating score UI")
 			let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1UserId.toString());
 			let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2UserId.toString());
+			console.log("updating score UI", scorePlayer1, scorePlayer2);
 
 			let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
 			let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
-			if (scorePlayer1 && scorePlayer2 && scorePlayer1 <= 3 && scorePlayer2 <= 3){
+			if (scorePlayer1 <= 3 && scorePlayer2 <= 3){
 				scorePlayer1Ele.style.setProperty('--value', scorePlayer1.toString());
 				scorePlayer2Ele.style.setProperty('--value', scorePlayer2.toString());
 			}

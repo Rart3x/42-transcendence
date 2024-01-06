@@ -17,28 +17,24 @@
         init(data : any){
             console.log("EndGameScene called")
             //Receive data from GameScene.vue once game is finish
-            // this.UIElement = data.UIElement;
             this.user = data.user;
             this.gameRoom = data.gameRoom;
             this.socket = data.socket;
             this.endGameData = data.endGameData;
         }
 
-        destroyUI(){
-            this.UIElement.destroy();
-            // if (this.UIScorePlayer1 && this.UIScorePlayer2){
-            //     this.UIScorePlayer1.destroy();
-            //     this.UIScorePlayer2.destroy();
-            // }
-	    }
-
-
         createEndGameScreenHTML(){
 			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
 				<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
-				<div class="row-start-1"> <h1 id="winLooseMessage" class="text-4xl font-bold dark:text-white ..."></h1> </div> \
-				<div class="row-start-2 col-start-1 col-end-2"><button id="replayButton" class="btn btn-accent">Play again 0/2</button></div> \
-				<div class="row-start-3 col-start-1 col-end-2"><button id="stopButton" class="btn btn-secondary">Stop</button></div> \
+				    <div class="row-start-1">\
+                        <h1 id="winLooseMessage" class="text-4xl font-bold dark:text-white ..."></h1>\
+                    </div> \
+				    <div class="row-start-2 col-start-1 col-end-2">\
+                        <button id="replayButton" class="btn btn-accent">Play again 0/2</button>\
+                        </div> \
+				    <div class="row-start-3 col-start-1 col-end-2">\
+                        <button id="stopButton" class="btn btn-secondary">Stop</button>\
+                        </div> \
 				</div> \
 			')
         }
@@ -78,13 +74,11 @@
                 if (this.gameRoom){
                     this.socket.emit('stopPlay', this.gameRoom.id);
                 }
-                this.destroyUI();
-                this.gameRoom = undefined;
                 this.children.removeAll();
+                this.UIElement.destroy();
                 this.scene.start('BootScene');
             });
         }
-
 
         setupSocketEvents(){
             this.socket.on('playAgain', () => {
@@ -113,7 +107,6 @@
                 let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
                 if (this.gameRoom)
                     this.gameRoom.playAgain = false;
-            
                 if (this.socket.id == this.gameRoom?.player1SocketId){
                     this.gameRoom.player2PlayAgain = false;
                     if (this.gameRoom.player1PlayAgain == true){
@@ -136,7 +129,6 @@
                         playAgainButton.className = "btn btn-active no-animation btn-ghost";
                     }
                 }
-                this.scene.start('BootScene');
             });
 
             this.socket.on('lobby', (data) => {
@@ -147,7 +139,6 @@
 
         create(){
             this.createEndGameScreenHTML();
-			// this.destroyUI();
 
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
 			
