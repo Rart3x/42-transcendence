@@ -87,6 +87,7 @@
         async setProfilePictures(player1Image: string, player2Image: string){
             const imagePlayer1 = await getImage(player1Image);
             const imagePlayer2 = await getImage(player2Image);
+            const self = this;
 
             let img : HTMLImageElement;
             let img2 : HTMLImageElement;
@@ -94,19 +95,19 @@
                 img = new Image();
                 if (imagePlayer1){
                     img.src = imagePlayer1
-                    img.onload = () => {
-                        this.textures.generate('userImage2', img);
-                    }
+                    // img.onload = () => {
+                    //     self.textures.generate('userImage2', img);
+                    // }
                 }
             }
 
             if (!this.textures.exists('userImage2')){
                 img2 = new Image();
                 if (imagePlayer2){
-                    img2.src = imagePlayer2
-                    img2.onload = () => {
-                        this.textures.generate('userImage2', img2);
-                    }
+                    img2.src = imagePlayer2;
+                    // img2.onload = () => {
+                    //     self.textures.generate('userImage2', img2);
+                    // }
                 }
             }
 

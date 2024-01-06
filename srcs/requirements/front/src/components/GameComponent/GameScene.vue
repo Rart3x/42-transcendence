@@ -132,7 +132,9 @@ export default class Game extends Phaser.Scene {
 				if(counter > 0){
 					counter--;
 				}
-				let countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
+				let countdownUI : any;
+				if (this.UIElement && this.UIElement.node)
+					countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
 				if (countdownUI){
 					countdownUI.style.setProperty('--value', counter.toString());
 					if (counter == 0){

@@ -26,7 +26,7 @@
         createEndGameScreenHTML(){
             this.UIElement = this.add.dom(450, 400).createFromHTML('\
             <div class="flex flex-col items-center justify-center min-h-screen">\
-                <div id="winLooseMessage" class="text-xl font-bold dark:text-white mb-4"></div>\
+                <div id="winLooseMessage" class="text-lg font-bold dark:text-white mb-4"></div>\
                 <button id="replayButton" class="btn btn-accent">Play again 0/2</button>\
                 <button id="stopButton" class="btn btn-secondary mt-4">Stop</button>\
             </div>');
