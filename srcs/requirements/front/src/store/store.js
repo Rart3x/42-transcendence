@@ -3,12 +3,16 @@ import io from 'socket.io-client';
 
 const store = createStore({
   state: {
-    socket: null
+    socket: null,
+    invited: false
   },
   mutations: {
     SET_SOCKET(state, socket) {
       state.socket = socket;
     },
+    SET_INVITED(state, invited) {
+      state.invited = invited;
+    }
   },
   actions: {
     banUser(context, body) {

@@ -2,14 +2,12 @@
 
 //IMPORTS
 
-import { computed, onMounted, ref } from "vue";
-
 //Linear interpolation
 import '@geckos.io/snapshot-interpolation';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
 //Socket communication
-import io, { Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 
 //Game library
 import Phaser from 'phaser';
@@ -17,19 +15,10 @@ import Phaser from 'phaser';
 //Game Physics library
 import * as Matter from 'matter-js';
 
-//Post and Get Methods
-import { getGameRoomByRoomId, getCurrentGameRoomByUserId, getLastGameRoomIfAfk, getUserByUserId, getImage } from '../api/get.call';
-import { setClientSocket } from '../api/post.call';
-
-//Cookie
-import Cookies from 'js-cookie';
-
 //Interfaces
 import Entities from '../../entities/entities';
 
 import GameRoom from "../../gameRoom/gameRoom";
-
-import Player from "../../player/player";
 
 //Initialize snapshot library
 const SI = new SnapshotInterpolation();
@@ -232,6 +221,7 @@ export default class Game extends Phaser.Scene {
 			if (this.socket)
 				this.socket.emit('readyAfterInitialisation', this.gameRoom.id);
 		}
+		
 		// if (this.user && this.user.userId != null){
 		// 	let gameRoom : any = await getLastGameRoomIfAfk(self.user.userId, self.cookieJWT);
 		// 	if (gameRoom){

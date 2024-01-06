@@ -43,6 +43,18 @@
             ');
         }
 
+        createLocalGameLoadingHTML(){
+            this.UIElement = this.add.dom(500, 400).createFromHTML(' \
+            <div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
+                <div class="row-start-1 col-start-2 col-end-3 ..."> \
+                    <h1 class="text-4xl font-bold dark:text-white ...">Creating the game...</h1> \
+                </div> \
+                <div class="row-start-2 col-start-2 col-end-3 ..."> \
+                    <span class=" loading loading-dots loading-lg"></span> \
+                </div> \
+            </div>');
+        }
+
         createChooseGameModeHTML(){
             this.UIElement = this.add.dom(500, 400).createFromHTML(' \
                 <div id="parent" class="grid grid-rows-3 grid-cols-5 justify-items-center ..."> \
@@ -121,9 +133,16 @@
         gamePage(){
             //Keep reference of the instance this for arrow functions
             const self = this;
-            this.createGamePageHTML();
-            this.setupInputListeners(self);
-            this.setupEventListeners(self);
+            const invited = store.state.invited;
+            //Reset the value
+            store.commit('SET_INVITED', false);
+            if (invited) {
+                this.createLocalGameLoadingHTML();
+            } else {
+                this.createGamePageHTML();
+                this.setupInputListeners(self);
+                this.setupEventListeners(self);
+            }
             this.setupEventSocketListeners();
         }
 

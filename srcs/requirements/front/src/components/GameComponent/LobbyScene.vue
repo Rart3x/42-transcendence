@@ -206,6 +206,7 @@
                 if (self.gameRoom){
                     self.socket.emit('playerLeaveLobby', self.gameRoom.id);
                     self.UIElement.destroy();
+                    self.scene.start('BootScene');
                     // self.textures.remove('userImage2')
                     // self.textures.remove('userImage1')
                     // self.gamePage(self);

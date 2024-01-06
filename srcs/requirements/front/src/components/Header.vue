@@ -103,6 +103,7 @@
         if (emit == "invitationInGameAccepted" || emit == "invitationInGameDeclined")
           this.invitationInGameSuccess = false;
         if (emit == "invitationInGameAccepted"){
+          this.store.commit('SET_INVITED', true);
           this.router.push('/game');
           this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: this.hostGame.id })
         }
@@ -170,12 +171,14 @@
 
         this.store.state.socket.on('invitationInGameAccepted', (body) => {
           this.hostName = body.host;
+          this.store.commit('SET_INVITED', true);
           this.router.push('/game');
           this.store.state.socket.emit('localGame', { playerId: this.user.userId, hostGameId: body.hostGameId });
         });
 
         this.store.state.socket.on('invitationInGameDeclined', (body) => {
           this.hostName = body.host;
+          this.store.commit('SET_INVITED', false);
           deleteGameRoomById(body.hostGameId.toString());
           this.inviteInGameFailed = true;
           setTimeout(() => {

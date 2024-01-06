@@ -27,7 +27,7 @@
 			this.UIElement = this.add.dom(500, 400).createFromHTML(' \
 				<div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y-8"> \
 				    <div class="row-start-1">\
-                        <h1 id="winLooseMessage" class="text-4xl font-bold dark:text-white ..."></h1>\
+                        <h1 id="winLooseMessage" class="text-xl font-bold dark:text-white"></h1>\
                     </div> \
 				    <div class="row-start-2 col-start-1 col-end-2">\
                         <button id="replayButton" class="btn btn-accent">Play again 0/2</button>\
