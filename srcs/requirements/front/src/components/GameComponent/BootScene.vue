@@ -21,8 +21,9 @@
         async init(){
             //Set reference folder from where we'll load textures, images, ...
             this.load.setPath(".");
-            if (store.state.socket)
+            if (store.state.socket){
                 this.socket = store.state.socket;
+            }
             else
                 return ;
             const cookieUserId = Cookies.get('UserId');
@@ -96,10 +97,12 @@
                         if (target.id == "choseCustomGameMode" || target.id == "choseNormalGameMode"){
                             if (target.id == "choseCustomGameMode"){
                                 self.UIElement.destroy();
+                                // const socket = io('http://localhost:3000/game');
                                 self.socket.emit('playerJoinCustomQueue', self.user.userId);
                             }
                             else{
                                 self.UIElement.destroy();
+                                // const socket = io('http://localhost:3000/game');
                                 self.socket.emit('playerJoinNormalQueue', self.user.userId);
                             }
                             self.createMatchmakingHTML();

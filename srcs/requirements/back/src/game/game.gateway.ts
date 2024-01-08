@@ -81,13 +81,13 @@ const randomInt = (min, max) =>
 	cors : {
 		origin: '*',
 	},
-	// path: '/game'
+	namespace: '/game'
 })
+
 export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
 	@WebSocketServer()
-	
-	server: Server = io("https://localhost:3000");
+	server: Server;
 
 	queueListNormalGame : Map<number, string> = new Map();
 	queueListCustomGame : Map<number, string> = new Map();
@@ -101,7 +101,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private readonly ScoreService: ScoreService
 	){}
 
-	handleConnection(socket: Socket){} 
+	handleConnection(socket: Socket){
+		console.log("connected to the game")
+	} 
 
 	handleDisconnect(socket: Socket) {
 		//If disconnected user was inside a game room
@@ -551,7 +553,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		var localRoom : GameRoom;
 		var user1 : User;
 		var user2 : User;
-
+		
+		console.log("event receive");
 		if (this.queueListNormalGame.size >= 2){
 			const first = this.queueListNormalGame.entries().next().value;
 

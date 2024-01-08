@@ -15,6 +15,11 @@ const store = createStore({
     }
   },
   actions: {
+    connectToGameNameSpace({ commit }){
+      const socket = io('http://localhost:3000/game');
+      console.log('Connected to game namespace');
+      commit('SET_SOCKET', socket);
+    },
     banUser(context, body) {
       const socket = context.state.socket;
       if (socket)
@@ -51,8 +56,17 @@ const store = createStore({
         console.error('error: socket uninitialized');
     },
     initializeSocket({ commit }) {
-      const socket = io('http://localhost:3000');
-      commit('SET_SOCKET', socket);
+      return new Promise((resolve, reject) => {
+        console.log("reset socket");
+        const socket = io('http://localhost:3000');
+        socket.on('connect', () => {
+          commit('SET_SOCKET', socket);
+          resolve();
+        });
+        socket.on('connect_error', (err) => {
+          reject(err);
+        });
+      });
     },
     invitationInGame(context, body) {
       const socket = context.state.socket;

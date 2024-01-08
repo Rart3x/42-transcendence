@@ -1,27 +1,53 @@
-<script setup>
+<script>
   import Cookies from "js-cookie";
   import Header from "./components/Header.vue";
   import Footer from "./components/Footer.vue";
-  import { onMounted, ref } from "vue";
   import { getUserByUserId } from "./components/api/get.call";
   import "./assets/main.css"
+  import EventBus from './services/event-bus.ts';
 
-  const user = ref(null);
-
-  onMounted(async () => {
-    const cookieUserId = Cookies.get('UserId');
-    const cookieJWT = Cookies.get('Bearer');
-
-    if (cookieUserId !== undefined && cookieJWT !== undefined)
-      user.value = await getUserByUserId(cookieUserId, cookieJWT);
-  });
+  export default {
+    name: 'App',
+    components: {
+      Footer,
+      Header
+    },
+    data(){
+      return {
+        user: null,
+        headerKey: 0
+      }
+    },
+    methods:{
+      refreshHeader(){
+        this.headerKey += 1;
+      }
+    },
+    async mounted(){
+      // Subscribe to an event
+      const cookieUserId = Cookies.get('UserId');
+      const cookieJWT = Cookies.get('Bearer');
+      if (cookieUserId !== undefined && cookieJWT !== undefined)
+        this.user= await getUserByUserId(cookieUserId, cookieJWT);
+    },
+    created() {
+      console.log("created called");
+      const eventBus = EventBus.getInstance();
+      console.log("event bus created");
+      eventBus.subscribe('refreshHeader', this.refreshHeader);
+    },
+    beforeDestroy() {
+      const eventBus = EventBus.getInstance();
+      eventBus.unsubscribe('refreshHeader', this.refreshHeader);
+    },
+  };
 </script>
 
 <template>
   <div class="wrapper">
     <body>
       <div class="main-content">
-        <Header v-if="user" />
+        <Header ref="header" :key="headerKey" v-if="user" />
         <router-view></router-view>
         <Footer v-if="$route.path !== '/game'"/>
       </div>

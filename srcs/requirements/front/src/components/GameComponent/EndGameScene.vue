@@ -3,6 +3,7 @@
     import { Socket } from 'socket.io-client';
 
     export default class LobbyScene extends Scene {
+
         UIElement : GameObjects.DOMElement;
         user: any;
         socket: Socket;
@@ -14,8 +15,7 @@
             super({ key: 'EndGameScene' });
         }
         
-        init(data : any){
-            console.log("EndGameScene called")
+        async init(data : any){
             //Receive data from GameScene.vue once game is finish
             this.user = data.user;
             this.gameRoom = data.gameRoom;
@@ -111,7 +111,7 @@
                         playAgainButton.className = "btn btn-active no-animation btn-ghost";
                     }
                 }
-                else if (this.gameRoom?.player2SocketId){
+                else if (this.gameRoom.player2SocketId){
                     this.gameRoom.player1PlayAgain = false;
                     if (this.gameRoom.player2PlayAgain == true){
                         playAgainButton.innerText = "Play again 1/2";
