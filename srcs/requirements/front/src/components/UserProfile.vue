@@ -195,6 +195,9 @@
         this.store.state.socket.on('friendRemoved', () => {
           this.updateFriends();
         })
+        this.store.state.socket.on('friendAdded', async () => {
+          this.updateFriends();
+        });
         this.store.state.socket.on('newChannelSuggestion', () => {
           this.updateAllChannels();
         })
