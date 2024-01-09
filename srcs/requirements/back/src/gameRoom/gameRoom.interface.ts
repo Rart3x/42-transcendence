@@ -9,6 +9,7 @@ import Entities  from '../entities/entities';
 
 export interface GameRoom {
     roomId: number;
+    inCooldown: Boolean;
     player1UserId: number,
     player2UserId: number,
     player1SocketId: string;

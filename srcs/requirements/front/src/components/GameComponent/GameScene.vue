@@ -166,6 +166,8 @@ export default class Game extends Phaser.Scene {
 		});
 
 		this.socket.on('gameFinish', (data) => {
+			// Assume `this.game` is your Game instance
+			this.removeSocketEvents();
 			this.scene.start('EndGameScene', { user: this.user, gameRoom: this.gameRoom, socket: this.socket, endGameData: data });
 			this.children.removeAll();
 			if (this.gameRoom)
@@ -213,6 +215,17 @@ export default class Game extends Phaser.Scene {
 			}
 		}, this);
 	}
+
+	removeSocketEvents() {
+		this.socket.off('updateScore');
+		this.socket.off('currentGameInformation');
+		this.socket.off('localGameCreated');
+		this.socket.off('gameStart');
+		this.socket.off('scorePoint');
+		this.socket.off('gameFinish');
+		this.socket.off('snapshot');
+	}
+
 	
 	async create(){
 		if (this.gameRoom){

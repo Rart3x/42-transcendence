@@ -108,8 +108,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	handleDisconnect(socket: Socket) {
 		//If disconnected user was inside a game room
 		for (let i = 0; i < this.gameRooms.length; i++){
-			if (this.gameRooms[i].finish == false && this.gameRooms[i].running == true
-					&& this.gameRooms[i].player1Spawn == true && this.gameRooms[i].player2Spawn == true){
+			if (this.gameRooms[i].finish == false && this.gameRooms[i].running == true){
 					if (this.gameRooms[i].player1SocketId == socket.id){
 						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
 							winUserId: this.gameRooms[i].player2UserId,
@@ -923,19 +922,21 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			else{
 				gameRoom.player2Spawn = true;
 			}
-			if (gameRoom.finish == false && gameRoom.player1Spawn == true && gameRoom.player2Spawn == true){
+			if (gameRoom.finish == false && gameRoom.player1Spawn == true && gameRoom.player2Spawn == true && gameRoom.inCooldown == false){
 				//to synchronize countdown on front end back
 				this.server.to(gameRoom.player1SocketId).emit('gameStart');
 				this.server.to(gameRoom.player2SocketId).emit('gameStart');
+				gameRoom.inCooldown = true;
 				setTimeout(() => {
 					gameRoom.started = true;
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
 						x: 4,
 						y: 4
 					});
-				gameRoom.pausedAfk = false;
-				gameRoom.player2Ready = false;
-				gameRoom.player1Ready = false;
+					gameRoom.inCooldown = false;
+					gameRoom.pausedAfk = false;
+					gameRoom.player2Ready = false;
+					gameRoom.player1Ready = false;
 				}, 3000);
 			}
 		}

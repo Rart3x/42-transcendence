@@ -11,6 +11,7 @@ import Entities from '../entities/entities';
  export function createGameRoom(gameRoomId: number, player1: any, player2: any, customGame: boolean): GameRoom {
       return {
           roomId: gameRoomId,
+          inCooldown: false,
           player1SocketId: player1[1],
           player2SocketId: player2[1],
           player1UserId: player1[0],

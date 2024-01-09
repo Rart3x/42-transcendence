@@ -69,7 +69,7 @@
                 }
                 this.children.removeAll();
                 this.UIElement.destroy();
-                this.scene.start('BootScene');
+                window.location.href = "/game";
             });
         }
 
