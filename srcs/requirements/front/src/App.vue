@@ -42,13 +42,15 @@
 </script>
 
 <template>
-    <body>
-      <div class="main-content">
-        <Header ref="header" :key="headerKey" v-if="user" />
-        <router-view></router-view>
-        <Footer v-if="$route.path !== '/game'"/>
-      </div>
-    </body>
+    <div class="wrapper">
+      <body>
+        <div class="main-content">
+          <Header ref="header" :key="headerKey" v-if="user" />
+          <router-view></router-view>
+          <Footer v-if="$route.path !== '/game'"/>
+        </div>
+      </body>
+   </div>
 </template>
 
 <style>

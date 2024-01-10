@@ -91,7 +91,7 @@
 </template>
 
 <style scoped>
-  /* body { min-height: 100%; } */
+  body { min-height: 100%; }
   .highlight { background-color: #f0f0f0; }
   .visible { background-color: transparent; }
 
