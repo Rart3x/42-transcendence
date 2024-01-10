@@ -146,6 +146,7 @@
           const response = await setPassword(channelName, sha256(password), this.cookieJWT);
           if (response) {
             this.setPassSuccess = true;
+            this.updateChannels();
             setTimeout(() => {
               this.setPassSuccess = false;
             }, 3000);
