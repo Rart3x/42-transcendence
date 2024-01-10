@@ -1,7 +1,6 @@
 import Cookies from "js-cookie";
 import { createRouter, createWebHistory } from "vue-router";
 import { getChannelByName, getUserByUserId} from "../components/api/get.call";
-import store from '../store/store.js';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

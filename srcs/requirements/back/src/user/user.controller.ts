@@ -110,6 +110,11 @@ export class UserController {
     return await this.userService.getUserByName(userName);
   }
 
+  @Get('getUserByDisplayName/:displayName')
+  async getUserByDisplayName(@Param('displayName') displayName: string): Promise<User> {
+    return await this.userService.getUserByDisplayName(displayName);
+  }
+
   @Get('getUser/:userId')
   async getUserById(@Param('userId') userId: number): Promise<User> {
    try {

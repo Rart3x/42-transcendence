@@ -78,7 +78,7 @@
       async createPrivateMessageInDB(userName, senderName, message_text) {
         const user1 = await getUserByUserName(senderName, this.cookieJWT);
         const socket = user1.socket;
-        if (message_text === "/game") { 
+        if (message_text === "/game" && userName !== senderName) { 
           message_text = "";
           this.modalMessage = false;
           var gameRoom = await createGameRoom(userName, user1.userName, this.cookieJWT);

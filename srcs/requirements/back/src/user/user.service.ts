@@ -216,6 +216,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     const createUserInput: Prisma.UserCreateInput = {
       ...data,
       userName: data.userName,
+      displayName: data.userName,
     };
  
     return this.prisma.user.create({
@@ -297,6 +298,15 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   async getUserByName(userName: string) {
     return await this.prisma.user.findFirst({
       where: { userName: userName },
+      include: {
+        channels: true,
+      },
+    });
+  }
+
+  async getUserByDisplayName(displayName: string) {
+    return await this.prisma.user.findFirst({
+      where: { displayName: displayName },
       include: {
         channels: true,
       },

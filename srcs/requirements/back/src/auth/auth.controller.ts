@@ -53,7 +53,7 @@ export class AuthController {
                     const userData = await userResponse.json();
                     const payload = { sub: userData.id, username: userData.login };
 
-                    var user = await this.UserService.getUserByName(userData.login);
+                    var user = await this.UserService.getUserByDisplayName(userData.login);
                     if (user){
                         //If user already exist we set the cookies back and set its status to "online"
                         const access_token = await this.JwtService.signAsync(payload);

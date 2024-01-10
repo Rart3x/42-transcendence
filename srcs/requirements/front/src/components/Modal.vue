@@ -274,6 +274,8 @@
         left: 0;
         height: 101%;
         width: 100%;
+        max-height: 100%;
+        overflow-y: auto;
     }
     .messages .message {
         clear: both;
@@ -329,4 +331,9 @@
         transition: background .2s ease;
     }
     .message-box .message-submit:hover { background: #5a8; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+
 </style>
