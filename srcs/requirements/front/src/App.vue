@@ -31,9 +31,7 @@
         this.user= await getUserByUserId(cookieUserId, cookieJWT);
     },
     created() {
-      console.log("created called");
       const eventBus = EventBus.getInstance();
-      console.log("event bus created");
       eventBus.subscribe('refreshHeader', this.refreshHeader);
     },
     beforeDestroy() {

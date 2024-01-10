@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors, Query } from '@nestjs/common';
+import { Body, Delete, Controller, UploadedFile, Get, Param, Post, UseInterceptors, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { PartialUserDTO } from './dto/partial-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -112,7 +112,14 @@ export class UserController {
 
   @Get('getUser/:userId')
   async getUserById(@Param('userId') userId: number): Promise<User> {
-    return await this.userService.getUserById(userId);
+   try {
+     return await this.userService.getUserById(userId);
+   } catch (e) {
+     if (e.message === 'User not found') {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+     throw e;
+   }
   }
 
   @Get('getAllUsers/')

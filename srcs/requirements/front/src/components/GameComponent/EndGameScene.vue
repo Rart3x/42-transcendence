@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Scene, GameObjects, DOM } from 'phaser'
     import { Socket } from 'socket.io-client';
+    import EventBus from '../../services/event-bus';
 
     export default class LobbyScene extends Scene {
 
@@ -69,7 +70,8 @@
                 }
                 this.children.removeAll();
                 this.UIElement.destroy();
-                window.location.href = "/game";
+                const event = EventBus.getInstance();
+                event.emit('refreshGame');
             });
         }
 

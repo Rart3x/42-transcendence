@@ -305,10 +305,13 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
 
   async getUserById(userId: number) {
     const userIdNumber = Number(userId);
-    return await this.prisma.user.findUnique({
+    const user =  await this.prisma.user.findUnique({
       where: { userId: userIdNumber }
     });
-   }
+    if (!user)
+      throw new Error('User not found');
+    return user;
+  }
    
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {

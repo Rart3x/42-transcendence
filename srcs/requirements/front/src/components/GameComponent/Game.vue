@@ -9,24 +9,29 @@ export default {
  components: {
    GameConfig
  },
- setup() {
-  const eventBus = EventBus.getInstance();
-   onBeforeMount(() => {
-     console.log('Enter the route');
-     store.dispatch('connectToGameNameSpace');
-   });
-
-   onBeforeUnmount(() => {
-     console.log('Leaving the route');
-      eventBus.emit('refreshHeader');
-     store.dispatch('initializeSocket');
-   });
+ data() {
+  return {
+    gameKey: 0
+  }
  },
+ methods: {
+  refreshGame(){
+    this.gameKey += 1;
+  }
+ },
+ created() {
+    const eventBus = EventBus.getInstance();
+      eventBus.subscribe('refreshGame', this.refreshGame);
+    },
+    beforeDestroy() {
+      const eventBus = EventBus.getInstance();
+      eventBus.unsubscribe('refreshGame', this.refreshGame);
+    },
 };
 </script>
 
 <template>
-  <div id="game" class="bg-black font-mono">
+  <div :key="gameKey" id="game" class="bg-black font-mono">
     <GameConfig/>
   </div>
 </template>

@@ -3,7 +3,6 @@ import {
 	SubscribeMessage,
 	WebSocketGateway,
 	WebSocketServer,
-	WsResponse,
 	MessageBody,
 	ConnectedSocket,
 	OnGatewayDisconnect,
@@ -14,7 +13,6 @@ import {
 import {  createGameRoom } from '../gameRoom/gameRoom';
 
 //Socket
-import { io } from 'socket.io-client';
 import { Socket } from 'socket.io';
 
 //Game Engine
@@ -30,7 +28,7 @@ import { GameRoomService } from '../gameRoom/gameRoom.service';
 import { ScoreService } from '../score/score.service';
 
 //ORM
-import { Prisma, User } from '@prisma/client';
+import { User } from '@prisma/client';
 
 //Interfaces
 import { GameRoom } from '../gameRoom/gameRoom.interface';
@@ -43,45 +41,34 @@ import Entities from '../entities/entities';
 import Ball from '../entities/ball';
 import Player from '../entities/player';        
 
-
 //Server
 import { Server } from 'ws';
-import { warn } from 'console';
-import { find } from 'rxjs';
 
-
-//-------------------------------------------------------------------------------------------------------------------------------------------
-
-//ALIASES------------------------------------------------------------------------------------------------------------------------------------
+//Aliases
 const Engine = Matter.Engine,
 	World = Matter.World,
 	Render = Matter.Render,
 	Runner = Matter.Runner,
 	Bodies = Matter.Bodies,
 	Composite = Matter.Composite;
-//-------------------------------------------------------------------------------------------------------------------------------------------
 
-//DEFINES------------------------------------------------------------------------------------------------------------------------------------
+//Defines
 const SERVER_REFRESH_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 94;
 const MAX_BOUNCING_ANGLE = 5 * Math.PI/ 12;
-const AFK_RECONNECTION_DELAY = 10000;
-//-------------------------------------------------------------------------------------------------------------------------------------------
 
-//UTILS--------------------------------------------------------------------------------------------------------------------------------------
+//Utils
 function Between(min : number, max : number){
 	return (Math.random() * (max - min) + min)
 }
 
 const randomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
-//-------------------------------------------------------------------------------------------------------------------------------------------
 
 @WebSocketGateway({
 	cors : {
 		origin: '*',
 	},
-	namespace: '/game'
 })
 
 export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
