@@ -68,8 +68,7 @@
 </script>
 
 <template>
-  <div class="overflow-x-auto min-h-screen bg-base-200">
-    <div v-if="combinedData && combinedData.length > 0" class="table grid grid-cols-4">
+    <div v-if="combinedData && combinedData.length> 0" class="table grid grid-cols-4 overflow-y-auto">
       <table class="table table-fixed w-full">
         <tbody>
           <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index" v-if="combinedData && user">
@@ -205,7 +204,6 @@
       </table>
     </div>
     <div v-else class="error_div"> <p> No game played! </p> </div>
-  </div>
 </template>
 
 <style scoped>

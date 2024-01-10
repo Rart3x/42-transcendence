@@ -254,7 +254,7 @@
     :mutedSuccess="mutedSuccess" :channelNameMuted="channelNameMuted" :bannedSuccess="bannedSuccess" :channelNameBanned="channelNameBanned"
     :channelNameKicked="channelNameKicked" :kickedSuccess="kickedSuccess" 
   />
-  <div class="navbar bg-base-100">
+  <div class="navbar h-74 bg-base-100">
     <div class="navbar-start">
       <Drawer :user="user" :imageSrc="imageSrc" :logout="logout" :display="false" :userName="userName" :jwtToken="cookieJWT" :start="true"/>
     </div>

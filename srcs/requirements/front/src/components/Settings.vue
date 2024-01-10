@@ -109,7 +109,7 @@
 		:gamePlayed="user.gamePlayed"
 		:gameWon="user.gameWon"
   	/>
-	<div class="grid grid-cols-1 grid-rows-6 bg-base-200 min-h-screen font-mono place-items-center border-2 border-gray-500">
+	<div class="grid grid-cols-1 grid-rows-6 min-h-[calc(100vh-248px)] bg-base-200 font-mono place-items-center">
 		<div class="items-center">
 			<label class="block text-base font-medium">Username</label>
 			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" maxlength="20" pattern="^[A-Za-z0-9_"/>

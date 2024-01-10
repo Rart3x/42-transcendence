@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Scene, GameObjects, DOM } from 'phaser'
+    import { Scene, GameObjects, DOM } from 'phaser';
     import { Socket } from 'socket.io-client';
     import { getImage} from '../api/get.call';
     import GameRoom from "../../gameRoom/gameRoom";

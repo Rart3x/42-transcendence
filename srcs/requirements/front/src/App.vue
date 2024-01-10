@@ -42,7 +42,6 @@
 </script>
 
 <template>
-  <div class="wrapper">
     <body>
       <div class="main-content">
         <Header ref="header" :key="headerKey" v-if="user" />
@@ -50,10 +49,10 @@
         <Footer v-if="$route.path !== '/game'"/>
       </div>
     </body>
-  </div>
 </template>
 
 <style>
   .main-content { flex-grow: 1; }
   .wrapper { display: flex; flex-direction: column; min-height: 100vh;}
 </style>
+ 

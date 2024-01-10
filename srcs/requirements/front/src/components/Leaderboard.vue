@@ -41,7 +41,7 @@
     :gamePlayed="user.gamePlayed"
     :gameWon="user.gameWon"
   />
-  <div class="overflow-x-auto min-h-screen bg-base-200">
+  <div class="overflow-x-auto min-h-[calc(100vh-248px)] bg-base-200">
     <div v-for="(user,index) in users" :key="user">
       <div class="stats shadow flex flex-row" :class="{ 'gold': index === 0, 'silver': index === 1, 'bronze': index === 2 }">
         <div v-if="user" class="stat">

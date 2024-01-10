@@ -274,7 +274,7 @@
     :gamePlayed="user.gamePlayed"
     :gameWon="user.gameWon"
   />
-  <div class="bg-base-200 min-h-screen overflow-x-auto font-mono place-items-center border-2 border-gray-500">
+  <div class="bg-base-200 min-h-[calc(100vh-248px)] overflow-x-auto font-mono place-items-center">
     <div class="buttons">
       <button class="btn glass" @click="showContent('friends')">Friends</button>
       <button class="btn glass" @click="showContent('channels')">Channels</button>

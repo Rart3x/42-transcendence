@@ -5,7 +5,7 @@
 </script>
 
 <template>
-    <footer class="footer p-10 bg-base-100 text-neutral-content">
+    <footer class="footer p-10 h-100 bg-base-100 text-neutral-content">
         <nav style="text-align: center; align-items: center;">
             <div class="grid grid-flow-col gap-4">
                 <a href="https://github.com/Rart3x">

@@ -62,7 +62,7 @@
 </script>
 
 <template>
-  <div class="hero min-h-screen bg-base-200">
+  <div class="hero min-h-[calc(100vh-174px)] bg-base-200">
     <div class="hero-content text-center">
       <div class="max-w-4xl">
         <h1 class="text-7xl flex justify-center font-mono font-bold bg-clip-text bg-gradient-to-r from-primary to-secondary">
@@ -91,7 +91,7 @@
 </template>
 
 <style scoped>
-  body { min-height: 100%; }
+  /* body { min-height: 100%; } */
   .highlight { background-color: #f0f0f0; }
   .visible { background-color: transparent; }
 
