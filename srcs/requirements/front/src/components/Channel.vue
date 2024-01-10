@@ -86,10 +86,23 @@
   };
 
   const isUserMuteInChannelInDB = async (channelName, userId) => {
-    const channel = await getChannelByName(channelName, cookieJWT.value);
-    if (channel && channel.channelUsersMute)
-      return channel.channelUsersMute.some(operator => operator.userId === userId);
-  };
+  const channel = await getChannelByName(channelName, cookieJWT.value);
+  
+  if (channel && channel.channelUsersMute) {
+    const userMute = channel.channelUsersMute.find(user => user.userId === userId);
+    if (userMute) {
+      const currentTime = new Date();
+      const mutedUntilDB = new Date(userMute.mutedUntil);
+      
+      if (currentTime > mutedUntilDB) {
+        await unmuteUser(channelName, userId, cookieJWT.value);
+        return false;
+      }
+      return true;
+    }
+  }
+  return false;
+};
 
   const muteUserFromChannelInDB = async (channelNameMute, userName, selectedDuration) => {
     const response = await muteUserFromChannel(channelNameMute, userName, selectedDuration, cookieJWT.value);
@@ -244,30 +257,6 @@
     }
   }
 
-  const checkMuteStatus = async () => {
-    const currentTime = new Date();
-
-    for (const user of users.value) {
-      if (user.userId !== actualUser.value.userId) {
-        const isMuted = await isUserMuteInChannelInDB(route.params.channelName, user.userId, cookieJWT.value);
-        
-        if (isMuted) {
-          const muteDetails = channel.value.channelUsersMute.find(user => user.userId === user.userId).mutedUntil;
-          const muteUntil = new Date(muteDetails);
-
-          if (currentTime > muteUntil) {  
-            await unmuteUser(route.params.channelName, user.userName, cookieJWT.value);
-            user.isMuted = false;
-          }
-        }
-      }
-    }
-    users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
-    updateUserImages(users.value);
-  };
-
-  setInterval(checkMuteStatus, 30000);
-
   onMounted(async () => {
     let cookieUserId = Cookies.get('UserId');
 		cookieJWT.value = Cookies.get('Bearer');
@@ -288,7 +277,6 @@
 
       if (actualUser.value.image)
         actualUser.value.image = await getImage(actualUser.value.image);
-      actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId, cookieJWT.value);
 
       let usersData = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
       await updateUserImages(usersData);
@@ -298,6 +286,7 @@
       scrollToBottom();
       await updateMessageSenders(messages.value, cookieJWT.value);
       users.value.splice(0, users.value.length, ...usersData);
+      actualUserMuted.value = await isUserMuteInChannelInDB(route.params.channelName, actualUser.value.userId, cookieJWT.value);
       socketOn();
 		}
   });
