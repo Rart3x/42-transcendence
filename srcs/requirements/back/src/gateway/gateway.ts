@@ -108,6 +108,11 @@ export class AppGateway implements OnModuleInit{
     this.server.to(body.socket).emit('newChannelMember', body);
   }
 
+  @SubscribeMessage('newChannelPass')
+  handleNewChannelPass(@MessageBody() body): any {
+    this.server.to(body.socket).emit('newChannelPass', body);
+  }
+
   @SubscribeMessage('newChannelSuggestion')
   handleNewChannelSuggestion(@MessageBody() body): any {
     this.server.to(body.socket).emit('newChannelSuggestion', body);

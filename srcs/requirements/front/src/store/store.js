@@ -103,6 +103,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    newChannelPass(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('newChannelPass', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     newChannelSuggestion(context, body) {
       const socket = context.state.socket;
       if (socket)
