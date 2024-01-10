@@ -146,6 +146,12 @@
           const response = await setPassword(channelName, sha256(password), this.cookieJWT);
           if (response) {
             this.setPassSuccess = true;
+            const channelUsers = await getUsersFromChannel(channelName, this.cookieJWT);
+            for (let i = 0; i < channelUsers.length; i++) {
+              if (channelUsers[i].status === 'online')
+                await this.store.dispatch('newChannelPass', { socket: channelUsers[i].socket })
+            }
+            this.updateChannels();
             setTimeout(() => {
               this.setPassSuccess = false;
             }, 3000);
@@ -197,6 +203,9 @@
         })
         this.store.state.socket.on('friendAdded', async () => {
           this.updateFriends();
+        });
+        this.store.state.socket.on('newChannelPass', () => {
+          this.updateChannels();
         });
         this.store.state.socket.on('newChannelSuggestion', () => {
           this.updateAllChannels();

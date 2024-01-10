@@ -386,8 +386,7 @@ export class ChannelService {
     }
   
     const mutedUntil = new Date();
-    mutedUntil.setMinutes(mutedUntil.getMinutes() + duration);
-  
+    mutedUntil.setUTCMinutes(mutedUntil.getUTCMinutes() + duration);
     await this.prisma.userChannelMute.create({
       data: {
         mutedUntil: mutedUntil,
