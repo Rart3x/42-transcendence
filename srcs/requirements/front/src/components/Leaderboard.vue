@@ -43,10 +43,10 @@
   />
   <div class="overflow-x-auto min-h-screen bg-base-200">
     <div v-for="(user,index) in users" :key="user">
-      <div class="stats shadow flex flex-row">
-        <div class="stat">
+      <div class="stats shadow flex flex-row" :class="{ 'gold': index === 0, 'silver': index === 1, 'bronze': index === 2 }">
+        <div v-if="user" class="stat">
           <div class="stat-title"> Rank </div>
-          <div v-if="user" class="stat-value"> {{ index + 1 }} </div>
+          <div class="stat-value">{{ index + 1 }}</div>
         </div>
         <div class="stat grid grid-col-2">
           <div class="grid col-start-1">
@@ -62,12 +62,8 @@
         </div>
         </div>
         <div v-if="user" class="stat">
-          <div class="stat-title"> Games Total </div>
-          <div class="stat-value"> {{ user.gamePlayed }} </div>
-        </div>
-        <div v-if="user" class="stat">
-          <div class="stat-title"> Games won </div>
-          <div class="stat-value"> {{ user.gameWon }} </div>
+          <div class="stat-title"> Games </div>
+          <div class="stat-value"> {{ user.gameWon + "/" + user.gamePlayed }} </div>
         </div>
         <div v-if="user" class="stat">
           <div class="stat-title"> Winrate </div>
@@ -85,4 +81,8 @@
 
 <style scoped>
   .stats { border-radius: unset; }
+
+  .gold { background-color: #4169E1; }
+  .silver { background-color: #6495ED; }
+  .bronze { background-color: #87CEEB; }
 </style>
