@@ -58,9 +58,6 @@ model GameRoom {
   endDate      DateTime?
 
   users        User[]
-
-  statId       Int?    @unique
-  stat         Stat?   @relation("GameRoomStat", fields: [statId], references: [statId] , onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Message {
@@ -86,18 +83,6 @@ model PrivateMessage {
 
   receiverName        String
   receiver            User      @relation("PrivateMessageReceiver", fields: [receiverName], references: [userName], onDelete: Cascade, onUpdate: Cascade)
-}
-
-model Stat {
-  statId      Int       @id @default(autoincrement())
-  
-  gameRoomId  Int       @unique
-  gameRoom    GameRoom? @relation("GameRoomStat")
-
-  userId      Int
-  user        User      @relation("GameStats", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-
-  users       User[]    @relation("UserStats")
 }
 
 model Score {
@@ -151,8 +136,6 @@ model User {
   scorer       UserScore[]
 
   winner       Score[]
-  stat          Stat[]     @relation("GameStats")
-  stats         Stat[]     @relation("UserStats")
 
   displayName   String?    @unique
   image         String     @default("default_pic.jpg")
