@@ -136,9 +136,8 @@ export class UserController {
   @Get('checkA2F/:userName')
   async checkA2F(@Param('userName') userName: string, @Query('token') token: string): Promise<boolean> {
     const user = await this.userService.getUserByName(userName);
-    if (!user) {
+    if (!user)
       console.warn("error: user not found");
-    }
     const checkVal = authenticator.check(token, user.A2FSecret);
     if (checkVal)
       this.userService.setStatus(user.userName, "online");
@@ -149,9 +148,8 @@ export class UserController {
   async updateA2F(@Body('userName') userName: string, @Body('A2F') A2F: boolean): Promise<User> {
     
     const user = await this.userService.updateA2F(userName, A2F);
-    if (!user) { 
+    if (!user)
       console.warn("error: user not found");
-    }
     return user;
   }
 
