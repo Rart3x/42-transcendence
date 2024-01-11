@@ -109,7 +109,7 @@
 		:gamePlayed="user.gamePlayed"
 		:gameWon="user.gameWon"
   	/>
-	<div class="grid grid-cols-1 grid-rows-6 min-h-[calc(100vh-248px)] bg-base-200 font-mono place-items-center">
+	<div class="flex flex-col gap-y-8 min-h-[calc(100vh-248px)] bg-base-200 overflow-auto font-mono place-items-center">
 		<div class="items-center">
 			<label class="block text-base font-medium">Username</label>
 			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" maxlength="20" pattern="^[A-Za-z0-9_"/>
@@ -123,9 +123,9 @@
 			<div>
 				<button v-if="A2FEnabled" class="btn btn-error" @click="changeA2F">Disable</button>
 				<button v-else class="btn btn-success" @click="changeA2F">Enable</button>
-				<img v-if="dataURL" :src="dataURL" class="qrcode" />
 			</div>
 		</div>
+		<img v-if="dataURL" :src="dataURL" class="qrcode col-start-2"/>
 		<div class="flex justify-end">
 			<button class="btn btn-danger mr-2" @click="deleteAccount">Delete Account</button>
 			<button type="submit" class="btn btn-primary" @click="saveAll">Apply</button>
@@ -135,7 +135,6 @@
 </template>
 
 <style>
-	.content { display: flex; flex-direction: column; align-items: center; min-height: 70vh; max-height: 70vh;}
 	.items-center { margin-top: 1.5rem; margin-bottom: 1.5rem; text-align: center;}
 	.qrcode { display: flex; flex-direction: column; align-items: center; }
 </style>

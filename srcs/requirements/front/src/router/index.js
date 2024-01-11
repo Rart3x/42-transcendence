@@ -112,9 +112,9 @@ router.beforeEach(async (to, from, next) => {
   if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined')
     user = await getUserByUserId(cookieUserId, cookieJWT);
   const path = to.path;
-  if (!user && path !== "/" && path !== "/sign-in")
+  if (!user && path !== "/" && path !== "/sign-in" || (to.name != '2fa' && user && user.A2F && user.status == "offline"))
     next('/');
-  else
+  elsehttp://localhost:1505/
     next();
 });
 
