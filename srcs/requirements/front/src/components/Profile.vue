@@ -143,6 +143,14 @@
         await removeFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
     })
 
+    store.state.socket.on('friendAdded', async () => {
+      isFriendBool.value = true;
+    });
+
+    store.state.socket.on('friendRemoved', async () => {
+      isFriendBool.value = false;
+    });
+
     store.state.socket.on('unblocked', async () => {
       isBlockBool.value = false;
       isBlockedBool.value = false;

@@ -93,7 +93,7 @@ const router = createRouter({
         const user = await getUserByUserName(userName, cookieJWT);
 
         if (user)
-          next('/profile' + userName);
+          next();
         else
           next('/error');
       },
