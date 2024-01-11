@@ -1,9 +1,9 @@
 import Cookies from "js-cookie";
-import { createRouter, createWebHistory } from "vue-router";
-import { getChannelByName, getUserByUserId} from "../components/api/get.call";
+import { createRouter, createWebHashHistory } from "vue-router";
+import { getChannelByName, getUserByUserId, getUserByUserName } from "../components/api/get.call";
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/2fa",
@@ -84,6 +84,17 @@ const router = createRouter({
       path: "/profile/:userName",
       name: "profile",
       component: () => import("@/components/Profile.vue"),
+      beforeEnter: async (to, from, next) => {
+        let cookieJWT = Cookies.get('Bearer');
+
+        const userName = to.params.userName;
+        const user = await getUserByUserName(userName, cookieJWT);
+
+        if (user)
+          next('/profile');
+        else
+          next('/error');
+      },
     },
     {
       path: "/settings",
