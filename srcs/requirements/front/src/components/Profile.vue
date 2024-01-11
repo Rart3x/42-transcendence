@@ -195,7 +195,7 @@
     :gameWon="user.gameWon"
   />
 
-  <div class="bg-base-200 overflow-x-auto min-h-[calc(100vh-248px)] font-mono place-items-center shadow">
+  <div class="bg-base-200 overflow-x-auto min-h-screen font-mono place-items-center shadow">
     <div class="stats shadow flex justify-center">
       <div class="stat" v-if="user && actualUser && user.userName != actualUser.userName && !isBlockBool">
         <button class="btn" v-if="user && !isFriendBool" @click="addFriendFromDB(user.userName, $route.params.userName)">

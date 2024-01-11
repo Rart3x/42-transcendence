@@ -10,7 +10,7 @@
         user: null,
         userScores: [],
         jwtToken: null,
-        combinedData: null
+        combinedData: null,
       }
     },
     methods: {

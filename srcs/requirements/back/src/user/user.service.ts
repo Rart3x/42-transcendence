@@ -5,8 +5,6 @@ import { Channel, User, Prisma, GameRoom } from '@prisma/client';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as path from 'path';
-import { get } from 'http';
-import { PartialUserDTO } from './dto/partial-user.dto';
 
 async function downloadImage (url : string, filename : string) {
   if (!fs.existsSync('/public/'))
@@ -210,7 +208,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     let imageNameWithExtension = parts.pop();
  
     await downloadImage(data.image, imageNameWithExtension);
- 
+
     data.image = imageNameWithExtension;
  
     const createUserInput: Prisma.UserCreateInput = {

@@ -88,9 +88,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private readonly ScoreService: ScoreService
 	){}
 
-	handleConnection(socket: Socket){
-		console.log("connected to the game")
-	} 
+	handleConnection(socket: Socket){} 
 
 	handleDisconnect(socket: Socket) {
 		//If disconnected user was inside a game room
@@ -105,6 +103,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					  });
 					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "offline");
 					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+
+					this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
+					this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
 
 					this.GameRoomService.updateGameRoom(
 						this.gameRooms[i].roomId,
@@ -137,6 +138,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					});
 					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
 					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "offline");
+
+					this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
+					this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
+
 					this.GameRoomService.updateGameRoom(
 						this.gameRooms[i].roomId,
 						this.gameRooms[i].player1SocketId,
@@ -221,8 +226,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					this.checkWinConditionMultiGame(this.gameRooms[i]);
 					if (this.gameRooms[i].finish){
 						if (scorePlayer1 > scorePlayer2){
+							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+
 							this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
 							this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
+
 							this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
 							this.gameRooms[i].winnerId = this.gameRooms[i].player1UserId;
 
@@ -244,8 +253,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							Engine.clear(this.gameRooms[i].engine);
 						}
 						else{
+
+							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+		
 							this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
 							this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
+
 							this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
 							this.gameRooms[i].winnerId = this.gameRooms[i].player2UserId;
 
@@ -413,19 +427,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			var coinFlip = randomInt(0, 1);
 
-			if (coinFlip == 1){
+			if (coinFlip == 1)
 				vecY = -4;
-			}
-			else{
+			else
 				vecY = 4;
-			}
-
-			if (pair.bodyA.label == "left"){
+			if (pair.bodyA.label == "left")
 				vecX = -4;
-			}
-			else{
+			else
 				vecX = 4;
-			}
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
 					player1: gameRoom.score.get(gameRoom.player1UserId.toString()),
@@ -501,18 +510,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 					var velX : number;
 					var velY : number;
-					if (velocity.x > 0){
+					if (velocity.x > 0)
 						velX = velocity.x + 0.1;
-					}
-					else if (velocity.x < 0){
+					else if (velocity.x < 0)
 						velX = velocity.x - 0.1;
-					}
-					if (velocity.y > 0){
+					if (velocity.y > 0)
 						velY = velocity.y + 0.1;
-					}
-					else if (velocity.y < 0){
+					else if (velocity.y < 0)
 						velY = velocity.y - 0.1;
-					}
 					//Bouncing angle
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {
 						x: velX,
@@ -903,12 +908,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		var gameRoom : GameRoom = this.findCorrespondingGame(roomId);
 
 		if (gameRoom){
-			if (socket.id == gameRoom.player1SocketId){
+			if (socket.id == gameRoom.player1SocketId)
 					gameRoom.player1Spawn = true;
-			}
-			else{
+			else
 				gameRoom.player2Spawn = true;
-			}
 			if (gameRoom.finish == false && gameRoom.player1Spawn == true && gameRoom.player2Spawn == true && gameRoom.inCooldown == false){
 				//to synchronize countdown on front end back
 				this.server.to(gameRoom.player1SocketId).emit('gameStart');

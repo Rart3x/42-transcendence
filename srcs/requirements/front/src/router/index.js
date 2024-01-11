@@ -103,7 +103,7 @@ router.beforeEach(async (to, from, next) => {
   const path = to.path;
   if (!user && path !== "/" && path !== "/sign-in" || (to.name != '2fa' && user && user.A2F && user.status == "offline"))
     next('/');
-  elsehttp://localhost:1505/
+  else
     next();
 });
 
