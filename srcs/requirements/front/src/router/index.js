@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { createRouter, createWebHistory } from "vue-router";
-import { getChannelByName, getUserByUserId} from "../components/api/get.call";
+import { getChannelByName, getUserByUserId, getUserByUserName } from "../components/api/get.call";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,12 +38,14 @@ const router = createRouter({
         const channel = await getChannelByName(channelName, cookieJWT);
         const actualUser = await getUserByUserId(cookieUserId, cookieJWT);
 
-        if (channel && channel.channelUsers) {
+        if (!channel)
+          next('/error');
+        else if (channel && channel.channelUsers) {
           if (!channel.channelUsers.find(user => user.userId === actualUser.userId) && channel.isPrivate)
             next('/error');
         }
         else (channel)
-          next();
+          next('/channel/' + channelName);
       },
     },
     {
@@ -84,6 +86,17 @@ const router = createRouter({
       path: "/profile/:userName",
       name: "profile",
       component: () => import("@/components/Profile.vue"),
+      beforeEnter: async (to, from, next) => {
+        let cookieJWT = Cookies.get('Bearer');
+
+        const userName = to.params.userName;
+        const user = await getUserByUserName(userName, cookieJWT);
+
+        if (user)
+          next('/profile' + userName);
+        else
+          next('/error');
+      },
     },
     {
       path: "/settings",

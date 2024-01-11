@@ -20,7 +20,6 @@
       const cookieUserId = Cookies.get("UserId");
       if (cookieJWT && cookieUserId){
         user.value = await getUserByUserId(cookieUserId, cookieJWT);
-        console.log(user.value);
       }
       if (user){
         animateText();
