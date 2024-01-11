@@ -9,7 +9,7 @@
   export default {
     name: 'App',
     components: {
-      Footer,
+        Footer,
       Header
     },
     data(){
@@ -42,19 +42,15 @@
 </script>
 
 <template>
-    <div class="wrapper">
+    <div class="flex flex-col min-h-screen">
       <body>
-        <div class="main-content">
           <Header ref="header" :key="headerKey" v-if="user" />
           <router-view></router-view>
           <Footer v-if="$route.path !== '/game'"/>
-        </div>
       </body>
    </div>
 </template>
 
 <style>
-  .main-content { flex-grow: 1; }
-  .wrapper { display: flex; flex-direction: column; min-height: 100vh;}
 </style>
  

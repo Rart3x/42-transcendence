@@ -1,7 +1,6 @@
 <script>
   import Cookies from "js-cookie";
-  import { onMounted, ref, computed } from "vue";
-  import { getPastGameRoomsByUserId, getUserByUserId, getAllUserScore, getScoreByRoomId, getUserByUserName, getGameWinner, getImage } from "./api/get.call";
+  import { getPastGameRoomsByUserId, getAllUserScore, getUserByUserName, getImage } from "./api/get.call";
 
   export default{
     name: 'History',

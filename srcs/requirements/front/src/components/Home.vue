@@ -20,9 +20,11 @@
       const cookieUserId = Cookies.get("UserId");
       if (cookieJWT && cookieUserId){
         user.value = await getUserByUserId(cookieUserId, cookieJWT);
+        console.log(user.value);
       }
-      if (user)
+      if (user){
         animateText();
+      }
     } catch (error) {
       console.error("Failed to fetch user data: ", error);
     }
@@ -62,7 +64,7 @@
 </script>
 
 <template>
-  <div class="hero min-h-[calc(100vh-174px)] bg-base-200">
+  <div class="hero bg-base-200" :class="[user ? activeClass: 'min-h-[calc(100vh-174px)]', 'min-h-screen']">
     <div class="hero-content text-center">
       <div class="max-w-4xl">
         <h1 class="text-7xl flex justify-center font-mono font-bold bg-clip-text bg-gradient-to-r from-primary to-secondary">

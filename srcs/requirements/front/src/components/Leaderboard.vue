@@ -62,8 +62,8 @@
         </div>
         </div>
         <div v-if="user" class="stat">
-          <div class="stat-title"> Victorys </div>
-          <div class="stat-value"> {{ user.gameWon + "/" + user.gamePlayed }} </div>
+          <div class="stat-title"> Victories </div>
+          <div class="stat-value"> {{ user.gameWon + " / " + user.gamePlayed }} </div>
         </div>
         <div v-if="user" class="stat">
           <div class="stat-title"> Winrate </div>
