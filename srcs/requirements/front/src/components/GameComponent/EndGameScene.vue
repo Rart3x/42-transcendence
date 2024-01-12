@@ -55,7 +55,7 @@
                         }
                     }
                     else if (this.gameRoom){
-                        this.gameRoom.player2PlayAgain = true;esh
+                        this.gameRoom.player2PlayAgain = true;
                         if (this.gameRoom.player1PlayAgain){
                             playAgainButton.innerText = "Play again 2/2";
                         }
@@ -129,7 +129,6 @@
 
             this.socket.on('lobby', (data) => {
 				this.UIElement.destroy();
-                this.EventHandler.emit('refreshGame');
                 this.scene.start('LobbyScene', { user: this.user, gameRoomData: data, UIElement: this.UIElement, socket: this.socket });
 			});
         }
