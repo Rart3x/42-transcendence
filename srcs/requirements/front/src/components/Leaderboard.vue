@@ -26,7 +26,6 @@
         this.users = this.users.sort((a, b) => b.matchmakingScore - a.matchmakingScore);
         if (this.users){
           const imagePromises = this.users.map(async (user, index) => {
-            console.log(user, index, user.image);
             let imagePath = await getImage(user.image);
             return imagePath;
           });

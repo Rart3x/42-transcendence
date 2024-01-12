@@ -16,7 +16,6 @@ export default class EventBus {
         this.eventListeners[eventName] = [];
       }
       this.eventListeners[eventName].push(callback);
-      console.log(this.eventListeners[eventName]);
     }
    
     public unsubscribe(eventName: string, callback: Function): void {
@@ -27,7 +26,6 @@ export default class EventBus {
     }
    
     public emit(eventName: string, data?: any): void {
-      console.log("emit receive event", eventName)
       if (this.eventListeners[eventName]) {
         this.eventListeners[eventName].forEach((callback) => callback(data));
       }

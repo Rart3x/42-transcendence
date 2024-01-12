@@ -20,7 +20,6 @@
         }
 
         init(data : any){
-            console.log("Entered Lobby Scene");
             this.user = data.user;
             this.socket = data.socket;
             this.UIElement = data.UIElement;
@@ -179,16 +178,20 @@
             this.socket.on('otherPlayerLeaveLobby', () => {
                 this.children.removeAll();
                 this.destroyUI();
-                // self.gameRoom.finish = true;
-                // this.textures.remove('userImage2');
-                // this.textures.remove('userImage1');
                 this.scene.start('BootScene');
-                // this.scene.stop('LobbyScene');
             });
 
             this.socket.on('init', () => {
+                this.removeSocketEvents();
                 this.scene.start('GameScene', { user: this.user, gameRoom: this.gameRoom, UIElement: this.UIElement, socket: this.socket });
             });
+        }
+
+        removeSocketEvents(){
+            this.socket.off('otherPlayerLeaveLobby');
+            this.socket.off('otherPlayerNotReady');
+            this.socket.off('otherPlayerReady');
+            this.socket.off('init');
         }
 
         setupEventListeners(){

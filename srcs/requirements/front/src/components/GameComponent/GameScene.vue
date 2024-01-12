@@ -37,11 +37,9 @@ export default class Game extends Phaser.Scene {
 
 	constructor(){
 		super({ key: 'GameScene' });
-		console.log("GameScene called");
 	}
 
 	init(data : any){
-		console.log("Entered Game Scene");
 		this.user = data.user;
 		this.socket = data.socket;
 		this.UIElement = data.UIElement;
@@ -53,10 +51,8 @@ export default class Game extends Phaser.Scene {
 		const self = this;
 		this.socket.on('updateScore', (data) => {
 			if (this.gameRoom && this.gameRoom.score){
-				console.log(data.scorePlayer, data.scorePlayer2);
 				this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
 				this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
-
 				this.updateUIScore();
 			}
 		});
@@ -165,18 +161,19 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		this.socket.on('gameFinish', (data) => {
+		this.socket.on('gameFinish', (data : any) => {
 			// Assume `this.game` is your Game instance
+			("game finish")
 			this.removeSocketEvents();
+			this.scene.stop('GameScene');
 			this.scene.start('EndGameScene', { user: this.user, gameRoom: this.gameRoom, socket: this.socket, endGameData: data });
 			this.children.removeAll();
 			if (this.gameRoom)
 				this.gameRoom.finish = true;
 			this.destroyUI();
-			this.scene.stop('GameScene');
 		});
 
-		this.socket.on('snapshot', (data) => {
+		this.socket.on('snapshot', (data : any) => {
 			//Read the snapshot
 			SI.snapshot.add(data);
 			SI.vault.add(data);
@@ -311,8 +308,6 @@ export default class Game extends Phaser.Scene {
 		if (this.gameRoom && this.gameRoom.score){
 			let scorePlayer1 = this.gameRoom.score.get(this.gameRoom.player1UserId.toString());
 			let scorePlayer2 = this.gameRoom.score.get(this.gameRoom.player2UserId.toString());
-			console.log("updating score UI", scorePlayer1, scorePlayer2);
-
 			let scorePlayer1Ele = this.UIScorePlayer1.node.querySelector("#scorePlayer1") as HTMLElement;
 			let scorePlayer2Ele = this.UIScorePlayer2.node.querySelector("#scorePlayer2") as HTMLElement;
 			if (scorePlayer1 <= 3 && scorePlayer2 <= 3){
