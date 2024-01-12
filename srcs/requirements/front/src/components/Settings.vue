@@ -1,15 +1,17 @@
 <script>
+	import Alert from './Alert.vue';
 	import Cookies from 'js-cookie';
 	import qrcode from 'qrcode';
 	import UserStatHeader from './UserStatHeader.vue';
-	import { getUserByUserId } from './api/get.call';
+	import { getUserByUserId, getUserByDisplayName, getUserByUserName } from './api/get.call';
 	import { updateImage, updateUsername, updateA2F } from './api/post.call';
 	import { deleteUser } from './api/delete.call';
 	import EventBus from '../services/event-bus.ts';
 
 	export default {
 		components: {
-			UserStatHeader
+			Alert,
+			UserStatHeader,
 		},
 		data() {
 			return {
@@ -21,7 +23,9 @@
 				A2FEnabled: false,
 				activeTab: "username",
 				cookieJWT: null,
-				theme: 'dark'
+				theme: 'dark',
+
+				userNameAlreadyTaken: false,
 			};
 		},
 		methods: {
@@ -49,12 +53,23 @@
 			async handleSubmit(){
 				if (!this.newUserName || this.newUserName.length > 20 || this.newUserName.length < 3 
 					|| !/^[A-Za-z0-9_\-]+$/.test(this.newUserName)) {
-					alert('Invalid username');
+					alert('error: invalid username');
 					return;
 				}
-				await updateUsername(this.user.userName, this.newUserName, this.cookieJWT);
-				this.newUserName = '';
+				const user1 = await getUserByUserName(this.newUserName, this.cookieJWT);
+				const user2 = await getUserByDisplayName(this.newUserName, this.cookieJWT);
+
+				if (user1 || user2) {
+					this.userNameAlreadyTaken = true;
+					setTimeout(() => { this.userNameAlreadyTaken = false; }, 3000);
+				}
+				else if (!user1 && !user2)
+					await updateUsername(this.user.userName, this.newUserName, this.cookieJWT);
 				window.location.reload();
+				this.newUserName = '';
+				console.log("USER: " + user1);
+				console.log("DISPLAY : " + user2);
+
 			},
 			onFileChange(event){
 				this.selectedFile = event.target.files[0];
@@ -107,6 +122,7 @@
 </script>
 
 <template>
+	<Alert :userNameAlreadyTaken="userNameAlreadyTaken" />
 	<UserStatHeader v-if="user"
 		:userName="userName"
 		:gamePlayed="user.gamePlayed"

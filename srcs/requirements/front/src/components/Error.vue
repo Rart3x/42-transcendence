@@ -1,6 +1,6 @@
 <template>
   <div class="overflow-x-auto min-h-screen bg-base-200 error-container">
-    <h1 class="error-message">Error 404: Path not found</h1>
+    <h1 class="error-message">Oops somethings wrong happened</h1>
   </div>
 </template>
 

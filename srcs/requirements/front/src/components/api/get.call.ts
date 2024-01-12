@@ -505,6 +505,23 @@ export async function getUserByUserId(userId : number, jwtToken: string) {
   }
 }
 
+export async function getUserByDisplayName(username: string, jwtToken : string) { 
+  try { 
+    const response = await fetch  (`http://localhost:3000/user/getUserByDisplayName/${username}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
+      },
+    });
+    if (response.ok)
+      return await response.json();
+  } 
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
 export async function getUserByUserName(username : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/user/getUsername/${username}`, {
