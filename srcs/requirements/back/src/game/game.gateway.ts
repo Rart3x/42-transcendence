@@ -1,4 +1,3 @@
-//IMPORTS--------------------------------------------------------------------------------------------------------------------------------------
 import {
 	SubscribeMessage,
 	WebSocketGateway,
@@ -62,7 +61,7 @@ function Between(min : number, max : number){
 	return (Math.random() * (max - min) + min)
 }
 
-const randomInt = (min, max) =>
+const randomInt = (min : number, max : number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
 @WebSocketGateway({
@@ -88,7 +87,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private readonly ScoreService: ScoreService
 	){}
 
-	handleConnection(socket: Socket){} 
+	handleConnection(socket: Socket){
+		// this.UserService.updateStatus(gameRoom.player1UserId, "online");
+	}
 
 	handleDisconnect(socket: Socket) {
 		//If disconnected user was inside a game room
@@ -168,10 +169,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				//Still inside lobby
 				if (socket.id == this.gameRooms[i].player1SocketId){
 					this.gameRooms[i].player1Ready = true;
+					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
 					this.server.to(this.gameRooms[i].player2SocketId).emit('otherPlayerLeaveLobby', {});
 				}
 				else{
 					this.gameRooms[i].player2Ready = true;
+					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 					this.server.to(this.gameRooms[i].player1SocketId).emit('otherPlayerLeaveLobby', {});
 				}
 				//Game never happened
@@ -857,10 +860,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (gameRoom){
 			if (socket.id == gameRoom.player1SocketId){
 				gameRoom.player1Ready = true;
+				this.UserService.updateStatus(gameRoom.player1UserId, "online");
+				this.UserService.updateStatus(gameRoom.player2UserId, "online");
 				this.server.to(gameRoom.player2SocketId).emit('otherPlayerLeaveLobby', {});
 			}
 			else{
 				gameRoom.player2Ready = true;
+				this.UserService.updateStatus(gameRoom.player1UserId, "online");
+				this.UserService.updateStatus(gameRoom.player2UserId, "online");
 				this.server.to(gameRoom.player1SocketId).emit('otherPlayerLeaveLobby', {});
 			}
 		}

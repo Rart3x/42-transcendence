@@ -1,8 +1,8 @@
-import { Controller,  Get, Post, Query, Redirect, Req, Res, SetMetadata } from '@nestjs/common';
+import { Controller,  Get, Query, Res, SetMetadata } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import e, { Request, Response } from 'express';
+import {  Response } from 'express';
 
 dotenv.config();
 
@@ -58,9 +58,8 @@ export class AuthController {
                         //If user already exist we set the cookies back and set its status to "online"
                         const access_token = await this.JwtService.signAsync(payload);
                         this.setCookie(res, user.userId, access_token);
-                        if (user.A2F){
+                        if (user.A2F)
                             res.redirect("http://localhost:1505/2fa");
-                        }
                         else{
                             this.UserService.setStatus(user.userName, "online");
                             res.redirect("http://localhost:1505/settings");

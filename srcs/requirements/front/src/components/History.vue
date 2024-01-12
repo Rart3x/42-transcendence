@@ -178,21 +178,21 @@
                   <p v-for="(score, idx) in item.gameUserScores" :key="idx" class="dark-row">
                     <span>
                       <span  v-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.player2UserId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
-                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreA }}</span>
+                      <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId == item.game.score.winnerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
                       <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.player2UserId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreB }}  / {{ score.scoreA }}</span>
                       <span  v-else-if="idx == item.gameUserScores.length - 1 && user.userId != item.game.score.winnerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">Final Score {{ score.scoreA }}  / {{ score.scoreB }}</span>
                       <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.player2UserId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }}
-						  <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
-					  </span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }}
-						  <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
-					  </span>
-                      <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.player2UserId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }}
-						  <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
-					  </span>
-					  <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }}
-						  <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
-					  </span>
+                      <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
+                    </span>
+                    <span  v-else-if="!item.game.score.winByAfk && user.userId == score.scorerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }}
+                      <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
+                    </span>
+                    <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.player2UserId" class="ml-auto text-lg font-bold">  {{ score.scoreB }} / {{ score.scoreA }}
+                      <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
+                    </span>
+                    <span  v-else-if="!item.game.score.winByAfk && user.userId != score.scorerId && user.userId == item.game.player1UserId" class="ml-auto text-lg font-bold">  {{ score.scoreA }} / {{ score.scoreB }}
+                      <span class="italic"> at {{ ((Date.parse(score.time) - Date.parse(item.game.startDate)) / 1000).toFixed(0) }}s</span>
+                    </span>
                     </span>
                   </p>
                 </div>

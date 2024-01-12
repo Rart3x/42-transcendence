@@ -1,33 +1,38 @@
 <script lang="ts">
-import { onBeforeUnmount, onBeforeMount, getCurrentInstance } from 'vue';
-import GameConfig from "./GameConfig.vue";
-import store from '../../store/store.js';
-import EventBus from '../../services/event-bus';
+  import GameConfig from "./GameConfig.vue";
+  import EventBus from '../../services/event-bus';
+  import store from "../../store/store";
 
-export default {
- name: 'Game',
- components: {
-   GameConfig
- },
- data() {
-  return {
-    gameKey: 0
-  }
- },
- methods: {
-  refreshGame(){
-    this.gameKey += 1;
-  }
- },
- created() {
-    const eventBus = EventBus.getInstance();
-      eventBus.subscribe('refreshGame', this.refreshGame);
+  export default {
+    name: 'Game',
+    components: {
+      GameConfig
+    },
+    data() {
+      return {
+        gameKey: 0,
+        eventBus: null
+      }
+    },
+    methods: {
+      refreshGame(){
+        this.gameKey += 1;
+      }
+    },
+    created() {
+      this.eventBus = EventBus.getInstance();
+      this.eventBus.subscribe('refreshGame', this.refreshGame);
+      this.eventBus.emit('refreshGame');
     },
     beforeDestroy() {
-      const eventBus = EventBus.getInstance();
-      eventBus.unsubscribe('refreshGame', this.refreshGame);
-    }
-};
+      this.eventBus.unsubscribe('refreshGame', this.refreshGame);
+    },
+    unmounted() {
+      console.log("socket disconnect");
+      if (store.state)
+        store.state.socket.disconnect();
+    },
+  };
 </script>
 
 <template>
