@@ -129,6 +129,8 @@
       },
 
       async socketOn() {
+        if (this.user)
+          setStatus(this.user.userName, "online", this.cookieJWT);
 
         this.store.state.socket.on('banned', (body) => {
           this.channelNameBanned = body.channelName;

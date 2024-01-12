@@ -337,12 +337,19 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return user;
   }
    
+  async getUserBySocket(socketId: string) : Promise<User | null>{
+    return await this.prisma.user.findUnique({
+      where: { socket: socketId }
+    });
+  }
+
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {
       return this.prisma.user.findUnique({
         where: userWhereUniqueInput,
     });
   }
+
 
   async setStatus(userName: string, status : string): Promise<boolean> {
     const user = await this.getUserByName(userName);

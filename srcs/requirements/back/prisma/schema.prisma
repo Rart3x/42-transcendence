@@ -141,7 +141,7 @@ model User {
   image         String     @default("default_pic.jpg")
   isChecked     Boolean    @default(false)
 
-  socket        String?
+  socket        String?    @unique
   status        String?    @default("offline")
 
   A2F           Boolean    @default(false)

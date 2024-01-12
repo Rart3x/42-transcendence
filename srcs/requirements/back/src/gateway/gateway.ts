@@ -1,6 +1,6 @@
 import { OnModuleInit } from '@nestjs/common';
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { UserService } from '../user/user.service';
 
 @WebSocketGateway({
@@ -18,10 +18,22 @@ export class AppGateway implements OnModuleInit{
   ){}
 
 	onModuleInit() {
-		this.server.on('connection', (socket) => {
-			console.log('new connection on ' + socket.id);
+		this.server.on('connection', (socket : any) => {
+			console.log(`new connection on of ${socket.id}`);
 		});
 	}
+
+  // async handleConnection(socket: Socket){
+  //   const user = await this.UserService.getUserBySocket(socket.id);
+  //   if (user)
+  //     await this.UserService.updateStatus(user.userId, "online");
+  // }
+
+	async handleDisconnect(socket: Socket) {
+    const user = await this.UserService.getUserBySocket(socket.id);
+    if (user)
+      await this.UserService.updateStatus(user.userId, "offline");
+  }
 
   @SubscribeMessage('banUser')
   handleBanUser(@MessageBody() body): any {
