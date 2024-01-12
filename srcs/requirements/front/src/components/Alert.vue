@@ -42,6 +42,8 @@
 			unblockFailed: Boolean,
 			unsetPassSuccess: Boolean,
 			unsetPassFailed: Boolean,
+			userNameAlreadyTaken: Boolean,
+			userNotFound: Boolean,
 
 			openMessageModalFromAlert: Function,
 			socketEmit: Function,
@@ -294,6 +296,18 @@
 			<span>Failed to unblock User</span>
 		</div>
   	</div>
+	<!--UserNameTaken-->
+	<div v-if="userNameAlreadyTaken" class="toast toast-start">
+		<div class="alert alert-error">
+			<span>Username already taken</span>
+		</div>
+	</div>
+	<!--UserNotFound-->
+	<div v-if="userNotFound" class="toast toast-start">
+		<div class="alert alert-error">
+			<span>User not found</span>
+		</div>
+	</div>
 </template>
 
 <style scoped>

@@ -40,8 +40,15 @@
     methods: {
       async addFriendFromDB(userName, friendName) {
         const friend = await getUserByUserName(friendName, this.cookieJWT);
-        if (friend.status === 'online')
+        if (friend && friend.status === 'online')
           await this.store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
+        else
+          { 
+            this.addFriendFailed = true;
+            setTimeout(() => {
+              this.addFriendFailed = false;
+            }, 3000);
+          }
         this.friendName = ''
       },
 

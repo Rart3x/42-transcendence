@@ -1,4 +1,5 @@
 <script>
+  import Alert from './Alert.vue';
   import Cookies from "js-cookie";
   import Modal from './Modal.vue';
   import { getAllUsers, getPrivateMessages, getPrivateMessagesByUserName } from "./api/get.call";
@@ -8,6 +9,7 @@
   export default {
     name: 'Drawer',
     components: {
+      Alert,
       Modal
     },
     computed: {
@@ -29,6 +31,7 @@
         store: useStore(),
 
         cookieJWT: null,
+        userNotFound: false,
       };
     },
     methods: {
@@ -40,6 +43,10 @@
           const privateMessage = await getPrivateMessages(this.$props.user.userName, this.enteredName, this.$props.jwtToken);
           this.openMessageModal(this.$props.user.userName, privateMessage);
           this.enteredName = ''
+        }
+        else {
+          this.userNotFound = true;
+          setTimeout(() => this.userNotFound = false, 3000);
         }
       },
       getPairKey(pairMessages) {
@@ -75,6 +82,7 @@
 </script>
 
 <template>
+  <Alert :userNotFound="userNotFound" />
   <Modal :parent="'drawer'" :modalMessage="modalMessage" :currentUserName="currentUserName" :senderName="senderName"
     :createPrivateMessageInDB="createPrivateMessageInDB" :closeMessageModal="closeMessageModal" :privateMessages="privateMessages" :userName="userName" :jwtToken="jwtToken"
   />
