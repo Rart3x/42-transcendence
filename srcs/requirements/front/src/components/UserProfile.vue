@@ -5,7 +5,7 @@
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
   import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllUsers, getUsersFromChannel, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
-  import { createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword } from "./api/post.call";
+  import { createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword, createEmptyChannel } from "./api/post.call";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
   import { useRouter } from "vue-router";
@@ -53,9 +53,15 @@
       },
 
       async createChannelInDB(channelName, userName, currentUserName) {
-        const response = await createChannel(channelName, userName, currentUserName, this.cookieJWT);
+        let response;
+        if (!currentUserName) { 
+          response = await createEmptyChannel(channelName, userName, this.cookieJWT);
+        }
+        else {
+          response = await createChannel(channelName, userName, currentUserName, this.cookieJWT);
+        }
+        
         this.modalStates.modalChannel = false;
-
         if (response && response.success) {
           const allUsers = await getAllUsers(this.cookieJWT);
 
@@ -111,9 +117,14 @@
       },
 
       async removeChannelFromDB(channelName) {
+        const usersFromChannel = await getUsersFromChannel(channelName, this.cookieJWT);
         const response = await removeChannel(channelName, this.cookieJWT);
     
         if (response && response.success) {
+          for (let i = 0; i < usersFromChannel.length; i++) {
+            if (usersFromChannel[i].status === 'online')
+              await this.store.dispatch('removeChannel', { socket: usersFromChannel[i].socket })
+          }
           this.removeChannelSuccess = true;
           setTimeout(() => {
             this.removeChannelSuccess = false;
