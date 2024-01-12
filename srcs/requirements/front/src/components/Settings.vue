@@ -5,6 +5,7 @@
 	import { getUserByUserId } from './api/get.call';
 	import { updateImage, updateUsername, updateA2F } from './api/post.call';
 	import { deleteUser } from './api/delete.call';
+	import EventBus from '../services/event-bus.ts';
 
 	export default {
 		components: {
@@ -99,6 +100,8 @@
 					this.A2FEnabled = this.user.A2F;
 				}
 			}
+			const eventBus = EventBus.getInstance();
+			eventBus.emit("refreshHeader");
 		}
 	};
 </script>

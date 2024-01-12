@@ -21,9 +21,8 @@
         async init(){
             //Set reference folder from where we'll load textures, images, ...
             this.load.setPath(".");
-            if (store.state.socket){
+            if (store.state.socket)
                 this.socket = store.state.socket;
-            }
             else
                 return ;
             const cookieUserId = Cookies.get('UserId');
@@ -97,12 +96,10 @@
                         if (target.id == "choseCustomGameMode" || target.id == "choseNormalGameMode"){
                             if (target.id == "choseCustomGameMode"){
                                 self.UIElement.destroy();
-                                // const socket = io('http://localhost:3000/game');
                                 self.socket.emit('playerJoinCustomQueue', self.user.userId);
                             }
                             else{
                                 self.UIElement.destroy();
-                                // const socket = io('http://localhost:3000/game');
                                 self.socket.emit('playerJoinNormalQueue', self.user.userId);
                             }
                             self.createMatchmakingHTML();
@@ -116,18 +113,16 @@
             if (self.input.keyboard){
                 const SPACEKey = self.input.keyboard.addKey('SPACE');
                 SPACEKey.on('down', function (){
-                    if (this.scale.isFullscreen){
+                    if (this.scale.isFullscreen)
                         this.scale.stopFullscreen();
-                    }
-                    else{
+                    else
                         this.scale.startFullscreen();
-                    }
                 }, this);
             }
         }
     
         setupEventSocketListeners(){
-            this.socket.on('lobby', (data) => {
+            this.socket.on('lobby', (data : any) => {
 				this.UIElement.destroy();
                 this.scene.start('LobbyScene', { user: this.user, gameRoomData: data, UIElement: this.UIElement, socket: this.socket });
 			});
@@ -139,9 +134,9 @@
             const invited = store.state.invited;
             //Reset the value
             store.commit('SET_INVITED', false);
-            if (invited) {
+            if (invited)
                 this.createLocalGameLoadingHTML();
-            } else {
+            else {
                 this.createGamePageHTML();
                 this.setupInputListeners(self);
                 this.setupEventListeners(self);

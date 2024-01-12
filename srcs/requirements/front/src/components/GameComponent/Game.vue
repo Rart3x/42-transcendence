@@ -26,7 +26,7 @@ export default {
     beforeDestroy() {
       const eventBus = EventBus.getInstance();
       eventBus.unsubscribe('refreshGame', this.refreshGame);
-    },
+    }
 };
 </script>
 
