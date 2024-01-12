@@ -12,12 +12,16 @@ async function downloadImage (url : string, filename : string) {
 
   return new Promise((resolve, reject) => {
     https.get(url, (response : any) => {
-      const fileStream = fs.createWriteStream(path.join('/public/', filename));
-      response.pipe(fileStream);
-      fileStream.on('finish', () => {
-        fileStream.close(resolve);
-      });
-      fileStream.on('error', reject);
+      if (response.statusCode === 500) {
+        reject(new Error('Received 500 response from server'));
+      } else {
+        const fileStream = fs.createWriteStream(path.join('/public/', filename));
+        response.pipe(fileStream);
+        fileStream.on('finish', () => {
+          fileStream.close(resolve);
+        });
+        fileStream.on('error', reject);
+      }
     }).on('error', reject);
   });
 }
@@ -207,8 +211,20 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     let parts = imagePath.split('/');
     let imageNameWithExtension = parts.pop();
  
-    await downloadImage(data.image, imageNameWithExtension);
+    let retries = 3;
+    let success = false;
+    while(!success && retries > 0) {
+      try {
+        await downloadImage(data.image, imageNameWithExtension);
+        success = true;
+      } catch (error) {
+        retries--;
+      }
+    }
 
+    if (!success) {
+      throw new Error("Failed to download image after maximum attempts");
+    }
     data.image = imageNameWithExtension;
  
     const createUserInput: Prisma.UserCreateInput = {
