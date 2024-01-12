@@ -45,7 +45,7 @@ const router = createRouter({
             next('/error');
         }
         else (channel)
-          next('/channel/' + channelName);
+          next();
       },
     },
     {
