@@ -12,7 +12,7 @@
     data() {
       return {
         game: {
-          type: Phaser.AUTO,
+          type: Phaser.CANVAS,
           fullscreenTarget: 'game',
           roundPixels: true,
           scale: {
