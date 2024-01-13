@@ -12,6 +12,7 @@ import Entities from '../entities/entities';
       return {
           roomId: gameRoomId,
           inCooldown: false,
+          insideLobby: true,
           player1SocketId: player1[1],
           player2SocketId: player2[1],
           player1UserId: player1[0],

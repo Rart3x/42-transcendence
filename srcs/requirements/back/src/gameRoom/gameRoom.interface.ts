@@ -1,5 +1,3 @@
-import { User } from '../user/user.interface';
-
 import {
     Engine,
     World
@@ -10,6 +8,7 @@ import Entities  from '../entities/entities';
 export interface GameRoom {
     roomId: number;
     inCooldown: Boolean;
+    insideLobby: Boolean;
     player1UserId: number,
     player2UserId: number,
     player1SocketId: string;

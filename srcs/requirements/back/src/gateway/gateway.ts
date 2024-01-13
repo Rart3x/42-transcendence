@@ -1,4 +1,3 @@
-import { OnModuleInit } from '@nestjs/common';
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { UserService } from '../user/user.service';
@@ -8,26 +7,12 @@ import { UserService } from '../user/user.service';
 		origin: '*',
 	},
 })
-export class AppGateway implements OnModuleInit{
+export class AppGateway {
 
   @WebSocketServer()
   server : Server;
 
-  constructor(
-		private readonly UserService: UserService
-  ){}
-
-	onModuleInit() {
-		this.server.on('connection', (socket : any) => {
-			console.log(`new connection on of ${socket.id}`);
-		});
-	}
-
-  // async handleConnection(socket: Socket){
-  //   const user = await this.UserService.getUserBySocket(socket.id);
-  //   if (user)
-  //     await this.UserService.updateStatus(user.userId, "online");
-  // }
+  constructor(private readonly UserService: UserService){}
 
 	async handleDisconnect(socket: Socket) {
     const user = await this.UserService.getUserBySocket(socket.id);

@@ -14,10 +14,7 @@ export class AuthController {
 
     @Get('login')
     @SetMetadata('isPublic', true)
-    async makeAuth42(
-        @Query('code') code: string,
-        @Res() res: Response,
-        ) : Promise<any>{
+    async makeAuth42(@Query('code') code: string, @Res() res: Response) : Promise<any>{
         try {
             if (code) {
                 //Fetch to retrieve the bearer token with query code 
@@ -75,7 +72,7 @@ export class AuthController {
             }
         }
         catch(error){
-            console.log(error);
+            throw error;
         }
     }
 

@@ -32,9 +32,6 @@ import { User } from '@prisma/client';
 //Interfaces
 import { GameRoom } from '../gameRoom/gameRoom.interface';
 
-//Initialize the snapshot library
-const SI = new SnapshotInterpolation();
-
 //Entities
 import Entities from '../entities/entities';
 import Ball from '../entities/ball';
@@ -55,6 +52,12 @@ const Engine = Matter.Engine,
 const SERVER_REFRESH_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 94;
 const MAX_BOUNCING_ANGLE = 5 * Math.PI/ 12;
+const MAX_SCORE = 3;
+const MIN_SCORE = 0;
+const GAME_COUNTDOWN_START = 3000;
+
+//Initialize the snapshot library
+const SI = new SnapshotInterpolation();
 
 //Utils
 function Between(min : number, max : number){
@@ -87,28 +90,27 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private readonly ScoreService: ScoreService
 	){}
 
-	handleConnection(socket: Socket){
-		// this.UserService.updateStatus(gameRoom.player1UserId, "online");
-	}
+	handleConnection(socket: Socket){}
 
-	handleDisconnect(socket: Socket) {
+	async handleDisconnect(socket: Socket) {
 		//If disconnected user was inside a game room
 		for (let i = 0; i < this.gameRooms.length; i++){
-			if (this.gameRooms[i].finish == false && this.gameRooms[i].running == true){
-					if (this.gameRooms[i].player1SocketId == socket.id){
-						this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
-							winUserId: this.gameRooms[i].player2UserId,
-							scoreWinner: 3,
-							scoreLooser: 0 ,
-							opponentAfk: true 
-					  });
-					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "offline");
-					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+			if (this.gameRooms[i].finish == false && this.gameRooms[i].running == true && this.gameRooms[i].insideLobby == false){
+				//If game is running
+				if (this.gameRooms[i].player1SocketId == socket.id){
+					this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
+						winUserId: this.gameRooms[i].player2UserId,
+						scoreWinner: MAX_SCORE,
+						scoreLooser: MIN_SCORE,
+						opponentAfk: true
+					});
+					await this.UserService.updateStatus(this.gameRooms[i].player1UserId, "offline");
+					await this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 
-					this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
-					this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
+					await this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
+					await this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
 
-					this.GameRoomService.updateGameRoom(
+					await this.GameRoomService.updateGameRoom(
 						this.gameRooms[i].roomId,
 						this.gameRooms[i].player1SocketId,
 						this.gameRooms[i].player2SocketId,
@@ -116,14 +118,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						false,
 						this.gameRooms[i].nbBounces);
 
-					this.ScoreService.updateGameRoomScore(
+					await this.ScoreService.updateGameRoomScore(
 						this.gameRooms[i].roomId,
 						undefined,
-						0,
-						3
+						MIN_SCORE,
+						MAX_SCORE
 					);
-					this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
-					this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
+					await this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
+					await this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
 					this.gameRooms[i].finish = true;
 					this.removeCollisionsEvent(this.gameRooms[i]);
 					World.clear(this.gameRooms[i].world);
@@ -133,40 +135,44 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				else if (this.gameRooms[i].player2SocketId == socket.id){
 					this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
 						winUserId: this.gameRooms[i].player1UserId,
-						scoreWinner: 3,
-						scoreLooser: 0,
+						scoreWinner: MAX_SCORE,
+						scoreLooser: MIN_SCORE,
 						opponentAfk: true 
 					});
-					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "offline");
+					await this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+					await this.UserService.updateStatus(this.gameRooms[i].player2UserId, "offline");
 
-					this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
-					this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
+					await this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
+					await this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
 
-					this.GameRoomService.updateGameRoom(
+					await this.GameRoomService.updateGameRoom(
 						this.gameRooms[i].roomId,
 						this.gameRooms[i].player1SocketId,
 						this.gameRooms[i].player2SocketId,
 						false,
 						true,
 						this.gameRooms[i].nbBounces);
-					this.ScoreService.updateGameRoomScore(
+					await this.ScoreService.updateGameRoomScore(
 						this.gameRooms[i].roomId,
 						undefined,
-						3,
-						0
+						MAX_SCORE,
+						MIN_SCORE
 					);
 					this.removeCollisionsEvent(this.gameRooms[i]);
 					World.clear(this.gameRooms[i].world);
 					Engine.clear(this.gameRooms[i].engine);
-					this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
-					this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
+
+					await this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
+					await this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
 					this.gameRooms[i].finish = true;
 					this.gameRooms.splice(i, 1);
 				}
 			}
-			else if (this.gameRooms[i].finish == false && this.gameRooms[i].started == false){
+			else if (this.gameRooms[i].finish == false && this.gameRooms[i].started == false && this.gameRooms[i].insideLobby == true){
 				//Still inside lobby
+				console.log("Still inside lobby");
+				console.log("Size", this.queueListNormalGame.size)
+
 				if (socket.id == this.gameRooms[i].player1SocketId){
 					this.gameRooms[i].player1Ready = true;
 					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
@@ -206,14 +212,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		var userWaitingInsideNormalQueue = this.queueListNormalGame.entries().next().value;
 		var userWaitingInsideCustomQueue = this.queueListCustomGame.entries().next().value;
 		if (userWaitingInsideNormalQueue){
-			if (socket.id == userWaitingInsideNormalQueue[1]){
+			if (socket.id == userWaitingInsideNormalQueue[1])
 				this.queueListNormalGame.delete(userWaitingInsideNormalQueue[0]);
-			}
 		}
 		else if (userWaitingInsideCustomQueue){
-			if (socket.id == userWaitingInsideCustomQueue[1]){
+			if (socket.id == userWaitingInsideCustomQueue[1])
 				this.queueListCustomGame.delete(userWaitingInsideCustomQueue[0]);
-			}
 		}
 	}
 
@@ -314,7 +318,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	checkWinConditionMultiGame(gameRoom: GameRoom){
 		const scorePlayer1 = gameRoom.score.get(gameRoom.player1UserId.toString());
 		const scorePlayer2 = gameRoom.score.get(gameRoom.player2UserId.toString());
-		(scorePlayer1 >= 3 || scorePlayer2 >= 3) ? gameRoom.finish = true : gameRoom.finish = false;
+		(scorePlayer1 >= MAX_SCORE || scorePlayer2 >= MAX_SCORE) ? gameRoom.finish = true : gameRoom.finish = false;
 	}
 
 	createGameRoomLocal(gameRoomId: number, player1: any, player2: any, customGame: boolean) : GameRoom{
@@ -485,7 +489,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
           			});
           			gameRoom.paused = false;
        		 	}
-			}, 3000);
+			}, GAME_COUNTDOWN_START);
 		}
 
 		Matter.Events.on(engine, 'collisionStart', function(event : Matter.IEventCollision<Matter.Engine>) {
@@ -543,21 +547,19 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	async handleJoinQueueNormal(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() userId: number) {
-		this.queueListNormalGame.set(userId, socket.id);
 		var localRoom : GameRoom;
 		var user1 : User;
 		var user2 : User;
 		
-		console.log("event receive");
+		this.queueListNormalGame.set(userId, socket.id);
+		console.log(`size queue when join ${this.queueListNormalGame.size}`);
 		if (this.queueListNormalGame.size >= 2){
 			const first = this.queueListNormalGame.entries().next().value;
-
 			this.queueListNormalGame.delete(first[0]);
 
 			const second = this.queueListNormalGame.entries().next().value;
 
 			user1 = await this.UserService.getUserById(first[0]);
-
 			user2 = await this.UserService.getUserById(second[0]);
 	
 			this.queueListNormalGame.delete(second[0]);
@@ -908,15 +910,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	@SubscribeMessage('readyAfterInitialisation')
-	handleGameStart(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() roomId: number ) : void {
+	handleGameStart(@ConnectedSocket() socket: Socket, @MessageBody() roomId: number){
 
 		var gameRoom : GameRoom = this.findCorrespondingGame(roomId);
 
 		if (gameRoom){
 			if (socket.id == gameRoom.player1SocketId)
-					gameRoom.player1Spawn = true;
+				gameRoom.player1Spawn = true;
 			else
 				gameRoom.player2Spawn = true;
 			if (gameRoom.finish == false && gameRoom.player1Spawn == true && gameRoom.player2Spawn == true && gameRoom.inCooldown == false){
@@ -924,6 +924,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				this.server.to(gameRoom.player1SocketId).emit('gameStart');
 				this.server.to(gameRoom.player2SocketId).emit('gameStart');
 				gameRoom.inCooldown = true;
+				gameRoom.insideLobby = false;
 				setTimeout(() => {
 					gameRoom.started = true;
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
@@ -934,7 +935,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					gameRoom.pausedAfk = false;
 					gameRoom.player2Ready = false;
 					gameRoom.player1Ready = false;
-				}, 3000);
+				}, GAME_COUNTDOWN_START);
 			}
 		}
 	}

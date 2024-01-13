@@ -23,15 +23,19 @@
       this.eventBus = EventBus.getInstance();
       this.eventBus.subscribe('refreshGame', this.refreshGame);
       this.eventBus.emit('refreshGame');
+      this.eventBus.emit('refreshHeader');
+      console.log("refresh game")
     },
     beforeDestroy() {
       this.eventBus.unsubscribe('refreshGame', this.refreshGame);
     },
     unmounted() {
-      console.log("socket disconnect");
-      if (store.state)
+      if (store.state){
+        console.log("disconnect socket")
         store.state.socket.disconnect();
-    },
+        store.dispatch('initializeSocket');
+      }
+    }
   };
 </script>
 
