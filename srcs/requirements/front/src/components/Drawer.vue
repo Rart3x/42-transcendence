@@ -122,7 +122,8 @@
       <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
         <form @submit.prevent="checkName">
           <div class="p-4">
-            <input v-model="enteredName" type="text" placeholder="Start a conversation" class="input input-bordered w-full mb" @keyup.enter="checkName"/>
+            <input v-model="enteredName" type="text" placeholder="Start a conversation" class="input input-bordered w-full mb"/>
+            <button type="submit" class="btn btn-primary w-full mt-2">Search</button>
           </div>
         </form>
         <li v-for="(pairMessages, pairKey) in uniqueMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">
