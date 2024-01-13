@@ -111,13 +111,39 @@ router.beforeEach(async (to, from, next) => {
   let cookieJWT = Cookies.get('Bearer');
   let user;
 
-  if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined')
+  if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
     user = await getUserByUserId(cookieUserId, cookieJWT);
+    console.log(user);
+  }
   const path = to.path;
-  if (!user && path !== "/" && path !== "/sign-in" || (to.name != '2fa' && user && user.A2F && user.status == "offline"))
+  if (!user && path !== "/" && path !== "/sign-in"){
+    console.log("1");
     next('/');
+  }
+  else if (user && user.A2F && user.status == "online"){
+    console.log("2");
+    next();
+  }
+  else if (user && user.A2F && user.status == "offline" && from.name == '2fa'){
+    next('/2fa');
+  }
   else
     next();
 });
 
 export default router;
+
+
+// if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
+//   user = await getUserByUserId(cookieUserId, cookieJWT);
+//   const path = to.path;
+//   if (user && user.A2F && user.status == "offline" && from.name == '2fa')
+//     next('/2fa');
+//   else if (user && user.A2F && user.status == "online")
+//     next();
+//   else if (user && path !== "/" && path !== "/sign-in")
+//     next('/');
+// }
+// else{
+//   next('/');
+// }

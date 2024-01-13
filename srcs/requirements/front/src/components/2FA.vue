@@ -14,8 +14,13 @@
             async verifyToken(){
                 try {
                     const isValid = await checkA2F(this.user.userName, this.userToken, this.cookieJWT);
-                    if (isValid)
+
+                    const cookieUserId = Cookies.get('UserId');
+
+                    if (isValid){
+                        this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
                         window.location.href = "/settings";
+                    }
                     else
                         throw new Error("Invalid 2fa code")
                 }

@@ -1,3 +1,5 @@
+import { setStatus } from "./post.call";
+
 /*-----------------------------------------------CHANNEL-----------------------------------------------*/
 export async function getAllChannels(jwtToken: string) { 
   try {
@@ -586,13 +588,13 @@ export async function checkA2F(userName : string, token : string, jwtToken: stri
     });
 
     if (response.ok) {
+      await setStatus(userName, "online", jwtToken);
       const responseData = await response.json();
       return responseData;
     }
-  } 
+  }
   catch (error) {
     console.error('error: sending POST request', error);
-    return false;
   }
 }
 

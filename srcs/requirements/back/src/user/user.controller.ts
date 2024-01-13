@@ -138,13 +138,12 @@ export class UserController {
       console.warn("error: user not found");
     const checkVal = authenticator.check(token, user.A2FSecret);
     if (checkVal)
-      this.userService.updateStatus(user.userId, "online");
-    return checkVal
+      await this.userService.updateStatus(user.userId, "online");
+    return checkVal;
   }
 
   @Post('updateA2F/:userName')
   async updateA2F(@Body('userName') userName: string, @Body('A2F') A2F: boolean): Promise<User> {
-    
     const user = await this.userService.updateA2F(userName, A2F);
     if (!user)
       console.warn("error: user not found");

@@ -103,12 +103,12 @@
           this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
         }
       },
-      logout() {
+      async logout() {
         //Remove cookies and set user status to "offline"
         Cookies.remove("UserId");
         Cookies.remove("Bearer");
         if (this.user)
-          setStatus(this.user.userName, "offline", this.cookieJWT);
+          await setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";
       },
       resetSearchBar() {

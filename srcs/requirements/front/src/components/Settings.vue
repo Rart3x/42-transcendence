@@ -101,9 +101,12 @@
 			let cookieUserId = Cookies.get('UserId');
 			this.cookieJWT = Cookies.get('Bearer');
 			if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined') {
+				console.log("cookieUserId: " + cookieUserId)
 				this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
-				if (!this.user)
+				if (!this.user){
+					console.log("user not found");
 					window.location.href = "/";
+				}
 				this.userName = this.user.userName;
 				if (this.user.A2F) { 
 					this.dataURL = await qrcode.toDataURL(this.user.A2FUrl);
