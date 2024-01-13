@@ -297,6 +297,23 @@ export async function getMessage(jwtToken: string) {
   }
 }
 
+export async function getLastPrivateMessage(senderName:string, receiverName:string, jwtToken: string) { 
+  try { 
+    const response = await fetch(`http://localhost:3000/privateMessage/${senderName}/${receiverName}/lastMessage`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
+      }
+    });
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('error: sending GET request', error);
+  }
+}
+
 /*-----------------------------------------------PRIVATEMESSAGES-----------------------------------------------*/
 export async function getLastMessage(userName1 : string, userName2 : string, jwtToken: string) { 
   try {

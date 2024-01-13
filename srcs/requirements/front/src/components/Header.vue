@@ -50,6 +50,9 @@
         messageSuccess: false,
         mutedSuccess: false,
 
+        userDoesntExist: false,
+        modalIsOpen: false,
+
         cookieJWT: null,
         store: useStore(),
         router: useRouter(),
@@ -77,6 +80,14 @@
     methods: {
       async createPrivateMessageInDB(userName, senderName, message_text) {
         const user1 = await getUserByUserName(senderName, this.cookieJWT);
+        if (!user1) {
+          this.modalMessage = false;
+          this.userDoesntExist = true;
+          setTimeout(() => {
+            this.userDoesntExist = false;
+          }, 5000); 
+          return ;
+        }
         const socket = user1.socket;
         if (message_text === "/game" && userName !== senderName) { 
           message_text = "";
@@ -221,9 +232,9 @@
         });
       },
 
-      closeMessageModal() { this.modalMessage = false; },
-      openMessageModal(userName, message) { this.modalMessage = true; this.currentUserName = userName; this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; },
-      openMessageModalFromAlert(senderName, userName) { this.modalMessage = true; this.currentUserName = userName; this.senderName = senderName; this.messageSuccess = false;},
+      closeMessageModal() { this.modalMessage = false; this.modalIsOpen = false; },
+      openMessageModal(userName, message) { this.modalMessage = true; this.currentUserName = userName; this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; this.modalIsOpen = true; },
+      openMessageModalFromAlert(senderName, userName) { this.modalMessage = true; this.currentUserName = userName; this.senderName = senderName; this.messageSuccess = false; this.modalIsOpen = true; },
     },
     async mounted() {
       const savedTheme = localStorage.getItem('theme');
@@ -254,7 +265,7 @@
     :privateMessage="privateMessages" :openMessageModalFromAlert="openMessageModalFromAlert" :socketEmit="socketEmit"
     :invitationFriendSuccess="invitationFriendSuccess" :friendRequestAccepted="friendRequestAccepted" :friendRequestDeclined="friendRequestDeclined"
     :mutedSuccess="mutedSuccess" :channelNameMuted="channelNameMuted" :bannedSuccess="bannedSuccess" :channelNameBanned="channelNameBanned"
-    :channelNameKicked="channelNameKicked" :kickedSuccess="kickedSuccess" 
+    :channelNameKicked="channelNameKicked" :kickedSuccess="kickedSuccess" :userDoesntExist="userDoesntExist" :modalIsOpen="modalIsOpen"
   />
   <div class="navbar h-74 bg-base-100">
     <div class="navbar-start">

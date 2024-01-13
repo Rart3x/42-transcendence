@@ -32,22 +32,22 @@ export class PrivateMessageService {
   async getLastPrivateMessage(userName1: string, userName2: string): Promise<PrivateMessage> {
     const user1 = await this.userService.getUserByName(userName1);
     const user2 = await this.userService.getUserByName(userName2);
-
+   
     if (!user1 || !user2)
       return null;
-  
+   
     const privateMessage = await this.prisma.privateMessage.findFirst({
       where: {
-        AND: [
-          { OR: [{ senderName: userName1 }, { senderName: userName2 }] },
-          { OR: [{ receiverName: userName1 }, { receiverName: userName2 }] },
+        OR: [
+          { AND: [{ senderName: userName1 }, { receiverName: userName2 }] },
+          { AND: [{ senderName: userName2 }, { receiverName: userName1 }] },
         ],
       },
       orderBy: {
         privateMessageDate: 'desc',
       },
     });
-
+   
     return privateMessage;
   }
   

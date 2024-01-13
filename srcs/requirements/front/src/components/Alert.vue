@@ -42,8 +42,11 @@
 			unblockFailed: Boolean,
 			unsetPassSuccess: Boolean,
 			unsetPassFailed: Boolean,
+			userDoesntExist: Boolean,
 			userNameAlreadyTaken: Boolean,
 			userNotFound: Boolean,
+
+			modalIsOpen: Boolean,
 
 			openMessageModalFromAlert: Function,
 			socketEmit: Function,
@@ -138,8 +141,8 @@
 			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
 			<span>{{ hostName }} invite you as Friend</span>
 			<div>
-				<button class="btn btn-sm" @click="socketEmit('friendRequestAccepted')">Accept</button>
-				<button class="btn btn-sm btn-primary" @click="socketEmit('friendRequestDeclined')">Deny</button>
+				<button class="btn btn-sm btn-primary" @click="socketEmit('friendRequestAccepted')">Accept</button>
+				<button class="btn btn-sm" @click="socketEmit('friendRequestDeclined')">Deny</button>
 			</div>
 		</div>
 	</div>
@@ -160,8 +163,8 @@
 			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
 			<span>{{ hostName }} invite you in a Game</span>
 			<div>
-				<button class="btn btn-sm" @click="socketEmit('invitationInGameAccepted')">Accept</button>
-				<button class="btn btn-sm btn-primary" @click="socketEmit('invitationInGameDeclined')">Deny</button>
+				<button class="btn btn-sm btn-primary" @click="socketEmit('invitationInGameAccepted')">Accept</button>
+				<button class="btn btn-sm" @click="socketEmit('invitationInGameDeclined')">Deny</button>
 			</div>
 		</div>
 	</div>
@@ -211,7 +214,7 @@
 		</div>
 	</div>
 	<!--Message-->
-	<div v-if="messageSuccess" class="toast toast-start">
+	<div v-if="messageSuccess && !modalIsOpen" class="toast toast-start">
 		<div role="alert" class="alert shadow-lg">
 			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
 			<div>
@@ -296,6 +299,12 @@
 			<span>Failed to unblock User</span>
 		</div>
   	</div>
+	<!--UserDoesntExist-->
+	<div v-if="userDoesntExist" class="toast toast-start">
+		<div class="alert alert-error">
+			<span>User doesn't exist</span>
+		</div>
+	</div>
 	<!--UserNameTaken-->
 	<div v-if="userNameAlreadyTaken" class="toast toast-start">
 		<div class="alert alert-error">
