@@ -170,9 +170,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}
 			else if (this.gameRooms[i].finish == false && this.gameRooms[i].started == false && this.gameRooms[i].insideLobby == true){
 				//Still inside lobby
-				console.log("Still inside lobby");
-				console.log("Size", this.queueListNormalGame.size)
-
 				if (socket.id == this.gameRooms[i].player1SocketId){
 					this.gameRooms[i].player1Ready = true;
 					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
@@ -550,9 +547,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		var localRoom : GameRoom;
 		var user1 : User;
 		var user2 : User;
-		
+
 		this.queueListNormalGame.set(userId, socket.id);
-		console.log(`size queue when join ${this.queueListNormalGame.size}`);
 		if (this.queueListNormalGame.size >= 2){
 			const first = this.queueListNormalGame.entries().next().value;
 			this.queueListNormalGame.delete(first[0]);

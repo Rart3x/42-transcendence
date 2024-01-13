@@ -176,7 +176,6 @@
                 }
             });
             this.socket.on('otherPlayerLeaveLobby', () => {
-                console.log("other player leave lobby")
                 this.children.removeAll();
                 this.destroyUI();
                 this.scene.start('BootScene');

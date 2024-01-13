@@ -20,13 +20,11 @@
 
         async init(){
             //Set reference folder from where we'll load textures, images, ...
-            console.log("init boot scene");
             this.load.setPath(".");
             if (store.state.socket)
                 this.socket = store.state.socket;
             else
                 return ;
-            console.log(this.socket.id)
             const cookieUserId = Cookies.get('UserId');
             const cookieJWT = Cookies.get('Bearer');
             if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
@@ -101,7 +99,6 @@
                             }
                             else{
                                 self.UIElement.destroy();
-                                console.log("join normal queue");
                                 self.socket.emit('playerJoinNormalQueue', self.user.userId);
                             }
                             self.createMatchmakingHTML();
