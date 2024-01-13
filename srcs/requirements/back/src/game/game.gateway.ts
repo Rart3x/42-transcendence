@@ -167,6 +167,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}
 			else if (this.gameRooms[i].finish == false && this.gameRooms[i].started == false){
 				//Still inside lobby
+				console.log("still inside lobby");
 				if (socket.id == this.gameRooms[i].player1SocketId){
 					this.gameRooms[i].player1Ready = true;
 					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
@@ -548,7 +549,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		var user1 : User;
 		var user2 : User;
 		
-		console.log("event receive");
 		if (this.queueListNormalGame.size >= 2){
 			const first = this.queueListNormalGame.entries().next().value;
 

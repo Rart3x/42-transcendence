@@ -11,7 +11,7 @@
 	export default {
 		components: {
 			Alert,
-			UserStatHeader,
+			UserStatHeader
 		},
 		data() {
 			return {
@@ -24,8 +24,7 @@
 				activeTab: "username",
 				cookieJWT: null,
 				theme: 'dark',
-
-				userNameAlreadyTaken: false,
+				userNameAlreadyTaken: false
 			};
 		},
 		methods: {
@@ -101,13 +100,13 @@
 		async mounted() {
 			let cookieUserId = Cookies.get('UserId');
 			this.cookieJWT = Cookies.get('Bearer');
-			if (this.cookieUserId != 'undefined' && this.cookieJWT != 'undefined') {
+			if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined') {
 				this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
 				if (!this.user)
 					window.location.href = "/";
 				this.userName = this.user.userName;
 				if (this.user.A2F) { 
-					this.this.dataURL = await qrcode.toDataURL(this.user.A2FUrl);
+					this.dataURL = await qrcode.toDataURL(this.user.A2FUrl);
 					this.A2FEnabled = this.user.A2F;
 				}
 			}

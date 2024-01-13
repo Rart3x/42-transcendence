@@ -12,7 +12,7 @@ model Channel {
   channelId         Int         @id @default(autoincrement())
   channelName       String      @unique
   channelAdmin      Int
-  channelAdminImage String      @default("default_pic.jpg")
+  channelAdminImage String
 
   channelPassword   String?     @default("")  
 
@@ -138,7 +138,7 @@ model User {
   winner       Score[]
 
   displayName   String?    @unique
-  image         String     @default("default_pic.jpg")
+  image         String
   isChecked     Boolean    @default(false)
 
   socket        String?    @unique

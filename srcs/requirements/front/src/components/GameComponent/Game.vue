@@ -28,7 +28,6 @@
       this.eventBus.unsubscribe('refreshGame', this.refreshGame);
     },
     unmounted() {
-      console.log("socket disconnect");
       if (store.state)
         store.state.socket.disconnect();
     },

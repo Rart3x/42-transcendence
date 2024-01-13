@@ -343,19 +343,16 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     });
   }
 
-  async user(
-    userWhereUniqueInput: Prisma.UserWhereUniqueInput,): Promise<User | null> {
+  async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User | null> {
       return this.prisma.user.findUnique({
         where: userWhereUniqueInput,
     });
   }
 
-
   async setStatus(userName: string, status : string): Promise<boolean> {
     const user = await this.getUserByName(userName);
     if (!user)
       return false;
-
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: { status: status },

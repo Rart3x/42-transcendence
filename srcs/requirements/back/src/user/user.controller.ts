@@ -16,7 +16,6 @@ export class UserController {
   @Get(':userName/channels')
   async getAllChannelsFromUser(@Param('userName') userName: string): Promise<Channel[]> | null {
     const user = await this.userService.getUserByName(userName);
-    
     if (!user)
       return null;
     return this.userService.getAllChannelsFromUser(user.userName);
@@ -120,9 +119,8 @@ export class UserController {
    try {
      return await this.userService.getUserById(userId);
    } catch (e) {
-     if (e.message === 'User not found') {
+     if (e.message === 'User not found')
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
      throw e;
    }
   }
@@ -140,7 +138,7 @@ export class UserController {
       console.warn("error: user not found");
     const checkVal = authenticator.check(token, user.A2FSecret);
     if (checkVal)
-      this.userService.setStatus(user.userName, "online");
+      this.userService.updateStatus(user.userId, "online");
     return checkVal
   }
 

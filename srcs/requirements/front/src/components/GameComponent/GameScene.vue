@@ -1,23 +1,15 @@
 <script lang="ts">
-
-//IMPORTS
-
 //Linear interpolation
 import '@geckos.io/snapshot-interpolation';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-
 //Socket communication
 import { Socket } from 'socket.io-client';
-
 //Game library
 import Phaser from 'phaser';
-
 //Game Physics library
 import * as Matter from 'matter-js';
-
 //Interfaces
 import Entities from '../../entities/entities';
-
 import GameRoom from "../../gameRoom/gameRoom";
 
 //Initialize snapshot library
@@ -49,7 +41,7 @@ export default class Game extends Phaser.Scene {
 	setupSocketEvents(){
 		//Keep track of this instance for arrow function
 		const self = this;
-		this.socket.on('updateScore', (data) => {
+		this.socket.on('updateScore', (data : any)  => {
 			if (this.gameRoom && this.gameRoom.score){
 				this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
 				this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
@@ -57,7 +49,7 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		this.socket.on('currentGameInformation', (data) => {
+		this.socket.on('currentGameInformation', (data : any) => {
 			this.gameRoom = new GameRoom(
 				this,
 				data.roomId,
