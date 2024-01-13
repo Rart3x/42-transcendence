@@ -1,5 +1,5 @@
 <script>
-    import { getUserByUserId } from './api/get.call';
+    import { getUserByUserId, checkA2F } from './api/get.call';
 	import Cookies from 'js-cookie';
 
     export default {
@@ -7,26 +7,31 @@
             return {
                 userToken: null,
                 user: null,
+                cookieJWT: null
             }
         },
         methods: {
-        async verifyToken(){
+            async verifyToken(){
                 try {
-                    const isValid = await checkA2F(this.user.userName, this.userToken);
-                    if (isValid)
+                    const isValid = await checkA2F(this.user.userName, this.userToken, this.cookieJWT);
+                    if (isValid){
                         window.location.href = "/settings";
+                        
+                    }
+                    else
+                        throw new Error("Invalid 2fa code")
                 }
                 catch (error) {
-                    alert('Invalid 2fa code');
+                    alert(error);
                     this.userToken = '';
                 }
             }
         },
         async mounted(){
-            const cookieJWT = Cookies.get('Bearer');
+            this.cookieJWT = Cookies.get('Bearer');
             const cookieUserId = Cookies.get('UserId');
-            if (typeof cookieJWT != 'undefined' && typeof cookieUserId != 'undefined')
-                this.user = await getUserByUserId(cookieUserId);
+            if (typeof this.cookieJWT != 'undefined' && typeof cookieUserId != 'undefined')
+                this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
             else
                 window.location.href = "/";
         }

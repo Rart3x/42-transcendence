@@ -80,8 +80,8 @@ export class AuthController {
     }
 
     private setCookie(res: Response, userId: number, bearerToken: string){
-            //Jwt token to make request to the back
-            res.cookie('Bearer', bearerToken, {
+        //Jwt token to make request to the back
+        res.cookie('Bearer', bearerToken, {
             httpOnly: false,
             secure: false,
             sameSite: 'lax',

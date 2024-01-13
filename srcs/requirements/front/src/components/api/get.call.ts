@@ -572,12 +572,10 @@ export async function checkA2F(userName : string, token : string, jwtToken: stri
       const responseData = await response.json();
       return responseData;
     }
-    else {
-      const errorText = await response.text();
-    }
   } 
   catch (error) {
     console.error('error: sending POST request', error);
+    return false;
   }
 }
 

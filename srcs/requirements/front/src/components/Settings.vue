@@ -67,9 +67,6 @@
 					await updateUsername(this.user.userName, this.newUserName, this.cookieJWT);
 				window.location.reload();
 				this.newUserName = '';
-				console.log("USER: " + user1);
-				console.log("DISPLAY : " + user2);
-
 			},
 			onFileChange(event){
 				this.selectedFile = event.target.files[0];
@@ -106,9 +103,8 @@
 			this.cookieJWT = Cookies.get('Bearer');
 			if (this.cookieUserId != 'undefined' && this.cookieJWT != 'undefined') {
 				this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
-				if (!this.user) { 
+				if (!this.user)
 					window.location.href = "/";
-				}
 				this.userName = this.user.userName;
 				if (this.user.A2F) { 
 					this.this.dataURL = await qrcode.toDataURL(this.user.A2FUrl);

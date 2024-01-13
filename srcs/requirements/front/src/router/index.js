@@ -111,8 +111,10 @@ router.beforeEach(async (to, from, next) => {
   let cookieJWT = Cookies.get('Bearer');
   let user;
 
-  if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined')
+  if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
     user = await getUserByUserId(cookieUserId, cookieJWT);
+    console.log(user);
+  }
   const path = to.path;
   if (!user && path !== "/" && path !== "/sign-in" || (to.name != '2fa' && user && user.A2F && user.status == "offline"))
     next('/');

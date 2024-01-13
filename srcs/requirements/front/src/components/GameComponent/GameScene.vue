@@ -162,8 +162,6 @@ export default class Game extends Phaser.Scene {
 		});
 
 		this.socket.on('gameFinish', (data : any) => {
-			// Assume `this.game` is your Game instance
-			("game finish")
 			this.removeSocketEvents();
 			this.scene.stop('GameScene');
 			this.scene.start('EndGameScene', { user: this.user, gameRoom: this.gameRoom, socket: this.socket, endGameData: data });
@@ -319,12 +317,10 @@ export default class Game extends Phaser.Scene {
 
 	switchSceneInvisible(){
 		if (this.gameRoom?.entities){
-			for (let i = 0; i < 4; i++){
+			for (let i = 0; i < 4; i++)
 				this.gameRoom.entities.walls[i].gameObject.setVisible(false);
-			}
-			for (let i = 0; i < 2; i++){
+			for (let i = 0; i < 2; i++)
 				this.gameRoom.entities.players[i].gameObject.setVisible(false);
-			}
 			this.gameRoom.entities.ball.gameObject.setVisible(false);
 		}
 	}
@@ -364,12 +360,10 @@ export default class Game extends Phaser.Scene {
 				state.forEach(s => {
 					const { id, x, y, } = s;
 					if (id != undefined && this.gameRoom && this.gameRoom.entities){
-						if (id == this.gameRoom.player1SocketId){
+						if (id == this.gameRoom.player1SocketId)
 							this.gameRoom.entities.players[0].gameObject.y = y;
-						}
-						else{
+						else
 							this.gameRoom.entities.players[1].gameObject.y = y;
-						}
 					}
 				});
 			}
@@ -397,9 +391,8 @@ export default class Game extends Phaser.Scene {
 				if (state){
 					const {id, delta} = state[0];
 					if (id){
-						for (let i = 0; i < 2; i++){
+						for (let i = 0; i < 2; i++)
 							this.gameRoom.entities.obstacles[i].gameObject.setAngle(delta);
-						}
 					}
 				}
 			}

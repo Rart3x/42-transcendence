@@ -47,29 +47,24 @@
                 if (this.gameRoom && this.gameRoom.playAgain == true){
                     if (this.socket.id == this?.gameRoom?.player1SocketId){
                         this.gameRoom.player1PlayAgain = true;
-                        if (this.gameRoom.player2PlayAgain){
+                        if (this.gameRoom.player2PlayAgain)
                             playAgainButton.innerText = "Play again 2/2";
-                        }
-                        else{
+                        else
                             playAgainButton.innerText = "Play again 1/2";
-                        }
                     }
                     else if (this.gameRoom){
                         this.gameRoom.player2PlayAgain = true;
-                        if (this.gameRoom.player1PlayAgain){
+                        if (this.gameRoom.player1PlayAgain)
                             playAgainButton.innerText = "Play again 2/2";
-                        }
-                        else{
+                        else
                             playAgainButton.innerText = "Play again 1/2";
-                        }
                     }
                     this.socket.emit('playAgain', this.gameRoom.id);
                 }
             });
             stopButton.addEventListener('click', () => {
-                if (this.gameRoom){
+                if (this.gameRoom)
                     this.socket.emit('stopPlay', this.gameRoom.id);
-                }
                 this.children.removeAll();
                 this.UIElement.destroy();
                 this.EventHandler.emit('refreshGame');
@@ -81,21 +76,17 @@
                 let playAgainButton = this.UIElement.node.querySelector("#replayButton") as HTMLElement;
                 if (this.socket.id == this?.gameRoom?.player1SocketId){
                     this.gameRoom.player2PlayAgain = true;
-                    if (this.gameRoom.player1PlayAgain){
+                    if (this.gameRoom.player1PlayAgain)
                         playAgainButton.innerText = "Play again 2/2";
-                    }
-                    else{
+                    else
                         playAgainButton.innerText = "Play again 1/2";
-                    }
                 }
                 else if (this.gameRoom){
                     this.gameRoom.player1PlayAgain = true;
-                    if (this.gameRoom.player2PlayAgain){
+                    if (this.gameRoom.player2PlayAgain)
                         playAgainButton.innerText = "Play again 2/2";
-                    }
-                    else{
+                    else
                         playAgainButton.innerText = "Play again 1/2";
-                    }
                 }
             });
 
@@ -135,9 +126,7 @@
 
         create(){
             this.createEndGameScreenHTML();
-
 			let winLooseMessage = this.UIElement.node.querySelector("#winLooseMessage") as HTMLElement;
-			
 			var scoreWinner = this.endGameData.scoreWinner.toString();
 			var scoreLooser = this.endGameData.scoreLooser.toString();
 
