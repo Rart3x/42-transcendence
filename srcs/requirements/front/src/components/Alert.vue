@@ -42,6 +42,7 @@
 			unblockFailed: Boolean,
 			unsetPassSuccess: Boolean,
 			unsetPassFailed: Boolean,
+			userDoesntExist: Boolean,
 			userNameAlreadyTaken: Boolean,
 			userNotFound: Boolean,
 
@@ -296,6 +297,12 @@
 			<span>Failed to unblock User</span>
 		</div>
   	</div>
+	<!--UserDoesntExist-->
+	<div v-if="userDoesntExist" class="toast toast-start">
+		<div class="alert alert-error">
+			<span>User doesn't exist</span>
+		</div>
+	</div>
 	<!--UserNameTaken-->
 	<div v-if="userNameAlreadyTaken" class="toast toast-start">
 		<div class="alert alert-error">

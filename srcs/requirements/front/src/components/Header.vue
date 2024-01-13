@@ -50,6 +50,8 @@
         messageSuccess: false,
         mutedSuccess: false,
 
+        userDoesntExist: false,
+
         cookieJWT: null,
         store: useStore(),
         router: useRouter(),
@@ -77,6 +79,14 @@
     methods: {
       async createPrivateMessageInDB(userName, senderName, message_text) {
         const user1 = await getUserByUserName(senderName, this.cookieJWT);
+        if (!user1) {
+          this.modalMessage = false;
+          this.userDoesntExist = true;
+          setTimeout(() => {
+            this.userDoesntExist = false;
+          }, 5000); 
+          return ;
+        }
         const socket = user1.socket;
         if (message_text === "/game" && userName !== senderName) { 
           message_text = "";
@@ -254,7 +264,7 @@
     :privateMessage="privateMessages" :openMessageModalFromAlert="openMessageModalFromAlert" :socketEmit="socketEmit"
     :invitationFriendSuccess="invitationFriendSuccess" :friendRequestAccepted="friendRequestAccepted" :friendRequestDeclined="friendRequestDeclined"
     :mutedSuccess="mutedSuccess" :channelNameMuted="channelNameMuted" :bannedSuccess="bannedSuccess" :channelNameBanned="channelNameBanned"
-    :channelNameKicked="channelNameKicked" :kickedSuccess="kickedSuccess" 
+    :channelNameKicked="channelNameKicked" :kickedSuccess="kickedSuccess" :userDoesntExist="userDoesntExist"
   />
   <div class="navbar h-74 bg-base-100">
     <div class="navbar-start">
