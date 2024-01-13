@@ -14,7 +14,6 @@
     },
     computed: {
       uniqueMessages() {
-        
         const uniquePairs = {};
         for (const [pairKey, pairMessages] of Object.entries(this.$props.privateMessages)) {
           const key = this.getPairKey(pairMessages);
@@ -134,7 +133,7 @@
         </form>
         <li v-for="(pairMessages, pairKey) in uniqueMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">
           <div class="flex justify-between items-center">
-            <span class="invisible"> {{ getLastPrivateMessageInDB(pairMessages[pairMessages.length - 1].senderName, pairMessages[pairMessages.length - 1].receiverName) }} </span>
+            <span class="invisible">{{ getLastPrivateMessageInDB(pairMessages[pairMessages.length - 1].senderName, pairMessages[pairMessages.length - 1].receiverName) }} </span>
             <div class="flex flex-col items-start">
               <span class="font-semibold">
                 {{ pairMessages[pairMessages.length - 1].senderName === user.userName ? pairMessages[pairMessages.length - 1].receiverName : pairMessages[pairMessages.length - 1].senderName }}
