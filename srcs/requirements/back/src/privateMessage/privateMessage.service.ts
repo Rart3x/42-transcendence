@@ -69,6 +69,9 @@ export class PrivateMessageService {
         sender: true,
         receiver: true,
       },
+      orderBy: {
+        privateMessageDate: 'asc',
+      }
     });
   
     if (!privateMessage) {

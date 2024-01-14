@@ -174,6 +174,8 @@
                     <div class="messages-content">
                         <div v-if="privateMessages">
                             <div v-for="(pairMessages, pairIndex) in privateMessages" :key="pairIndex">
+                                <div class="chat chat-start">
+                                </div>
                                 <div v-for="(message, index) in pairMessages" :key="index">
                                     <div v-if="message.senderName === userName && message.receiverName === senderName && message.messageContent" class="message message-right">
                                         {{ message.messageContent }}
