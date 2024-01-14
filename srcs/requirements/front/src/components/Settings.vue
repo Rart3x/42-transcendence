@@ -101,7 +101,6 @@
 			let cookieUserId = Cookies.get('UserId');
 			this.cookieJWT = Cookies.get('Bearer');
 			if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined') {
-				console.log("cookieUserId: " + cookieUserId)
 				this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
 				if (!this.user)
 					window.location.href = "/";

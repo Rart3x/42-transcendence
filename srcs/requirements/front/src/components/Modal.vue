@@ -95,16 +95,14 @@
 		    this.cookieJWT = Cookies.get('Bearer');
             if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined')
                 this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
-            if (this.user){
+            if (this.user)
                 this.$props.privateMessages = getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
-                console.log(this.$props.privateMessages);
-            }
         },
     };
 </script>
 
 <template>
-    <Alert      
+    <Alert 
         :setPassSuccess="setPassSuccess"
         :setPassFailed="setPassFailed"
         :unsetPassSuccess="unsetPassSuccess"
@@ -174,8 +172,6 @@
                     <div class="messages-content">
                         <div v-if="privateMessages">
                             <div v-for="(pairMessages, pairIndex) in privateMessages" :key="pairIndex">
-                                <div class="chat chat-start">
-                                </div>
                                 <div v-for="(message, index) in pairMessages" :key="index">
                                     <div v-if="message.senderName === userName && message.receiverName === senderName && message.messageContent" class="message message-right">
                                         {{ message.messageContent }}
