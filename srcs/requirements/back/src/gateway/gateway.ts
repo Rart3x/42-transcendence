@@ -21,7 +21,7 @@ export class AppGateway {
         await this.UserService.updateStatus(user.userId, "offline");
     }
     catch(error) {
-      throw error
+      console.log(error);
     }
   }
 

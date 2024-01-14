@@ -113,20 +113,14 @@ router.beforeEach(async (to, from, next) => {
 
   if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
     user = await getUserByUserId(cookieUserId, cookieJWT);
-    console.log(user);
   }
   const path = to.path;
-  if (!user && path !== "/" && path !== "/sign-in"){
-    console.log("1");
+  if (!user && path !== "/" && path !== "/sign-in")
     next('/');
-  }
-  else if (user && user.A2F && user.status == "online"){
-    console.log("2");
+  else if (user && user.A2F && user.status == "online")
     next();
-  }
-  else if (user && user.A2F && user.status == "offline" && from.name == '2fa'){
+  else if (user && user.A2F && user.status == "offline" && from.name == '2fa')
     next('/2fa');
-  }
   else
     next();
 });
