@@ -51,7 +51,7 @@ const store = createStore({
         console.error('error: socket uninitialized');
     },
     initializeSocket({ commit }) {
-      const socket =  io('http://2F2.42angouleme.fr:3000');
+      const socket =  io('http://2F1.42angouleme.fr:3000');
       commit('SET_SOCKET', socket);
     },
     invitationInGame(context, body) {

@@ -10,7 +10,7 @@ var cors = require('cors')
 async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({disableErrorMessages: false}));
 
   app.use(cookieParser());
 
@@ -31,10 +31,7 @@ async function bootstrap() {
 
   app.use(cors())
 
-  // app.use('/images', express.static('public/images'));
-
   await app.listen(3000);
 }
 
 bootstrap();
-  
