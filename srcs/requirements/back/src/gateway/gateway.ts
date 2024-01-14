@@ -15,9 +15,14 @@ export class AppGateway {
   constructor(private readonly UserService: UserService){}
 
 	async handleDisconnect(socket: Socket) {
-    const user = await this.UserService.getUserBySocket(socket.id);
-    if (user)
-      await this.UserService.updateStatus(user.userId, "offline");
+    try {
+      const user = await this.UserService.getUserBySocket(socket.id);
+      if (user)
+        await this.UserService.updateStatus(user.userId, "offline");
+    }
+    catch(error) {
+      throw error
+    }
   }
 
   @SubscribeMessage('banUser')

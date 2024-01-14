@@ -17,36 +17,46 @@ export class AuthController {
     async makeAuth42(@Query('code') code: string, @Res() res: Response) : Promise<any>{
         try {
             if (code) {
-                //Fetch to retrieve the bearer token with query code 
-                const response = await fetch("https://api.intra.42.fr/oauth/token", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        grant_type: "authorization_code",
-                        client_id: process.env.VITE_CLIENT_ID,
-                        client_secret: process.env.VITE_CLIENT_SECRET,
-                        code: code,
-                        redirect_uri: process.env.VITE_REDIRECT_URI
-                    }),
-                });
-
-                if (!response.ok)
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                //Fetch to retrieve the bearer token with query code
+                try{
+                    var response = await fetch("https://api.intra.42.fr/oauth/token", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            grant_type: "authorization_code",
+                            client_id: process.env.VITE_CLIENT_ID,
+                            client_secret: process.env.VITE_CLIENT_SECRET,
+                            code: code,
+                            redirect_uri: process.env.VITE_REDIRECT_URI
+                        }),
+                    });
+                    if (!response.ok)
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                catch(error){
+                    console.log(error)
+                }
 
                 const data = await response.json();
                 const token = data.access_token;
 
                 if (token){
                     //Fetch to retrieve informations about the user logged in
-                    const userResponse = await fetch("https://api.intra.42.fr/v2/me", {
-                        headers: {
-                          Authorization: `Bearer ${token}`
-                        }
-                    });
-                    if (!userResponse.ok)
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                    try{
+                        var userResponse = await fetch("https://api.intra.42.fr/v2/me", {
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            }
+                        });
+                        if (!userResponse.ok)
+                            throw (new Error(`HTTP error! status: ${userResponse.status}`));
+                    }
+                    catch(error){
+                        console.log(error)
+                    }
+
                     const userData = await userResponse.json();
                     const payload = { sub: userData.id, username: userData.login };
 
@@ -56,10 +66,10 @@ export class AuthController {
                         const access_token = await this.JwtService.signAsync(payload);
                         this.setCookie(res, user.userId, access_token);
                         if (user.A2F)
-                            res.redirect("http://localhost:1505/2fa");
+                            res.redirect("http://2F2.42angouleme.fr:3000/2fa");
                         else{
                             this.UserService.setStatus(user.userName, "online");
-                            res.redirect("http://localhost:1505/settings");
+                            res.redirect("http://2F2.42angouleme.fr:3000/settings");
                         }
                         return ;
                     }
@@ -67,7 +77,7 @@ export class AuthController {
                     const access_token = await this.JwtService.signAsync(payload);
                     this.UserService.setStatus(newUser.userName, "online");
                     this.setCookie(res, newUser.userId, access_token);
-                    res.redirect("http://localhost:1505/settings");
+                    res.redirect("http://2F2.42angouleme.fr:3000/settings");
                 }
             }
         }
