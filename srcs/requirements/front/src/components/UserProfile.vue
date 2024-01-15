@@ -67,7 +67,7 @@
 
           for (let i = 0; i < allUsers.length; i++) {
             if (allUsers[i].status === 'online')
-              await this.store.dispatch('newChannelSuggestion', { allUsers });
+              await this.store.dispatch('newChannelSuggestion', { socket: allUsers[i].socket });
           }
           this.addChannelSuccess = true;
           setTimeout(() => {
@@ -147,7 +147,6 @@
             this.removeFriendSuccess = false;
           }, 3000);
           const removedUser = await getUserByUserName(friendName, this.cookieJWT);
-          //Update added user's buddy list
           if (removedUser.status === 'online')
             await this.store.dispatch('friendRemoved', { socket: removedUser.socket })
           this.updateFriends();
@@ -227,6 +226,7 @@
         });
         this.store.state.socket.on('newChannelSuggestion', () => {
           this.updateAllChannels();
+          this.updateChannels();
         })
         this.store.state.socket.on('removeChannel', () => {
           this.updateAllChannels();
