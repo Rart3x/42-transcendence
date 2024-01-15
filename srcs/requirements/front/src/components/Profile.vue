@@ -44,7 +44,6 @@
     const friend = await getUserByUserName(friendName, cookieJWT.value);
     if (friend.status == 'online')
       await store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
-    isFriendBool.value = true;
   };
 
   const blockFromDB = async (userName, blockedUserName) => {
