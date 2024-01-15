@@ -33,7 +33,8 @@
 
   const channelName = ref(null);
   const modalChannel = ref(false);
-
+  let currentUserName = null;
+  
   let messages = ref([]);
   let message_text = ref(null);
 
