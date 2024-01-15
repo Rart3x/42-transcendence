@@ -12,6 +12,7 @@
         UIElement : GameObjects.DOMElement;
         user: any;
         socket: Socket;
+        isModalOpenFlag: boolean = false;
 
         constructor(){
             //Call parent class constructor
@@ -83,11 +84,13 @@
             </div>');
         }
 
-        isModalOpen(){
+        isModal(){
             this.socket.on('modalOpen', () => {
-                return true;
+                this.isModalOpenFlag = true;
             });
-            return false;
+            this.socket.on('modalClose', () => {
+                this.isModalOpenFlag = false;
+            });
         }
 
         setupEventListeners(self: any){
@@ -116,7 +119,6 @@
         }
 
         setupInputListeners(self : any){
-            console.log('SPACE')
             if (self.input.keyboard){
                 const SPACEKey = self.input.keyboard.addKey('SPACE');
                 SPACEKey.on('down', function (){
@@ -146,8 +148,7 @@
                 this.createLocalGameLoadingHTML();
             else {
                 this.createGamePageHTML();
-                if (this.isModalOpen() == false)
-                    this.setupInputListeners(self);
+                this.setupInputListeners(self);
                 this.setupEventListeners(self);
             }
             this.setupEventSocketListeners();

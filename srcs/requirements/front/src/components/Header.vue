@@ -232,21 +232,22 @@
         });
       },
 
-      closeMessageModal() { this.modalMessage = false; this.modalIsOpen = false; },
+      closeMessageModal() {
+        this.modalMessage = false; this.modalIsOpen = false;
+        if (window.location.pathname === "/game" && this.modalMessage === false)
+          this.store.dispatch('modalClose', { socket : this.user.socket });
+      },
       openMessageModal(userName, message) { 
         this.modalMessage = true; this.currentUserName = userName;
         this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; this.modalIsOpen = true;
-        console.log(window.location.pathname, this.modalMessage);
-        if (window.location.pathname === "/game" && this.modalMessage === true) {
+        if (window.location.pathname === "/game" && this.modalMessage === true)
           this.store.dispatch('modalOpen', { socket : this.user.socket });
-      }
       },
       openMessageModalFromAlert(senderName, userName) { 
         this.modalMessage = true; this.currentUserName = userName;
         this.senderName = senderName; this.messageSuccess = false; this.modalIsOpen = true;
-        if (window.location.pathname === "/game" && this.modalMessage === true) {
+        if (window.location.pathname === "/game" && this.modalMessage === true)
           this.store.dispatch('modalOpen', { socket : this.user.socket });
-      }
       },
     },
     async mounted() {

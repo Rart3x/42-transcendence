@@ -235,8 +235,8 @@
           Unblock {{ $route.params.userName }}
         </button>
       </div>
-    </div>
-    <History v-if="user" :userName="$route.params.userName" :visitedProfile="true"/>
+    </div> 
+    <History :key="$route.params.userName" :userName="$route.params.userName" :visitedProfile="true"/>
   </div>
   <!--Alerts-->
   <Alert

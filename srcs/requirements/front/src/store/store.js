@@ -75,6 +75,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    modalClose(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('modalClose', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     modalOpen(context, body) {
       const socket = context.state.socket;
       if (socket)
