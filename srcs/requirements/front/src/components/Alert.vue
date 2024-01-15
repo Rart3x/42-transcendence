@@ -32,6 +32,8 @@
 			mutedSuccess: Boolean,
 			muteSuccess: Boolean,
 			muteFailed: Boolean,
+			quitSuccess: Boolean,
+			quitFailed: Boolean,
 			removeChannelSuccess: Boolean,
 			removeChannelFailed: Boolean,
 			removeFriendSuccess: Boolean,
@@ -56,6 +58,7 @@
 			channelNameMuted: String,
 			hostName: String,
 			messageSenderName: String,
+			quitChannelName: String,
 			userName: String,
 		},
 	};
@@ -241,6 +244,17 @@
 	<div v-if="mutedSuccess" class="toast toast-start">
 		<div class="alert alert-warning">
 			<span>You have been muted in {{ channelNameMuted }}</span>
+		</div>
+	</div>
+	<!--Quit-->
+	<div v-if="quitSuccess" class="toast toast-start">
+		<div class="alert alert-success">
+			<span>You quit successfully {{ quitChannelName }}</span>
+		</div>
+	</div>
+	<div v-if="quitFailed" class="toast toast-start">
+		<div class="alert alert-error">
+			<span>Failed to quit {{ quitChannelName }}</span>
 		</div>
 	</div>
 	<!--RemoveChannel-->

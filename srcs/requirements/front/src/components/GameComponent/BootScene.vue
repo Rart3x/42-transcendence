@@ -83,6 +83,13 @@
             </div>');
         }
 
+        isModalOpen(){
+            this.socket.on('modalOpen', () => {
+                return true;
+            });
+            return false;
+        }
+
         setupEventListeners(self: any){
             let multiplayerButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
             multiplayerButton.addEventListener('click', function() {
@@ -109,6 +116,7 @@
         }
 
         setupInputListeners(self : any){
+            console.log('SPACE')
             if (self.input.keyboard){
                 const SPACEKey = self.input.keyboard.addKey('SPACE');
                 SPACEKey.on('down', function (){
@@ -138,7 +146,8 @@
                 this.createLocalGameLoadingHTML();
             else {
                 this.createGamePageHTML();
-                this.setupInputListeners(self);
+                if (this.isModalOpen() == false)
+                    this.setupInputListeners(self);
                 this.setupEventListeners(self);
             }
             this.setupEventSocketListeners();
@@ -147,5 +156,6 @@
         create(){
             this.gamePage()
         }
+        
     }
 </script>

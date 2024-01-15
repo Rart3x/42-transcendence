@@ -21,14 +21,18 @@
   let banSuccess = ref(false);
   let kickSuccess = ref(false);
   let muteSuccess = ref(false);
+  let quitSuccess = ref(false);
 
   let banFailed = ref(false);
   let kickFailed = ref(false);
   let muteFailed = ref(false);
+  let quitFailed = ref(false);
 
   let actualUserMuted = ref(false);
   let modalMuteUser = ref(false);
   let userMuted = ref("");
+
+  let quitChannel = ref("");
 
   let selectedDuration = ref(1);
 
@@ -127,7 +131,7 @@
     channel.value = await getChannelByName(route.params.channelName, cookieJWT.value);
   };
 
-  const removeUserFromChannelInDB = async (channelName, userName) => {
+  const removeUserFromChannelInDB = async (channelName, userName, leave) => {
     const chan = await getChannelByName(channelName, cookieJWT.value);
     const removedUser = await getUserByUserName(userName, cookieJWT.value);
 
@@ -152,17 +156,35 @@
       const response = await removeUserFromChannel(channelName, userName, cookieJWT.value);
       if (removedUser.status === "online")
         await store.dispatch('kickUser', { socket: removedUser.socket, channelName: channelName })
-      if (response && response.success) {
-        kickSuccess.value = true;
-        setTimeout(() => {
-          kickSuccess.value = false;
-        }, 3000);
-      } 
-      else {
-        kickFailed.value = true;
-        setTimeout(() => {
-          kickFailed.value = false;
-        }, 3000);
+      if (leave == 0){
+        if (response && response.success) {
+          kickSuccess.value = true;
+          setTimeout(() => {
+            kickSuccess.value = false;
+          }, 3000);
+        } 
+        else {
+          kickFailed.value = true;
+          setTimeout(() => {
+            kickFailed.value = false;
+          }, 3000);
+        }
+      }
+      else
+      {
+        if (response && response.success) {
+          quitChannel.value = route.params.channelName;
+          quitSuccess.value = true;
+          setTimeout(() => {
+            quitSuccess.value = false;
+          }, 3000);
+        } 
+        else {
+          quitFailed.value = true;
+          setTimeout(() => {
+            quitFailed.value = false;
+          }, 3000);
+        }
       }
       users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
       updateUserImages(users.value);
@@ -298,7 +320,7 @@
       <details class="dropdown">
         <summary class="m-1 btn glass">{{ $route.params.channelName }}</summary>
         <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 dark-row">
-          <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName)">Quit</li>
+          <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName, 1)">Quit</li>
         </ul>
       </details>
     </div>
@@ -330,7 +352,7 @@
                   <div v-if="user.userId != channel.channelAdmin" class="isAdmin">
                     <button class="btn glass btn-error" @click="banUserFromChannelInDB($route.params.channelName, user.userName)">Ban</button>
                     <button class="btn glass btn-warning" @click="openMuteModal(user.userName)">Mute</button>
-                    <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName, )">Kick</button>
+                    <button class="btn glass btn-error" @click="removeUserFromChannelInDB($route.params.channelName, user.userName, 0)">Kick</button>
                     <button v-if="!user.isOperator" class="btn glass btn-success" @click="addOperatorInDB($route.params.channelName, user.userName)" >Promote</button>
                     <button v-else-if="user.isOperator" class="btn glass btn-error" @click="removeOperatorInDB($route.params.channelName, user.userName)">Depreciate</button>
                   </div>
@@ -399,6 +421,10 @@
     :muteFailed="muteFailed"
     :banSuccess="banSuccess"
     :banFailed="banFailed"
+    :quitSuccess="quitSuccess"
+    :quitFailed="quitFailed"
+
+    :quitChannelName="quitChannel"
   />
   <Modal
     :muteUserFromChannelInDB="muteUserFromChannelInDB"

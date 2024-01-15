@@ -235,7 +235,7 @@
         </button>
       </div>
     </div>
-    <History v-if="user" :userName="$route.params.userName"  :visitedProfile="true"/>
+    <History v-if="user" :userName="$route.params.userName" :visitedProfile="true"/>
   </div>
   <!--Alerts-->
   <Alert

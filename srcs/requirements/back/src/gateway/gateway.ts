@@ -100,6 +100,11 @@ export class AppGateway {
     this.server.to(body.socket).emit('messageToChannel', body);
   }
 
+  @SubscribeMessage('modalOpen')
+  handleModalOpen(@MessageBody() body): any {
+    this.server.to(body.socket).emit('modalOpen', body);
+  }
+
   @SubscribeMessage('muteUser')
   handleMuteUser(@MessageBody() body): any {
     this.server.to(body.socket).emit('muted', body);
