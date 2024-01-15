@@ -50,7 +50,20 @@
             updateValue(propName, newValue) {
                 this.$emit(`update:${propName}`, newValue);
             },
+
+            getAllMessagesSorted(privateMessages) {
+                if (!privateMessages)
+                    return [];
+
+                let allMessages = Object.values(privateMessages);
+
+                allMessages = allMessages.flat();
+
+                allMessages.sort((a, b) => new Date(a.privateMessageDate) - new Date(b.privateMessageDate));
+                return allMessages;
+            },  
         },
+
         props: {
             modalStates: Object,
             privateMessages: Object,
@@ -170,15 +183,13 @@
                 </div>
                 <div class="messages" ref="messagesContent">
                     <div class="messages-content">
-                        <div v-if="privateMessages">
-                            <div v-for="(pairMessages, pairIndex) in privateMessages" :key="pairIndex">
-                                <div v-for="(message, index) in pairMessages" :key="index">
-                                    <div v-if="message.senderName === userName && message.receiverName === senderName && message.messageContent" class="message message-right">
-                                        {{ message.messageContent }}
-                                    </div>
-                                    <div v-else-if="message.senderName === senderName && message.receiverName === userName && message.messageContent" class="message message-left">
-                                        {{ message.messageContent }}
-                                    </div>
+                        <div v-if="getAllMessagesSorted(privateMessages).length">
+                            <div v-for="(message, index) in getAllMessagesSorted(privateMessages)" :key="index">
+                                <div v-if="message.senderName === userName && message.receiverName === senderName && message.messageContent" class="message message-right">
+                                    {{ message.messageContent }}
+                                </div>
+                                <div v-else-if="message.senderName === senderName && message.receiverName === userName && message.messageContent" class="message message-left">
+                                    {{ message.messageContent }}
                                 </div>
                             </div>
                         </div>
