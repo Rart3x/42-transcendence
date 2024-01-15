@@ -135,7 +135,7 @@
     const chan = await getChannelByName(channelName, cookieJWT.value);
     const removedUser = await getUserByUserName(userName, cookieJWT.value);
 
-    if (actualUser.value.userId === chan.channelAdmin) { 
+    if (removedUser.userId === chan.channelAdmin) { 
       if (chan.channelOperators.length > 0) {
         const newAdmin = chan.channelOperators[Math.floor(Math.random() * chan.channelOperators.length)];
         await setAdmin(channelName, newAdmin.userName, cookieJWT.value);
