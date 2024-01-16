@@ -62,7 +62,7 @@
         type: Boolean,
         required: true
       }
-    }
+    },
   }
 </script>
 

@@ -75,20 +75,17 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    modalClose(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('modalClose', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     modalOpen(context, body) {
       const socket = context.state.socket;
       if (socket)
         socket.emit('modalOpen', body);
-      else
-        console.error('error: socket uninitialized');
-    },
-    modalClose(context, body) {
-      const socket = context.state.socket;
-      console.log("inside store modalClose");
-      if (socket){
-        console.log("emit of modalClose");
-        socket.emit('modalClose', body);
-      }
       else
         console.error('error: socket uninitialized');
     },

@@ -109,7 +109,6 @@
         }
 
         setupInputListeners(self : any){
-            console.log('SPACE')
             if (self.input.keyboard){
                 const SPACEKey = self.input.keyboard.addKey('SPACE');
                 SPACEKey.on('down', function (){
@@ -123,14 +122,11 @@
     
         setupEventSocketListeners(){
             this.socket.on('modalOpen', () => {
-                console.log('MODAL OPEN');
-                if (this.input.keyboard)
+                if (this.input)
                     this.input.keyboard.enabled = false;
             });
-
             this.socket.on('modalClose', () => {
-                console.log('MODAL CLOSE');
-                if (this.input.keyboard)
+                if (this.input)
                     this.input.keyboard.enabled = true;
             });
 
