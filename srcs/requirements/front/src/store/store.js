@@ -51,7 +51,7 @@ const store = createStore({
         console.error('error: socket uninitialized');
     },
     initializeSocket({ commit }) {
-      const socket =  io('http://2C3.42angouleme.fr:3000');
+      const socket =  io('http://localhost:3000');
       commit('SET_SOCKET', socket);
     },
     invitationInGame(context, body) {
@@ -79,6 +79,16 @@ const store = createStore({
       const socket = context.state.socket;
       if (socket)
         socket.emit('modalOpen', body);
+      else
+        console.error('error: socket uninitialized');
+    },
+    modalClose(context, body) {
+      const socket = context.state.socket;
+      console.log("inside store modalClose");
+      if (socket){
+        console.log("emit of modalClose");
+        socket.emit('modalClose', body);
+      }
       else
         console.error('error: socket uninitialized');
     },

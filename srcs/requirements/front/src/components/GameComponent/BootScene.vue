@@ -83,13 +83,6 @@
             </div>');
         }
 
-        isModalOpen(){
-            this.socket.on('modalOpen', () => {
-                return true;
-            });
-            return false;
-        }
-
         setupEventListeners(self: any){
             let multiplayerButton = this.UIElement.node.querySelector('#multiplayerButton') as HTMLElement;
             multiplayerButton.addEventListener('click', function() {
@@ -129,6 +122,18 @@
         }
     
         setupEventSocketListeners(){
+            this.socket.on('modalOpen', () => {
+                console.log('MODAL OPEN');
+                if (this.input.keyboard)
+                    this.input.keyboard.enabled = false;
+            });
+
+            this.socket.on('modalClose', () => {
+                console.log('MODAL CLOSE');
+                if (this.input.keyboard)
+                    this.input.keyboard.enabled = true;
+            });
+
             this.socket.on('lobby', (data : any) => {
 				this.UIElement.destroy();
                 this.socket.off('lobby');
@@ -142,12 +147,11 @@
             const invited = store.state.invited;
             //Reset the value
             store.commit('SET_INVITED', false);
+            this.setupInputListeners(self);
             if (invited)
                 this.createLocalGameLoadingHTML();
             else {
                 this.createGamePageHTML();
-                if (this.isModalOpen() == false)
-                    this.setupInputListeners(self);
                 this.setupEventListeners(self);
             }
             this.setupEventSocketListeners();

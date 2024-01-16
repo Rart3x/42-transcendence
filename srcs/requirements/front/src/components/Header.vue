@@ -231,9 +231,15 @@
           }, 5000);
         });
       },
-
-      closeMessageModal() { this.modalMessage = false; this.modalIsOpen = false; },
-      openMessageModal(userName, message) { 
+      closeMessageModal() {
+        console.log("dispatch of modalClose")
+        this.modalMessage = false;
+        this.modalIsOpen = false;
+        if (window.location.pathname === "/game")
+          this.store.dispatch('modalClose', { socket : this.user.socket });
+      },
+      openMessageModal(userName, message) {
+        console.log("dispatch of modalOpen")
         this.modalMessage = true; this.currentUserName = userName;
         this.senderName = (message.senderName === userName) ? message.receiverName : message.senderName; this.modalIsOpen = true;
         console.log(window.location.pathname, this.modalMessage);
