@@ -4,7 +4,7 @@
   import History from "./History.vue";
   import Modal from "./Modal.vue";
   import UserStatHeader from "./UserStatHeader.vue";
-  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllUsers, getUsersFromChannel, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage } from "./api/get.call";
+  import { getAllChannels, getAllNewChannels, getAllChannelsFromUser, getAllUsers, getUsersFromChannel, getUserByUserId, getAllFriends, getUserByUserName, getGameRoomByRoomId, getPrivateMessages, getImage, getChannelByName } from "./api/get.call";
   import { createChannel, joinChannel, setClientSocket, createGameRoom, setPassword, unsetPassword, createEmptyChannel } from "./api/post.call";
   import { removeChannel, removeFriend } from "./api/delete.call";
   import { sha256 } from "js-sha256";
@@ -54,7 +54,16 @@
 
       async createChannelInDB(channelName, userName, currentUserName) {
         let response;
+        const currentChan = await getChannelByName(channelName, this.cookieJWT);
+
         if (!currentUserName) { 
+          if (currentChan) {
+            this.addChannelFailed = true;
+            setTimeout(() => {
+              this.addChannelFailed = false;
+            }, 3000);
+            return;
+          }
           response = await createEmptyChannel(channelName, userName, this.cookieJWT);
         }
         else {

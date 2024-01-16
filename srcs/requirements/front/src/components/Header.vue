@@ -231,7 +231,6 @@
           }, 5000);
         });
       },
-
       closeMessageModal() {
         this.modalMessage = false; this.modalIsOpen = false;
         if (window.location.pathname === "/game" && this.modalMessage === false)

@@ -2,7 +2,7 @@ NAME = transcendence
 
 #-------------------------------------CLASSICS-------------------------------------#
 all:
-	./change_hostname.sh
+	# ./change_hostname.sh
 	@make run
 
 run:
@@ -29,7 +29,7 @@ clean: down
 	@docker system prune -a
 
 fclean: down
-	./reset_hostname.sh
+	# ./reset_hostname.sh
 	@printf "Total clean of all configurations docker\n"
 	@if [ $$(docker ps -q | wc -l) -gt 0 ]; then \
 	    docker stop $$(docker ps -qa); \
