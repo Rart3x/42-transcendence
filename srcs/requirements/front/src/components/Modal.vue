@@ -209,7 +209,7 @@
         <dialog id="modalMuteUser" class="modal modal-bottom sm:modal-middle" :open="modalMuteUser" @keydown.esc="closeMuteModal()">
             <div class="modal-box w-11/12 max-w-5xl">
                 <form class="dialogModal" @submit.prevent="submitMuteForm(selectedDuration)">
-                    <label> <input type="number" v-model="selectedDuration" class="input input-bordered input-sm w-full max-w-xs" /></label>
+                    <label> <input type="number" min="0" v-model="selectedDuration" class="input input-bordered input-sm w-full max-w-xs" /></label>
                     <br><br>
                     <input type="submit" value="Mute" class="btn glass btn-warning">
                 </form>
