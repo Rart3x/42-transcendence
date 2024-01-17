@@ -15,7 +15,7 @@ export async function removeChannel(channelName : string, jwtToken : string) {
     }
 	}
 	catch (error) {
-		console.error("error: sending DELETE request", error);
+		console.error("error: sending DELETE request");
 	}
 }
 
@@ -35,7 +35,7 @@ export async function unmuteUser(channelName : string, userName : string, jwtTok
 		}
 	}
 	catch (error) {
-		console.error("error: sending PUT request", error);
+		console.error("error: sending PUT request");
 	}
 }
 
@@ -56,7 +56,7 @@ export async function removeFriend(userName: string, friendName: string, jwtToke
     }
 	}
 	catch (error) {
-		console.error("error: sending DELETE request", error);
+		console.error("error: sending DELETE request");
 	}
 }
 
@@ -76,7 +76,7 @@ export async function removeOperator(channelName : string, operatorName : string
 	}
 	}
 	catch (error) {
-		console.error("error: sending DELETE request", error);
+		console.error("error: sending DELETE request");
 	}
 }
 
@@ -96,7 +96,7 @@ export async function removeUserFromChannel(channelName: string, friendName: str
     }
 	}
 	catch (error) {
-		console.error("error: sending DELETE request", error);
+		console.error("error: sending DELETE request");
 	}
 }
 
@@ -121,7 +121,7 @@ export async function deleteGameRoomById(gameRoomId: string, jwtToken : string) 
 	  }
 	}
 	catch (error) {
-	  console.error('error: sending DELETE request', error);
+	  console.error('error: sending DELETE request');
 	}
 }
   
@@ -144,6 +144,6 @@ export async function deleteUser(userName: string, jwtToken : string) {
 		}
 	}
 	catch (error) {
-		console.error("error: sending DELETE request", error);
+		console.error("error: sending DELETE request");
 	}
 }

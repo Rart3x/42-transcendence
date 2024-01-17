@@ -14,7 +14,7 @@ export async function getAllChannels(jwtToken: string) {
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -31,7 +31,7 @@ export async function getAllNewChannels(userName : string, jwtToken: string) {
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -48,7 +48,7 @@ export async function getAllChannelsFromUser(userName : string, jwtToken: string
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -65,7 +65,7 @@ export async function getChannelByName(channelName : string, jwtToken: string) {
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -85,7 +85,7 @@ export async function isUserInChannel(channelName : string, userName : string, j
     }
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return false;
 }
@@ -103,7 +103,7 @@ export async function isUserBanInChannel(channelName : string, userName : string
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -124,7 +124,7 @@ export async function isFriend(userName : string, friendName : string, jwtToken:
     }
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -142,7 +142,7 @@ export async function getAllFriends(userName : string, jwtToken: string) {
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -163,7 +163,7 @@ export async function getFriendUserNames(userId : number, jwtToken: string) {
     }
   } 
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -184,7 +184,7 @@ export async function getUserFriends(userId : number, jwtToken: string) {
     }
   } 
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -203,7 +203,7 @@ export async function getGameRoomByRoomId(id : number, jwtToken: string) {
     }
   } 
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -221,7 +221,7 @@ export async function getPastGameRoomsByUserId(userId : number, jwtToken: string
     }
   } 
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -239,7 +239,7 @@ export async function getCurrentGameRoomByUserId(userId : number, jwtToken: stri
     }
   } 
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -255,7 +255,7 @@ export async function getLastGameRoomIfAfk(userId : number, jwtToken: string) {
     if (response.ok)
       return await response.text();
   } catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -274,7 +274,7 @@ export async function getMessagesFromChannel(channelName : string, jwtToken: str
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -295,7 +295,7 @@ export async function getMessage(jwtToken: string) {
     }
   } 
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -312,7 +312,7 @@ export async function getLastPrivateMessage(senderName:string, receiverName:stri
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -330,7 +330,7 @@ export async function getLastMessage(userName1 : string, userName2 : string, jwt
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -348,7 +348,7 @@ export async function getPrivateMessages(userName1 : string, userName2 : string,
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -369,7 +369,7 @@ export async function getPrivateMessagesByUserName(userName : string, jwtToken: 
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -388,7 +388,7 @@ export async function getAllUserScore(gameRoomId: number, jwtToken: string) {
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -406,7 +406,7 @@ export async function getScoreByRoomId(gameRoomId: string, jwtToken: string){
       return await response.text();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -424,7 +424,7 @@ export async function getGameWinner(gameRoomId: number, jwtToken: string) {
       return await response.text();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -445,7 +445,7 @@ export async function isBlock(userName : string, blockedUserName : string, jwtTo
     }
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -465,7 +465,7 @@ export async function isBlocked(userName : string, blockedUserName : string, jwt
     }
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -483,7 +483,7 @@ export async function getSocketByUserId(userId: number, jwtToken: string ) {
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -500,7 +500,7 @@ export async function getUsersFromChannel(channelName : string, jwtToken: string
       return await response.json();
   }
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
   return null;
 }
@@ -520,7 +520,7 @@ export async function getUserByUserId(userId : number, jwtToken: string) {
     }
   } 
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -537,7 +537,7 @@ export async function getUserByDisplayName(username: string, jwtToken : string) 
       return await response.json();
   } 
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -571,7 +571,7 @@ export async function getAllUsers(jwtToken: string) {
       return await response.json();
   } 
   catch (error) {
-    console.error('error: sending GET request', error);
+    console.error('error: sending GET request');
   }
 }
 
@@ -594,7 +594,7 @@ export async function checkA2F(userName : string, token : string, jwtToken: stri
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('error: sending POST request');
   }
 }
 
