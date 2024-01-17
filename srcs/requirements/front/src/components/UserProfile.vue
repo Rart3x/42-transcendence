@@ -53,8 +53,11 @@
       },
 
       async createChannelInDB(channelName, userName, currentUserName) {
+        let currentChan;
         let response;
-        const currentChan = await getChannelByName(channelName, this.cookieJWT);
+  
+        if (channelName)
+         currentChan = await getChannelByName(channelName, this.cookieJWT);
 
         if (!currentUserName) { 
           if (currentChan) {
