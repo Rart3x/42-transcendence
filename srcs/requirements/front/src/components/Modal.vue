@@ -1,7 +1,7 @@
 <script>
     import Alert from './Alert.vue';
     import Cookies from "js-cookie";
-    import { ref } from 'vue';
+    import { nextTick, ref } from 'vue';
     import { getUserByUserName, getImage, getPrivateMessagesByUserName } from './api/get.call';
 
     export default {
@@ -32,25 +32,6 @@
                 await this.createPrivateMessageInDB(userName, senderName, message_text);
                 this.message_text = '';
             },
-            async loadSenderImage(senderName) {
-                const user = await getUserByUserName(senderName, this.$props.jwtToken);
-                if (user)
-                    this.senderImageSrc = await getImage(user.image, this.$props.jwtToken);
-            },
-
-            submitMuteForm(selectedDuration) {
-                this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration, this.$props.jwtToken);
-                this.closeMuteModal();
-            },
-
-            updateCheckBox(isChecked) {
-                this.passwordCheckBox = isChecked;
-            },
-
-            updateValue(propName, newValue) {
-                this.$emit(`update:${propName}`, newValue);
-            },
-
             getAllMessagesSorted(privateMessages) {
                 if (!privateMessages)
                     return [];
@@ -61,7 +42,22 @@
 
                 allMessages.sort((a, b) => new Date(a.privateMessageDate) - new Date(b.privateMessageDate));
                 return allMessages;
-            },  
+            }, 
+            async loadSenderImage(senderName) {
+                const user = await getUserByUserName(senderName, this.$props.jwtToken);
+                if (user)
+                    this.senderImageSrc = await getImage(user.image, this.$props.jwtToken);
+            },
+            submitMuteForm(selectedDuration) {
+                this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration, this.$props.jwtToken);
+                this.closeMuteModal();
+            },
+            updateCheckBox(isChecked) {
+                this.passwordCheckBox = isChecked;
+            },
+            updateValue(propName, newValue) {
+                this.$emit(`update:${propName}`, newValue);
+            }, 
         },
 
         props: {
