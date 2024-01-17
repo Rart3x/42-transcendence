@@ -298,8 +298,8 @@
         margin-left: 1vh;
         position: relative;
         word-break: break-all;
-         word-wrap: break-word;
-    overflow-wrap: break-word;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     .messages::-webkit-scrollbar { width: 1vh; }
     .messages::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.3); border-radius: 5px;}

@@ -437,7 +437,7 @@
 </template>
 
 <style scoped>
-.chat-messages { max-height: 55vh; overflow-x: auto; }
+  .chat-messages { max-height: 55vh; overflow-x: auto; word-break: break-all; word-wrap: break-word; overflow-wrap: break-word; }
   .chat-messages::-webkit-scrollbar-thumb { background: #888; }
   .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }

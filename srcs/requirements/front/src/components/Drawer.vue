@@ -142,7 +142,7 @@
                 {{ this.lastMessage.messageContent }}
               </span>
               <span v-else-if="this.lastMessage" class="text-sm text-gray-500">
-                {{ this.lastMessage.messageContent }}..
+                {{ this.lastMessage.messageContent.substring(0, 20) }}..
               </span>
             </div>
             <span>{{ pairMessages[pairMessages.length - 1].privateMessageDate.substring(11, 16) }}</span>
