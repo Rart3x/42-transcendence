@@ -1,7 +1,7 @@
 <script>
     import Alert from './Alert.vue';
     import Cookies from "js-cookie";
-    import { ref } from 'vue';
+    import { nextTick, ref } from 'vue';
     import { getUserByUserName, getImage, getPrivateMessagesByUserName } from './api/get.call';
 
     export default {
@@ -42,28 +42,22 @@
 
                 allMessages.sort((a, b) => new Date(a.privateMessageDate) - new Date(b.privateMessageDate));
                 return allMessages;
-            },
-            getMessageClass(message) {
-                return message.length > 71 ? 'message message-right message-long' : 'message message-right';
-            },
+            }, 
             async loadSenderImage(senderName) {
                 const user = await getUserByUserName(senderName, this.$props.jwtToken);
                 if (user)
                     this.senderImageSrc = await getImage(user.image, this.$props.jwtToken);
             },
-
             submitMuteForm(selectedDuration) {
                 this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration, this.$props.jwtToken);
                 this.closeMuteModal();
             },
-
             updateCheckBox(isChecked) {
                 this.passwordCheckBox = isChecked;
             },
-
             updateValue(propName, newValue) {
                 this.$emit(`update:${propName}`, newValue);
-            },
+            }, 
         },
         props: {
             modalStates: Object,
@@ -186,7 +180,8 @@
                     <div class="messages-content">
                         <div v-if="getAllMessagesSorted(privateMessages).length">
                             <div v-for="(message, index) in getAllMessagesSorted(privateMessages)" :key="index">
-                                <div v-if="message.senderName === userName && message.receiverName === senderName && message.messageContent" :class="getMessageClass(message.messageContent)">
+                                <div v-if="message.senderName === userName && message.receiverName === senderName && message.messageContent"
+                                    :class="{ 'message': true, 'message-left-long': message.messageContent.length > 71, 'message-right': message.messageContent.length <= 71 }">
                                     {{ message.messageContent }}
                                 </div>
                                 <div v-else-if="message.senderName === senderName && message.receiverName === userName && message.messageContent" class="message message-left">
@@ -297,16 +292,16 @@
         line-height: 1.4;
         margin-left: 1vh;
         position: relative;
-        white-space: pre-wrap;
+        word-break: break-all;
         word-wrap: break-word;
         overflow-wrap: break-word;
-        word-break: break-all;
     }
     .messages::-webkit-scrollbar { width: 1vh; }
     .messages::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.3); border-radius: 5px;}
     .messages .message.message-left { float: left; color: #fff; text-align: left; background: linear-gradient(120deg, #df9494, #777); border-radius: 10px 10px 10px 0;}
     .messages .message.message-left::before { right: auto; border-left: none; }
-    .messages .message.message-right { float: right; color: #fff; text-align: right; background: linear-gradient(120deg, #a8c5b5, #257287); border-radius: 10px 10px 0 10px;}
+    .messages .message-left-long { float: left; color: #fff; text-align: left; background: linear-gradient(120deg, #a8c5b5, #257287); border-radius: 10px 10px 0 10px; }
+    .messages .message.message-right { float: right; color: #fff; text-align: right; background: linear-gradient(120deg, #a8c5b5, #257287); border-radius: 10px 10px 0 10px; }
     .messages .message.message-right::before { left: auto; border-right: none; }
     .messages .message.message-long { text-align: left; }
 

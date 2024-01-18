@@ -90,23 +90,23 @@
   };
 
   const isUserMuteInChannelInDB = async (channelName, userId) => {
-  const channel = await getChannelByName(channelName, cookieJWT.value);
-  
-  if (channel && channel.channelUsersMute) {
-    const userMute = channel.channelUsersMute.find(user => user.userId === userId);
-    if (userMute) {
-      const currentTime = new Date();
-      const mutedUntilDB = new Date(userMute.mutedUntil);
-      
-      if (currentTime > mutedUntilDB) {
-        await unmuteUser(channelName, userId, cookieJWT.value);
-        return false;
+    const channel = await getChannelByName(channelName, cookieJWT.value);
+    
+    if (channel && channel.channelUsersMute) {
+      const userMute = channel.channelUsersMute.find(user => user.userId === userId);
+      if (userMute) {
+        const currentTime = new Date();
+        const mutedUntilDB = new Date(userMute.mutedUntil);
+        
+        if (currentTime > mutedUntilDB) {
+          await unmuteUser(channelName, userId, cookieJWT.value);
+          return false;
+        }
+        return true;
       }
-      return true;
     }
-  }
-  return false;
-};
+    return false;
+  };
 
   const muteUserFromChannelInDB = async (channelNameMute, userName, selectedDuration) => {
     const response = await muteUserFromChannel(channelNameMute, userName, selectedDuration, cookieJWT.value);
@@ -214,13 +214,8 @@
   };
 
   const socketOn = async () => {
-    store.state.socket.on('banned', async (body) => {
-      router.push("/profile")
-    });
-
-    store.state.socket.on('kicked', async (body) => {
-      router.push("/profile")
-    });
+    store.state.socket.on('banned', async (body) => { router.push("/profile") });
+    store.state.socket.on('kicked', async (body) => { router.push("/profile") });
 
     store.state.socket.on('messageToChannel', async (body) => {
       messages.value = await getMessagesFromChannel(route.params.channelName, cookieJWT.value);
@@ -229,9 +224,7 @@
       scrollToBottom();
     });
 
-    store.state.socket.on('muted', async (body) => {
-      actualUserMuted.value = true;
-    });
+    store.state.socket.on('muted', async (body) => { actualUserMuted.value = true; });
 
     store.state.socket.on('newChannelMember', async (body) => {
       users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
@@ -437,7 +430,7 @@
 </template>
 
 <style scoped>
-.chat-messages { max-height: 55vh; overflow-x: auto; }
+  .chat-messages { max-height: 55vh; overflow-x: auto; word-break: break-all; word-wrap: break-word; overflow-wrap: break-word; }
   .chat-messages::-webkit-scrollbar-thumb { background: #888; }
   .chat-messages::-webkit-scrollbar-thumb:hover { background: #555; }
   .chat-messages::-webkit-scrollbar-track { background: #ddd; }

@@ -17,7 +17,7 @@ export async function addOperator(channelName : string, operatorName : string, j
     }
   }
   catch (error) {
-    console.error("error: sending POST request", error);
+    console.error("addOperator: error: sending POST request");
   }
 }
 
@@ -38,7 +38,7 @@ export async function checkPass(channelName: string, password: string, jwtToken:
     }
   }
   catch (error) {
-    console.error('error: sending POST request:', error);
+    console.error('checkPass: error: sending POST request:');
   }
 }
 
@@ -59,7 +59,7 @@ export async function createChannel(channelName : string, userName : string, inv
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('createChannel: error: sending POST request');
   }
 }
 
@@ -80,7 +80,7 @@ export async function createEmptyChannel(channelName : string, userName : string
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('createEmptyChannel: error: sending POST request');
   }
 }
 
@@ -101,7 +101,7 @@ export async function joinChannel(channelName : string, userName : string, jwtTo
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('joinChannel: error: sending POST request');
   }
 }
 
@@ -121,7 +121,7 @@ export async function setAdmin(channelName : string, adminName : string, jwtToke
     }
   }
   catch (error) {
-    console.error("error: sending POST request", error);
+    console.error("setAdmin: error: sending POST request");
   }
 }
 
@@ -145,7 +145,7 @@ export async function setPassword(channelName : string, password : string, jwtTo
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('setPassword: error: sending POST request');
   }
 }
 
@@ -169,7 +169,7 @@ export async function unsetPassword(channelName : string, jwtToken: string) {
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('unsetPassword: error: sending POST request');
   }
 }
 
@@ -190,7 +190,7 @@ export async function addFriend(userName : string, friendName : string, jwtToken
     }
   } 
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('addFriend: error: sending POST request');
   }
 }
 /*-----------------------------------------------MESSAGES-----------------------------------------------*/
@@ -214,7 +214,7 @@ export async function insertMessage(message_text : string, jwtToken: string) {
     }
   } 
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('insertMessage: error: sending POST request');
   }
 }
 
@@ -238,7 +238,7 @@ export async function insertMessageToChannel(channelName : string, message_text 
     }
   } 
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('insertMessageToChannel: error: sending POST request');
   }
 }
 
@@ -256,17 +256,10 @@ export async function createPrivateMessage(userName1: string, userName2: string,
 
     if (response.ok) {
       return await response.json();
-    } else if (response.status === 400) {
-      const errorData = await response.json();
-      console.error('Validation failed:', errorData.message); // Afficher le message d'erreur
-      console.error('Errors:', errorData.errors); // Afficher les détails des erreurs
-    } else {
-      console.error('error: HTTP response not OK', response.statusText);
-      const errorData = await response.json();
-      console.error('error data:', errorData);
     }
-  } catch (error) {
-    console.error('error: sending POST request', error);
+  } 
+  catch (error) {
+    console.error('createPrivateMessage: error: sending POST request');
   }
 }
 
@@ -287,7 +280,7 @@ export async function banUserFromChannel(channelName : string, userName : string
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('banUserFromChannel: error: sending POST request');
   }
 }
 
@@ -307,7 +300,7 @@ export async function blockUser(userName : string, blockedUserName : string, jwt
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('blockUser: error: sending POST request');
   }
 }
 
@@ -327,7 +320,7 @@ export async function unblockUser(userName : string, unblockedUserName : string,
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('unblockUser: error: sending POST request');
   }
 
 }
@@ -351,7 +344,7 @@ export async function insertUser(userName: string, image: string, cookie: string
       console.error('error: sending POST request: ', errorText);
     }
   } catch (error) {
-    console.error('error: sending POST request: ', error);
+    console.error('insertUser: error: sending POST request: ');
   }
 }
 
@@ -371,7 +364,7 @@ export async function muteUserFromChannel(channelName : string, userName : strin
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('muteUserFromChannel: error: sending POST request');
   }
 }
 
@@ -391,7 +384,7 @@ export async function setStatus(userName : string, status : string, jwtToken: st
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('setStatus: error: sending POST request');
   }
 }
 
@@ -414,7 +407,7 @@ export async function updateUsername(userName : string, newUserName : string, jw
     }
   } 
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('updateUsername: error: sending POST request');
   }
 }
 
@@ -439,7 +432,7 @@ export async function createGameRoom(hostPlayerName : string, invitedPlayerName:
     }
   }
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('createGameRoom: error: sending POST request');
   }
 }
 
@@ -463,7 +456,7 @@ export async function setClientSocket(userName : string, socket : string, jwtTok
     }
   } 
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('setClientSocket: error: sending POST request');
   }
 }
 
@@ -486,7 +479,7 @@ export async function updateA2F(userName : string, A2F : boolean, jwtToken: stri
     }
   } 
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('updateA2F: error: sending POST request');
   }
 }
 
@@ -503,15 +496,10 @@ export async function updateImage(userName : string, image : string, jwtToken: s
       },
       body: formData,
     });
-    if (response.ok) {
-      const responseData = await response.json();
-      return responseData;
-    }
-    else {
-      const errorText = await response.text();
-    }
+    if (response.ok)
+      return await response.json();
   } 
   catch (error) {
-    console.error('error: sending POST request', error);
+    console.error('updateImage: error: sending POST request');
   }
 }
