@@ -363,7 +363,7 @@
         <div class="underStat">
           <form @submit.prevent="createChannelInDB(newChannelName, userName)">
             <button class="btn glass">Create Channel</button>
-            <input type="text" id="newChannelName" v-model="newChannelName" class="input input-bordered w-full max-w-xs" />
+            <input type="text" id="newChannelName" v-model="newChannelName" class="input input-bordered w-full max-w-xs" maxlength="10" />
           </form>
         </div>
       <div v-if="channels.length > 0" class="requestTable table-border">
