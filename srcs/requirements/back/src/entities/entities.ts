@@ -23,14 +23,12 @@ export default class Entities {
 
         if (customGame){
 
-            this.bonus.push(new Bonus("speed"));
-            this.bonus.push(new Bonus("size"));
+            this.bonus.push(new Bonus("speedBonus"));
+            this.bonus.push(new Bonus("sizeBonus"));
 
-            this.malus.push(new Malus("speed"));
-            this.malus.push(new Malus("size"));
+            this.malus.push(new Malus("speedMalus"));
+            this.malus.push(new Malus("sizeMalus"));
 
-            console.log(this.bonus[0].gameObject.position.x);
-            console.log(this.malus[0].gameObject.position.x);
         }
 
         this.walls.push(new Wall(10, 400, 10, 770, "left"));

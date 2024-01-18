@@ -1,24 +1,27 @@
 import Phaser from 'phaser';
 
 export default class Malus{
-    gameObject: any;
-    x: number;
-    y: number;
+
     game: Phaser.Scene;
     type: string;
-    
-    constructor(game: Phaser.Scene, type: string) {
-        const malusOptions = {
-			isStatic: false
-		}
-        this.game = game;
-        this.x = 1000;
-        this.y = 1000;
-        this.gameObject = this.game.add.rectangle(1000, 1000, 200, 200, 0xff0000ff);
-		//Default ball velocity
-        this.game.matter.add.gameObject(this.gameObject, malusOptions);
-        this.gameObject.setVelocity(0, 0);
+    rect: Phaser.Geom.Rectangle;
+    graphics: Phaser.GameObjects.Graphics;
 
-        console.log(this.gameObject);
+    constructor(game: Phaser.Scene, type: string) {
+        this.game = game;
+        this.type = type;
+        this.graphics = this.game.add.graphics({ fillStyle: { color: 0xff0000ff } });
+    }
+
+    clear(){
+        console.log("clear");
+        this.graphics.clear();
+    }
+
+    draw(x: number, y: number){
+        this.graphics.clear();
+        this.game.add.graphics({ fillStyle: { color: 0xff0000ff } });
+        const rect = new Phaser.Geom.Rectangle(x, y, 200, 200);
+        this.graphics.fillRectShape(rect);
     }
 }

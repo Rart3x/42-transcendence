@@ -18,11 +18,11 @@ export default class Entities {
 
         if (customGameMode){
 
-            this.bonus.push(new Bonus(game, "speed"));
-            this.bonus.push(new Bonus(game, "size"));
+            this.bonus.push(new Bonus(game, "speedBonus"));
+            this.bonus.push(new Bonus(game, "sizeBonus"));
 
-            this.malus.push(new Malus(game, "speed"));
-            this.malus.push(new Malus(game, "size"));
+            this.malus.push(new Malus(game, "speedMalus"));
+            this.malus.push(new Malus(game, "sizeMalus"));
         }
 
         this.walls.push(new Wall(game, 20, 400, 10, 770));

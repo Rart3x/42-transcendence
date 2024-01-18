@@ -1,25 +1,27 @@
 import Phaser from 'phaser';
 
 export default class Bonus{
-    gameObject: any;
-    x: number;
-    y: number;
+
     game: Phaser.Scene;
     type: string;
+    rect: Phaser.Geom.Rectangle;
+    graphics: Phaser.GameObjects.Graphics;
 
     constructor(game: Phaser.Scene, type: string) {
-        const bonusOptions = {
-			isStatic: false
-		}
         this.game = game;
-        this.x = 1000;
-        this.y = 1000;
-        this.gameObject = this.game.add.rectangle(1000, 1000, 200, 200, 0x008000ff);
-		//Default ball velocity
-        this.game.matter.add.gameObject(this.gameObject, bonusOptions);
-        this.gameObject.setVelocity(0, 0);
+        this.type = type;
+        this.graphics = this.game.add.graphics({ fillStyle: { color: 0x008000ff } });
+    }
 
-        console.log(this.gameObject);
+    clear(){
+        console.log("clear");
+        this.graphics.clear()
+    }
 
+    draw(x: number, y: number){
+        this.graphics.clear();
+        this.game.add.graphics({ fillStyle: { color: 0x008000ff } });
+        const rect = new Phaser.Geom.Rectangle(x, y, 200, 200);
+        this.graphics.fillRectShape(rect);
     }
 }

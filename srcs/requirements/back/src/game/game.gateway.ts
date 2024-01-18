@@ -55,6 +55,7 @@ const MAX_BOUNCING_ANGLE = 5 * Math.PI/ 12;
 const MAX_SCORE = 3;
 const MIN_SCORE = 0;
 const GAME_COUNTDOWN_START = 3000;
+const BONUS_MALUS_RESPAWN_TIME_MS = 3000;
 
 //Initialize the snapshot library
 const SI = new SnapshotInterpolation();
@@ -361,6 +362,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			Matter.World.add(world, entities.players[i].gameObject);
 		for (let i = 0; i < 4; i++)
 			Matter.World.add(world,  entities.walls[i].gameObject);
+		if (customGameMode){
+			for (let i = 0; i < 2; i++){
+				Matter.World.add(world, entities.bonus[i].gameObject);
+				Matter.World.add(world, entities.malus[i].gameObject);
+			}
+		}
 	}
 
 	initCollisionsEvent(engine: Matter.Engine, gameRoom: GameRoom){
@@ -394,8 +401,37 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			});
 		}
 
+
 		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoom) => {
 			let scorerId : number;
+			if (gameRoom.customGame && gameRoom.entities.bonusOrMalusActivated == true){
+				//If custom game we disable the bonus/malus if there's in case of a score
+				gameRoom.entities.bonusOrMalusActivated = false;
+				if (gameRoom.entities.bonusActivated == true){
+					if (gameRoom.entities.bonusType == "speed"){
+						gameRoom.entities.bonus[0].gameObject.render.visible = false;
+						gameRoom.entities.bonusActivated = false;
+						gameRoom.entities.lastBonusOrMalusDate = Date.now();
+					}
+					else{
+						gameRoom.entities.bonus[1].gameObject.render.visible = false;
+						gameRoom.entities.bonusActivated = false;
+						gameRoom.entities.lastBonusOrMalusDate = Date.now();
+					}
+				}
+				else{
+					if (gameRoom.entities.bonusType == "speed"){
+						gameRoom.entities.malus[0].gameObject.render.visible = false;
+						gameRoom.entities.malusActivated = false;
+						gameRoom.entities.lastBonusOrMalusDate = Date.now();
+					}
+					else{
+						gameRoom.entities.malus[1].gameObject.render.visible = false;
+						gameRoom.entities.malusActivated = false;
+						gameRoom.entities.lastBonusOrMalusDate = Date.now();
+					}
+				}
+			}
 			let scorePlayer1 = gameRoom.score.get(gameRoom.player1UserId.toString());
 			let scorePlayer2  = gameRoom.score.get(gameRoom.player2UserId.toString());
 			if (gameRoom.finish == false){
@@ -426,7 +462,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			var vecY : number;
 	
 			var coinFlip = randomInt(0, 1);
-
 			if (coinFlip == 1)
 				vecY = -4;
 			else
@@ -435,7 +470,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				vecX = -4;
 			else
 				vecX = 4;
-
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
 					player1: gameRoom.score.get(gameRoom.player1UserId.toString()),
@@ -487,19 +521,100 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}, GAME_COUNTDOWN_START);
 		}
 
+		const self = this;
 		Matter.Events.on(engine, 'collisionStart', function(event : Matter.IEventCollision<Matter.Engine>) {
 			event.pairs.forEach(function(pair: Matter.Pair) {
 				//Ball score
 				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "left" || pair.bodyA.label == "right")){
-					gameRoom.paused = true;
-					scorePoint(pair, gameRoom);
-					ballRespawn(gameRoom, pair);
+					// gameRoom.paused = true;
+					// scorePoint(pair, gameRoom);
+					// ballRespawn(gameRoom, pair);
 				}
 	
 				//Elastic physics
-				else if (pair.bodyB.label == "ball" && (pair.bodyA.label == "player1"|| pair.bodyA.label == "player2")){
-					collisionBallPlayer(pair, gameRoom);
-					gameRoom.nbBounces++;
+				else if (pair.bodyB.label == "ball" && (pair.bodyA.label == "player1" || pair.bodyA.label == "player2")){
+					// collisionBallPlayer(pair, gameRoom);
+					// gameRoom.nbBounces++;
+				}
+	
+				else if (gameRoom && gameRoom.customGame && pair.bodyB.label == "ball"
+					&& (pair.bodyA.label == "sizeBonus" || pair.bodyA.label == "speedBonus"
+						|| pair.bodyA.label == "sizeMalus" || pair.bodyA.label == "speedMalus")
+							&& gameRoom.entities.bonusOrMalusActivated == true){
+					if (pair.bodyA.label == "speedBonus"){
+						//Speed bonus: the ball goes faster in the direction of the opponent
+						console.log("speed bonus taken")
+						gameRoom.entities.lastBonusOrMalusDate = Date.now();
+						gameRoom.entities.bonusOrMalusActivated = false;
+						gameRoom.entities.bonusActivated = false;
+						Matter.Body.setPosition(gameRoom.entities.bonus[0].gameObject, {x: 1000, y: 1000});
+						Matter.Body.setVelocity(gameRoom.entities.bonus[0].gameObject, {x: 0, y: 0});
+						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
+							self.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "speed"});
+							self.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "speed"});
+							// gameRoom.entities.ball.gameObject.velocity.x += 0.5;
+						}
+						else{
+							self.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "speed"});
+							self.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "speed"});
+							// gameRoom.entities.ball.gameObject.velocity.x -= 0.5;
+						}
+					}
+					if (pair.bodyA.label == "sizeBonus"){
+						//Size bonus: the player's paddle is bigger
+						console.log("size bonus taken")
+						gameRoom.entities.lastBonusOrMalusDate = Date.now();
+						gameRoom.entities.bonusOrMalusActivated = false;
+						gameRoom.entities.bonusActivated = false;
+						Matter.Body.setVelocity(gameRoom.entities.bonus[1].gameObject, {x: 0, y: 0});
+						Matter.Body.setPosition(gameRoom.entities.bonus[1].gameObject, {x: 1000, y: 1000});
+
+						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
+							self.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "size"});
+							self.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "size"});
+							gameRoom.entities.players[0].gameObject.width = 200;
+						}
+						else{
+							self.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "size"});
+							self.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "size"});
+							gameRoom.entities.players[1].gameObject.width = 200;
+						}
+					}
+					if (pair.bodyA.label == "speedMalus"){
+						//Speed malus: the ball goes slower in direction of the opponent
+						console.log("speed malus taken")
+						gameRoom.entities.lastBonusOrMalusDate = Date.now();
+						gameRoom.entities.bonusOrMalusActivated = false;
+						gameRoom.entities.malusActivated = false;
+						Matter.Body.setVelocity(gameRoom.entities.malus[0].gameObject, {x: 0, y: 0});
+						Matter.Body.setPosition(gameRoom.entities.malus[0].gameObject, {x: 1000, y: 1000});
+
+						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
+							//Inform both players that a malus was taken by which player and the type of malus
+							self.server.to(gameRoom.player1SocketId).emit('malusTaken', {playerMalus: "player1", malusType: "size"});
+							self.server.to(gameRoom.player2SocketId).emit('malusTaken',{playerMalus: "player1", malusType: "size"});
+							gameRoom.entities.ball.gameObject.velocity.x -= 0.1;
+						}
+						else{
+							self.server.to(gameRoom.player1SocketId).emit('malusTaken', {playerMalus: "player2", malusType: "size"});
+							self.server.to(gameRoom.player2SocketId).emit('malusTaken',{playerMalus: "player2", malusType: "size"});
+							gameRoom.entities.ball.gameObject.velocity.x += 0.1;
+						}
+					}
+					if (pair.bodyA.label == "sizeMalus"){
+						//Size malus: the player's paddle is smaller
+						console.log("size malus taken")
+						gameRoom.entities.lastBonusOrMalusDate = Date.now();
+						gameRoom.entities.bonusOrMalusActivated = false;
+						gameRoom.entities.malusActivated = false;
+						Matter.Body.setVelocity(gameRoom.entities.malus[1].gameObject, {x: 0, y: 0});
+						Matter.Body.setPosition(gameRoom.entities.malus[1].gameObject, {x: 1000, y: 1000});
+
+						if (gameRoom.entities.ball.gameObject.velocity.x > 0)
+							gameRoom.entities.players[0].gameObject.width = 30;
+						else
+							gameRoom.entities.players[1].gameObject.width = 30;
+					}
 				}
 			}, this);
 		});
@@ -921,16 +1036,19 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				gameRoom.insideLobby = false;
 				setTimeout(() => {
 					gameRoom.started = true;
+					// Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
+					// 	x: 3,
+					// 	y: 3
+					// });
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
-						x: 3,
-						y: 3
+						x: 0,
+						y: 0
 					});
 					gameRoom.inCooldown = false;
 					gameRoom.pausedAfk = false;
 					gameRoom.player2Ready = false;
 					gameRoom.player1Ready = false;
-					gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
-					console.log(`game start at ${new Date().getTime()}`);
+					gameRoom.entities.lastBonusOrMalusDate = Date.now();
 				}, GAME_COUNTDOWN_START);
 			}
 		}
@@ -951,14 +1069,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 		if (gameRoom.customGame && gameRoom.entities){
 
-			const currentTimestamp = new Date().getTime();
+			const currentTimestamp = Date.now();
 
-			if (currentTimestamp - Number(gameRoom.entities.lastBonusOrMalusDate) > 3000 && gameRoom.entities.bonusOrMalusActivated == false) {
+			if (currentTimestamp - Number(gameRoom.entities.lastBonusOrMalusDate) >  BONUS_MALUS_RESPAWN_TIME_MS
+				&& gameRoom.entities.bonusOrMalusActivated == false) {
 
 				gameRoom.entities.bonusOrMalusActivated = true;
-				console.log(`bonus/malus activated at ${new Date().getTime()}`);
-
-				console.log("BONUS OR MALUS ACTIVATED")
 				boolBonus = true;
 
 				const coinFlipBonusMalus  = randomInt(0, 1);
@@ -967,7 +1083,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				randomX = randomInt(400, 600);
 				randomY = randomInt(40, 760);
 
-				console.log(`New bonus/malus position: ${randomX} / ${randomY}`);
 				switch (coinFlipBonusMalus){
 					case 0:
 						boolBonus = true;
@@ -977,14 +1092,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								gameRoom.entities.bonus[0].gameObject.render.visible = true;
 								bonusType = "speed";
 								gameRoom.entities.bonusActivated = true;
-								gameRoom.entities.bonusType = "speed"
+								gameRoom.entities.bonusType = "speed";
 								break;
 							case 1:
 								Matter.Body.setPosition(gameRoom.entities.bonus[1].gameObject, { x: randomX, y: randomY });
 								gameRoom.entities.bonus[1].gameObject.render.visible = true;
 								bonusType = "size";
 								gameRoom.entities.bonusActivated = true;
-								gameRoom.entities.bonusType = "size"
+								gameRoom.entities.bonusType = "size";
 								break;
 						}
 						break;
@@ -996,14 +1111,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 								gameRoom.entities.malus[0].gameObject.render.visible = true;
 								bonusType = "speed";
 								gameRoom.entities.malusActivated = true;
-								gameRoom.entities.bonusType = "speed"
+								gameRoom.entities.bonusType = "speed";
 								break; 
 							case 1:
 								Matter.Body.setPosition(gameRoom.entities.malus[1].gameObject, { x: randomX, y: randomY });
 								gameRoom.entities.malus[1].gameObject.render.visible = true;
 								bonusType = "size";
 								gameRoom.entities.malusActivated = true;
-								gameRoom.entities.bonusType = "size"
+								gameRoom.entities.bonusType = "size";
 								break;
 						}
 						break;
@@ -1017,112 +1132,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						y: randomY
 					}
 				}
-				console.log("EMIT BONUS APPEARED")
 				this.server.to(gameRoom.player1SocketId).emit('bonusAppeared', data);
 				this.server.to(gameRoom.player2SocketId).emit('bonusAppeared', data);
-			}
-		}
-		
-		if (gameRoom.entities.bonusOrMalusActivated == true){
-			if (gameRoom.entities && gameRoom.entities.bonusActivated == true){
-				//If the ball is close to the bonus then the player which shoot the ball the latest activate it
-				if (gameRoom.entities.bonusType == "speed"){
-					//Speed bonus: the ball goes faster in the direction of the opponent
-					// console.log(gameRoom.entities.bonus[0].gameObject.position);
-					if (Math.abs(gameRoom.entities.ball.gameObject.position.x - gameRoom.entities.bonus[0].gameObject.position.x) <= 200
-						&& Math.abs(gameRoom.entities.ball.gameObject.position.y - gameRoom.entities.bonus[0].gameObject.position.y) <= 200){
-						gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
-						console.log("BONUS ACTIVATED TAKEN SPEED");
-						gameRoom.entities.bonusOrMalusActivated = false;
-						gameRoom.entities.bonusActivated = false;
-						gameRoom.entities.bonus[0].gameObject.render.visible = false;
-						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
-							console.log(`SPEED BONUS ACTIVATED by ${gameRoom.player1SocketId}`);
-							this.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "speed"});
-							this.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "speed"});
-							gameRoom.entities.ball.gameObject.velocity.x += 0.5;
-						}
-						else{
-							console.log(`SPEED BONUS ACTIVATED by ${gameRoom.player2SocketId}`);
-							this.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "speed"});
-							this.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "speed"});
-							gameRoom.entities.ball.gameObject.velocity.x -= 0.5;
-						}
-					}
-				}
-				else{
-					//Size bonus: the player's paddle is bigger
-					// console.log( gameRoom.entities.bonus[1].gameObject.position) ;
-					if (Math.abs(gameRoom.entities.ball.gameObject.position.x - gameRoom.entities.bonus[1].gameObject.position.x) <= 200
-						&& Math.abs(gameRoom.entities.ball.gameObject.position.y - gameRoom.entities.bonus[1].gameObject.position.y) <= 200){
-						gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
-						console.log("BONUS ACTIVATED SIZE TAKEN");
-						gameRoom.entities.bonusOrMalusActivated = false;
-						gameRoom.entities.bonusActivated = false;
-						gameRoom.entities.bonus[1].gameObject.render.visible = false;
-						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
-							console.log(`SIZE BONUS ACTIVATED by ${gameRoom.player1SocketId}`);
-							this.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "size"});
-							this.server.to(gameRoom.player2SocketId).emit('bonusTaken',{playerBonus: "player1", bonusType: "size"});
-							gameRoom.entities.players[0].gameObject.width = 200;
-						}
-						else{
-							console.log(`SIZE BONUS ACTIVATED by ${gameRoom.player2SocketId}`);
-							this.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "size"});
-							this.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "size"});
-							gameRoom.entities.players[1].gameObject.width = 200;
-						}
-					}
-				}
-			}
-			if (gameRoom.entities && gameRoom.entities.malusActivated == true){
-				//If the ball is close to the malus then the player which shoot the ball the latest activate it
-				if (gameRoom.entities.bonusType == "speed"){
-					//Speed malus: the ball goes slower in direction of the opponent
-					// console.log(gameRoom.entities.malus[0].gameObject.position);
-					if (Math.abs(gameRoom.entities.ball.gameObject.position.x - gameRoom.entities.malus[0].gameObject.position.x) <= 200
-						&& Math.abs(gameRoom.entities.ball.gameObject.position.y - gameRoom.entities.malus[0].gameObject.position.y) <= 200){
-						gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
-						console.log("MALUS ACTIVATED SPEED TAKEN");
-						gameRoom.entities.bonusOrMalusActivated = false;
-						gameRoom.entities.malusActivated = false;
-						gameRoom.entities.malus[0].gameObject.render.visible = false;
-						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
-							//Inform both players that a malus was taken by which player and the type of malus
-							this.server.to(gameRoom.player1SocketId).emit('malusTaken', {playerMalus: "player1", malusType: "size"});
-							this.server.to(gameRoom.player2SocketId).emit('malusTaken',{playerMalus: "player1", malusType: "size"});
-							let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
-							gameRoom.entities.ball.gameObject.velocity.x -= 0.1;
-							console.log(`SPEED MALUS ACTIVATED by ${gameRoom.player1SocketId}`)
-						}
-						else{
-							this.server.to(gameRoom.player1SocketId).emit('malusTaken', {playerMalus: "player2", malusType: "size"});
-							this.server.to(gameRoom.player2SocketId).emit('malusTaken',{playerMalus: "player2", malusType: "size"});
-							gameRoom.entities.ball.gameObject.velocity.x += 0.1;
-							console.log(`SPEED MALUS ACTIVATED by ${gameRoom.player2SocketId}`)
-						}
-					}
-				}
-				else{
-					//Size malus: the player's paddle is smaller
-					// console.log(gameRoom.entities.malus[1].gameObject.position);
-					if (Math.abs(gameRoom.entities.ball.gameObject.position.x - gameRoom.entities.malus[1].gameObject.position.x) <= 200
-						&& Math.abs(gameRoom.entities.ball.gameObject.position.y - gameRoom.entities.malus[1].gameObject.position.y) <= 200){
-						gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
-						console.log("MALUS ACTIVATED SIZE TAKEN");
-						gameRoom.entities.bonusOrMalusActivated = false;
-						gameRoom.entities.malusActivated = false;
-						gameRoom.entities.malus[1].gameObject.render.visible = false;
-						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
-							console.log(`SIZE MALUS ACTIVATED by ${gameRoom.player1SocketId}`)
-							gameRoom.entities.players[0].gameObject.width = 30;
-						}
-						else{
-							console.log(`SIZE MALUS ACTIVATED by ${gameRoom.player2SocketId}`)
-							gameRoom.entities.players[1].gameObject.width = 30;
-						}
-					}
-				}
 			}
 		}
 
@@ -1181,6 +1192,19 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						y: Math.min(Math.max(data.y, 75), 725)
 					});
 				}
+			}
+		}
+	}
+
+	@SubscribeMessage('ballMovement')
+	handleBallMovement(
+		@MessageBody() data: {roomId: number, x: number,y : number}): void {
+		for (let i = 0; i < this.gameRooms.length; i++){
+			if (this.gameRooms[i].roomId == data.roomId){
+				Matter.Body.setPosition(this.gameRooms[i].entities.ball.gameObject, {
+					x: data.x,
+					y: data.y
+				});
 			}
 		}
 	}

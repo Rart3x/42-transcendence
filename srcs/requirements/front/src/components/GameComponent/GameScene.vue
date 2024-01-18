@@ -61,38 +61,34 @@ export default class Game extends Phaser.Scene {
 					// else if (data.playerBonus == this.gameRoom.player2SocketId){
 					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x - 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
 					// }
-					this.gameRoom.entities.bonus[0].gameObject.x = 1000;
-					this.gameRoom.entities.bonus[0].gameObject.y = 1000;
+					this.gameRoom.entities.bonus[0].clear();
 				}
 				else if (data.bonusType == "size"){
 					// if (data.playerBonus == this.gameRoom.player1SocketId)
 					// 	this.gameRoom.entities.players[0].gameObject.setScale(1.5);
 					// else if (data.playerBonus == this.gameRoom.player2SocketId)
 					// 	this.gameRoom.entities.players[1].gameObject.setScale(1.5);
-					this.gameRoom.entities.bonus[1].gameObject.x = 1000;
-					this.gameRoom.entities.bonus[1].gameObject.y = 1000;
+					this.gameRoom.entities.bonus[1].clear();
 				}
 			}
 		});
 
 		this.socket.on('malusTaken', (data: any) => {
 			if (data && this.gameRoom && this.gameRoom.entities){
-				console.log(`malusTaken: ${data.malusType} by ${data.playermMlus}`);
+				console.log(`malusTaken: ${data.malusType} by ${data.playerMalus}`);
 				if (data.malusType == "speed"){
 					// if (data.playerBonus == this.gameRoom.player1SocketId)
 					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x - 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
 					// else if (data.playerBonus == this.gameRoom.player2SocketId)
 					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x + 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
-					this.gameRoom.entities.malus[0].gameObject.x = 1000;
-					this.gameRoom.entities.malus[0].gameObject.y = 1000;
+					this.gameRoom.entities.malus[0].clear();
 				}
 				else if (data.malusType == "size"){
 					// if (data.playerBonus == this.gameRoom.player1SocketId)
 					// 	this.gameRoom.entities.players[0].gameObject.setScale(0.5);
 					// else if (data.playerBonus == this.gameRoom.player2SocketId)
 					// 	this.gameRoom.entities.players[1].gameObject.setScale(0.5);
-					this.gameRoom.entities.malus[1].gameObject.x = 1000;
-					this.gameRoom.entities.malus[1].gameObject.y = 1000;
+					this.gameRoom.entities.malus[1].clear();
 				}
 			}
 		});
@@ -101,24 +97,18 @@ export default class Game extends Phaser.Scene {
 			if (this.gameRoom && this.gameRoom.customGameMode && this.gameRoom.entities){
 				if (data){
 					if (data.boolBonus){
-						if (data.bonusType == "speed"){
-							this.gameRoom.entities.bonus[0].gameObject.x = data.pos.x;
-							this.gameRoom.entities.bonus[0].gameObject.y = data.pos.y;
-						}
-						else if (data.bonusType == "size"){
-							this.gameRoom.entities.bonus[1].gameObject.x = data.pos.x;
-							this.gameRoom.entities.bonus[1].gameObject.y = data.pos.y;
-						}
+						console.log(`bonusAppeared: ${data.bonusType} at ${data.pos.x}, ${data.pos.y}`)
+						if (data.bonusType == "speed")
+							this.gameRoom.entities.bonus[0].draw(data.pos.x, data.pos.y)
+						else if (data.bonusType == "size")
+							this.gameRoom.entities.bonus[1].draw(data.pos.x, data.pos.y)
 					}
 					else if (data.boolMalus){
-						if (data.bonusType == "speed"){
-							this.gameRoom.entities.malus[0].gameObject.x = data.pos.x;
-							this.gameRoom.entities.malus[0].gameObject.y = data.pos.y;
-						}
-						else if  (data.bonusType == "size"){
-							this.gameRoom.entities.malus[1].gameObject.x = data.pos.x;
-							this.gameRoom.entities.malus[1].gameObject.y = data.pos.y;
-						}
+						console.log(`malusAppeared: ${data.bonusType} at ${data.pos.x}, ${data.pos.y}`)
+						if (data.bonusType == "speed")
+							this.gameRoom.entities.malus[0].draw(data.pos.x, data.pos.y)
+						else if  (data.bonusType == "size")
+							this.gameRoom.entities.malus[1].draw(data.pos.x, data.pos.y)
 					}
 				}
 			}
@@ -158,31 +148,31 @@ export default class Game extends Phaser.Scene {
 		this.socket.on('localGameCreated', (data) => {
 			this.UIElement.destroy();
 			this.UIElement = this.add.dom(450, 400).createFromHTML(' \
-			<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
-				<div class="avatar row-start-2"> \
-					<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+				<div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
+					<div class="avatar row-start-2"> \
+						<div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+						</div> \
 					</div> \
-				</div> \
-				<div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
-				<div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
-					<div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+					<div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
+					<div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
+						<div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."> \
+						</div> \
 					</div> \
-				</div> \
-				<div class="row-start-3 ..."> \
-					<h1 id="player1Name" class="text-4xl font-bold dark:text-white ..."></h1> \
-				</div> \
-				<div class="row-start-3 col-start-3 col-end-4 ..."> \
-					<h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
-				</div> \
-				<div class="row-start-4 col-start-1 col-end-2"> \
-					<button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready  </button> \
-				</div> \
-				<div class="row-start-4 col-start-3 col-end-4"> \
-					<button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready  </button> \
-				</div> \
-				<div class="row-start-5 col-start-2  ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
-				<div class="row-start-6 col-start-2 ..."><button id="leaveButton"class="btn btn-error ml-5 ...">LEAVE</button></div> \
-			</div>'
+					<div class="row-start-3 ..."> \
+						<h1 id="player1Name" class="text-4xl font-bold dark:text-white ..."></h1> \
+					</div> \
+					<div class="row-start-3 col-start-3 col-end-4 ..."> \
+						<h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
+					</div> \
+					<div class="row-start-4 col-start-1 col-end-2"> \
+						<button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready  </button> \
+					</div> \
+					<div class="row-start-4 col-start-3 col-end-4"> \
+						<button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready  </button> \
+					</div> \
+					<div class="row-start-5 col-start-2  ..."><button id="startButton"class="btn btn-primary ml-5 ...">START</button></div> \
+					<div class="row-start-6 col-start-2 ..."><button id="leaveButton"class="btn btn-error ml-5 ...">LEAVE</button></div> \
+				</div>'
 			);
 		})
 
@@ -209,7 +199,7 @@ export default class Game extends Phaser.Scene {
 			}, 1000);
 		})
 
-		this.socket.on('scorePoint', (data) => {
+		this.socket.on('scorePoint', (data : any) => {
 			if (this.gameRoom && this.gameRoom.entities){
 				if (this.gameRoom.player1Disconnected == false && this.gameRoom.player2Disconnected == false){
 					//Reset ball to the middle
@@ -246,36 +236,46 @@ export default class Game extends Phaser.Scene {
 	}
 
 	setupGameHooks(){
-		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
-			if (this.gameRoom && this.gameRoom.entities){
-				if (this.gameRoom.player1SocketId == this.socket.id){
-					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
-					this.socket.emit('playerMovement', {
-						roomId: this.gameRoom.id,
-						socketId: this.socket.id,
-						x: this.gameRoom.entities.players[0].x,
-						y: this.gameRoom.entities.players[0].y
-					});
-					if (this.gameRoom.entities.players[0].gameObject){
-						this.gameRoom.entities.players[0].gameObject.y = this.gameRoom.entities.players[0].y;
-						this.gameRoom.entities.players[0].gameObject.body.position.y = this.gameRoom.entities.players[0].y;
-					}
-				}
-				else if (this.gameRoom.player2SocketId == this.socket.id){
-					this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 75, 725);
-					this.socket.emit('playerMovement', {
-						roomId: this.gameRoom.id,
-						socketId: this.socket.id,
-						x: this.gameRoom.entities.players[1].x,
-						y: this.gameRoom.entities.players[1].y
-					});
-					if (this.gameRoom.entities.players[1].gameObject){
-						this.gameRoom.entities.players[1].gameObject.y = this.gameRoom.entities.players[1].y;
-						this.gameRoom.entities.players[1].gameObject.body.position.y = this.gameRoom.entities.players[1].y;
-					}
-				}
+		// this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
+		// 	if (this.gameRoom && this.gameRoom.entities){
+		// 		if (this.gameRoom.player1SocketId == this.socket.id){
+		// 			this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+		// 			this.socket.emit('playerMovement', {
+		// 				roomId: this.gameRoom.id,
+		// 				socketId: this.socket.id,
+		// 				x: this.gameRoom.entities.players[0].x,
+		// 				y: this.gameRoom.entities.players[0].y
+		// 			});
+		// 			if (this.gameRoom.entities.players[0].gameObject){
+		// 				this.gameRoom.entities.players[0].gameObject.y = this.gameRoom.entities.players[0].y;
+		// 				this.gameRoom.entities.players[0].gameObject.body.position.y = this.gameRoom.entities.players[0].y;
+		// 			}
+		// 		}
+		// 		else if (this.gameRoom.player2SocketId == this.socket.id){
+		// 			this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+		// 			this.socket.emit('playerMovement', {
+		// 				roomId: this.gameRoom.id,
+		// 				socketId: this.socket.id,
+		// 				x: this.gameRoom.entities.players[1].x,
+		// 				y: this.gameRoom.entities.players[1].y
+		// 			});
+		// 			if (this.gameRoom.entities.players[1].gameObject){
+		// 				this.gameRoom.entities.players[1].gameObject.y = this.gameRoom.entities.players[1].y;
+		// 				this.gameRoom.entities.players[1].gameObject.body.position.y = this.gameRoom.entities.players[1].y;
+		// 			}
+		// 		}
+		// 	}
+		// }, this);
+
+		this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+			if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball){
+				this.socket.emit('ballMovement', {
+					roomId: this.gameRoom.id,
+					x: pointer.x,
+					y: pointer.y
+				});
 			}
-		}, this);
+		})
 	}
 
 	removeSocketEvents() {
