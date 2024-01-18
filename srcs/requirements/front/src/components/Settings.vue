@@ -125,15 +125,15 @@
   	/>
 	<div class="flex flex-col gap-y-8 min-h-screen bg-base-200 overflow-auto font-mono place-items-center">
 		<div class="items-center">
-			<label class="block text-base font-medium">Username</label>
+			<span class="block text-base font-medium">Username</span>
 			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" maxlength="20" pattern="^[A-Za-z0-9_"/>
 		</div>
 		<div class="items-center">
-			<label class="block text-base font-medium">Image</label>
+			<span class="block text-base font-medium">Image</span>
 			<input type="file" class="file-input file-input-bordered w-full max-w-xs" @change="onFileChange">
 		</div>
 		<div class="items-center">
-			<label for="enable2FA" class="text-base font-medium">Two-Factor Authentication (2FA)</label>
+			<span for="enable2FA" class="text-base font-medium">Two-Factor Authentication (2FA)</span>
 			<div>
 				<button v-if="A2FEnabled" class="btn btn-error" @click="changeA2F">Disable</button>
 				<button v-else class="btn btn-success" @click="changeA2F">Enable</button>

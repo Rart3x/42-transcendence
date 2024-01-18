@@ -120,7 +120,7 @@
         <!--Check Pass Modal-->
         <dialog ref="modalCheckPass" class="modal modal-bottom sm:modal-middle" :open="modalCheckPass">
             <div class="modal-box w-11/12 max-w-5xl">
-                <form class="dialogModalChannel" @submit.prevent="checkPassInDB(password)" style="text-align: center;">
+                <form name="checkPassInDB" class="dialogModalChannel" @submit.prevent="checkPassInDB(password)" style="text-align: center;">
                     <label>Enter <b>{{ $route.params.channelName }}</b> password</label><br><br>
                     <input type="password" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
                     <br><br>
@@ -133,7 +133,7 @@
         <!--Channel Modal-->
         <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel" @keydown.esc="closeModal('modalChannel')">
             <div class="modal-box w-11/12 max-w-5xl">
-                <form class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, user.userName, currentUserName)">
+                <form name="createChannelInDB" class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, user.userName, currentUserName)">
                     <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" />
                     <button class="btn glass">Send Invitation to {{ currentUserName }}</button>
                 </form>
@@ -142,7 +142,7 @@
         <!--Manage Channel Modal-->
         <dialog id="modalManageChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalManageChannel" @keydown.esc="closeModal('modalManageChannel')">
             <div class="modal-box w-11/12 max-w-5xl">
-                <form class="dialogModal" @submit.prevent="togglePasswordInput(currentChannelName, password, passwordCheckBox)">
+                <form name="togglePasswordInput" class="dialogModal" @submit.prevent="togglePasswordInput(currentChannelName, password, passwordCheckBox)">
                     <div v-if="passwordCheckBox">
                         <label>Set password</label>
                         <br/><br/>
@@ -154,7 +154,7 @@
                         <br/><br/>
                     </div>
                     <div v-else>
-                        <label>Unset password</label>
+                        <span>Unset password</span>
                         <br/><br/>
                         <input type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
                         <br/><br/>
@@ -192,7 +192,7 @@
                     </div>
                 </div>
                 <div class="message-box">
-                    <form class="message-form" @submit.prevent="createPrivateMessageInModal(userName, senderName, message_text)">
+                    <form name="createPrivateMessageInModal" class="message-form" @submit.prevent="createPrivateMessageInModal(userName, senderName, message_text)">
                         <input type="text" class="message-input" placeholder="/game to game" v-model="message_text">
                         <button type="submit" class="message-submit">Send</button>
                     </form>
@@ -204,7 +204,7 @@
     <div v-if="parent === 'channel'">
         <dialog id="modalMuteUser" class="modal modal-bottom sm:modal-middle" :open="modalMuteUser" @keydown.esc="closeMuteModal()">
             <div class="modal-box w-11/12 max-w-5xl">
-                <form class="dialogModal" @submit.prevent="submitMuteForm(selectedDuration)">
+                <form name="submitMuteForm" class="dialogModal" @submit.prevent="submitMuteForm(selectedDuration)">
                     <label> <input type="number" min="1" v-model="selectedDuration" class="input input-bordered input-sm w-full max-w-xs" /></label>
                     <br><br>
                     <input type="submit" value="Mute" class="btn glass btn-warning">

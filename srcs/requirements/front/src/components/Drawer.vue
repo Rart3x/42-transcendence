@@ -125,7 +125,7 @@
     <div class="drawer-side z-[1] font-mono">
       <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-        <form @submit.prevent="checkName">
+        <form name="checkName" @submit.prevent="checkName">
           <div class="p-4">
             <input v-model="enteredName" type="text" placeholder="Start a conversation" class="input input-bordered w-full mb"/>
             <button type="submit" class="btn btn-primary w-full mt-2">Search</button>
