@@ -1,13 +1,15 @@
 import Player  from './player';
 import Wall  from './wall';
 import Ball  from './ball';
-import RotatingWall from './rotatingWall';
+import Bonus from './bonus';
+import Malus from './malus';
 
 export default class Entities {
     ball: Ball;
     walls: Wall[] = [];
-    obstacles: RotatingWall[] = [];
     players : Player[] = [];
+    bonus: Bonus[] = [];
+    malus: Malus[] = [];
 
     constructor(game: Phaser.Scene, customGameMode: boolean, player1SocketId: string, player2SocketId: string){
 
@@ -15,13 +17,12 @@ export default class Entities {
         this.players.push(new Player(game, 950, 400, 10, 80, player2SocketId));
 
         if (customGameMode){
-            this.obstacles.push(new RotatingWall(game, 500, 250, 10, 120));
-        
-            this.obstacles.push(new RotatingWall(game, 500, 650, 10, 120));
 
-            this.obstacles[0].gameObject.setAngle(60);
-            
-            this.obstacles[1].gameObject.setAngle(240);
+            this.bonus.push(new Bonus(game, "speed"));
+            this.bonus.push(new Bonus(game, "size"));
+
+            this.malus.push(new Malus(game, "speed"));
+            this.malus.push(new Malus(game, "size"));
         }
 
         this.walls.push(new Wall(game, 20, 400, 10, 770));

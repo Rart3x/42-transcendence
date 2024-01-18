@@ -335,8 +335,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	createGameWorld(gameRoom: GameRoom, engine: Matter.Engine, world: Matter.World, entities: Entities){
 		this.setBallDefaultParameters(entities.ball);
 		if (gameRoom.customGame){
-			Matter.Body.rotate(gameRoom.entities.obstacles[0].gameObject, 60);
-			Matter.Body.rotate(gameRoom.entities.obstacles[1].gameObject, 240);
+
 		}
 		this.initCollisions(gameRoom.customGame, entities, world);
 		this.initCollisionsEvent(engine, gameRoom);
@@ -347,7 +346,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		Matter.Body.setVelocity(ball.gameObject, {x: 0, y: 0});
 		//Random ball spawning
 		Matter.Body.setPosition(ball.gameObject, {x: 500, y: 400});
-		// Matter.Body.setA
 	}
 	
 	removeCollisionsEvent(gameRoom: GameRoom){
@@ -359,17 +357,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	initCollisions(customGameMode: Boolean, entities: Entities, world: Matter.World){
 		Matter.World.add(world, entities.ball.gameObject);
-		for (let i = 0; i < 2; i++){
+		for (let i = 0; i < 2; i++)
 			Matter.World.add(world, entities.players[i].gameObject);
-		}
-		for (let i = 0; i < 4; i++){
+		for (let i = 0; i < 4; i++)
 			Matter.World.add(world,  entities.walls[i].gameObject);
-		}
-		if (customGameMode){
-			for (let i = 0; i < 2; i++){
-				Matter.World.add(world,  entities.obstacles[i].gameObject);
-			}
-		}
 	}
 
 	initCollisionsEvent(engine: Matter.Engine, gameRoom: GameRoom){
@@ -378,16 +369,21 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			var intersectionDeltaY = 0;
 			var theta = 0;
 			var bouncingAngle = 0;
+
 			pair.bodyA.label == "player1" ?
 			player = (gameRoom.entities.players[0].gameObject.label == "player1" ? gameRoom.entities.players[0] : gameRoom.entities.players[1]) :
 			player = (gameRoom.entities.players[0].gameObject.label == "player2" ? gameRoom.entities.players[0] : gameRoom.entities.players[1])
+
 			//Relative intersect (between -40 and 40)
 			intersectionDeltaY = player.gameObject.position.y  - gameRoom.entities.ball.gameObject.position.y;
+
 			//Normalized intersect
 			theta = (intersectionDeltaY / (PADDLE_HEIGHT / 2));
+
 			//Get speed of incoming ball and saving it
 			let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
 			let speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+
 			//Bouncing angle
 			bouncingAngle = theta * MAX_BOUNCING_ANGLE;
 			let xDirection = (speed + 0.1) * Math.cos(bouncingAngle);
@@ -439,6 +435,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				vecX = -4;
 			else
 				vecX = 4;
+
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
 					player1: gameRoom.score.get(gameRoom.player1UserId.toString()),
@@ -448,6 +445,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					y: randY,
 				}
 			});
+
 			this.server.to(gameRoom.player2SocketId).emit('scorePoint', {
 				score : {
 					player1: gameRoom.score.get(gameRoom.player1UserId.toString()),
@@ -924,13 +922,15 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				setTimeout(() => {
 					gameRoom.started = true;
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
-						x: 4,
-						y: 4
+						x: 3,
+						y: 3
 					});
 					gameRoom.inCooldown = false;
 					gameRoom.pausedAfk = false;
 					gameRoom.player2Ready = false;
 					gameRoom.player1Ready = false;
+					gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
+					console.log(`game start at ${new Date().getTime()}`);
 				}, GAME_COUNTDOWN_START);
 			}
 		}
@@ -940,13 +940,192 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		//We take a snapshot of ball and players position
 		let velocity : any;
 
-		if (gameRoom.entities){
+		if (gameRoom.entities)
 			velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
-		}
+
+		let boolMalus = false;
+		let boolBonus = false;
+		let bonusType = "";
+		let randomX = 0;
+		let randomY = 0;
+
 		if (gameRoom.customGame && gameRoom.entities){
-			Matter.Body.rotate(gameRoom.entities.obstacles[0].gameObject, 5);
-			Matter.Body.rotate(gameRoom.entities.obstacles[1].gameObject, 5);
+
+			const currentTimestamp = new Date().getTime();
+
+			if (currentTimestamp - Number(gameRoom.entities.lastBonusOrMalusDate) > 3000 && gameRoom.entities.bonusOrMalusActivated == false) {
+
+				gameRoom.entities.bonusOrMalusActivated = true;
+				console.log(`bonus/malus activated at ${new Date().getTime()}`);
+
+				console.log("BONUS OR MALUS ACTIVATED")
+				boolBonus = true;
+
+				const coinFlipBonusMalus  = randomInt(0, 1);
+				const coinFlipSizeSpeed  = randomInt(0, 1);
+
+				randomX = randomInt(400, 600);
+				randomY = randomInt(40, 760);
+
+				console.log(`New bonus/malus position: ${randomX} / ${randomY}`);
+				switch (coinFlipBonusMalus){
+					case 0:
+						boolBonus = true;
+						switch (coinFlipSizeSpeed){
+							case 0:
+								Matter.Body.setPosition(gameRoom.entities.bonus[0].gameObject, { x: randomX, y: randomY });
+								gameRoom.entities.bonus[0].gameObject.render.visible = true;
+								bonusType = "speed";
+								gameRoom.entities.bonusActivated = true;
+								gameRoom.entities.bonusType = "speed"
+								break;
+							case 1:
+								Matter.Body.setPosition(gameRoom.entities.bonus[1].gameObject, { x: randomX, y: randomY });
+								gameRoom.entities.bonus[1].gameObject.render.visible = true;
+								bonusType = "size";
+								gameRoom.entities.bonusActivated = true;
+								gameRoom.entities.bonusType = "size"
+								break;
+						}
+						break;
+					case 1:
+						boolMalus = true;
+						switch (coinFlipSizeSpeed){
+							case 0:
+								Matter.Body.setPosition(gameRoom.entities.malus[0].gameObject, { x: randomX, y: randomY });
+								gameRoom.entities.malus[0].gameObject.render.visible = true;
+								bonusType = "speed";
+								gameRoom.entities.malusActivated = true;
+								gameRoom.entities.bonusType = "speed"
+								break; 
+							case 1:
+								Matter.Body.setPosition(gameRoom.entities.malus[1].gameObject, { x: randomX, y: randomY });
+								gameRoom.entities.malus[1].gameObject.render.visible = true;
+								bonusType = "size";
+								gameRoom.entities.malusActivated = true;
+								gameRoom.entities.bonusType = "size"
+								break;
+						}
+						break;
+				}
+				let data = {
+					boolMalus: boolMalus,
+					boolBonus: boolMalus,
+					bonusType: bonusType,
+					pos: {
+						x: randomX,
+						y: randomY
+					}
+				}
+				console.log("EMIT BONUS APPEARED")
+				this.server.to(gameRoom.player1SocketId).emit('bonusAppeared', data);
+				this.server.to(gameRoom.player2SocketId).emit('bonusAppeared', data);
+			}
 		}
+		
+		if (gameRoom.entities.bonusOrMalusActivated == true){
+			if (gameRoom.entities && gameRoom.entities.bonusActivated == true){
+				//If the ball is close to the bonus then the player which shoot the ball the latest activate it
+				if (gameRoom.entities.bonusType == "speed"){
+					//Speed bonus: the ball goes faster in the direction of the opponent
+					// console.log(gameRoom.entities.bonus[0].gameObject.position);
+					if (Math.abs(gameRoom.entities.ball.gameObject.position.x - gameRoom.entities.bonus[0].gameObject.position.x) <= 200
+						&& Math.abs(gameRoom.entities.ball.gameObject.position.y - gameRoom.entities.bonus[0].gameObject.position.y) <= 200){
+						gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
+						console.log("BONUS ACTIVATED TAKEN SPEED");
+						gameRoom.entities.bonusOrMalusActivated = false;
+						gameRoom.entities.bonusActivated = false;
+						gameRoom.entities.bonus[0].gameObject.render.visible = false;
+						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
+							console.log(`SPEED BONUS ACTIVATED by ${gameRoom.player1SocketId}`);
+							this.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "speed"});
+							this.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "speed"});
+							gameRoom.entities.ball.gameObject.velocity.x += 0.5;
+						}
+						else{
+							console.log(`SPEED BONUS ACTIVATED by ${gameRoom.player2SocketId}`);
+							this.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "speed"});
+							this.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "speed"});
+							gameRoom.entities.ball.gameObject.velocity.x -= 0.5;
+						}
+					}
+				}
+				else{
+					//Size bonus: the player's paddle is bigger
+					// console.log( gameRoom.entities.bonus[1].gameObject.position) ;
+					if (Math.abs(gameRoom.entities.ball.gameObject.position.x - gameRoom.entities.bonus[1].gameObject.position.x) <= 200
+						&& Math.abs(gameRoom.entities.ball.gameObject.position.y - gameRoom.entities.bonus[1].gameObject.position.y) <= 200){
+						gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
+						console.log("BONUS ACTIVATED SIZE TAKEN");
+						gameRoom.entities.bonusOrMalusActivated = false;
+						gameRoom.entities.bonusActivated = false;
+						gameRoom.entities.bonus[1].gameObject.render.visible = false;
+						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
+							console.log(`SIZE BONUS ACTIVATED by ${gameRoom.player1SocketId}`);
+							this.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "size"});
+							this.server.to(gameRoom.player2SocketId).emit('bonusTaken',{playerBonus: "player1", bonusType: "size"});
+							gameRoom.entities.players[0].gameObject.width = 200;
+						}
+						else{
+							console.log(`SIZE BONUS ACTIVATED by ${gameRoom.player2SocketId}`);
+							this.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "size"});
+							this.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "size"});
+							gameRoom.entities.players[1].gameObject.width = 200;
+						}
+					}
+				}
+			}
+			if (gameRoom.entities && gameRoom.entities.malusActivated == true){
+				//If the ball is close to the malus then the player which shoot the ball the latest activate it
+				if (gameRoom.entities.bonusType == "speed"){
+					//Speed malus: the ball goes slower in direction of the opponent
+					// console.log(gameRoom.entities.malus[0].gameObject.position);
+					if (Math.abs(gameRoom.entities.ball.gameObject.position.x - gameRoom.entities.malus[0].gameObject.position.x) <= 200
+						&& Math.abs(gameRoom.entities.ball.gameObject.position.y - gameRoom.entities.malus[0].gameObject.position.y) <= 200){
+						gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
+						console.log("MALUS ACTIVATED SPEED TAKEN");
+						gameRoom.entities.bonusOrMalusActivated = false;
+						gameRoom.entities.malusActivated = false;
+						gameRoom.entities.malus[0].gameObject.render.visible = false;
+						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
+							//Inform both players that a malus was taken by which player and the type of malus
+							this.server.to(gameRoom.player1SocketId).emit('malusTaken', {playerMalus: "player1", malusType: "size"});
+							this.server.to(gameRoom.player2SocketId).emit('malusTaken',{playerMalus: "player1", malusType: "size"});
+							let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
+							gameRoom.entities.ball.gameObject.velocity.x -= 0.1;
+							console.log(`SPEED MALUS ACTIVATED by ${gameRoom.player1SocketId}`)
+						}
+						else{
+							this.server.to(gameRoom.player1SocketId).emit('malusTaken', {playerMalus: "player2", malusType: "size"});
+							this.server.to(gameRoom.player2SocketId).emit('malusTaken',{playerMalus: "player2", malusType: "size"});
+							gameRoom.entities.ball.gameObject.velocity.x += 0.1;
+							console.log(`SPEED MALUS ACTIVATED by ${gameRoom.player2SocketId}`)
+						}
+					}
+				}
+				else{
+					//Size malus: the player's paddle is smaller
+					// console.log(gameRoom.entities.malus[1].gameObject.position);
+					if (Math.abs(gameRoom.entities.ball.gameObject.position.x - gameRoom.entities.malus[1].gameObject.position.x) <= 200
+						&& Math.abs(gameRoom.entities.ball.gameObject.position.y - gameRoom.entities.malus[1].gameObject.position.y) <= 200){
+						gameRoom.entities.lastBonusOrMalusDate = new Date().getTime();
+						console.log("MALUS ACTIVATED SIZE TAKEN");
+						gameRoom.entities.bonusOrMalusActivated = false;
+						gameRoom.entities.malusActivated = false;
+						gameRoom.entities.malus[1].gameObject.render.visible = false;
+						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
+							console.log(`SIZE MALUS ACTIVATED by ${gameRoom.player1SocketId}`)
+							gameRoom.entities.players[0].gameObject.width = 30;
+						}
+						else{
+							console.log(`SIZE MALUS ACTIVATED by ${gameRoom.player2SocketId}`)
+							gameRoom.entities.players[1].gameObject.width = 30;
+						}
+					}
+				}
+			}
+		}
+
 		const ballState = [{
 			id: '0',
 			x : gameRoom.entities.ball.gameObject.position.x,
@@ -954,12 +1133,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			velX: velocity.x,
 			velY: velocity.y
 		}];
-		if (gameRoom.customGame){
-			var obstaclesState = [{
-				id: '0',
-				delta: gameRoom.entities.obstacles[0].gameObject.angle
-			}];
-		}
 
 		var playerState : any;
 
@@ -977,18 +1150,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		var globalState : any;
 
 		//Better use JSON stringify function to do this
-		if (gameRoom.customGame == false){
-			globalState = {
-				players : playerState,
-				ball: ballState
-			}
-		}
-		else{
-			globalState = {
-				players: playerState,
-				ball: ballState,
-				obstacles: obstaclesState
-			}
+		globalState = {
+			players : playerState,
+			ball: ballState
 		}
 
 		const snapshot = SI.snapshot.create(globalState);
@@ -1020,20 +1184,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}
 		}
 	}
-
-	// @SubscribeMessage('ballMovement')
-	// handleBallMovement(
-	// 	@ConnectedSocket() client: Socket,
-	// 	@MessageBody() data: {roomId: number, x: number,y : number}): void {
-	// 	for (let i = 0; i < this.gameRooms.length; i++){
-	// 		if (this.gameRooms[i].roomId == data.roomId){
-	// 			Matter.Body.setPosition(this.gameRooms[i].entities.ball.gameObject, {
-	// 				x: data.x,
-	// 				y: data.y
-	// 			});
-	// 		}
-	// 	}
-	// }
 
 	findCorrespondingGame(roomId: number) : GameRoom{
 		for (let i = 0; i < this.gameRooms.length; i++){

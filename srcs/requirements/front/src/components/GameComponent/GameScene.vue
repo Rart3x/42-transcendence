@@ -41,11 +41,86 @@ export default class Game extends Phaser.Scene {
 	setupSocketEvents(){
 		//Keep track of this instance for arrow function
 		const self = this;
+
 		this.socket.on('updateScore', (data : any)  => {
 			if (this.gameRoom && this.gameRoom.score){
 				this.gameRoom.score.set(this.gameRoom.player1UserId.toString(), data.scorePlayer1);
 				this.gameRoom.score.set(this.gameRoom.player2UserId.toString(), data.scorePlayer2);
 				this.updateUIScore();
+			}
+		});
+
+		this.socket.on('bonusTaken', (data: any) => {
+			if (data && this.gameRoom && this.gameRoom.entities){
+				console.log(`bonusTaken: ${data.bonusType} by ${data.playerBonus}`);
+				if (data.bonusType == "speed"){
+					//Depend on which direction the ball is going, we add or remove velocity on x-axis in consequence
+					// if (data.playerBonus == this.gameRoom.player1SocketId){
+					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x + 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
+					// }
+					// else if (data.playerBonus == this.gameRoom.player2SocketId){
+					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x - 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
+					// }
+					this.gameRoom.entities.bonus[0].gameObject.x = 1000;
+					this.gameRoom.entities.bonus[0].gameObject.y = 1000;
+				}
+				else if (data.bonusType == "size"){
+					// if (data.playerBonus == this.gameRoom.player1SocketId)
+					// 	this.gameRoom.entities.players[0].gameObject.setScale(1.5);
+					// else if (data.playerBonus == this.gameRoom.player2SocketId)
+					// 	this.gameRoom.entities.players[1].gameObject.setScale(1.5);
+					this.gameRoom.entities.bonus[1].gameObject.x = 1000;
+					this.gameRoom.entities.bonus[1].gameObject.y = 1000;
+				}
+			}
+		});
+
+		this.socket.on('malusTaken', (data: any) => {
+			if (data && this.gameRoom && this.gameRoom.entities){
+				console.log(`malusTaken: ${data.malusType} by ${data.playermMlus}`);
+				if (data.malusType == "speed"){
+					// if (data.playerBonus == this.gameRoom.player1SocketId)
+					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x - 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
+					// else if (data.playerBonus == this.gameRoom.player2SocketId)
+					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x + 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
+					this.gameRoom.entities.malus[0].gameObject.x = 1000;
+					this.gameRoom.entities.malus[0].gameObject.y = 1000;
+				}
+				else if (data.malusType == "size"){
+					// if (data.playerBonus == this.gameRoom.player1SocketId)
+					// 	this.gameRoom.entities.players[0].gameObject.setScale(0.5);
+					// else if (data.playerBonus == this.gameRoom.player2SocketId)
+					// 	this.gameRoom.entities.players[1].gameObject.setScale(0.5);
+					this.gameRoom.entities.malus[1].gameObject.x = 1000;
+					this.gameRoom.entities.malus[1].gameObject.y = 1000;
+				}
+			}
+		});
+
+		this.socket.on('bonusAppeared', (data : any)  => {
+			if (this.gameRoom && this.gameRoom.customGameMode && this.gameRoom.entities){
+				if (data){
+					if (data.boolBonus){
+						if (data.bonusType == "speed"){
+							this.gameRoom.entities.bonus[0].gameObject.x = data.pos.x;
+							this.gameRoom.entities.bonus[0].gameObject.y = data.pos.y;
+						}
+						else if (data.bonusType == "size"){
+							this.gameRoom.entities.bonus[1].gameObject.x = data.pos.x;
+							this.gameRoom.entities.bonus[1].gameObject.y = data.pos.y;
+						}
+					}
+					else if (data.boolMalus){
+						if (data.bonusType == "speed"){
+							this.gameRoom.entities.malus[0].gameObject.x = data.pos.x;
+							this.gameRoom.entities.malus[0].gameObject.y = data.pos.y;
+						}
+						else if  (data.bonusType == "size"){
+							this.gameRoom.entities.malus[1].gameObject.x = data.pos.x;
+							this.gameRoom.entities.malus[1].gameObject.y = data.pos.y;
+						}
+					}
+				}
 			}
 		});
 
@@ -372,20 +447,6 @@ export default class Game extends Phaser.Scene {
 					this.gameRoom.entities.ball.gameObject.x = x;
 					this.gameRoom.entities.ball.gameObject.y = y;
 					this.gameRoom.entities.ball.gameObject.setVelocity(velX, velY);
-				}
-			}
-		}
-
-		if (this.gameRoom && this.gameRoom.customGameMode && this.gameRoom.entities){
-			const obstaclesSnapshot = SI.calcInterpolation('delta', 'obstacles');
-			if (obstaclesSnapshot){
-				const { state } = obstaclesSnapshot;
-				if (state){
-					const {id, delta} = state[0];
-					if (id){
-						for (let i = 0; i < 2; i++)
-							this.gameRoom.entities.obstacles[i].gameObject.setAngle(delta);
-					}
 				}
 			}
 		}
