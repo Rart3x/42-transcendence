@@ -134,7 +134,7 @@
         <dialog id="modalChannel" class="modal modal-bottom sm:modal-middle" :open="modalStates.modalChannel" @keydown.esc="closeModal('modalChannel')">
             <div class="modal-box w-11/12 max-w-5xl">
                 <form name="createChannelInDB" class ="dialogModal" method="dialog" @submit.prevent="createChannelInDB(channelName, user.userName, currentUserName)">
-                    <input type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" />
+                    <input name="inputChannelName" type="text" placeholder="Channel's name" v-model="channelName" class="input input-bordered input-sm w-full max-w-xs" />
                     <button class="btn glass">Send Invitation to {{ currentUserName }}</button>
                 </form>
             </div>
@@ -146,7 +146,7 @@
                     <div v-if="passwordCheckBox">
                         <label>Set password</label>
                         <br/><br/>
-                        <input type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
+                        <input name="checkBoxPassSet" type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
                         <br/><br/>
                         <input type="password" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
                         <br/><br/>
@@ -156,7 +156,7 @@
                     <div v-else>
                         <span>Unset password</span>
                         <br/><br/>
-                        <input type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
+                        <input  name="checkBoxPassUnset" type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
                         <br/><br/>
                         <button class="btn glass">Unset {{ currentChannelName }} password</button>
                     </div>
@@ -193,7 +193,7 @@
                 </div>
                 <div class="message-box">
                     <form name="createPrivateMessageInModal" class="message-form" @submit.prevent="createPrivateMessageInModal(userName, senderName, message_text)">
-                        <input type="text" class="message-input" placeholder="/game to game" v-model="message_text">
+                        <input name="dmInput" type="text" class="message-input" placeholder="/game to game" v-model="message_text">
                         <button type="submit" class="message-submit">Send</button>
                     </form>
                 </div>

@@ -44,8 +44,8 @@
 <template>
     <div class="grid grid-cols-1 min-h-screen font-mono bg-base-200 place-items-center">
         <form name="verifyToken" @submit.prevent="verifyToken">
-            <input class="input input-bordered" type="text" v-model="userToken" placeholder="Enter your A2F token" required pattern="\d{6}" />
-            <button class="btn btn-secondary text-white font-bold my-4" type="submit">Sign In</button>
+            <input  name="inputVerifyToken" class="input input-bordered" type="text" v-model="userToken" placeholder="Enter your A2F token" required pattern="\d{6}" />
+            <button name="signInButton" class="btn btn-secondary text-white font-bold my-4" type="submit">Sign In</button>
         </form>
     </div>
 </template>
