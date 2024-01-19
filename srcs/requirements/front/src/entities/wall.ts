@@ -9,7 +9,7 @@ export default class Wall{
     label : string;
     game: Phaser.Scene;
 
-    constructor(game: Phaser.Scene, x : number, y : number, width: number, height: number){
+    constructor(game: Phaser.Scene, x : number, y : number, width: number, height: number, label: string){
         const wallOptions = {
 			isStatic: true,
             render: {
@@ -23,8 +23,14 @@ export default class Wall{
         this.width = width;
         this.height = height;
         
-        this.gameObject = this.game.add.rectangle(x, y, width, height, 0xffffffff);
+
+        if (label == "leftmid" || label == "rightmid")
+            this.gameObject = this.game.add.rectangle(x, y, width, height, 0x000000);
+        else
+            this.gameObject = this.game.add.rectangle(x, y, width, height, 0xffffff);
+
         this.game.matter.add.gameObject(this.gameObject, wallOptions);
-        this.gameObject.name = "wall";
+        this.gameObject.name = label;
+
     }
 }

@@ -55,7 +55,6 @@ const MAX_BOUNCING_ANGLE = 5 * Math.PI/ 12;
 const MAX_SCORE = 3;
 const MIN_SCORE = 0;
 const GAME_COUNTDOWN_START = 3000;
-const BONUS_MALUS_RESPAWN_TIME_MS = 3000;
 
 //Initialize the snapshot library
 const SI = new SnapshotInterpolation();
@@ -335,9 +334,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	createGameWorld(gameRoom: GameRoom, engine: Matter.Engine, world: Matter.World, entities: Entities){
 		this.setBallDefaultParameters(entities.ball);
-		if (gameRoom.customGame){
-
-		}
 		this.initCollisions(gameRoom.customGame, entities, world);
 		this.initCollisionsEvent(engine, gameRoom);
 	}
@@ -360,13 +356,17 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		Matter.World.add(world, entities.ball.gameObject);
 		for (let i = 0; i < 2; i++)
 			Matter.World.add(world, entities.players[i].gameObject);
-		for (let i = 0; i < 4; i++)
-			Matter.World.add(world,  entities.walls[i].gameObject);
 		if (customGameMode){
-			for (let i = 0; i < 2; i++){
-				Matter.World.add(world, entities.bonus[i].gameObject);
-				Matter.World.add(world, entities.malus[i].gameObject);
-			}
+			for (let i = 0; i < 8; i++)
+				Matter.World.add(world,  entities.walls[i].gameObject);
+		}
+		else{
+			for (let i = 0; i < 2; i++)
+				Matter.World.add(world,  entities.walls[i].gameObject);
+		}
+		if (customGameMode){
+			for (let i = 2; i < 4; i++)
+				Matter.World.add(world, entities.players[i].gameObject);
 		}
 	}
 
@@ -401,41 +401,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			});
 		}
 
-
 		const scorePoint = (pair: Matter.Pair, gameRoom: GameRoom) => {
 			let scorerId : number;
-			if (gameRoom.customGame && gameRoom.entities.bonusOrMalusActivated == true){
-				//If custom game we disable the bonus/malus if there's in case of a score
-				gameRoom.entities.bonusOrMalusActivated = false;
-				if (gameRoom.entities.bonusActivated == true){
-					if (gameRoom.entities.bonusType == "speed"){
-						gameRoom.entities.bonus[0].gameObject.render.visible = false;
-						gameRoom.entities.bonusActivated = false;
-						gameRoom.entities.lastBonusOrMalusDate = Date.now();
-					}
-					else{
-						gameRoom.entities.bonus[1].gameObject.render.visible = false;
-						gameRoom.entities.bonusActivated = false;
-						gameRoom.entities.lastBonusOrMalusDate = Date.now();
-					}
-				}
-				else{
-					if (gameRoom.entities.bonusType == "speed"){
-						gameRoom.entities.malus[0].gameObject.render.visible = false;
-						gameRoom.entities.malusActivated = false;
-						gameRoom.entities.lastBonusOrMalusDate = Date.now();
-					}
-					else{
-						gameRoom.entities.malus[1].gameObject.render.visible = false;
-						gameRoom.entities.malusActivated = false;
-						gameRoom.entities.lastBonusOrMalusDate = Date.now();
-					}
-				}
-			}
+
 			let scorePlayer1 = gameRoom.score.get(gameRoom.player1UserId.toString());
 			let scorePlayer2  = gameRoom.score.get(gameRoom.player2UserId.toString());
 			if (gameRoom.finish == false){
-				if (pair.bodyA.label == "left"){
+				if (pair.bodyA.label == "leftmid" || pair.bodyA.label == "leftup" || pair.bodyA.label == "leftdown"){
 					scorerId = gameRoom.player2UserId;
 					gameRoom.score.set(gameRoom.player2UserId.toString(), ++scorePlayer2);
 					this.ScoreService.updateGameRoomScore(
@@ -444,7 +416,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						scorePlayer1,
 						scorePlayer2);
 				}
-				else if (pair.bodyA.label == "right"){
+				else if (pair.bodyA.label == "rightmid" || pair.bodyA.label == "rightup" || pair.bodyA.label == "rightdown"){
 					scorerId = gameRoom.player1UserId;
 					gameRoom.score.set(gameRoom.player1UserId.toString(), ++scorePlayer1);
 					this.ScoreService.updateGameRoomScore(
@@ -525,96 +497,40 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		Matter.Events.on(engine, 'collisionStart', function(event : Matter.IEventCollision<Matter.Engine>) {
 			event.pairs.forEach(function(pair: Matter.Pair) {
 				//Ball score
-				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "left" || pair.bodyA.label == "right")){
-					// gameRoom.paused = true;
-					// scorePoint(pair, gameRoom);
-					// ballRespawn(gameRoom, pair);
+				if (gameRoom.customGame == false){
+					if (pair.bodyB.label == "ball" && (pair.bodyA.label == "leftmid" || pair.bodyA.label == "leftup" || pair.bodyA.label == "leftdown"
+						|| pair.bodyA.label == "rightup" || pair.bodyA.label == "rightdown" || pair.bodyA.label == "rightmid")){
+						gameRoom.paused = true;
+						scorePoint(pair, gameRoom);
+						ballRespawn(gameRoom, pair);
+					}
 				}
-	
+				else if (gameRoom.customGame && pair.bodyB.label == "ball" && (pair.bodyA.label == "leftmid" || pair.bodyA.label == "rightmid")){
+					gameRoom.paused = true;
+					scorePoint(pair, gameRoom);
+					ballRespawn(gameRoom, pair);
+				}
 				//Elastic physics
-				else if (pair.bodyB.label == "ball" && (pair.bodyA.label == "player1" || pair.bodyA.label == "player2")){
-					// collisionBallPlayer(pair, gameRoom);
-					// gameRoom.nbBounces++;
+				else if (gameRoom.customGame && pair.bodyB.label == "ball" && (pair.bodyA.label == "player1" || pair.bodyA.label == "player2")){
+					console.log("player ball collision")
+
+					if (gameRoom && gameRoom.entities && gameRoom.entities.ball && gameRoom.customGame){
+						let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
+						if (velocity.x > 0 && pair.bodyA.label == "player1"){
+							console.log("player1 sensor")
+							pair.isActive = false;
+						}
+						else if (velocity.x < 0 && pair.bodyA.label == "player2"){
+							console.log("player2 sensor")
+							pair.isActive = false;
+						}
+						else{
+							collisionBallPlayer(pair, gameRoom);
+						}
+					}
 				}
-	
-				else if (gameRoom && gameRoom.customGame && pair.bodyB.label == "ball"
-					&& (pair.bodyA.label == "sizeBonus" || pair.bodyA.label == "speedBonus"
-						|| pair.bodyA.label == "sizeMalus" || pair.bodyA.label == "speedMalus")
-							&& gameRoom.entities.bonusOrMalusActivated == true){
-					if (pair.bodyA.label == "speedBonus"){
-						//Speed bonus: the ball goes faster in the direction of the opponent
-						console.log("speed bonus taken")
-						gameRoom.entities.lastBonusOrMalusDate = Date.now();
-						gameRoom.entities.bonusOrMalusActivated = false;
-						gameRoom.entities.bonusActivated = false;
-						Matter.Body.setPosition(gameRoom.entities.bonus[0].gameObject, {x: 1000, y: 1000});
-						Matter.Body.setVelocity(gameRoom.entities.bonus[0].gameObject, {x: 0, y: 0});
-						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
-							self.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "speed"});
-							self.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "speed"});
-							// gameRoom.entities.ball.gameObject.velocity.x += 0.5;
-						}
-						else{
-							self.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "speed"});
-							self.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "speed"});
-							// gameRoom.entities.ball.gameObject.velocity.x -= 0.5;
-						}
-					}
-					if (pair.bodyA.label == "sizeBonus"){
-						//Size bonus: the player's paddle is bigger
-						console.log("size bonus taken")
-						gameRoom.entities.lastBonusOrMalusDate = Date.now();
-						gameRoom.entities.bonusOrMalusActivated = false;
-						gameRoom.entities.bonusActivated = false;
-						Matter.Body.setVelocity(gameRoom.entities.bonus[1].gameObject, {x: 0, y: 0});
-						Matter.Body.setPosition(gameRoom.entities.bonus[1].gameObject, {x: 1000, y: 1000});
-
-						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
-							self.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "size"});
-							self.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player1", bonusType: "size"});
-							gameRoom.entities.players[0].gameObject.width = 200;
-						}
-						else{
-							self.server.to(gameRoom.player1SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "size"});
-							self.server.to(gameRoom.player2SocketId).emit('bonusTaken', {playerBonus: "player2", bonusType: "size"});
-							gameRoom.entities.players[1].gameObject.width = 200;
-						}
-					}
-					if (pair.bodyA.label == "speedMalus"){
-						//Speed malus: the ball goes slower in direction of the opponent
-						console.log("speed malus taken")
-						gameRoom.entities.lastBonusOrMalusDate = Date.now();
-						gameRoom.entities.bonusOrMalusActivated = false;
-						gameRoom.entities.malusActivated = false;
-						Matter.Body.setVelocity(gameRoom.entities.malus[0].gameObject, {x: 0, y: 0});
-						Matter.Body.setPosition(gameRoom.entities.malus[0].gameObject, {x: 1000, y: 1000});
-
-						if (gameRoom.entities.ball.gameObject.velocity.x > 0){
-							//Inform both players that a malus was taken by which player and the type of malus
-							self.server.to(gameRoom.player1SocketId).emit('malusTaken', {playerMalus: "player1", malusType: "size"});
-							self.server.to(gameRoom.player2SocketId).emit('malusTaken',{playerMalus: "player1", malusType: "size"});
-							gameRoom.entities.ball.gameObject.velocity.x -= 0.1;
-						}
-						else{
-							self.server.to(gameRoom.player1SocketId).emit('malusTaken', {playerMalus: "player2", malusType: "size"});
-							self.server.to(gameRoom.player2SocketId).emit('malusTaken',{playerMalus: "player2", malusType: "size"});
-							gameRoom.entities.ball.gameObject.velocity.x += 0.1;
-						}
-					}
-					if (pair.bodyA.label == "sizeMalus"){
-						//Size malus: the player's paddle is smaller
-						console.log("size malus taken")
-						gameRoom.entities.lastBonusOrMalusDate = Date.now();
-						gameRoom.entities.bonusOrMalusActivated = false;
-						gameRoom.entities.malusActivated = false;
-						Matter.Body.setVelocity(gameRoom.entities.malus[1].gameObject, {x: 0, y: 0});
-						Matter.Body.setPosition(gameRoom.entities.malus[1].gameObject, {x: 1000, y: 1000});
-
-						if (gameRoom.entities.ball.gameObject.velocity.x > 0)
-							gameRoom.entities.players[0].gameObject.width = 30;
-						else
-							gameRoom.entities.players[1].gameObject.width = 30;
-					}
+				else{
+					console.log(`collision between ${pair.bodyA.label} and ${pair.bodyB.label}`)
 				}
 			}, this);
 		});
@@ -1036,19 +952,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				gameRoom.insideLobby = false;
 				setTimeout(() => {
 					gameRoom.started = true;
-					// Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
-					// 	x: 3,
-					// 	y: 3
-					// });
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
-						x: 0,
-						y: 0
+						x: 3,
+						y: 3
 					});
 					gameRoom.inCooldown = false;
 					gameRoom.pausedAfk = false;
 					gameRoom.player2Ready = false;
 					gameRoom.player1Ready = false;
-					gameRoom.entities.lastBonusOrMalusDate = Date.now();
 				}, GAME_COUNTDOWN_START);
 			}
 		}
@@ -1060,82 +971,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 		if (gameRoom.entities)
 			velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
-
-		let boolMalus = false;
-		let boolBonus = false;
-		let bonusType = "";
-		let randomX = 0;
-		let randomY = 0;
-
-		if (gameRoom.customGame && gameRoom.entities){
-
-			const currentTimestamp = Date.now();
-
-			if (currentTimestamp - Number(gameRoom.entities.lastBonusOrMalusDate) >  BONUS_MALUS_RESPAWN_TIME_MS
-				&& gameRoom.entities.bonusOrMalusActivated == false) {
-
-				gameRoom.entities.bonusOrMalusActivated = true;
-				boolBonus = true;
-
-				const coinFlipBonusMalus  = randomInt(0, 1);
-				const coinFlipSizeSpeed  = randomInt(0, 1);
-
-				randomX = randomInt(400, 600);
-				randomY = randomInt(40, 760);
-
-				switch (coinFlipBonusMalus){
-					case 0:
-						boolBonus = true;
-						switch (coinFlipSizeSpeed){
-							case 0:
-								Matter.Body.setPosition(gameRoom.entities.bonus[0].gameObject, { x: randomX, y: randomY });
-								gameRoom.entities.bonus[0].gameObject.render.visible = true;
-								bonusType = "speed";
-								gameRoom.entities.bonusActivated = true;
-								gameRoom.entities.bonusType = "speed";
-								break;
-							case 1:
-								Matter.Body.setPosition(gameRoom.entities.bonus[1].gameObject, { x: randomX, y: randomY });
-								gameRoom.entities.bonus[1].gameObject.render.visible = true;
-								bonusType = "size";
-								gameRoom.entities.bonusActivated = true;
-								gameRoom.entities.bonusType = "size";
-								break;
-						}
-						break;
-					case 1:
-						boolMalus = true;
-						switch (coinFlipSizeSpeed){
-							case 0:
-								Matter.Body.setPosition(gameRoom.entities.malus[0].gameObject, { x: randomX, y: randomY });
-								gameRoom.entities.malus[0].gameObject.render.visible = true;
-								bonusType = "speed";
-								gameRoom.entities.malusActivated = true;
-								gameRoom.entities.bonusType = "speed";
-								break; 
-							case 1:
-								Matter.Body.setPosition(gameRoom.entities.malus[1].gameObject, { x: randomX, y: randomY });
-								gameRoom.entities.malus[1].gameObject.render.visible = true;
-								bonusType = "size";
-								gameRoom.entities.malusActivated = true;
-								gameRoom.entities.bonusType = "size";
-								break;
-						}
-						break;
-				}
-				let data = {
-					boolMalus: boolMalus,
-					boolBonus: boolMalus,
-					bonusType: bonusType,
-					pos: {
-						x: randomX,
-						y: randomY
-					}
-				}
-				this.server.to(gameRoom.player1SocketId).emit('bonusAppeared', data);
-				this.server.to(gameRoom.player2SocketId).emit('bonusAppeared', data);
-			}
-		}
 
 		const ballState = [{
 			id: '0',
@@ -1149,12 +984,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 		playerState = [{
 			id : gameRoom.player1SocketId,
-			x : gameRoom.entities.players[0].gameObject.position.x,
 			y : gameRoom.entities.players[0].gameObject.position.y
 		},
 		{
 			id : gameRoom.player2SocketId,
-			x : gameRoom.entities.players[1].gameObject.position.x,
 			y : gameRoom.entities.players[1].gameObject.position.y
 		}]
 
@@ -1185,12 +1018,25 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						//The collision between the players and upper lower wall is hardcoded by clamping the y value
 						y: Math.min(Math.max(data.y, 75), 725)
 					});
+
+					if (this.gameRooms[i].customGame){
+						Matter.Body.setPosition(this.gameRooms[i].entities.players[2].gameObject, {
+							x: this.gameRooms[i].entities.players[2].gameObject.position.x,
+							y: Math.min(Math.max(data.y, 75), 725)
+						});
+					}
 				}
 				else if (this.gameRooms[i].player2SocketId == data.socketId){
 					Matter.Body.setPosition(this.gameRooms[i].entities.players[1].gameObject, {
 						x: this.gameRooms[i].entities.players[1].gameObject.position.x,
 						y: Math.min(Math.max(data.y, 75), 725)
 					});
+					if (this.gameRooms[i].customGame){
+						Matter.Body.setPosition(this.gameRooms[i].entities.players[3].gameObject, {
+							x: this.gameRooms[i].entities.players[3].gameObject.position.x,
+							y: Math.min(Math.max(data.y, 75), 725)
+						});
+					}
 				}
 			}
 		}

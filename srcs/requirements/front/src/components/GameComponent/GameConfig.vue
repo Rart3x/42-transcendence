@@ -26,13 +26,14 @@
           dom :{
             createContainer: true
           },
-          width: 1000,
+          width: 1000,  
           height: 800,
           physics: {
             default: 'matter',
             matter : { debug: false }
           },
-          scene: [BootScene, LobbyScene, GameScene, EndGameScene]
+          scene: [BootScene, LobbyScene, GameScene, EndGameScene],
+          disableContextMenu: true,
         },
         initialize: true,
       }

@@ -13,7 +13,7 @@ export default class Player {
         const playerOptions = {
             color: 0xdb2e94ff,
 			isStatic: true,
-            label: label
+            label: label,
 		}
 
         this.socket = socket;

@@ -50,70 +50,6 @@ export default class Game extends Phaser.Scene {
 			}
 		});
 
-		this.socket.on('bonusTaken', (data: any) => {
-			if (data && this.gameRoom && this.gameRoom.entities){
-				console.log(`bonusTaken: ${data.bonusType} by ${data.playerBonus}`);
-				if (data.bonusType == "speed"){
-					//Depend on which direction the ball is going, we add or remove velocity on x-axis in consequence
-					// if (data.playerBonus == this.gameRoom.player1SocketId){
-					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x + 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
-					// }
-					// else if (data.playerBonus == this.gameRoom.player2SocketId){
-					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x - 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
-					// }
-					this.gameRoom.entities.bonus[0].clear();
-				}
-				else if (data.bonusType == "size"){
-					// if (data.playerBonus == this.gameRoom.player1SocketId)
-					// 	this.gameRoom.entities.players[0].gameObject.setScale(1.5);
-					// else if (data.playerBonus == this.gameRoom.player2SocketId)
-					// 	this.gameRoom.entities.players[1].gameObject.setScale(1.5);
-					this.gameRoom.entities.bonus[1].clear();
-				}
-			}
-		});
-
-		this.socket.on('malusTaken', (data: any) => {
-			if (data && this.gameRoom && this.gameRoom.entities){
-				console.log(`malusTaken: ${data.malusType} by ${data.playerMalus}`);
-				if (data.malusType == "speed"){
-					// if (data.playerBonus == this.gameRoom.player1SocketId)
-					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x - 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
-					// else if (data.playerBonus == this.gameRoom.player2SocketId)
-					// 	this.gameRoom.entities.ball.gameObject.setVelocity(this.gameRoom.entities.ball.gameObject.body.velocity.x + 0.5, this.gameRoom.entities.ball.gameObject.body.velocity.y)
-					this.gameRoom.entities.malus[0].clear();
-				}
-				else if (data.malusType == "size"){
-					// if (data.playerBonus == this.gameRoom.player1SocketId)
-					// 	this.gameRoom.entities.players[0].gameObject.setScale(0.5);
-					// else if (data.playerBonus == this.gameRoom.player2SocketId)
-					// 	this.gameRoom.entities.players[1].gameObject.setScale(0.5);
-					this.gameRoom.entities.malus[1].clear();
-				}
-			}
-		});
-
-		this.socket.on('bonusAppeared', (data : any)  => {
-			if (this.gameRoom && this.gameRoom.customGameMode && this.gameRoom.entities){
-				if (data){
-					if (data.boolBonus){
-						console.log(`bonusAppeared: ${data.bonusType} at ${data.pos.x}, ${data.pos.y}`)
-						if (data.bonusType == "speed")
-							this.gameRoom.entities.bonus[0].draw(data.pos.x, data.pos.y)
-						else if (data.bonusType == "size")
-							this.gameRoom.entities.bonus[1].draw(data.pos.x, data.pos.y)
-					}
-					else if (data.boolMalus){
-						console.log(`malusAppeared: ${data.bonusType} at ${data.pos.x}, ${data.pos.y}`)
-						if (data.bonusType == "speed")
-							this.gameRoom.entities.malus[0].draw(data.pos.x, data.pos.y)
-						else if  (data.bonusType == "size")
-							this.gameRoom.entities.malus[1].draw(data.pos.x, data.pos.y)
-					}
-				}
-			}
-		});
-
 		this.socket.on('currentGameInformation', (data : any) => {
 			this.gameRoom = new GameRoom(
 				this,
@@ -236,46 +172,43 @@ export default class Game extends Phaser.Scene {
 	}
 
 	setupGameHooks(){
-		// this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
-		// 	if (this.gameRoom && this.gameRoom.entities){
-		// 		if (this.gameRoom.player1SocketId == this.socket.id){
-		// 			this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
-		// 			this.socket.emit('playerMovement', {
-		// 				roomId: this.gameRoom.id,
-		// 				socketId: this.socket.id,
-		// 				x: this.gameRoom.entities.players[0].x,
-		// 				y: this.gameRoom.entities.players[0].y
-		// 			});
-		// 			if (this.gameRoom.entities.players[0].gameObject){
-		// 				this.gameRoom.entities.players[0].gameObject.y = this.gameRoom.entities.players[0].y;
-		// 				this.gameRoom.entities.players[0].gameObject.body.position.y = this.gameRoom.entities.players[0].y;
-		// 			}
-		// 		}
-		// 		else if (this.gameRoom.player2SocketId == this.socket.id){
-		// 			this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 75, 725);
-		// 			this.socket.emit('playerMovement', {
-		// 				roomId: this.gameRoom.id,
-		// 				socketId: this.socket.id,
-		// 				x: this.gameRoom.entities.players[1].x,
-		// 				y: this.gameRoom.entities.players[1].y
-		// 			});
-		// 			if (this.gameRoom.entities.players[1].gameObject){
-		// 				this.gameRoom.entities.players[1].gameObject.y = this.gameRoom.entities.players[1].y;
-		// 				this.gameRoom.entities.players[1].gameObject.body.position.y = this.gameRoom.entities.players[1].y;
-		// 			}
-		// 		}
-		// 	}
-		// }, this);
 
-		this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-			if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball){
-				this.socket.emit('ballMovement', {
-					roomId: this.gameRoom.id,
-					x: pointer.x,
-					y: pointer.y
-				});
+		//Help me check if user press right or left click (right click context menu is disabled)
+
+		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
+			if (this.gameRoom && this.gameRoom.entities){
+				if (this.gameRoom.player1SocketId == this.socket.id){
+					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+					if (this.gameRoom.customGameMode)
+						this.gameRoom.entities.players[2].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+					this.socket.emit('playerMovement', {
+						roomId: this.gameRoom.id,
+						socketId: this.socket.id,
+						x: this.gameRoom.entities.players[0].x,
+						y: this.gameRoom.entities.players[0].y
+					});
+					if (this.gameRoom.entities.players[0].gameObject){
+						this.gameRoom.entities.players[0].gameObject.y = this.gameRoom.entities.players[0].y;
+						this.gameRoom.entities.players[0].gameObject.body.position.y = this.gameRoom.entities.players[0].y;
+					}
+				}
+				else if (this.gameRoom.player2SocketId == this.socket.id){
+					this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+					if (this.gameRoom.customGameMode)
+						this.gameRoom.entities.players[3].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+					this.socket.emit('playerMovement', {
+						roomId: this.gameRoom.id,
+						socketId: this.socket.id,
+						x: this.gameRoom.entities.players[1].x,
+						y: this.gameRoom.entities.players[1].y
+					});
+					if (this.gameRoom.entities.players[1].gameObject){
+						this.gameRoom.entities.players[1].gameObject.y = this.gameRoom.entities.players[1].y;
+						this.gameRoom.entities.players[1].gameObject.body.position.y = this.gameRoom.entities.players[1].y;
+					}
+				}
 			}
-		})
+		}, this);
 	}
 
 	removeSocketEvents() {
@@ -358,14 +291,14 @@ export default class Game extends Phaser.Scene {
 
 	createUIScore(){
 		this.UIScorePlayer1 = this.add.dom(400, 100).createFromHTML('\
-		<span class="countdown font-mono text-6xl"> \
-			<span id="scorePlayer1" style="--value:0;"></span> \
-		</span>'
+			<span class="countdown font-mono text-6xl"> \
+				<span id="scorePlayer1" style="--value:0;"></span> \
+			</span>'
 		);
 		this.UIScorePlayer2 = this.add.dom(600, 100).createFromHTML('\
-		<span class="countdown font-mono text-6xl"> \
-			<span id="scorePlayer2" style="--value:0;"></span> \
-		</span>'
+			<span class="countdown font-mono text-6xl"> \
+				<span id="scorePlayer2" style="--value:0;"></span> \
+			</span>'
 		);
 	}
 
@@ -389,6 +322,10 @@ export default class Game extends Phaser.Scene {
 			for (let i = 0; i < 2; i++)
 				this.gameRoom.entities.players[i].gameObject.setVisible(false);
 			this.gameRoom.entities.ball.gameObject.setVisible(false);
+		}
+		if (this.gameRoom && this.gameRoom.customGameMode && this.gameRoom.entities){
+			for (let i = 2; i < 4; i++)
+				this.gameRoom.entities.players[i].gameObject.setVisible(false);
 		}
 	}
 
@@ -425,12 +362,18 @@ export default class Game extends Phaser.Scene {
 			const { state } = playerSnapshot;
 			if (state) {
 				state.forEach(s => {
-					const { id, x, y, } = s;
+					const { id, y } = s;
 					if (id != undefined && this.gameRoom && this.gameRoom.entities){
-						if (id == this.gameRoom.player1SocketId)
+						if (id == this.gameRoom.player1SocketId){
 							this.gameRoom.entities.players[0].gameObject.y = y;
-						else
+							if (this.gameRoom.customGameMode)
+								this.gameRoom.entities.players[2].gameObject.y = y;
+						}
+						else{
 							this.gameRoom.entities.players[1].gameObject.y = y;
+							if (this.gameRoom.customGameMode)
+								this.gameRoom.entities.players[3].gameObject.y = y;
+						}
 					}
 				});
 			}
