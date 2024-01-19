@@ -228,7 +228,6 @@
         });
 
         this.store.state.socket.on('newUser', async (body) => {
-          console.log("newUser");
           this.users = await getAllUsers(this.cookieJWT);
         });
 
