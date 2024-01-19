@@ -11,11 +11,6 @@
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
 
-
-  export const socketOnEXPORT = function() {
-    socketOn();
-  }
-
   export default {
     name: "UserProfile",
     components: {
@@ -40,7 +35,7 @@
     methods: {
       async addFriendFromDB(userName, friendName) {
         const friend = await getUserByUserName(friendName, this.cookieJWT);
-        if (friend && friend.status === 'online')
+        if (friend && friend.status === 'online' && friendName !== userName)
           await this.store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
         else
           { 
@@ -322,7 +317,7 @@
       <!--FriendList-->
       <div v-if="activeTab === 'friends'" class="p-4">
         <div class="underStat">
-          <form @submit.prevent="addFriendFromDB(userName, friendName)">
+          <form name="addFriendFromDB" @submit.prevent="addFriendFromDB(userName, friendName)">
             <button class="btn glass">Add Friend</button>
             <input type="text" id="friendName" v-model="friendName" class="input input-bordered w-full max-w-xs" />
           </form>
@@ -361,9 +356,9 @@
       <!--ChannelList-->
       <div v-if="activeTab === 'channels'" class="p-4">
         <div class="underStat">
-          <form @submit.prevent="createChannelInDB(newChannelName, userName)">
+          <form name="createChannelInDB" @submit.prevent="createChannelInDB(newChannelName, userName)">
             <button class="btn glass">Create Channel</button>
-            <input type="text" id="newChannelName" v-model="newChannelName" class="input input-bordered w-full max-w-xs" />
+            <input type="text" id="newChannelName" v-model="newChannelName" class="input input-bordered w-full max-w-xs" maxlength="" />
           </form>
         </div>
       <div v-if="channels.length > 0" class="requestTable table-border">

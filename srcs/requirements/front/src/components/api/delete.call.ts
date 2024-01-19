@@ -147,3 +147,21 @@ export async function deleteUser(userName: string, jwtToken : string) {
 		console.error("deleteUser: error: sending DELETE request");
 	}
 }
+
+export async function deletePrivateMessages(userName:string, friendName:string, jwtToken : string) {
+	try { 
+		const response = await fetch(`http://localhost:3000/privateMessage/delete/${userName}/${friendName}`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${jwtToken}`
+			},
+			body: JSON.stringify({ userName: userName, friendName: friendName }),
+		});
+		if (response.ok)
+			return await response.json();
+	}
+	catch (error) {
+		console.error("deletePrivateMessages: error: sending DELETE request");
+	}
+}

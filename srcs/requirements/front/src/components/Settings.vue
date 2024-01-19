@@ -3,10 +3,11 @@
 	import Cookies from 'js-cookie';
 	import qrcode from 'qrcode';
 	import UserStatHeader from './UserStatHeader.vue';
-	import { getUserByUserId, getUserByDisplayName, getUserByUserName } from './api/get.call';
+	import { getUserByUserId, getUserByDisplayName, getUserByUserName, getAllUsers } from './api/get.call';
 	import { updateImage, updateUsername, updateA2F } from './api/post.call';
 	import { deleteUser } from './api/delete.call';
 	import EventBus from '../services/event-bus.ts';
+	import { useStore } from 'vuex';
 
 	export default {
 		components: {
@@ -24,7 +25,8 @@
 				activeTab: "username",
 				cookieJWT: null,
 				theme: 'dark',
-				userNameAlreadyTaken: false
+				userNameAlreadyTaken: false,
+				store : useStore(),
 			};
 		},
 		methods: {
@@ -100,6 +102,13 @@
 		async mounted() {
 			let cookieUserId = Cookies.get('UserId');
 			this.cookieJWT = Cookies.get('Bearer');
+			const allUsers = await getAllUsers(this.cookieJWT);
+			for (let i = 0; i < allUsers.length; i++) {
+				if (allUsers[i].status === 'online' && allUsers[i].userId !== cookieUserId) {
+					this.store.dispatch('newUser', { socket: allUsers[i].socket });
+				}
+			}
+
 			if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined') {
 				this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
 				if (!this.user)
@@ -125,15 +134,15 @@
   	/>
 	<div class="flex flex-col gap-y-8 min-h-screen bg-base-200 overflow-auto font-mono place-items-center">
 		<div class="items-center">
-			<label class="block text-base font-medium">Username</label>
+			<span class="block text-base font-medium">Username</span>
 			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" maxlength="20" pattern="^[A-Za-z0-9_"/>
 		</div>
 		<div class="items-center">
-			<label class="block text-base font-medium">Image</label>
+			<span class="block text-base font-medium">Image</span>
 			<input type="file" class="file-input file-input-bordered w-full max-w-xs" @change="onFileChange">
 		</div>
 		<div class="items-center">
-			<label for="enable2FA" class="text-base font-medium">Two-Factor Authentication (2FA)</label>
+			<span for="enable2FA" class="text-base font-medium">Two-Factor Authentication (2FA)</span>
 			<div>
 				<button v-if="A2FEnabled" class="btn btn-error" @click="changeA2F">Disable</button>
 				<button v-else class="btn btn-success" @click="changeA2F">Enable</button>

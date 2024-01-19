@@ -117,6 +117,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    newUser(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('newUser', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     removeChannel(context, body) {
       const socket = context.state.socket;
       if (socket)
@@ -137,7 +144,14 @@ const store = createStore({
         socket.emit('unblockUser', body);
       else
         console.error('error: socket uninitialized');
-    }
+    },
+    updateDM(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('updateDM', body);
+      else
+        console.error('error: socket uninitialized');
+    },
   }
 });
 

@@ -2,7 +2,7 @@
   import Alert from './Alert.vue';
   import Cookies from "js-cookie";
   import Modal from './Modal.vue';
-  import { getAllUsers, getPrivateMessages, getLastPrivateMessage } from "./api/get.call";
+  import { getAllUsers, getPrivateMessages, getLastPrivateMessage, getUserByUserName, getUserByUserId } from "./api/get.call";
   import { RouterLink } from "vue-router";
   import { useStore } from "vuex";
 
@@ -33,6 +33,7 @@
         cookieJWT: null,
         userNotFound: false,
         lastMessage: null,
+        user: null
       };
     },
     methods: {
@@ -40,7 +41,18 @@
         const users = await getAllUsers(this.$props.jwtToken);
         const nameExists = users.some(user => user.userName === this.enteredName);
 
-        if (nameExists) {
+        const actualUser = await getUserByUserName(this.user.userName, this.$props.jwtToken);
+
+        if (actualUser.blockUsers) {
+          const blocked = actualUser.blockUsers.find(blockedUser => blockedUser.userName === this.enteredName);
+          if (blocked) {
+            this.userNotFound = true;
+            setTimeout(() => this.userNotFound = false, 3000);
+            return;
+          }
+        }
+
+        if (nameExists && this.enteredName !== this.$props.user.userName ) {
           const privateMessage = await getPrivateMessages(this.$props.user.userName, this.enteredName, this.$props.jwtToken);
           this.openMessageModal(this.$props.user.userName, privateMessage);
           this.enteredName = ''
@@ -51,6 +63,10 @@
         }
       },
       async getLastPrivateMessageInDB(senderName, receiverName) {
+        if (senderName === receiverName) {
+          this.lastMessage = null;
+          return;
+        }
         const response =  await getLastPrivateMessage(senderName, receiverName, this.$props.jwtToken);
         this.lastMessage = response;
       },
@@ -61,7 +77,11 @@
       },
     },
     async mounted() {
-		  this.cookieJWT = Cookies.get('Bearer');
+      let cookieUserId = Cookies.get('UserId');
+		  this.cookieJWT  = Cookies.get('Bearer');
+
+      if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined')
+        this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
     },
     props: {
       display : Boolean,
@@ -125,9 +145,9 @@
     <div class="drawer-side z-[1] font-mono">
       <label for="my-drawer-1" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-        <form @submit.prevent="checkName">
+        <form name="checkName" @submit.prevent="checkName">
           <div class="p-4">
-            <input v-model="enteredName" type="text" placeholder="Start a conversation" class="input input-bordered w-full mb"/>
+            <input name="startConv" v-model="enteredName" type="text" placeholder="Start a conversation" class="input input-bordered w-full mb"/>
             <button type="submit" class="btn btn-primary w-full mt-2">Search</button>
           </div>
         </form>

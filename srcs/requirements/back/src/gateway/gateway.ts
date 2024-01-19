@@ -130,6 +130,11 @@ export class AppGateway {
     this.server.to(body.socket).emit('newChannelSuggestion', body);
   }
 
+  @SubscribeMessage('newUser')
+  handleNewUser(@MessageBody() body): any {
+    this.server.to(body.socket).emit('newUser', body);
+  }
+
   @SubscribeMessage('removeChannel')
   handleRemoveChannel(@MessageBody() body): any {
     this.server.to(body.socket).emit('removeChannel', body);
@@ -143,5 +148,10 @@ export class AppGateway {
   @SubscribeMessage('unblockUser')
   handleUnblockUser(@MessageBody() body): any {
     this.server.to(body.socket).emit('unblocked', body);
+  }
+
+  @SubscribeMessage('updateDM')
+  handleUpdateDM(@MessageBody() body): any {
+    this.server.to(body.socket).emit('updateDM', body);
   }
 }

@@ -5,7 +5,7 @@
   import Modal from "./Modal.vue";
   import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName, getImage } from "./api/get.call.ts";
   import { addFriend, createGameRoom, createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
-  import { deleteGameRoomById } from "./api/delete.call.ts";
+  import { deleteGameRoomById, deletePrivateMessages } from "./api/delete.call.ts";
   import { RouterLink } from "vue-router";
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
@@ -143,6 +143,11 @@
         if (this.user)
           setStatus(this.user.userName, "online", this.cookieJWT);
 
+        this.store.state.socket.on('blocked', async (body) => {
+          await deletePrivateMessages(body.userName, this.user.userName, this.cookieJWT);
+          this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+        })
+
         this.store.state.socket.on('banned', (body) => {
           this.channelNameBanned = body.channelName;
           this.bannedSuccess = true;
@@ -222,6 +227,10 @@
           }, 5000);
         });
 
+        this.store.state.socket.on('newUser', async (body) => {
+          this.users = await getAllUsers(this.cookieJWT);
+        });
+
         this.store.state.socket.on('receiveMessage', async (body) => {
           this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
           this.messageSenderName = body.userName;
@@ -230,6 +239,12 @@
             this.messageSuccess = false;
           }, 5000);
         });
+
+        this.store.state.socket.on('updateDM', async (body) => {
+          await deletePrivateMessages(body.userName, this.user.userName, this.cookieJWT);
+          this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+        });
+
       },
       closeMessageModal() {
         this.modalMessage = false; this.modalIsOpen = false;
@@ -286,7 +301,7 @@
     </div>
     <div class="navbar-center flex space-x-4">
       <img src="../assets/search-svgrepo-com.svg" width="32" height="32"/>
-      <input type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
+      <input name="searchBar" type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
       <div v-if="filteredUsers && filteredUsers.length > 0" v-show="searchInput" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
         <li v-for="user in filteredUsers" :key="user.id">
           <router-link :to="'/profile/' + user.userName" @click.native="resetSearchBar">{{ user.userName }}</router-link>
