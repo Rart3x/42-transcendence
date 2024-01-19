@@ -40,7 +40,7 @@
         const users = await getAllUsers(this.$props.jwtToken);
         const nameExists = users.some(user => user.userName === this.enteredName);
 
-        if (nameExists) {
+        if (nameExists && this.enteredName !== this.$props.user.userName) {
           const privateMessage = await getPrivateMessages(this.$props.user.userName, this.enteredName, this.$props.jwtToken);
           this.openMessageModal(this.$props.user.userName, privateMessage);
           this.enteredName = ''
@@ -51,6 +51,10 @@
         }
       },
       async getLastPrivateMessageInDB(senderName, receiverName) {
+        if (senderName === receiverName) {
+          this.lastMessage = null;
+          return;
+        }
         const response =  await getLastPrivateMessage(senderName, receiverName, this.$props.jwtToken);
         this.lastMessage = response;
       },
