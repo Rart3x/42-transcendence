@@ -121,4 +121,23 @@ export class PrivateMessageService {
   
     return messagePairs;
   }
+
+  async deletePrivateMessages(userName: string, friendName: string): Promise<boolean> {
+    const user = await this.userService.getUserByName(userName);
+    const friend = await this.userService.getUserByName(friendName);
+  
+    if (!user || !friend)
+      return false;
+  
+    await this.prisma.privateMessage.deleteMany({
+      where: {
+        OR: [
+          { AND: [{ senderName: userName }, { receiverName: friendName }] },
+          { AND: [{ senderName: friendName }, { receiverName: userName }] },
+        ],
+      },
+    });
+  
+    return true;
+  }
 }

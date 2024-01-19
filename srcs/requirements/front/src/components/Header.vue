@@ -5,7 +5,7 @@
   import Modal from "./Modal.vue";
   import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName, getImage } from "./api/get.call.ts";
   import { addFriend, createGameRoom, createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
-  import { deleteGameRoomById } from "./api/delete.call.ts";
+  import { deleteGameRoomById, deletePrivateMessages } from "./api/delete.call.ts";
   import { RouterLink } from "vue-router";
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
@@ -142,6 +142,16 @@
       async socketOn() {
         if (this.user)
           setStatus(this.user.userName, "online", this.cookieJWT);
+
+        this.store.state.socket.on('blocked', async (body) => {
+          await deletePrivateMessages(body.userName, this.user.userName, this.cookieJWT);
+          this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+        })
+
+        this.store.state.socket.on('updateDM', async (body) => {
+          await deletePrivateMessages(body.userName, this.user.userName, this.cookieJWT);
+          this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+        });
 
         this.store.state.socket.on('banned', (body) => {
           this.channelNameBanned = body.channelName;

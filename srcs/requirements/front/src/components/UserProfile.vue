@@ -11,11 +11,6 @@
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
 
-
-  export const socketOnEXPORT = function() {
-    socketOn();
-  }
-
   export default {
     name: "UserProfile",
     components: {

@@ -144,4 +144,9 @@ export class AppGateway {
   handleUnblockUser(@MessageBody() body): any {
     this.server.to(body.socket).emit('unblocked', body);
   }
+
+  @SubscribeMessage('updateDM')
+  handleUpdateDM(@MessageBody() body): any {
+    this.server.to(body.socket).emit('updateDM', body);
+  }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post} from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Delete} from '@nestjs/common';
 import { PrivateMessage } from '@prisma/client';
 import { PrivateMessageService } from './privateMessage.service';
 
@@ -42,6 +42,12 @@ export class PrivateMessageController {
       createDMDTO.messageContent,
     );
 
+    return { success: result };
+  }
+
+  @Delete('delete/:userName/:friendName')
+  async deletePrivateMessages(@Body('userName') userName: string, @Body('friendName') friendName: string): Promise<{ success: boolean }> {
+    const result = await this.privateMessageService.deletePrivateMessages(userName, friendName);
     return { success: result };
   }
 }

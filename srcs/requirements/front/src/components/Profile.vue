@@ -52,15 +52,16 @@
     const removedUser = await getUserByUserName(blockedUserName, cookieJWT.value);
 
     if (response && response.success) {
+      isBlockBool.value = true;
       blockSuccess.value = true;
       if (removedUser.status == 'online') { 
         await store.dispatch('friendRemoved', { socket: removedUser.socket })
-        await store.dispatch('blockUser', { socket: removedUser.socket })
+        await store.dispatch('blockUser', { socket: removedUser.socket, userName: userName})
+        await store.dispatch('updateDM', { socket: user.value.socket, userName: blockedUserName})
       }
       setTimeout(() => {
         blockSuccess.value = false;
       }, 3000);
-      isBlockBool.value = true;
       if (isFriendBool.value)
         await removeFriendFromDB(userName, blockedUserName, cookieJWT.value);
     } 

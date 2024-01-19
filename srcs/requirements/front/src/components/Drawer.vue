@@ -2,7 +2,7 @@
   import Alert from './Alert.vue';
   import Cookies from "js-cookie";
   import Modal from './Modal.vue';
-  import { getAllUsers, getPrivateMessages, getLastPrivateMessage } from "./api/get.call";
+  import { getAllUsers, getPrivateMessages, getLastPrivateMessage, getUserByUserName, getUserByUserId } from "./api/get.call";
   import { RouterLink } from "vue-router";
   import { useStore } from "vuex";
 
@@ -33,6 +33,7 @@
         cookieJWT: null,
         userNotFound: false,
         lastMessage: null,
+        user: null
       };
     },
     methods: {
@@ -40,7 +41,18 @@
         const users = await getAllUsers(this.$props.jwtToken);
         const nameExists = users.some(user => user.userName === this.enteredName);
 
-        if (nameExists && this.enteredName !== this.$props.user.userName) {
+        const actualUser = await getUserByUserName(this.user.userName, this.$props.jwtToken);
+
+        if (actualUser.blockUsers) {
+          const blocked = actualUser.blockUsers.find(blockedUser => blockedUser.userName === this.enteredName);
+          if (blocked) {
+            this.userNotFound = true;
+            setTimeout(() => this.userNotFound = false, 3000);
+            return;
+          }
+        }
+
+        if (nameExists && this.enteredName !== this.$props.user.userName ) {
           const privateMessage = await getPrivateMessages(this.$props.user.userName, this.enteredName, this.$props.jwtToken);
           this.openMessageModal(this.$props.user.userName, privateMessage);
           this.enteredName = ''
@@ -65,7 +77,11 @@
       },
     },
     async mounted() {
-		  this.cookieJWT = Cookies.get('Bearer');
+      let cookieUserId = Cookies.get('UserId');
+		  this.cookieJWT  = Cookies.get('Bearer');
+
+      if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined')
+        this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
     },
     props: {
       display : Boolean,
