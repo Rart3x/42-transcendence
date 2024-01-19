@@ -338,7 +338,14 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   async getUserById(userId: number) {
     const userIdNumber = Number(userId);
     const user =  await this.prisma.user.findUnique({
-      where: { userId: userIdNumber }
+      where: { userId: userIdNumber },
+      include: {
+        channels: true,
+        blockUsers: true,
+        blockOf: true,
+        friends: true,
+        friendOf: true,
+      },
     });
     if (!user)
       throw new Error('User not found');

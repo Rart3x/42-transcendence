@@ -167,7 +167,11 @@
 
     isFriendBool.value = isFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
     isBlockBool.value = isBlockFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
-    isBlockedBool.value = isBlocked(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
+
+    if (user.value.blockUsers && user.value.blockUsers.find(blockedUser => blockedUser.userName === actualUser.value.userName))
+      isBlockedBool.value = true;
+    else
+      isBlockedBool.value = false;    
     
     messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName, cookieJWT.value);
     socketOn();
