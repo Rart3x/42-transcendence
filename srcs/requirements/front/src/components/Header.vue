@@ -148,11 +148,6 @@
           this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
         })
 
-        this.store.state.socket.on('updateDM', async (body) => {
-          await deletePrivateMessages(body.userName, this.user.userName, this.cookieJWT);
-          this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
-        });
-
         this.store.state.socket.on('banned', (body) => {
           this.channelNameBanned = body.channelName;
           this.bannedSuccess = true;
@@ -232,6 +227,11 @@
           }, 5000);
         });
 
+        this.store.state.socket.on('newUser', async (body) => {
+          console.log("newUser");
+          this.users = await getAllUsers(this.cookieJWT);
+        });
+
         this.store.state.socket.on('receiveMessage', async (body) => {
           this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
           this.messageSenderName = body.userName;
@@ -240,6 +240,12 @@
             this.messageSuccess = false;
           }, 5000);
         });
+
+        this.store.state.socket.on('updateDM', async (body) => {
+          await deletePrivateMessages(body.userName, this.user.userName, this.cookieJWT);
+          this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
+        });
+
       },
       closeMessageModal() {
         this.modalMessage = false; this.modalIsOpen = false;

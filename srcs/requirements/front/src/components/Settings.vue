@@ -3,10 +3,11 @@
 	import Cookies from 'js-cookie';
 	import qrcode from 'qrcode';
 	import UserStatHeader from './UserStatHeader.vue';
-	import { getUserByUserId, getUserByDisplayName, getUserByUserName } from './api/get.call';
+	import { getUserByUserId, getUserByDisplayName, getUserByUserName, getAllUsers } from './api/get.call';
 	import { updateImage, updateUsername, updateA2F } from './api/post.call';
 	import { deleteUser } from './api/delete.call';
 	import EventBus from '../services/event-bus.ts';
+	import { useStore } from 'vuex';
 
 	export default {
 		components: {
@@ -24,7 +25,8 @@
 				activeTab: "username",
 				cookieJWT: null,
 				theme: 'dark',
-				userNameAlreadyTaken: false
+				userNameAlreadyTaken: false,
+				store : useStore(),
 			};
 		},
 		methods: {
@@ -100,6 +102,13 @@
 		async mounted() {
 			let cookieUserId = Cookies.get('UserId');
 			this.cookieJWT = Cookies.get('Bearer');
+			const allUsers = await getAllUsers(this.cookieJWT);
+			for (let i = 0; i < allUsers.length; i++) {
+				if (allUsers[i].status === 'online' && allUsers[i].userId !== cookieUserId) {
+					this.store.dispatch('newUser', { socket: allUsers[i].socket });
+				}
+			}
+
 			if (typeof cookieUserId !== 'undefined' && typeof this.cookieJWT !== 'undefined') {
 				this.user = await getUserByUserId(cookieUserId, this.cookieJWT);
 				if (!this.user)
