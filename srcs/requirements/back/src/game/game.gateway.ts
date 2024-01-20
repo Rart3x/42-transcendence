@@ -512,25 +512,16 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				}
 				//Elastic physics
 				else if (gameRoom.customGame && pair.bodyB.label == "ball" && (pair.bodyA.label == "player1" || pair.bodyA.label == "player2")){
-					console.log("player ball collision")
 
 					if (gameRoom && gameRoom.entities && gameRoom.entities.ball && gameRoom.customGame){
 						let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
-						if (velocity.x > 0 && pair.bodyA.label == "player1"){
-							console.log("player1 sensor")
+						if (velocity.x > 0 && pair.bodyA.label == "player1" && gameRoom.entities.ball.gameObject.position.x > 500)
 							pair.isActive = false;
-						}
-						else if (velocity.x < 0 && pair.bodyA.label == "player2"){
-							console.log("player2 sensor")
+						else if (velocity.x < 0 && pair.bodyA.label == "player2" && gameRoom.entities.ball.gameObject.position.x < 500)
 							pair.isActive = false;
-						}
-						else{
+						else
 							collisionBallPlayer(pair, gameRoom);
-						}
 					}
-				}
-				else{
-					console.log(`collision between ${pair.bodyA.label} and ${pair.bodyB.label}`)
 				}
 			}, this);
 		});
@@ -952,6 +943,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				gameRoom.insideLobby = false;
 				setTimeout(() => {
 					gameRoom.started = true;
+	
 					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
 						x: 3,
 						y: 3
@@ -1013,28 +1005,42 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			if (this.gameRooms[i].roomId == data.roomId){
 				// Update player position in data structure
 				if (this.gameRooms[i].player1SocketId == data.socketId){
-					Matter.Body.setPosition(this.gameRooms[i].entities.players[0].gameObject, {
-						x: this.gameRooms[i].entities.players[0].gameObject.position.x,
-						//The collision between the players and upper lower wall is hardcoded by clamping the y value
-						y: Math.min(Math.max(data.y, 75), 725)
-					});
 
-					if (this.gameRooms[i].customGame){
+					if (this.gameRooms[i].customGame == false){
+						Matter.Body.setPosition(this.gameRooms[i].entities.players[0].gameObject, {
+							x: this.gameRooms[i].entities.players[0].gameObject.position.x,
+							//The collision between the players and upper lower wall is hardcoded by clamping the y value
+							y: Math.min(Math.max(data.y, 75), 725)
+						});
+					}
+					else{
+						Matter.Body.setPosition(this.gameRooms[i].entities.players[0].gameObject, {
+							x: this.gameRooms[i].entities.players[0].gameObject.position.x,
+							//The collision between the players and upper lower wall is hardcoded by clamping the y value
+							y: Math.min(Math.max(data.y, 50), 750)
+						});
 						Matter.Body.setPosition(this.gameRooms[i].entities.players[2].gameObject, {
 							x: this.gameRooms[i].entities.players[2].gameObject.position.x,
+							y: Math.min(Math.max(data.y, 50), 750)
+						});
+					}
+
+				}
+				else if (this.gameRooms[i].player2SocketId == data.socketId){
+					if (this.gameRooms[i].customGame == false){
+						Matter.Body.setPosition(this.gameRooms[i].entities.players[1].gameObject, {
+							x: this.gameRooms[i].entities.players[1].gameObject.position.x,
 							y: Math.min(Math.max(data.y, 75), 725)
 						});
 					}
-				}
-				else if (this.gameRooms[i].player2SocketId == data.socketId){
-					Matter.Body.setPosition(this.gameRooms[i].entities.players[1].gameObject, {
-						x: this.gameRooms[i].entities.players[1].gameObject.position.x,
-						y: Math.min(Math.max(data.y, 75), 725)
-					});
-					if (this.gameRooms[i].customGame){
+					else{
+						Matter.Body.setPosition(this.gameRooms[i].entities.players[1].gameObject, {
+							x: this.gameRooms[i].entities.players[1].gameObject.position.x,
+							y: Math.min(Math.max(data.y, 50), 750)
+						});
 						Matter.Body.setPosition(this.gameRooms[i].entities.players[3].gameObject, {
 							x: this.gameRooms[i].entities.players[3].gameObject.position.x,
-							y: Math.min(Math.max(data.y, 75), 725)
+							y: Math.min(Math.max(data.y, 50), 750)
 						});
 					}
 				}
@@ -1042,18 +1048,19 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 	}
 
-	@SubscribeMessage('ballMovement')
-	handleBallMovement(
-		@MessageBody() data: {roomId: number, x: number,y : number}): void {
-		for (let i = 0; i < this.gameRooms.length; i++){
-			if (this.gameRooms[i].roomId == data.roomId){
-				Matter.Body.setPosition(this.gameRooms[i].entities.ball.gameObject, {
-					x: data.x,
-					y: data.y
-				});
-			}
-		}
-	}
+	// @SubscribeMessage('ballMovement')
+	// handleBallMovement(
+	// 	@MessageBody() data: {roomId: number, x: number,y : number}): void {
+	// 	for (let i = 0; i < this.gameRooms.length; i++){
+	// 		if (this.gameRooms[i].roomId == data.roomId){
+	// 			console.log("ball movement", data.x, data.y)
+	// 			Matter.Body.setPosition(this.gameRooms[i].entities.ball.gameObject, {
+	// 				x: data.x,
+	// 				y: data.y
+	// 			});
+	// 		}
+	// 	}
+	// }
 
 	findCorrespondingGame(roomId: number) : GameRoom{
 		for (let i = 0; i < this.gameRooms.length; i++){

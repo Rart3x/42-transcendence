@@ -24,11 +24,11 @@ export default class Entities {
         }
         else{
             this.walls.push(new Wall(990, 155, 10, 300, "rightup"));
-            this.walls.push(new Wall(990, 410, 10, 200, "rightmid"));
+            this.walls.push(new Wall(1000, 410, 10, 200, "rightmid"));
             this.walls.push(new Wall(990, 645, 10, 300, "rightdown"));
 
             this.walls.push(new Wall(10, 155, 10, 300, "leftup"));
-            this.walls.push(new Wall(10, 410, 10, 200, "leftmid"));
+            this.walls.push(new Wall(0, 410, 10, 200, "leftmid"));
             this.walls.push(new Wall(10, 645, 10, 300, "leftdown"));
         }
         this.walls.push(new Wall(500, 10, 970, 10, "up"));

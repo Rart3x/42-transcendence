@@ -120,6 +120,9 @@
 
             this.socket.on('lobby', (data) => {
 				this.UIElement.destroy();
+                this.socket.off('lobby');
+                this.socket.off('playAgain');
+                this.socket.off('playStop');
                 this.scene.start('LobbyScene', { user: this.user, gameRoomData: data, UIElement: this.UIElement, socket: this.socket });
 			});
         }

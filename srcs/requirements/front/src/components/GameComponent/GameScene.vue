@@ -113,14 +113,16 @@ export default class Game extends Phaser.Scene {
 		})
 
 		this.socket.on('gameStart', () => {
-			this.UIElement = this.add.dom(500, 400).createFromHTML('<span class="countdown font-mono text-6xl"> \
-				<span id="countdown" style="--value:3;"></span> \
-				</span>');
+			console.log("game start");
+			this.UIElement = this.add.dom(500, 400).createFromHTML('\
+				<span class="countdown font-mono text-6xl"> \
+					<span id="countdown" style="--value:3;"></span> \
+				</span>'
+			);
 			let counter = 3;
 			const refreshID = setInterval(() => {
-				if(counter > 0){
+				if(counter > 0)
 					counter--;
-				}
 				let countdownUI : any;
 				if (this.UIElement && this.UIElement.node)
 					countdownUI = this.UIElement.node.querySelector('#countdown') as HTMLElement;
@@ -178,9 +180,19 @@ export default class Game extends Phaser.Scene {
 		this.input.on('pointermove', (pointer : Phaser.Input.Pointer) => {
 			if (this.gameRoom && this.gameRoom.entities){
 				if (this.gameRoom.player1SocketId == this.socket.id){
-					this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
-					if (this.gameRoom.customGameMode)
-						this.gameRoom.entities.players[2].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+					if (this.gameRoom.customGameMode == false){
+						this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+					}
+					else{
+						this.gameRoom.entities.players[0].y = Phaser.Math.Clamp(pointer.y, 50, 750);
+
+						this.gameRoom.entities.players[2].y = Phaser.Math.Clamp(pointer.y, 50, 750);
+						if (this.gameRoom.entities.players[2].gameObject){
+							this.gameRoom.entities.players[2].gameObject.y = this.gameRoom.entities.players[2].y;
+							this.gameRoom.entities.players[2].gameObject.body.position.y = this.gameRoom.entities.players[2].y;
+						}
+					}
+
 					this.socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
 						socketId: this.socket.id,
@@ -193,9 +205,18 @@ export default class Game extends Phaser.Scene {
 					}
 				}
 				else if (this.gameRoom.player2SocketId == this.socket.id){
-					this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 75, 725);
-					if (this.gameRoom.customGameMode)
-						this.gameRoom.entities.players[3].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+					if (this.gameRoom.customGameMode == false){
+						this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 75, 725);
+					}
+					else{
+						this.gameRoom.entities.players[1].y = Phaser.Math.Clamp(pointer.y, 50, 750);
+						this.gameRoom.entities.players[3].y = Phaser.Math.Clamp(pointer.y, 50, 750);
+						if (this.gameRoom.entities.players[3].gameObject){
+							this.gameRoom.entities.players[3].gameObject.y = this.gameRoom.entities.players[3].y;
+							this.gameRoom.entities.players[3].gameObject.body.position.y = this.gameRoom.entities.players[3].y;
+						}
+					}
+
 					this.socket.emit('playerMovement', {
 						roomId: this.gameRoom.id,
 						socketId: this.socket.id,
@@ -209,6 +230,16 @@ export default class Game extends Phaser.Scene {
 				}
 			}
 		}, this);
+
+		// this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+		// 	if (this.gameRoom && this.gameRoom.entities && this.gameRoom.entities.ball){
+		// 		this.socket.emit('ballMovement', {
+		// 			roomId: this.gameRoom.id,
+		// 			x: pointer.x,
+		// 			y: pointer.y
+		// 		});
+		// 	}
+		// })
 	}
 
 	removeSocketEvents() {
