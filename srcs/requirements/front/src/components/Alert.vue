@@ -251,12 +251,12 @@
 	<!--Private-->
 	<div v-if="privateSuccess" class="toast toast-start">
 		<div class="alert alert-success">
-			<span>Private message sended successfully</span>
+			<span>Private mod set/unset successfully</span>
 		</div>
 	</div>
 	<div v-if="privateFailed" class="toast toast-start">
 		<div class="alert alert-error">
-			<span>Failed to send private message</span>
+			<span>Failed to set private mod</span>
 		</div>
 	</div>
 	<!--Quit-->

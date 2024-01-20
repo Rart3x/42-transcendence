@@ -336,9 +336,13 @@
       <details class="dropdown">
         <summary class="m-1 btn glass">{{ $route.params.channelName }}</summary>
         <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 dark-row">
-          <li v-if="channel.channelAdmin == actualUser.userId && !channel.isPrivate" @click="setPrivateChannelInDB($route.params.channelName)">Set private</li>
-          <li v-else-if="channel.channelAdmin == actualUser.userId && channel.isPrivate" @click="setPrivateChannelInDB($route.params.channelName)">Set public</li>
           <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName, 1)">Quit</li>
+        </ul>
+        <ul v-if="channel && channel.channelAdmin == actualUser.userId && !channel.isPrivate">
+          <li @click="setPrivateChannelInDB($route.params.channelName)">Set private</li>
+        </ul>
+        <ul v-else-if="channel && channel.channelAdmin == actualUser.userId && channel.isPrivate">
+          <li @click="setPrivateChannelInDB($route.params.channelName)">Set public</li>
         </ul>
       </details>
     </div>
