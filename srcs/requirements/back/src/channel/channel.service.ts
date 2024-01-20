@@ -490,6 +490,21 @@ export class ChannelService {
     }
   }
 
+  async setPrivate(channelName: string): Promise<boolean> {
+    const channel = await this.getChannelByName(channelName);
+
+    if (!channel)
+      return false;
+
+    await this.prisma.channel.update({
+      where: { channelId: channel.channelId },
+      data: {
+        isPrivate: !channel.isPrivate,
+      },
+    });
+    return true;
+  }
+
   async unmuteUserFromChannel(channelName: string, userName: string): Promise<boolean> {
     try {
       const channel = await this.getChannelByName(channelName);

@@ -35,6 +35,11 @@ export class AppGateway {
     this.server.to(body.socket).emit('blocked', body);
   }
 
+  @SubscribeMessage('channelPrivate')
+  handleChannelPrivate(@MessageBody() body): any {
+    this.server.to(body.socket).emit('channelPrivate', body);
+  }
+
   @SubscribeMessage('friendAdded')
   handleFriendAdded(@MessageBody() body): any {
     this.server.to(body.socket).emit('friendAdded');

@@ -216,6 +216,10 @@
       },
 
       socketOn() {
+        this.store.state.socket.on('channelPrivate', () => {
+          this.updateAllChannels();
+          this.updateChannels();
+        })
         this.store.state.socket.on('kicked', () => {
           this.updateAllChannels();
           this.updateChannels();

@@ -3,8 +3,8 @@
   import Modal from './Modal.vue';
   import Cookies from "js-cookie";
   import { removeChannel, removeOperator, removeUserFromChannel, unmuteUser} from "./api/delete.call";
-  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByUserId, getUserByUserName, getImage } from "./api/get.call";
-  import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel, setAdmin } from "./api/post.call";
+  import { getMessagesFromChannel, getUsersFromChannel, getChannelByName, getUserByUserId, getUserByUserName, getImage, getAllUsers } from "./api/get.call";
+  import { addOperator, banUserFromChannel, insertMessageToChannel, muteUserFromChannel, setAdmin, setPrivateChannel } from "./api/post.call";
   import { computed, nextTick, onMounted, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import { useStore } from "vuex";
@@ -21,11 +21,13 @@
   let banSuccess = ref(false);
   let kickSuccess = ref(false);
   let muteSuccess = ref(false);
+  let privateSuccess = ref(false);
   let quitSuccess = ref(false);
 
   let banFailed = ref(false);
   let kickFailed = ref(false);
   let muteFailed = ref(false);
+  let privateFailed = ref(false);
   let quitFailed = ref(false);
 
   let actualUserMuted = ref(false);
@@ -213,6 +215,27 @@
     }
   };
 
+  const setPrivateChannelInDB = async (channelName) => {
+    const response = await setPrivateChannel(channelName, cookieJWT.value);
+    if (response && response.success) {
+      const allUsers = await getAllUsers(cookieJWT.value);
+      for (const user of allUsers) {
+        if (user.status === "online")
+          await store.dispatch('channelPrivate', { socket: user.socket })
+      }
+      privateSuccess.value = true;
+      setTimeout(() => {
+        privateSuccess.value = false;
+      }, 3000);
+    } 
+    else {
+      privateFailed.value = true;
+      setTimeout(() => {
+        privateFailed.value = false;
+      }, 3000);
+    }
+  };
+
   const socketOn = async () => {
     store.state.socket.on('banned', async (body) => { router.push("/profile") });
     store.state.socket.on('kicked', async (body) => { router.push("/profile") });
@@ -313,6 +336,8 @@
       <details class="dropdown">
         <summary class="m-1 btn glass">{{ $route.params.channelName }}</summary>
         <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 dark-row">
+          <li v-if="channel.channelAdmin == actualUser.userId && !channel.isPrivate" @click="setPrivateChannelInDB($route.params.channelName)">Set private</li>
+          <li v-else-if="channel.channelAdmin == actualUser.userId && channel.isPrivate" @click="setPrivateChannelInDB($route.params.channelName)">Set public</li>
           <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName, 1)">Quit</li>
         </ul>
       </details>
@@ -414,6 +439,8 @@
     :muteFailed="muteFailed"
     :banSuccess="banSuccess"
     :banFailed="banFailed"
+    :privateSuccess="privateSuccess"
+    :privateFailed="privateFailed"
     :quitSuccess="quitSuccess"
     :quitFailed="quitFailed"
 

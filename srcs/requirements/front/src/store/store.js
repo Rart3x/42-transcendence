@@ -29,6 +29,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    channelPrivate(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('channelPrivate', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     friendAdded(context, body) {
       const socket = context.state.socket;
       if (socket)

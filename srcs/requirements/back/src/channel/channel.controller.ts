@@ -109,6 +109,12 @@ export class ChannelController {
     }    
 	}
 
+  @Post(':channelName/set/private')
+  async setPrivate(@Body('channelName') channelName: string): Promise<{ success: boolean }> {
+    const result = await this.channelService.setPrivate(channelName);
+    return { success: result };
+  }
+
   @Post(':channelName/unset/password')
   async unsetPassword(@Body('channelName') channelName: string): Promise<Channel> {
     try {

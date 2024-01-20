@@ -32,6 +32,8 @@
 			mutedSuccess: Boolean,
 			muteSuccess: Boolean,
 			muteFailed: Boolean,
+			privateSuccess: Boolean,
+			privateFailed: Boolean,
 			quitSuccess: Boolean,
 			quitFailed: Boolean,
 			removeChannelSuccess: Boolean,
@@ -244,6 +246,17 @@
 	<div v-if="mutedSuccess" class="toast toast-start">
 		<div class="alert alert-warning">
 			<span>You have been muted in {{ channelNameMuted }}</span>
+		</div>
+	</div>
+	<!--Private-->
+	<div v-if="privateSuccess" class="toast toast-start">
+		<div class="alert alert-success">
+			<span>Private message sended successfully</span>
+		</div>
+	</div>
+	<div v-if="privateFailed" class="toast toast-start">
+		<div class="alert alert-error">
+			<span>Failed to send private message</span>
 		</div>
 	</div>
 	<!--Quit-->

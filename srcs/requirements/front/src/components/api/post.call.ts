@@ -149,6 +149,25 @@ export async function setPassword(channelName : string, password : string, jwtTo
   }
 }
 
+export async function setPrivateChannel(channelName : string, jwtToken: string) {
+  try {
+    const response = await fetch(`http://localhost:3000/channel/${channelName}/set/private`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify({ channelName: channelName }),
+    });
+
+    if (response.ok)
+      return await response.json();
+  }
+  catch (error) {
+    console.error('setPrivate: error: sending POST request');
+  }
+}
+
 export async function unsetPassword(channelName : string, jwtToken: string) {
   try {
     const response = await fetch(`http://localhost:3000/channel/${channelName}/unset/password`, {
