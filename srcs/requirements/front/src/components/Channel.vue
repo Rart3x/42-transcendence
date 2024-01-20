@@ -219,6 +219,7 @@
     const response = await setPrivateChannel(channelName, cookieJWT.value);
     if (response && response.success) {
       const allUsers = await getAllUsers(cookieJWT.value);
+      channel.value = await getChannelByName(route.params.channelName, cookieJWT.value);
       for (const user of allUsers) {
         if (user.status === "online")
           await store.dispatch('channelPrivate', { socket: user.socket })
@@ -335,14 +336,10 @@
     <div class="navbar-end">
       <details class="dropdown">
         <summary class="m-1 btn glass">{{ $route.params.channelName }}</summary>
-        <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 dark-row">
-          <li @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName, 1)">Quit</li>
-        </ul>
-        <ul v-if="channel && channel.channelAdmin == actualUser.userId && !channel.isPrivate">
-          <li @click="setPrivateChannelInDB($route.params.channelName)">Set private</li>
-        </ul>
-        <ul v-else-if="channel && channel.channelAdmin == actualUser.userId && channel.isPrivate">
-          <li @click="setPrivateChannelInDB($route.params.channelName)">Set public</li>
+        <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+          <li class="dark-row" v-if="channel && channel.channelAdmin == actualUser.userId && !channel.isPrivate" @click="setPrivateChannelInDB($route.params.channelName)">Set private</li>
+          <li class="dark-row" v-else-if="channel && channel.channelAdmin == actualUser.userId && channel.isPrivate" @click="setPrivateChannelInDB($route.params.channelName)">Set public</li>
+          <li class="dark-row" @click="removeUserFromChannelInDB($route.params.channelName, actualUser.userName, 1)">Quit</li>
         </ul>
       </details>
     </div>
