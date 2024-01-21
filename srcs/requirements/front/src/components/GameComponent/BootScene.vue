@@ -111,7 +111,7 @@
 
         setupInputListeners(self : any){
             if (self.input.keyboard){
-                const fullScreenKey = self.input.keyboard.addKey('F12');
+                const fullScreenKey = self.input.keyboard.addKey('F11');
                 fullScreenKey.on('down', function (){
                     if (this.scale.isFullscreen)
                         this.scale.stopFullscreen();
