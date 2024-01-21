@@ -43,14 +43,6 @@
 					this.dataURL = await qrcode.toDataURL(this.user.A2FUrl);
 				this.A2FEnabled = this.user.A2F;
 			},
-			async deleteAccount(){
-				if (confirm('Are you sure you want to delete your account?')) {
-					await deleteUser(this.user.userName, this.cookieJWT);
-					Cookies.remove("UserId");
-					Cookies.remove("Bearer");
-					window.location.href = "/";
-				}
-			},
 			async handleSubmit(){
 				if (!this.newUserName || this.newUserName.length > 20 || this.newUserName.length < 3 
 					|| !/^[A-Za-z0-9_\-]+$/.test(this.newUserName)) {
@@ -150,7 +142,6 @@
 		</div>
 		<img v-if="dataURL" :src="dataURL" class="qrcode col-start-2"/>
 		<div class="flex justify-end">
-			<button class="btn btn-danger mr-2" @click="deleteAccount">Delete Account</button>
 			<button type="submit" class="btn btn-primary" @click="saveAll">Apply</button>
 			<button class="btn btn-secondary ml-2" @click="toggleTheme">Switch Theme</button>
 		</div>
