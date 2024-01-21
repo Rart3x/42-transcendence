@@ -207,7 +207,7 @@
                 <form name="submitMuteForm" class="dialogModal" @submit.prevent="submitMuteForm(selectedDuration)">
                     <label> <input type="number" min="1" v-model="selectedDuration" class="input input-bordered input-sm w-full max-w-xs" /></label>
                     <br><br>
-                    <input type="submit" value="Mute" class="btn glass btn-warning">
+                    <input name="sub" type="submit" value="Mute" class="btn glass btn-warning">
                 </form>
             </div>
         </dialog>

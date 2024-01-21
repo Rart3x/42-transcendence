@@ -352,13 +352,13 @@
             <tbody v-for="user in filteredUsers" :key="user.userName">
               <tr class="dark-row">
                 <td>
-                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                  <span tabindex="0" class="btn btn-ghost btn-circle">
                     <div class="avatar">
                       <div class="w-15 mask mask-squircle">
                         <img :src="user.imageSrc" />
                       </div>
                     </div>
-                  </label>
+                  </span>
                 </td>
                 <td>
                   <router-link :to="'/profile/' + user.userName">
@@ -391,13 +391,13 @@
             <div v-if="message.userId != actualUser.userId && message.message_text">
               <div class="chat chat-start">
                 <router-link :to="`/profile/` + message.sender.userName">
-                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                  <span tabindex="0" class="btn btn-ghost btn-circle">
                     <div class="avatar">
                       <div class="w-15 mask mask-squircle" v-if="message.sender">
                         <img :src="message.sender.image" />
                       </div>
                     </div>
-                  </label>
+                  </span>
                 </router-link>
                 <div class="chat-bubble">{{ message.message_text }}</div>
                 <div class="message-timestamp"> {{ message.message_date.substring(11, 16) }} </div>
@@ -407,13 +407,13 @@
               <div class="chat chat-end">
                 <div class="chat-bubble">{{ message.message_text }}</div>
                 <router-link :to="`/profile/` + actualUser.userName">
-                  <label tabindex="0" class="btn btn-ghost btn-circle">
+                  <span tabindex="0" class="btn btn-ghost btn-circle">
                     <div class="avatar">
                       <div class="w-15 mask mask-squircle">
                         <img :src="actualUser.image" />
                       </div>
                     </div>
-                  </label>
+                  </span>
                 </router-link>
                 <div class="message-timestamp"> {{ message.message_date.substring(11, 16) }} </div>
               </div>
@@ -424,11 +424,11 @@
       <div v-else class="error_div"> <p> No message </p> </div>
       <div class="chat-input">
         <div v-if="!actualUserMuted" class="userMutedOrNot" style="position: absolute; top: 74%; left: 75%; transform: translateX(-50%);">
-          <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
+          <input id="message_text" type="text" class="input input-bordered w-full max-w-xs" @keyup.enter="sendMessage(message_text)" placeholder="Send Message" v-model="message_text"/>
           <button class="btn glass btn-primary" @click="sendMessage(message_text)">Send</button>
         </div>
         <div v-if="actualUserMuted" class="userMutedOrNot" style="position: absolute; top: 74%; left: 75%; transform: translateX(-50%);">
-          <input type="text" class="input input-bordered w-full max-w-xs" id="message_text" @keyup.enter="sendMessage(message_text)" placeholder="Muted" v-model="message_text" disabled/>
+          <input id="message_text" type="text" class="input input-bordered w-full max-w-xs" @keyup.enter="sendMessage(message_text)" placeholder="Muted" v-model="message_text" disabled/>
         </div>
       </div>
     </div>
