@@ -331,13 +331,13 @@
           <tbody>
             <tr class="dark-row" v-for="(user, index) in friends" :key="index">
               <td>
-                <label tabindex="0" class="btn btn-ghost btn-circle">
+                <span tabindex="0" class="btn btn-ghost btn-circle">
                   <div class="avatar">
                     <div class="w-15 mask mask-squircle">
                       <img :src="user.imageSrc" />
                     </div>
                   </div>
-                </label>
+                </span>
               </td>
               <td>
                 <router-link :to="'/profile/' + user.userName">
