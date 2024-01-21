@@ -216,6 +216,10 @@
       },
 
       socketOn() {
+        this.store.state.socket.on('banned' , () => {
+          this.updateAllChannels();
+          this.updateChannels();
+        })
         this.store.state.socket.on('channelPrivate', () => {
           this.updateAllChannels();
           this.updateChannels();
@@ -263,6 +267,11 @@
         let allChannelsData = await getAllNewChannels(this.user.userName, this.cookieJWT);
         for (let i = 0; i < allChannelsData.length; i++) {
           allChannelsData[i].imageSrc = await getImage(allChannelsData[i].channelAdminImage)
+            let channelUsersBan = allChannelsData[i].channelUsersBan;
+            let isUserBanned = channelUsersBan.some(user => user.userId === this.user.userId);
+
+            if (isUserBanned)
+              allChannelsData[i].isBanned = true;
         }
         this.allChannels = allChannelsData;
       },
@@ -406,7 +415,7 @@
         <table class="table">
           <tbody>
             <tr v-for="(channel, index) in allChannels" :key="index" class="dark-row">
-              <div v-if="!channel.password && !channel.isPrivate" class="channelSecurity">
+              <div v-if="!channel.password && !channel.isPrivate && !channel.isBanned" class="channelSecurity">
                 <td>
                   <span tabindex="0" class="btn glass btn-ghost btn-circle">
                     <div class="avatar">
