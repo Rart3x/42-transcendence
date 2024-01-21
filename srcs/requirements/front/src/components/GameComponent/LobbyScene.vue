@@ -35,32 +35,37 @@
 	    }
 
         createLobbyHTML(){
-            this.UIElement = this.add.dom(400, 400).createFromHTML(' \
-                <div class="grid grid-rows-6 grid-cols-3 justify-items-center  gap-y-4 gap-x-32"> \
-                    <div class="avatar row-start-2"> \
-                        <div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."></div> \
+            this.UIElement = this.add.dom(400, 400).createFromHTML('\
+                <div class="container flex flex-col w-full items-center justify-center h-screen gap-y-16">\
+                    <div class="flex flex-row space-x-96 items-center">\
+                        <div class="avatar">\
+                            <div id="userProfile1" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2"></div>\
+                        </div>\
+                        <div class="avatar">\
+                            <div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2"></div>\
+                        </div>\
+                    </div>\
+                    <div class="flex flex-row space-x-96 items-center">\
+                        <div> \
+                            <h1 id="player1Name" class="text-4xl font-bold dark:text-white"></h1> \
+                        </div> \
+                        <div> \
+                            <h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
+                        </div> \
                     </div> \
-                    <div class="col-start-2 col-end-3 row-start-1 row-end-6 divider divider-horizontal ml-8 ...">VS</div> \
-                    <div class="avatar row-start-2 col-start-3 col-end-4 w-24 ..."> \
-                        <div id="userProfile2" class="avatar w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ..."></div>  \
+                    <div class="flex flex-row space-x-96 items-center">\
+                        <div> \
+                            <button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready</button> \
+                        </div> \
+                        <div > \
+                            <button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready</button> \
+                        </div> \
                     </div> \
-                    <div class="row-start-3 ..."> \
-                        <h1 id="player1Name" class="text-4xl font-bold dark:text-white ..."></h1> \
+                    <div> \
+                        <button id="startButton"class="btn btn-primary ml-5">START</button>\
                     </div> \
-                    <div class="row-start-3 col-start-3 col-end-4 ..."> \
-                        <h1 id="player2Name" class="text-4xl font-bold dark:text-white"></h1> \
-                    </div> \
-                    <div class="row-start-4 col-start-1 col-end-2"> \
-                        <button id="isReadyButtonPlayer1" class="btn  btn-active no-animation btn-secondary"> Not ready</button> \
-                    </div> \
-                    <div class="row-start-4 col-start-3 col-end-4"> \
-                        <button id="isReadyButtonPlayer2" class="btn btn-active no-animation btn-secondary"> Not ready</button> \
-                    </div> \
-                    <div class="row-start-5 col-start-2  ..."> \
-                        <button id="startButton"class="btn btn-primary ml-5 ...">START</button>\
-                    </div> \
-                    <div class="row-start-6 col-start-2 ...">\
-                        <button id="leaveButton"class="btn btn-error ml-5 ...">LEAVE</button>\
+                    <div>\
+                        <button id="leaveButton"class="btn btn-error ml-5">LEAVE</button>\
                     </div> \
                 </div>'
             );
@@ -72,6 +77,11 @@
 
             const userProfile1Name = this.UIElement.node.querySelector("#player1Name") as HTMLElement;
             const userProfile2Name = this.UIElement.node.querySelector("#player2Name") as HTMLElement;
+
+            if (player1UserName.length > 10)
+                player1UserName = player1UserName.slice(0, 8) + '..';
+            if (player2UserName.length > 10)
+                player2UserName = player2UserName.slice(0, 8) + '..';
 
             if (this.socket.id == this.gameRoom.player1SocketId){
                 userProfile1Name.innerText = player1UserName;

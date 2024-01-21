@@ -38,7 +38,7 @@
 </script>
 
 <template>
-  <div :key="gameKey" id="game" class="bg-black font-mono">
+  <div :key="gameKey" id="game" class="bg-black font-mono ">
     <GameConfig/>
   </div>
 </template>

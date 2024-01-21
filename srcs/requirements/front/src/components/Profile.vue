@@ -5,7 +5,7 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isBlock, isBlocked, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName } from './api/get.call';
+  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName } from './api/get.call';
   import { blockUser, createChannel, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
   import { useStore } from 'vuex';
@@ -208,7 +208,7 @@
     :gameWon="user.gameWon"
   />
 
-  <div class="bg-base-200 overflow-x-auto min-h-screen font-mono place-items-center shadow">
+  <div class="bg-base-200 overflow-x-auto min-h-[calc(100vh-210px)] font-mono place-items-center shadow">
     <div class="stats shadow flex justify-center">
       <div class="stat" v-if="user && actualUser && user.userName != actualUser.userName && !isBlockBool">
         <button class="btn" v-if="user && !isFriendBool" @click="addFriendFromDB(user.userName, $route.params.userName)">

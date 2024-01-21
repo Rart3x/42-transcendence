@@ -132,7 +132,7 @@
 		:gamePlayed="user.gamePlayed"
 		:gameWon="user.gameWon"
   	/>
-	<div class="flex flex-col gap-y-8 min-h-screen bg-base-200 overflow-auto font-mono place-items-center">
+	<div class="flex flex-col gap-y-8 min-h-[calc(100vh-210px)] bg-base-200 overflow-auto font-mono place-items-center">
 		<div class="items-center">
 			<span class="block text-base font-medium">Username</span>
 			<input type="text" id="newUserName" v-model="newUserName" :placeholder="userName" class="input input-bordered w-full max-w-xs mt-1" maxlength="20" pattern="^[A-Za-z0-9_"/>

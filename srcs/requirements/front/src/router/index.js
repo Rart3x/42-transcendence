@@ -22,11 +22,6 @@ const router = createRouter({
       }
     },
     {
-      path: "/about",
-      name: "about",
-      component: () => import("@/components/About.vue"),
-    },
-    {
       path: "/channel/:channelName",
       name: "channel",
       component: () => import("@/components/Channel.vue"),
@@ -126,18 +121,3 @@ router.beforeEach(async (to, from, next) => {
 });
 
 export default router;
-
-
-// if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
-//   user = await getUserByUserId(cookieUserId, cookieJWT);
-//   const path = to.path;
-//   if (user && user.A2F && user.status == "offline" && from.name == '2fa')
-//     next('/2fa');
-//   else if (user && user.A2F && user.status == "online")
-//     next();
-//   else if (user && path !== "/" && path !== "/sign-in")
-//     next('/');
-// }
-// else{
-//   next('/');
-// }

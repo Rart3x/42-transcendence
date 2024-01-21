@@ -185,7 +185,6 @@
       </div>
     </div>
     <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 w-52">
-      <li><router-link to="/about">About <img src="../assets/about-svgrepo-com.svg" width="32" height="32"/></router-link></li>
       <li><router-link to="/profile">Profile <img src="../assets/profile-1335-svgrepo-com.svg" width="30" height="30"/></router-link></li>
       <li><router-link to="/settings">Settings <img src="../assets/settings-svgrepo-com.svg" width="32" height="32"/></router-link></li>
       <li><button @click="logout"><span class="font-bold">Logout </span> <img src="../assets/logout-2-svgrepo-com.svg" width="32" height="32"/></button></li>
