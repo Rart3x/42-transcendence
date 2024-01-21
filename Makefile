@@ -2,7 +2,6 @@ NAME = transcendence
 
 #-------------------------------------CLASSICS-------------------------------------#
 all:
-	# ./change_hostname.sh
 	@make run
 
 run:

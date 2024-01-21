@@ -1,6 +1,8 @@
-FROM nginx:stable-alpine
-EXPOSE 443
+FROM alpine:3.17
 
-RUN mkdir ssh && openssl req -x509 -newkey rsa:4096 -keyout /ssh_key/ft_transcendence.key -out /ssh_key/ft_transcendence.crt -sha256 -days 365 -nodes -subj "/C=FR/ST=Angouleme/"
+RUN apk update && apk add nginx openssl
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY nginx.conf /etc/nginx/http.d/nginx.conf
+COPY script.sh /script.sh
+
+ENTRYPOINT ["sh", "script.sh"]
