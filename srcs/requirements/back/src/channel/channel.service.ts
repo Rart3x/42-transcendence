@@ -430,14 +430,6 @@ export class ChannelService {
       },
     });
   
-    for (const userChannelMute of userChannelMutes) {
-      await this.prisma.userChannelMute.delete({
-        where: {
-          id: userChannelMute.id,
-        },
-      });
-    }
-  
     await this.prisma.channel.update({
       where: { channelId: channel.channelId },
       data: {
