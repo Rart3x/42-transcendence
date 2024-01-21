@@ -1,7 +1,6 @@
 <script>
   import Cookies from "js-cookie";
   import Header from "./components/Header.vue";
-  import Footer from "./components/Footer.vue";
   import { getUserByUserId } from "./components/api/get.call";
   import "./assets/main.css";
   import EventBus from './services/event-bus.ts';
@@ -9,7 +8,6 @@
   export default {
     name: 'App',
     components: {
-      Footer,
       Header
     },
     data() {
@@ -51,7 +49,6 @@
     <body>
       <Header ref="header" :key="headerKey" v-if="user" />
       <router-view @beforeRouteEnter="beforeRouteEnter" />
-      <Footer v-if="$route.path !== '/game' && isPageLoaded"/>
     </body>
   </div>
 </template>
