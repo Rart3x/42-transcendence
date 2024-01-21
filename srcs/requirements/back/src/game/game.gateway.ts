@@ -361,7 +361,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				Matter.World.add(world,  entities.walls[i].gameObject);
 		}
 		else{
-			for (let i = 0; i < 2; i++)
+			for (let i = 0; i < 4; i++)
 				Matter.World.add(world,  entities.walls[i].gameObject);
 		}
 		if (customGameMode){
@@ -407,6 +407,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			let scorePlayer1 = gameRoom.score.get(gameRoom.player1UserId.toString());
 			let scorePlayer2  = gameRoom.score.get(gameRoom.player2UserId.toString());
 			if (gameRoom.finish == false){
+				//Custom game
 				if (pair.bodyA.label == "leftmid" || pair.bodyA.label == "leftup" || pair.bodyA.label == "leftdown"){
 					scorerId = gameRoom.player2UserId;
 					gameRoom.score.set(gameRoom.player2UserId.toString(), ++scorePlayer2);
@@ -417,6 +418,25 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						scorePlayer2);
 				}
 				else if (pair.bodyA.label == "rightmid" || pair.bodyA.label == "rightup" || pair.bodyA.label == "rightdown"){
+					scorerId = gameRoom.player1UserId;
+					gameRoom.score.set(gameRoom.player1UserId.toString(), ++scorePlayer1);
+					this.ScoreService.updateGameRoomScore(
+						gameRoom.roomId,
+						scorerId,
+						scorePlayer1,
+						scorePlayer2);
+				}
+				//Normal game
+				if (pair.bodyA.label == "left"){
+					scorerId = gameRoom.player2UserId;
+					gameRoom.score.set(gameRoom.player2UserId.toString(), ++scorePlayer2);
+					this.ScoreService.updateGameRoomScore(
+						gameRoom.roomId,
+						scorerId,
+						scorePlayer1,
+						scorePlayer2);
+				}
+				else if (pair.bodyA.label == "right"){
 					scorerId = gameRoom.player1UserId;
 					gameRoom.score.set(gameRoom.player1UserId.toString(), ++scorePlayer1);
 					this.ScoreService.updateGameRoomScore(
@@ -496,31 +516,35 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		const self = this;
 		Matter.Events.on(engine, 'collisionStart', function(event : Matter.IEventCollision<Matter.Engine>) {
 			event.pairs.forEach(function(pair: Matter.Pair) {
-				//Ball score
-				if (gameRoom.customGame == false){
-					if (pair.bodyB.label == "ball" && (pair.bodyA.label == "leftmid" || pair.bodyA.label == "leftup" || pair.bodyA.label == "leftdown"
-						|| pair.bodyA.label == "rightup" || pair.bodyA.label == "rightdown" || pair.bodyA.label == "rightmid")){
+				//Normal game mode rules
+				if (gameRoom && gameRoom.customGame == false){
+					if (pair.bodyB.label == "ball" && (pair.bodyA.label == "left" || pair.bodyA.label == "right")){
 						gameRoom.paused = true;
 						scorePoint(pair, gameRoom);
 						ballRespawn(gameRoom, pair);
 					}
+					else if (pair.bodyB.label == "ball" && (pair.bodyA.label == "player1" || pair.bodyA.label == "player2")){
+						collisionBallPlayer(pair, gameRoom);
+					}
 				}
-				else if (gameRoom.customGame && pair.bodyB.label == "ball" && (pair.bodyA.label == "leftmid" || pair.bodyA.label == "rightmid")){
-					gameRoom.paused = true;
-					scorePoint(pair, gameRoom);
-					ballRespawn(gameRoom, pair);
-				}
-				//Elastic physics
-				else if (gameRoom.customGame && pair.bodyB.label == "ball" && (pair.bodyA.label == "player1" || pair.bodyA.label == "player2")){
-
-					if (gameRoom && gameRoom.entities && gameRoom.entities.ball && gameRoom.customGame){
-						let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
-						if (velocity.x > 0 && pair.bodyA.label == "player1" && gameRoom.entities.ball.gameObject.position.x > 500)
-							pair.isActive = false;
-						else if (velocity.x < 0 && pair.bodyA.label == "player2" && gameRoom.entities.ball.gameObject.position.x < 500)
-							pair.isActive = false;
-						else
-							collisionBallPlayer(pair, gameRoom);
+				//Custom game mode rules
+				else if (gameRoom && gameRoom.customGame == true){
+					if (pair.bodyB.label == "ball" && (pair.bodyA.label == "leftmid" || pair.bodyA.label == "rightmid")){
+						gameRoom.paused = true;
+						scorePoint(pair, gameRoom);
+						ballRespawn(gameRoom, pair);
+					}
+					//Elastic physics
+					else if (pair.bodyB.label == "ball" && (pair.bodyA.label == "player1" || pair.bodyA.label == "player2")){
+						if (gameRoom && gameRoom.entities && gameRoom.entities.ball && gameRoom.customGame){
+							let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
+							if (velocity.x > 0 && pair.bodyA.label == "player1" && gameRoom.entities.ball.gameObject.position.x > 500)
+								pair.isActive = false;
+							else if (velocity.x < 0 && pair.bodyA.label == "player2" && gameRoom.entities.ball.gameObject.position.x < 500)
+								pair.isActive = false;
+							else
+								collisionBallPlayer(pair, gameRoom);
+						}	
 					}
 				}
 			}, this);
@@ -530,7 +554,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			event.pairs.forEach(function(pair: Matter.Pair) {
 				if (pair.bodyB.label == "ball" && (pair.bodyA.label == "up" || pair.bodyA.label == "down")){
 					let velocity = Matter.Body.getVelocity(gameRoom.entities.ball.gameObject);
-					gameRoom.nbBounces++;
 
 					var velX : number;
 					var velY : number;

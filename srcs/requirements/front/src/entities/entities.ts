@@ -20,8 +20,8 @@ export default class Entities {
         }
 
         if (!customGameMode){
-            this.walls.push(new Wall(game, 10, 400, 10, 770, "left"));
-            this.walls.push(new Wall(game,  990, 400, 10, 770, "right"));
+            this.walls.push(new Wall(game, 20, 400, 10, 770, "left"));
+            this.walls.push(new Wall(game,  980, 400, 10, 770, "right"));
         }
         else{
             this.walls.push(new Wall(game, 990, 155, 10, 300, "rightup"));

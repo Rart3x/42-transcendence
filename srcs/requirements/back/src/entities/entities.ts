@@ -19,8 +19,8 @@ export default class Entities {
         }
 
         if (!customGame){
-            this.walls.push(new Wall(10, 400, 10, 770, "left"));
-            this.walls.push(new Wall(990, 400, 10, 770, "right"));
+            this.walls.push(new Wall(20, 400, 10, 770, "left"));
+            this.walls.push(new Wall(980, 400, 10, 770, "right"));
         }
         else{
             this.walls.push(new Wall(990, 155, 10, 300, "rightup"));

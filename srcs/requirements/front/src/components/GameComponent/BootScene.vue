@@ -110,8 +110,8 @@
 
         setupInputListeners(self : any){
             if (self.input.keyboard){
-                const SPACEKey = self.input.keyboard.addKey('SPACE');
-                SPACEKey.on('down', function (){
+                const fullScreenKey = self.input.keyboard.addKey('F12');
+                fullScreenKey.on('down', function (){
                     if (this.scale.isFullscreen)
                         this.scale.stopFullscreen();
                     else
@@ -122,12 +122,17 @@
     
         setupEventSocketListeners(){
             this.socket.on('modalOpen', () => {
-                if (this.input)
+                if (this.input){
+                    console.log("modalOpen");
                     this.input.keyboard.enabled = false;
+
+                }
             });
             this.socket.on('modalClose', () => {
-                if (this.input)
+                if (this.input){
+                    console.log("modalClose");
                     this.input.keyboard.enabled = true;
+                }
             });
 
             this.socket.on('lobby', (data : any) => {
