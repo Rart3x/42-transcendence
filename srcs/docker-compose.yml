@@ -57,7 +57,7 @@ services:
       context: ./requirements/nginx
       dockerfile: Dockerfile
     ports:
-      - '443:443'
+      - '1505:1505'
     volumes:
       - frontdata:/usr/share/nginx/html
     depends_on:
