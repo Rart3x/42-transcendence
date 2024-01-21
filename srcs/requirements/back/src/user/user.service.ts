@@ -416,6 +416,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   }
 
   async updateStatus(userId: number, newStatus: string): Promise<User> {
+    console.log(`updateStatus: ${userId} ${newStatus}`)
     return this.prisma.user.update({
       where: { userId: userId },
       data: { status: newStatus },

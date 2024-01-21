@@ -122,17 +122,13 @@
     
         setupEventSocketListeners(){
             this.socket.on('modalOpen', () => {
-                if (this.input){
-                    console.log("modalOpen");
+                if (this.input)
                     this.input.keyboard.enabled = false;
-
-                }
+                
             });
             this.socket.on('modalClose', () => {
-                if (this.input){
-                    console.log("modalClose");
+                if (this.input)
                     this.input.keyboard.enabled = true;
-                }
             });
 
             this.socket.on('lobby', (data : any) => {

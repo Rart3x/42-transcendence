@@ -32,6 +32,7 @@
       if (store.state){
         store.state.socket.disconnect();
         store.dispatch('initializeSocket');
+        this.eventBus.emit('refreshHeader');
       }
     }
   };

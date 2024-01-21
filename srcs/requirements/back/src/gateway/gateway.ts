@@ -22,9 +22,8 @@ export class AppGateway {
     }
     catch(error) {
       console.log(error);
-    }
+    } 
   }
-
   @SubscribeMessage('banUser')
   handleBanUser(@MessageBody() body): any {
     this.server.to(body.socket).emit('banned', body);

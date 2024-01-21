@@ -113,7 +113,6 @@ export default class Game extends Phaser.Scene {
 		})
 
 		this.socket.on('gameStart', () => {
-			console.log("game start");
 			this.UIElement = this.add.dom(500, 400).createFromHTML('\
 				<span class="countdown font-mono text-6xl"> \
 					<span id="countdown" style="--value:3;"></span> \

@@ -35,6 +35,7 @@
     methods: {
       async addFriendFromDB(userName, friendName) {
         const friend = await getUserByUserName(friendName, this.cookieJWT);
+        console.log(friend.status);
         if (friend && friend.status === 'online' && friendName !== userName)
           await this.store.dispatch('friendRequest', {host: userName ,socket: friend.socket })
         else

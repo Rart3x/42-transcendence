@@ -107,6 +107,7 @@
         //Remove cookies and set user status to "offline"
         Cookies.remove("UserId");
         Cookies.remove("Bearer");
+        console.log("User logged out");
         if (this.user)
           await setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";
@@ -140,8 +141,10 @@
       },
 
       async socketOn() {
-        if (this.user)
+        if (this.user){
+          console.log("User logged in")
           setStatus(this.user.userName, "online", this.cookieJWT);
+        }
 
         this.store.state.socket.on('blocked', async (body) => {
           await deletePrivateMessages(body.userName, this.user.userName, this.cookieJWT);
