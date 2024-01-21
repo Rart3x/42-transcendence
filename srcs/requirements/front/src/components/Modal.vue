@@ -48,6 +48,10 @@
                 if (user)
                     this.senderImageSrc = await getImage(user.image, this.$props.jwtToken);
             },
+            redirectionOnProfile() {
+                this.$props.modalMessage = false;
+                this.$router.push(`/profile/${this.senderName}`);
+            },
             submitMuteForm(selectedDuration) {
                 this.muteUserFromChannelInDB(this.channelNameMute, this.userMuted, selectedDuration, this.$props.jwtToken);
                 this.closeMuteModal();
@@ -170,11 +174,9 @@
             <div class="chat">
                 <div class="chat-title">
                     <h1>{{ senderName }}</h1>
-                    <router-link :to="`/profile/` + senderName">
-                        <figure class="avatar">
+                        <figure class="avatar" @click="redirectionOnProfile">
                             <img :src="senderImageSrc" />
                         </figure>
-                    </router-link>
                 </div>
                 <div class="messages" ref="messagesContent">
                     <div class="messages-content">
