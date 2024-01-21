@@ -58,7 +58,7 @@ const store = createStore({
         console.error('error: socket uninitialized');
     },
     initializeSocket({ commit }) {
-      const socket = io('https://localhost:3000');
+      const socket = io('http://localhost:3000');
       commit('SET_SOCKET', socket);
     },
     invitationInGame(context, body) {
