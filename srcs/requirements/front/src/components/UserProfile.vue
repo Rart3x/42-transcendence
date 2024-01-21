@@ -370,13 +370,13 @@
           <tbody>
             <tr v-for="(channel, index) in channels" :key="index" class="dark-row" >
               <td>
-                <label tabindex="0" class="btn glass btn-ghost btn-circle">
+                <span tabindex="0" class="btn glass btn-ghost btn-circle">
                   <div class="avatar">
                     <div class="w-15 mask mask-squircle">
                       <img :src="channel.imageSrc" />
                     </div>
                   </div>
-                </label>
+                </span>
               </td>
               <td v-if="!channel.channelPassword">
                 <router-link :to="'/channel/' + channel.channelName">
@@ -408,13 +408,13 @@
             <tr v-for="(channel, index) in allChannels" :key="index" class="dark-row">
               <div v-if="!channel.password && !channel.isPrivate" class="channelSecurity">
                 <td>
-                  <label tabindex="0" class="btn glass btn-ghost btn-circle">
+                  <span tabindex="0" class="btn glass btn-ghost btn-circle">
                     <div class="avatar">
                       <div class="w-15 mask mask-squircle">
                         <img :src="channel.imageSrc" />
                       </div>
                     </div>
-                  </label>
+                  </span>
                 </td>
                 <td>
                   <router-link :to="'/channel/' + channel.channelName">
