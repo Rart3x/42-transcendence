@@ -38,21 +38,22 @@
             this.UIElement = this.add.dom(500, 400).createFromHTML(' \
                 <div class="grid grid-rows-6 justify-items-center ..."> \
                     <div class="row-start-1  ..."><button id="multiplayerButton" class="btn btn-primary ml-5 ...">Multiplayer</button></div> \
-                    <div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">SPACE</kbd> to go full screen</div> \
+                    <div class="row-start-6 ...">Press <kbd class="kbd kbd-sm">F11</kbd> to go full screen</div> \
                 </div> \
             ');
         }
 
         createLocalGameLoadingHTML(){
             this.UIElement = this.add.dom(500, 400).createFromHTML(' \
-            <div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
-                <div class="row-start-1 col-start-2 col-end-3 ..."> \
-                    <h1 class="text-lg font-bold dark:text-white ...">Creating the game...</h1> \
-                </div> \
-                <div class="row-start-2 col-start-2 col-end-3 ..."> \
-                    <span class=" loading loading-dots loading-lg"></span> \
-                </div> \
-            </div>');
+                <div class="grid grid-rows-2 grid-cols-3 justify-items-center gap-y 8 ..."> \
+                    <div class="row-start-1 col-start-2 col-end-3 ..."> \
+                        <h1 class="text-lg font-bold dark:text-white ...">Creating the game...</h1> \
+                    </div> \
+                    <div class="row-start-2 col-start-2 col-end-3 ..."> \
+                        <span class=" loading loading-dots loading-lg"></span> \
+                    </div> \
+                </div>\
+            ');
         }
 
         createChooseGameModeHTML(){

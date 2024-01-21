@@ -966,11 +966,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				gameRoom.insideLobby = false;
 				setTimeout(() => {
 					gameRoom.started = true;
-	
-					Matter.Body.setVelocity(gameRoom.entities.ball.gameObject,{
-						x: 3,
-						y: 3
-					});
+					randomInt(0, 1) == 1 ? Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {x: 3, y: 3}) : Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {x: -3, y: -3});
 					gameRoom.inCooldown = false;
 					gameRoom.pausedAfk = false;
 					gameRoom.player2Ready = false;
