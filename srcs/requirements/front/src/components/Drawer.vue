@@ -2,7 +2,7 @@
   import Alert from './Alert.vue';
   import Cookies from "js-cookie";
   import Modal from './Modal.vue';
-  import { getAllUsers, getPrivateMessages, getLastPrivateMessage, getUserByUserName, getUserByUserId } from "./api/get.call";
+  import { getAllUsers, getPrivateMessages, getUserByUserName, getUserByUserId } from "./api/get.call";
   import { RouterLink } from "vue-router";
   import { useStore } from "vuex";
 
@@ -61,14 +61,6 @@
           this.userNotFound = true;
           setTimeout(() => this.userNotFound = false, 3000);
         }
-      },
-      async getLastPrivateMessageInDB(senderName, receiverName) {
-        if (senderName === receiverName) {
-          this.lastMessage = null;
-          return;
-        }
-        const response =  await getLastPrivateMessage(senderName, receiverName, this.$props.jwtToken);
-        this.lastMessage = response;
       },
       getPairKey(pairMessages) {
         const sender = pairMessages[pairMessages.length - 1].senderName;
@@ -153,16 +145,9 @@
         </form>
         <li v-for="(pairMessages, pairKey) in uniqueMessages" :key="pairKey" @click="openMessageModal(user.userName, pairMessages[pairMessages.length - 1])">
           <div class="flex justify-between items-center">
-            <span class="invisible">{{ getLastPrivateMessageInDB(pairMessages[pairMessages.length - 1].senderName, pairMessages[pairMessages.length - 1].receiverName) }} </span>
             <div class="flex flex-col items-start">
               <span class="font-semibold">
                 {{ pairMessages[pairMessages.length - 1].senderName === user.userName ? pairMessages[pairMessages.length - 1].receiverName : pairMessages[pairMessages.length - 1].senderName }}
-              </span>
-              <span v-if="this.lastMessage && this.lastMessage.messageContent.length <= 20" class="text-sm text-gray-500">
-                {{ this.lastMessage.messageContent }}
-              </span>
-              <span v-else-if="this.lastMessage" class="text-sm text-gray-500">
-                {{ this.lastMessage.messageContent.substring(0, 20) }}..
               </span>
             </div>
             <span>{{ pairMessages[pairMessages.length - 1].privateMessageDate.substring(11, 16) }}</span>
