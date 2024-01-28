@@ -49,7 +49,7 @@
     "socket.io-client": "^4.7.2",
     "swagger-ui-express": "^5.0.0",
     "vuex": "^4.1.0",
-    "ws": "^8.14.2"
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
