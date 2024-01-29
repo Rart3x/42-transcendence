@@ -440,17 +440,29 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
       });
     }
     else{
-      await this.prisma.user.update({
-        where: { userId: userId },
-        data: {
-          matchmakingScore: {
-            decrement: 10
-          },
-          gamePlayed: {
-            increment: 1
-          },
-        }
-      });
+      if ((await this.prisma.user.findFirst({ where: { userId: userId } })).matchmakingScore > 0){
+        await this.prisma.user.update({
+          where: { userId: userId },
+          data: {
+            matchmakingScore: {
+              decrement: 10
+            },
+            gamePlayed: {
+              increment: 1
+            },
+          }
+        });
+      }
+      else{
+        await this.prisma.user.update({
+          where: { userId: userId },
+          data: {
+            gamePlayed: {
+              increment: 1
+            },
+          }
+        });
+      }
     }
     var user = this.getUserById(userId);
   }
