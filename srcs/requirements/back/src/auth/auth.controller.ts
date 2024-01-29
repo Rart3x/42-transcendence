@@ -67,10 +67,10 @@ export class AuthController {
                         const access_token = await this.JwtService.signAsync(payload);
                         this.setCookie(res, user.userId, access_token);
                         if (user.A2F)
-                            res.redirect("https://1B1.42angouleme.fr:1505/2fa");
+                            res.redirect("https://1a2.42angouleme.fr:1505/2fa");
                         else{
                             this.UserService.setStatus(user.userName, "online");
-                            res.redirect("https://1B1.42angouleme.fr:1505/settings");
+                            res.redirect("https://1a2.42angouleme.fr:1505/settings");
                         }
                         return ;
                     }
@@ -78,7 +78,7 @@ export class AuthController {
                     const access_token = await this.JwtService.signAsync(payload);
                     this.UserService.setStatus(newUser.userName, "online");
                     this.setCookie(res, newUser.userId, access_token);
-                    res.redirect("https://1B1.42angouleme.fr:1505/settings");
+                    res.redirect("https://1a2.42angouleme.fr:1505/settings");
                 }
             }
         }

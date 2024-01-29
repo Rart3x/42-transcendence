@@ -2,6 +2,7 @@
     import { Scene, GameObjects, DOM } from 'phaser'
     import { Socket } from 'socket.io-client';
     import EventBus from '../../services/event-bus';
+    import store from '../../store/store';
 
     export default class LobbyScene extends Scene {
 
@@ -67,6 +68,7 @@
                     this.socket.emit('stopPlay', this.gameRoom.id);
                 this.children.removeAll();
                 this.UIElement.destroy();
+                store.dispatch('SET_INVITED', false);
                 this.EventHandler.emit('refreshGame');
             });
         }

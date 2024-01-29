@@ -115,8 +115,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						this.gameRooms[i].player1SocketId,
 						this.gameRooms[i].player2SocketId,
 						true,
-						false,
-						this.gameRooms[i].nbBounces);
+						false);
 
 					await this.ScoreService.updateGameRoomScore(
 						this.gameRooms[i].roomId,
@@ -150,8 +149,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						this.gameRooms[i].player1SocketId,
 						this.gameRooms[i].player2SocketId,
 						false,
-						true,
-						this.gameRooms[i].nbBounces);
+						true);
 					await this.ScoreService.updateGameRoomScore(
 						this.gameRooms[i].roomId,
 						undefined,
@@ -291,8 +289,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.gameRooms[i].player1SocketId,
 							this.gameRooms[i].player2SocketId,
 							false,
-							false,
-							this.gameRooms[i].nbBounces);
+							false);
 					}
 					if (this.gameRooms[i] && this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
 						this.saveGameState(this.gameRooms[i]);
@@ -455,13 +452,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			var coinFlip = randomInt(0, 1);
 			if (coinFlip == 1)
-				vecY = -4;
+				vecY = -3;
 			else
-				vecY = 4;
+				vecY = 3;
 			if (pair.bodyA.label == "left")
-				vecX = -4;
+				vecX = -3;
 			else
-				vecX = 4;
+				vecX = 3;
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
 					player1: gameRoom.score.get(gameRoom.player1UserId.toString()),

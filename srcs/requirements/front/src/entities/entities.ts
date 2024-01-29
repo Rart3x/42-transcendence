@@ -9,14 +9,14 @@ export default class Entities {
 
     constructor(game: Phaser.Scene, customGameMode: boolean, player1SocketId: string, player2SocketId: string){
 
-        this.players.push(new Player(game, 50, 400, 10, 80, player1SocketId));
-        this.players.push(new Player(game, 950, 400, 10, 80, player2SocketId));
+        this.players.push(new Player(game, 50, 400, 10, 80, player1SocketId, 1));
+        this.players.push(new Player(game, 950, 400, 10, 80, player2SocketId, 2));
 
         if (customGameMode){
 
             //Players can control a second paddle with right click on opponent side to block their shots
-            this.players.push(new Player(game, 800, 400, 10, 80, player1SocketId));
-            this.players.push(new Player(game, 200, 400, 10, 80, player2SocketId));
+            this.players.push(new Player(game, 800, 400, 10, 80, player1SocketId, 1));
+            this.players.push(new Player(game, 200, 400, 10, 80, player2SocketId, 2));
         }
 
         if (!customGameMode){
