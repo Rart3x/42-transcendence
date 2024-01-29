@@ -1,7 +1,7 @@
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
 export async function removeChannel(channelName : string, jwtToken : string) { 
 	try { 
-		const response = await fetch(`https://3a6.42angouleme.fr:3000/channel/delete/${channelName}`, { 
+		const response = await fetch(`https://3a7.42angouleme.fr:3000/channel/delete/${channelName}`, { 
 			method: "DELETE", 
 			headers: { 
 				"Content-Type": "application/json", 
@@ -21,7 +21,7 @@ export async function removeChannel(channelName : string, jwtToken : string) {
 
 export async function unmuteUser(channelName : string, userName : string, jwtToken : string) {
 	try {
-		const response = await fetch(`https://3a6.42angouleme.fr:3000/channel/unmute/${channelName}/${userName}`, {
+		const response = await fetch(`https://3a7.42angouleme.fr:3000/channel/unmute/${channelName}/${userName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
@@ -42,7 +42,7 @@ export async function unmuteUser(channelName : string, userName : string, jwtTok
 /*-----------------------------------------------FRIENDS-----------------------------------------------*/
 export async function removeFriend(userName: string, friendName: string, jwtToken : string) {
 	try {
-		const response = await fetch(`https://3a6.42angouleme.fr:3000/user/friend/delete/${friendName}`, {
+		const response = await fetch(`https://3a7.42angouleme.fr:3000/user/friend/delete/${friendName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
@@ -62,7 +62,7 @@ export async function removeFriend(userName: string, friendName: string, jwtToke
 
 export async function removeOperator(channelName : string, operatorName : string, jwtToken : string){
 	try {
-		const response = await fetch(`https://3a6.42angouleme.fr:3000/channel/${channelName}/operator/delete/${operatorName}`, {
+		const response = await fetch(`https://3a7.42angouleme.fr:3000/channel/${channelName}/operator/delete/${operatorName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
@@ -82,7 +82,7 @@ export async function removeOperator(channelName : string, operatorName : string
 
 export async function removeUserFromChannel(channelName: string, friendName: string, jwtToken : string) {
 	try {
-		const response = await fetch(`https://3a6.42angouleme.fr:3000/channel/${channelName}/delete/${friendName}`, {
+		const response = await fetch(`https://3a7.42angouleme.fr:3000/channel/${channelName}/delete/${friendName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
@@ -104,7 +104,7 @@ export async function removeUserFromChannel(channelName: string, friendName: str
 
 export async function deleteGameRoomById(gameRoomId: string, jwtToken : string) {
 	try {
-	  const response = await fetch(`https://3a6.42angouleme.fr:3000/gameroom/deleteGameRoom/${gameRoomId}`, {
+	  const response = await fetch(`https://3a7.42angouleme.fr:3000/gameroom/deleteGameRoom/${gameRoomId}`, {
 		method: "DELETE",
 		headers: {
 		  "Content-Type": "application/json",
@@ -130,7 +130,7 @@ export async function deleteGameRoomById(gameRoomId: string, jwtToken : string) 
 
 export async function deleteUser(userName: string, jwtToken : string) {
 	try { 
-		const response = await fetch(`https://3a6.42angouleme.fr:3000/user/delete/${userName}`, {
+		const response = await fetch(`https://3a7.42angouleme.fr:3000/user/delete/${userName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
@@ -150,7 +150,7 @@ export async function deleteUser(userName: string, jwtToken : string) {
 
 export async function deletePrivateMessages(userName:string, friendName:string, jwtToken : string) {
 	try { 
-		const response = await fetch(`https://3a6.42angouleme.fr:3000/privateMessage/delete/${userName}/${friendName}`, {
+		const response = await fetch(`https://3a7.42angouleme.fr:3000/privateMessage/delete/${userName}/${friendName}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
