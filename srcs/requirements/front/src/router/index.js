@@ -38,6 +38,8 @@ const router = createRouter({
         else if (channel && channel.channelUsers) {
           if (!channel.channelUsers.find(user => user.userId === actualUser.userId) && channel.isPrivate)
             next('/error');
+          else if (channel.channelPassword)
+            next('/profile');
         }
         else (channel)
           next();

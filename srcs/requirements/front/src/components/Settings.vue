@@ -94,6 +94,7 @@
 		async mounted() {
 			let cookieUserId = Cookies.get('UserId');
 			this.cookieJWT = Cookies.get('Bearer');
+
 			const allUsers = await getAllUsers(this.cookieJWT);
 			for (let i = 0; i < allUsers.length; i++) {
 				if (allUsers[i].status === 'online' && allUsers[i].userId !== cookieUserId) {
