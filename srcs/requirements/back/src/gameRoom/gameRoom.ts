@@ -30,7 +30,6 @@ import Entities from '../entities/entities';
           world: null,
           engine: null,
           entities: null,
-          nbBounces: 0,
           score: new Map<string, number>(),
           running: false,
           started: false,

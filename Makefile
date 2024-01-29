@@ -1,10 +1,12 @@
 NAME = transcendence
+SCRIPTS = ./scripts
 
 #-------------------------------------CLASSICS-------------------------------------#
 all:
 	@make run
 
 run:
+	@${SCRIPTS}/change_hostname.sh
 	@printf "Launch configuration ${NAME}...\n"
 	@docker compose -f ./srcs/docker-compose.yml up -d
 
@@ -28,7 +30,7 @@ clean: down
 	@docker system prune -a
 
 fclean: down
-	# ./reset_hostname.sh
+	@${SCRIPTS}/reset_hostname.sh
 	@printf "Total clean of all configurations docker\n"
 	@if [ $$(docker ps -q | wc -l) -gt 0 ]; then \
 	    docker stop $$(docker ps -qa); \

@@ -60,8 +60,7 @@ export class GameRoomService {
     player1SocketId: string,
     player2SocketId: string,
     player1Afk: boolean,
-    player2Afk: boolean,
-    nbBounces: number): Promise<GameRoom> {
+    player2Afk: boolean): Promise<GameRoom> {
     
     return await this.prisma.gameRoom.update({
       where: {
@@ -73,8 +72,7 @@ export class GameRoomService {
         player1Afk: player1Afk,
         player2Afk: player2Afk,
         running: false,
-        endDate: new Date(),
-        nbBounces: nbBounces,
+        endDate: new Date()
       },
     });
   }

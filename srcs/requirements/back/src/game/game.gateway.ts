@@ -92,7 +92,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	handleConnection(socket: Socket){}
 
-	async handleDisconnect(socket: Socket) {
+	handleDisconnect(socket: Socket) {
 		//If disconnected user was inside a game room
 		for (let i = 0; i < this.gameRooms.length; i++){
 			if (this.gameRooms[i].finish == false && this.gameRooms[i].running == true && this.gameRooms[i].insideLobby == false){
@@ -104,28 +104,27 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						scoreLooser: MIN_SCORE,
 						opponentAfk: true
 					});
-					await this.UserService.updateStatus(this.gameRooms[i].player1UserId, "offline");
-					await this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "offline");
+					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
 
-					await this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
-					await this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
+					this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
+					this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
 
-					await this.GameRoomService.updateGameRoom(
+					this.GameRoomService.updateGameRoom(
 						this.gameRooms[i].roomId,
 						this.gameRooms[i].player1SocketId,
 						this.gameRooms[i].player2SocketId,
 						true,
-						false,
-						this.gameRooms[i].nbBounces);
+						false);
 
-					await this.ScoreService.updateGameRoomScore(
+					this.ScoreService.updateGameRoomScore(
 						this.gameRooms[i].roomId,
 						undefined,
 						MIN_SCORE,
 						MAX_SCORE
 					);
-					await this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
-					await this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
+					this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
+					this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
 					this.gameRooms[i].finish = true;
 					this.removeCollisionsEvent(this.gameRooms[i]);
 					World.clear(this.gameRooms[i].world);
@@ -139,20 +138,19 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						scoreLooser: MIN_SCORE,
 						opponentAfk: true 
 					});
-					await this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-					await this.UserService.updateStatus(this.gameRooms[i].player2UserId, "offline");
+					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
+					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "offline");
 
-					await this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
-					await this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
+					this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
+					this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
 
-					await this.GameRoomService.updateGameRoom(
+					this.GameRoomService.updateGameRoom(
 						this.gameRooms[i].roomId,
 						this.gameRooms[i].player1SocketId,
 						this.gameRooms[i].player2SocketId,
 						false,
-						true,
-						this.gameRooms[i].nbBounces);
-					await this.ScoreService.updateGameRoomScore(
+						true);
+					this.ScoreService.updateGameRoomScore(
 						this.gameRooms[i].roomId,
 						undefined,
 						MAX_SCORE,
@@ -162,8 +160,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					World.clear(this.gameRooms[i].world);
 					Engine.clear(this.gameRooms[i].engine);
 
-					await this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
-					await this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
+					this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
+					this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
 					this.gameRooms[i].finish = true;
 					this.gameRooms.splice(i, 1);
 				}
@@ -291,8 +289,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.gameRooms[i].player1SocketId,
 							this.gameRooms[i].player2SocketId,
 							false,
-							false,
-							this.gameRooms[i].nbBounces);
+							false);
 					}
 					if (this.gameRooms[i] && this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
 						this.saveGameState(this.gameRooms[i]);
