@@ -24,6 +24,11 @@ export class AppGateway {
       console.log(error);
     } 
   }
+  @SubscribeMessage('addOperator')
+  handleAddOperator(@MessageBody() body): any {
+    this.server.to(body.socket).emit('addOperator', body);
+  }
+
   @SubscribeMessage('banUser')
   handleBanUser(@MessageBody() body): any {
     this.server.to(body.socket).emit('banned', body);
@@ -143,6 +148,11 @@ export class AppGateway {
   handleRemoveChannel(@MessageBody() body): any {
     this.server.to(body.socket).emit('removeChannel', body);
   }
+
+  @SubscribeMessage('removeOperator')
+  handleRemoveOperator(@MessageBody() body): any {
+    this.server.to(body.socket).emit('removeOperator', body);
+  } 
 
   @SubscribeMessage('sendPrivateMessage')
   handleSendPrivateMessage(@MessageBody() body): any {

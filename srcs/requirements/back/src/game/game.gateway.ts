@@ -125,11 +125,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					);
 					await this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
 					await this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
-					this.gameRooms[i].finish = true;
-					this.removeCollisionsEvent(this.gameRooms[i]);
-					World.clear(this.gameRooms[i].world);
-					Engine.clear(this.gameRooms[i].engine);
-					this.gameRooms.splice(i, 1);
+					if (this.gameRooms[i]){
+						this.gameRooms[i].finish = true;
+						this.removeCollisionsEvent(this.gameRooms[i]);
+						World.clear(this.gameRooms[i].world);
+						Engine.clear(this.gameRooms[i].engine);
+						this.gameRooms.splice(i, 1);
+					}
 				}
 				else if (this.gameRooms[i].player2SocketId == socket.id){
 					this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {

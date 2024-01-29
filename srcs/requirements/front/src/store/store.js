@@ -15,6 +15,13 @@ const store = createStore({
     }
   },
   actions: {
+    addOperator(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('addOperator', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     banUser(context, body) {
       const socket = context.state.socket;
       if (socket)
@@ -58,7 +65,7 @@ const store = createStore({
         console.error('error: socket uninitialized');
     },
     initializeSocket({ commit }) {
-      const socket = io('https://1a2.42angouleme.fr:3000');
+      const socket = io('https://1b1.42angouleme.fr:3000');
       commit('SET_SOCKET', socket);
     },
     invitationInGame(context, body) {
@@ -135,6 +142,13 @@ const store = createStore({
       const socket = context.state.socket;
       if (socket)
         socket.emit('removeChannel', body);
+      else
+        console.error('error: socket uninitialized');
+    },
+    removeOperator(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('removeOperator', body);
       else
         console.error('error: socket uninitialized');
     },

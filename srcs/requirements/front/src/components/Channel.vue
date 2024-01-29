@@ -47,11 +47,27 @@
   const addOperatorInDB = async (channelName, userName) => {
     const response = await addOperator(channelName, userName, cookieJWT.value);
     updateOperator(users.value, route.params.channelName, cookieJWT.value);
+
+    const allUsers = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+      for (const user of allUsers) {
+        if (user.status === "online" && user.userName != actualUser.userName) {
+          console.log("addOperator" + user.userName);
+          await store.dispatch('addOperator', { socket: user.socket, channelName: channelName })
+        }
+      }
   };
 
   const removeOperatorInDB = async (channelName, userName) => {
-    const response = await removeOperator(channelName, userName);
+    const response = await removeOperator(channelName, userName, cookieJWT.value);
     updateOperator(users.value, route.params.channelName, cookieJWT.value);
+
+    const allUsers = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+    for (const user of allUsers) {
+      if (user.status === "online"&& user.userName != actualUser.userName) {
+        console.log("removeOperator" + user.userName);
+        await store.dispatch('removeOperator', { socket: user.socket, channelName: channelName })
+      }
+    }
   };
 
   const closeMuteModal = () => { modalMuteUser.value = false; };
@@ -240,6 +256,18 @@
   const socketOn = async () => {
     store.state.socket.on('banned', async (body) => { router.push("/profile") });
     store.state.socket.on('kicked', async (body) => { router.push("/profile") });
+
+    store.state.socket.on('addOperator', async (body) => {
+      users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+      console.log("addOperator");
+      await updateOperator(users.value);
+    });
+
+    store.state.socket.on('removeOperator', async (body) => {
+      users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+      console.log("removeOperator");
+      await updateOperator(users.value);
+    });
 
     store.state.socket.on('messageToChannel', async (body) => {
       messages.value = await getMessagesFromChannel(route.params.channelName, cookieJWT.value);

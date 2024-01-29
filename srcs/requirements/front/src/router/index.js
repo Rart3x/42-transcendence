@@ -38,8 +38,6 @@ const router = createRouter({
         else if (channel && channel.channelUsers) {
           if (!channel.channelUsers.find(user => user.userId === actualUser.userId) && channel.isPrivate)
             next('/error');
-          else if (channel.channelPassword)
-            next('/profile');
         }
         else (channel)
           next();
@@ -49,6 +47,8 @@ const router = createRouter({
       path: "/checkPass/:channelName",
       name: "checkPass",
       component: () => import("@/components/CheckPass.vue"),
+      beforeEnter: async (to, from, next) => {
+      }
     },
     {
       path: "/:catchAll(.*)",
