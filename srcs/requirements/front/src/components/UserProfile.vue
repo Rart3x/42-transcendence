@@ -189,6 +189,11 @@
           const response = unsetPassword(channelName, this.cookieJWT);
           if (response) {
             this.unsetPassSuccess = true;
+            const channelUsers = await getUsersFromChannel(channelName, this.cookieJWT);
+            for (let i = 0; i < channelUsers.length; i++) {
+              if (channelUsers[i].status === 'online')
+                await this.store.dispatch('newChannelPass', { socket: channelUsers[i].socket })
+            }
             setTimeout(() => {
               this.unsetPassSuccess = false;
             }, 3000);
