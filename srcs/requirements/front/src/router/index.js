@@ -2,6 +2,8 @@ import Cookies from "js-cookie";
 import { createRouter, createWebHistory } from "vue-router";
 import { getChannelByName, getUserByUserId, getUserByUserName } from "../components/api/get.call";
 
+let comingFromCheckPass = false;
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -26,6 +28,7 @@ const router = createRouter({
       name: "channel",
       component: () => import("@/components/Channel.vue"),
       beforeEnter: async (to, from, next) => {
+
         let cookieJWT = Cookies.get('Bearer');
         let cookieUserId = Cookies.get('UserId');
 
@@ -36,7 +39,7 @@ const router = createRouter({
         if (!channel)
           next('/error');
         else if (channel && channel.channelUsers) {
-          if (!channel.channelUsers.find(user => user.userId === actualUser.userId) && channel.isPrivate)
+          if (!channel.channelUsers.find(user => user.userId === actualUser.userId) || channel.isPrivate)
             next('/error');
         }
         else (channel)
@@ -47,8 +50,6 @@ const router = createRouter({
       path: "/checkPass/:channelName",
       name: "checkPass",
       component: () => import("@/components/CheckPass.vue"),
-      beforeEnter: async (to, from, next) => {
-      }
     },
     {
       path: "/:catchAll(.*)",
@@ -112,6 +113,9 @@ router.beforeEach(async (to, from, next) => {
     user = await getUserByUserId(cookieUserId, cookieJWT);
   }
   const path = to.path;
+  if (path === '/checkPass/:channelName')
+    comingFromCheckPass = true;
+
   if (!user && path !== "/" && path !== "/sign-in")
     next('/');
   else if (user && user.A2F && user.status == "online")

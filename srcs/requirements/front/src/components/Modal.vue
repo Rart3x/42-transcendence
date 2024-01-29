@@ -148,11 +148,11 @@
             <div class="modal-box w-11/12 max-w-5xl">
                 <form name="togglePasswordInput" class="dialogModal" @submit.prevent="togglePasswordInput(currentChannelName, password, passwordCheckBox)">
                     <div v-if="passwordCheckBox">
-                        <label>Set password</label>
+                        <span>Set password</span>
                         <br/><br/>
                         <input name="checkBoxPassSet" type="checkbox" class="checkbox" v-model="passwordCheckBox"/>
                         <br/><br/>
-                        <input type="password" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
+                        <input name="pass" type="password" placeholder="Password" v-model="password" class="input input-bordered input-sm w-full max-w-xs" />
                         <br/><br/>
                         <button class="btn glass">Set {{ currentChannelName }} password</button>
                         <br/><br/>
@@ -207,7 +207,7 @@
         <dialog id="modalMuteUser" class="modal modal-bottom sm:modal-middle" :open="modalMuteUser" @keydown.esc="closeMuteModal()">
             <div class="modal-box w-11/12 max-w-5xl">
                 <form name="submitMuteForm" class="dialogModal" @submit.prevent="submitMuteForm(selectedDuration)">
-                    <label> <input type="number" min="1" v-model="selectedDuration" class="input input-bordered input-sm w-full max-w-xs" /></label>
+                    <label> <input id="mute" type="number" min="1" v-model="selectedDuration" class="input input-bordered input-sm w-full max-w-xs" /></label>
                     <br><br>
                     <input name="sub" type="submit" value="Mute" class="btn glass btn-warning">
                 </form>
