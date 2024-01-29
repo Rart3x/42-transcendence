@@ -17,6 +17,7 @@ export class AuthController {
     async makeAuth42(@Query('code') code: string, @Res() res: Response) : Promise<any>{
         try {
             if (code) {
+                console.log("redirect uri: ", process.env.VITE_REDIRECT_URI);
                 //Fetch to retrieve the bearer token with query code
                 try{
                     var response = await fetch("https://api.intra.42.fr/oauth/token", {
@@ -66,10 +67,10 @@ export class AuthController {
                         const access_token = await this.JwtService.signAsync(payload);
                         this.setCookie(res, user.userId, access_token);
                         if (user.A2F)
-                            res.redirect("https://localhost:1505/2fa");
+                            res.redirect("https://3A6.42angouleme.fr:1505/2fa");
                         else{
                             this.UserService.setStatus(user.userName, "online");
-                            res.redirect("https://localhost:1505/settings");
+                            res.redirect("https://3A6.42angouleme.fr:1505/settings");
                         }
                         return ;
                     }
@@ -77,7 +78,7 @@ export class AuthController {
                     const access_token = await this.JwtService.signAsync(payload);
                     this.UserService.setStatus(newUser.userName, "online");
                     this.setCookie(res, newUser.userId, access_token);
-                    res.redirect("https://localhost:1505/settings");
+                    res.redirect("https://3A6.42angouleme.fr:1505/settings");
                 }
             }
         }
