@@ -26,6 +26,7 @@ export interface GameRoom {
     world: World | null;
     engine: Engine | null ;
     entities: Entities | null;
+    nbBounces: number;
     score: Map<string, number>;
     running: boolean;
     started: boolean;

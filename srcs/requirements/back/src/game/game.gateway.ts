@@ -115,7 +115,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						this.gameRooms[i].player1SocketId,
 						this.gameRooms[i].player2SocketId,
 						true,
-						false);
+						false,
+						this.gameRooms[i].nbBounces);
 
 					await this.ScoreService.updateGameRoomScore(
 						this.gameRooms[i].roomId,
@@ -125,13 +126,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					);
 					await this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
 					await this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
-					if (this.gameRooms[i]){
-						this.gameRooms[i].finish = true;
-						this.removeCollisionsEvent(this.gameRooms[i]);
-						World.clear(this.gameRooms[i].world);
-						Engine.clear(this.gameRooms[i].engine);
-						this.gameRooms.splice(i, 1);
-					}
+					this.gameRooms[i].finish = true;
+					this.removeCollisionsEvent(this.gameRooms[i]);
+					World.clear(this.gameRooms[i].world);
+					Engine.clear(this.gameRooms[i].engine);
+					this.gameRooms.splice(i, 1);
 				}
 				else if (this.gameRooms[i].player2SocketId == socket.id){
 					this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
@@ -151,7 +150,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 						this.gameRooms[i].player1SocketId,
 						this.gameRooms[i].player2SocketId,
 						false,
-						true);
+						true,
+						this.gameRooms[i].nbBounces);
 					await this.ScoreService.updateGameRoomScore(
 						this.gameRooms[i].roomId,
 						undefined,
@@ -291,7 +291,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 							this.gameRooms[i].player1SocketId,
 							this.gameRooms[i].player2SocketId,
 							false,
-							false);
+							false,
+							this.gameRooms[i].nbBounces);
 					}
 					if (this.gameRooms[i] && this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
 						this.saveGameState(this.gameRooms[i]);
@@ -454,13 +455,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			var coinFlip = randomInt(0, 1);
 			if (coinFlip == 1)
-				vecY = -3;
+				vecY = -4;
 			else
-				vecY = 3;
+				vecY = 4;
 			if (pair.bodyA.label == "left")
-				vecX = -3;
+				vecX = -4;
 			else
-				vecX = 3;
+				vecX = 4;
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
 					player1: gameRoom.score.get(gameRoom.player1UserId.toString()),
