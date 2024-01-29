@@ -3,11 +3,16 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import * as fs from 'fs';
 
 
 async function bootstrap() {
+  const httpsOptions = {
+    key: fs.readFileSync('./secret/key.pem'),
+    cert: fs.readFileSync('./secret/cert.pem'),
+  };
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { httpsOptions });
   app.useGlobalPipes(new ValidationPipe({disableErrorMessages: false}));
 
   app.enableCors({
@@ -26,9 +31,11 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+  app.init();
 
 
   await app.listen(3000);
+
 }
 
 bootstrap();
