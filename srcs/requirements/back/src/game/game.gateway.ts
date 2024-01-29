@@ -452,13 +452,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			var coinFlip = randomInt(0, 1);
 			if (coinFlip == 1)
-				vecY = -4;
+				vecY = -3;
 			else
-				vecY = 4;
+				vecY = 3;
 			if (pair.bodyA.label == "left")
-				vecX = -4;
+				vecX = -3;
 			else
-				vecX = 4;
+				vecX = 3;
 			this.server.to(gameRoom.player1SocketId).emit('scorePoint', {
 				score : {
 					player1: gameRoom.score.get(gameRoom.player1UserId.toString()),
