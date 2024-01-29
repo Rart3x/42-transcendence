@@ -51,7 +51,6 @@
     const allUsers = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
       for (const user of allUsers) {
         if (user.status === "online" && user.userName != actualUser.userName) {
-          console.log("addOperator" + user.userName);
           await store.dispatch('addOperator', { socket: user.socket, channelName: channelName })
         }
       }
@@ -63,8 +62,7 @@
 
     const allUsers = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
     for (const user of allUsers) {
-      if (user.status === "online"&& user.userName != actualUser.userName) {
-        console.log("removeOperator" + user.userName);
+      if (user.status === "online" && user.userName != actualUser.userName) {
         await store.dispatch('removeOperator', { socket: user.socket, channelName: channelName })
       }
     }
@@ -259,14 +257,14 @@
 
     store.state.socket.on('addOperator', async (body) => {
       users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
-      console.log("addOperator");
       await updateOperator(users.value);
+      await updateUserImages(users.value);
     });
 
     store.state.socket.on('removeOperator', async (body) => {
       users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
-      console.log("removeOperator");
       await updateOperator(users.value);
+      await updateUserImages(users.value);
     });
 
     store.state.socket.on('messageToChannel', async (body) => {
