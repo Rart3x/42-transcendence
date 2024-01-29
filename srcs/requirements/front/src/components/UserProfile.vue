@@ -165,13 +165,20 @@
 
       async togglePasswordInput(channelName, password, check) {
         if (check) {
+          if (password.length < 8) {
+            this.setPassFailed = true;
+            setTimeout(() => {
+              this.setPassFailed = false;
+            }, 3000);
+            return;
+          }
           const response = await setPassword(channelName, sha256(password), this.cookieJWT);
           if (response) {
             this.setPassSuccess = true;
-            const channelUsers = await getUsersFromChannel(channelName, this.cookieJWT);
-            for (let i = 0; i < channelUsers.length; i++) {
-              if (channelUsers[i].status === 'online')
-                await this.store.dispatch('newChannelPass', { socket: channelUsers[i].socket })
+            const allUsers = await getAllUsers(this.cookieJWT);
+            for (let i = 0; i < allUsers.length; i++) {
+              if (allUsers[i].status === 'online')
+                await this.store.dispatch('newChannelPass', { socket: allUsers[i].socket })
             }
             this.updateChannels();
             setTimeout(() => {
@@ -189,10 +196,10 @@
           const response = unsetPassword(channelName, this.cookieJWT);
           if (response) {
             this.unsetPassSuccess = true;
-            const channelUsers = await getUsersFromChannel(channelName, this.cookieJWT);
-            for (let i = 0; i < channelUsers.length; i++) {
-              if (channelUsers[i].status === 'online')
-                await this.store.dispatch('newChannelPass', { socket: channelUsers[i].socket })
+            const allUsers = await getAllUsers(this.cookieJWT);
+            for (let i = 0; i < allUsers.length; i++) {
+              if (allUsers[i].status === 'online')
+                await this.store.dispatch('newChannelPass', { socket: allUsers[i].socket })
             }
             setTimeout(() => {
               this.unsetPassSuccess = false;
@@ -240,6 +247,7 @@
           this.updateFriends();
         });
         this.store.state.socket.on('newChannelPass', () => {
+          this.updateAllChannels();
           this.updateChannels();
         });
         this.store.state.socket.on('newChannelSuggestion', () => {
@@ -392,13 +400,8 @@
                   </div>
                 </span>
               </td>
-              <td v-if="!channel.channelPassword">
+              <td>
                 <router-link :to="'/channel/' + channel.channelName">
-                  <button class="btn glass no-animation">{{ channel.channelName }}</button>
-                </router-link>
-              </td>
-              <td v-else>
-                <router-link :to="'/checkPass/' + channel.channelName">
                   <button class="btn glass no-animation">{{ channel.channelName }}</button>
                 </router-link>
               </td>
@@ -435,8 +438,13 @@
                     <button class="btn glass no-animation">{{ channel.channelName }}</button>
                   </router-link>
                 </td>
-                <td>
+                <td v-if="!channel.channelPassword">
                   <button class="btn glass" @click="joinChannelInDB(channel.channelName, userName)">Join Channel</button>
+                </td>
+                <td v-else>
+                  <router-link :to="'/checkPass/' + channel.channelName">
+                    <button class="btn glass">Join Channel</button>
+                  </router-link>
                 </td>
               </div>
             </tr>
