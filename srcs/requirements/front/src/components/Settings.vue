@@ -52,12 +52,18 @@
 				const user1 = await getUserByUserName(this.newUserName, this.cookieJWT);
 				const user2 = await getUserByDisplayName(this.newUserName, this.cookieJWT);
 
-				if (user1 || user2) {
+				if (this.newUserName === this.user.displayName)
+				{
+					await updateUsername(this.user.userName, this.newUserName, this.cookieJWT);
+					this.user = await getUserByUserId(this.user.userId, this.cookieJWT);
+				}
+				else if (user1 || user2) {
 					this.userNameAlreadyTaken = true;
 					setTimeout(() => { this.userNameAlreadyTaken = false; }, 3000);
 				}
 				else if (!user1 && !user2) {
 					await updateUsername(this.user.userName, this.newUserName, this.cookieJWT);
+					this.user = await getUserByUserId(this.user.userId, this.cookieJWT);
 				}
 				window.location.reload();
 				this.newUserName = '';
@@ -88,7 +94,7 @@
 					alert(`File size should not exceed ${sizeLimit}MB`);
 					return;
 				}
-				await updateImage(this.user.userName, this.selectedFile, this.cookieJWT);
+				await updateImage(this.user.displayName, this.selectedFile, this.cookieJWT);
 				window.location.reload();
 			}
 		},
