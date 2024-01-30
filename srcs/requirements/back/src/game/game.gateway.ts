@@ -95,214 +95,224 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	handleDisconnect(socket: Socket) {
 		//If disconnected user was inside a game room
 		for (let i = 0; i < this.gameRooms.length; i++){
-			if (this.gameRooms[i].finish == false && this.gameRooms[i].running == true && this.gameRooms[i].insideLobby == false){
+			if (this.gameRooms[i]?.finish == false && this.gameRooms[i]?.running == true && this.gameRooms[i]?.insideLobby == false){
 				//If game is running
-				if (this.gameRooms[i].player1SocketId == socket.id){
-					this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
-						winUserId: this.gameRooms[i].player2UserId,
+				if (this.gameRooms[i]?.player1SocketId == socket.id){
+					this.server.to(this.gameRooms[i]?.player2SocketId).emit('gameFinish', {
+						winUserId: this.gameRooms[i]?.player2UserId,
 						scoreWinner: MAX_SCORE,
 						scoreLooser: MIN_SCORE,
 						opponentAfk: true
 					});
-					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "offline");
-					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+					this.UserService.updateStatus(this.gameRooms[i]?.player1UserId, "offline");
+					this.UserService.updateStatus(this.gameRooms[i]?.player2UserId, "online");
 
-					this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
-					this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
+					this.UserService.updateUserGame(this.gameRooms[i]?.player1UserId, false);
+					this.UserService.updateUserGame(this.gameRooms[i]?.player2UserId, true);
 
 					this.GameRoomService.updateGameRoom(
-						this.gameRooms[i].roomId,
-						this.gameRooms[i].player1SocketId,
-						this.gameRooms[i].player2SocketId,
+						this.gameRooms[i]?.roomId,
+						this.gameRooms[i]?.player1SocketId,
+						this.gameRooms[i]?.player2SocketId,
 						true,
-						false);
-
+						false
+					);
+			
 					this.ScoreService.updateGameRoomScore(
-						this.gameRooms[i].roomId,
+						this.gameRooms[i]?.roomId,
 						undefined,
 						MIN_SCORE,
 						MAX_SCORE
 					);
-					this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
-					this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
-					this.gameRooms[i].finish = true;
+				
+					this.ScoreService.setWinByAfk(this.gameRooms[i]?.roomId);
+					this.ScoreService.setWinner(this.gameRooms[i]?.roomId, this.gameRooms[i]?.player2UserId);
 					this.removeCollisionsEvent(this.gameRooms[i]);
-					World.clear(this.gameRooms[i].world);
-					Engine.clear(this.gameRooms[i].engine);
+					World.clear(this.gameRooms[i]?.world);
+					Engine.clear(this.gameRooms[i]?.engine);
+					this.gameRooms[i].finish = true;
 					this.gameRooms.splice(i, 1);
+
 				}
-				else if (this.gameRooms[i].player2SocketId == socket.id){
-					this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-						winUserId: this.gameRooms[i].player1UserId,
+				else if (this.gameRooms[i]?.player2SocketId == socket.id){
+					this.server.to(this.gameRooms[i]?.player1SocketId).emit('gameFinish', {
+						winUserId: this.gameRooms[i]?.player1UserId,
 						scoreWinner: MAX_SCORE,
 						scoreLooser: MIN_SCORE,
 						opponentAfk: true 
 					});
-					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "offline");
+					this.UserService.updateStatus(this.gameRooms[i]?.player1UserId, "online");
+					this.UserService.updateStatus(this.gameRooms[i]?.player2UserId, "offline");
 
-					this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
-					this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
+					this.UserService.updateUserGame(this.gameRooms[i]?.player1UserId, true);
+					this.UserService.updateUserGame(this.gameRooms[i]?.player2UserId, false);
 
 					this.GameRoomService.updateGameRoom(
-						this.gameRooms[i].roomId,
-						this.gameRooms[i].player1SocketId,
-						this.gameRooms[i].player2SocketId,
+						this.gameRooms[i]?.roomId,
+						this.gameRooms[i]?.player1SocketId,
+						this.gameRooms[i]?.player2SocketId,
 						false,
 						true);
 					this.ScoreService.updateGameRoomScore(
-						this.gameRooms[i].roomId,
+						this.gameRooms[i]?.roomId,
 						undefined,
 						MAX_SCORE,
 						MIN_SCORE
 					);
-					this.removeCollisionsEvent(this.gameRooms[i]);
-					World.clear(this.gameRooms[i].world);
-					Engine.clear(this.gameRooms[i].engine);
 
-					this.ScoreService.setWinByAfk(this.gameRooms[i].roomId);
-					this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
+					this.ScoreService.setWinByAfk(this.gameRooms[i]?.roomId);
+					this.ScoreService.setWinner(this.gameRooms[i]?.roomId, this.gameRooms[i]?.player1UserId);
+
+					this.removeCollisionsEvent(this.gameRooms[i]);
+					World.clear(this.gameRooms[i]?.world);
+					Engine.clear(this.gameRooms[i]?.engine);
+
 					this.gameRooms[i].finish = true;
 					this.gameRooms.splice(i, 1);
 				}
 			}
-			else if (this.gameRooms[i].finish == false && this.gameRooms[i].started == false && this.gameRooms[i].insideLobby == true){
+			else if (this.gameRooms[i]?.finish == false && this.gameRooms[i]?.started == false && this.gameRooms[i]?.insideLobby == true){
 				//Still inside lobby
-				if (socket.id == this.gameRooms[i].player1SocketId){
+				if (socket.id == this.gameRooms[i]?.player1SocketId){
 					this.gameRooms[i].player1Ready = true;
-					this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-					this.server.to(this.gameRooms[i].player2SocketId).emit('otherPlayerLeaveLobby', {});
+					this.UserService.updateStatus(this.gameRooms[i]?.player1UserId, "online");
+					this.server.to(this.gameRooms[i]?.player2SocketId).emit('otherPlayerLeaveLobby', {});
 				}
 				else{
 					this.gameRooms[i].player2Ready = true;
-					this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
-					this.server.to(this.gameRooms[i].player1SocketId).emit('otherPlayerLeaveLobby', {});
+					this.UserService.updateStatus(this.gameRooms[i]?.player2UserId, "online");
+					this.server.to(this.gameRooms[i]?.player1SocketId).emit('otherPlayerLeaveLobby', {});
 				}
 				//Game never happened
 				this.removeCollisionsEvent(this.gameRooms[i]);
-				World.clear(this.gameRooms[i].world);
-				Engine.clear(this.gameRooms[i].engine);
-				this.GameRoomService.deleteGameRoomByGameRoomId(this.gameRooms[i].roomId);
+				World.clear(this.gameRooms[i]?.world);
+				Engine.clear(this.gameRooms[i]?.engine);
+				this.GameRoomService.deleteGameRoomByGameRoomId(this.gameRooms[i]?.roomId);
 				this.gameRooms.splice(i, 1);
 			}
 			else {
 				//If one player leave once the game is finish without clicking stop button then we delete the gameroom
-				if (socket.id == this.gameRooms[i].player1SocketId){
-					this.server.to(this.gameRooms[i].player2SocketId).emit('playStop');
+				if (socket.id == this.gameRooms[i]?.player1SocketId){
+					this.server.to(this.gameRooms[i]?.player2SocketId).emit('playStop');
 					this.removeCollisionsEvent(this.gameRooms[i]);
-					World.clear(this.gameRooms[i].world);
-					Engine.clear(this.gameRooms[i].engine);
+					World.clear(this.gameRooms[i]?.world);
+					Engine.clear(this.gameRooms[i]?.engine);
 					this.gameRooms.splice(i, 1);
 				}
-				else if (socket.id == this.gameRooms[i].player2SocketId){
-					this.server.to(this.gameRooms[i].player1SocketId).emit('playStop');
+				else if (socket.id == this.gameRooms[i]?.player2SocketId){
+					this.server.to(this.gameRooms[i]?.player1SocketId).emit('playStop');
 					this.removeCollisionsEvent(this.gameRooms[i]);
-					World.clear(this.gameRooms[i].world);
-					Engine.clear(this.gameRooms[i].engine);
+					World.clear(this.gameRooms[i]?.world);
+					Engine.clear(this.gameRooms[i]?.engine);
 					this.gameRooms.splice(i, 1);
 				}
 			}
 		}
-		//If disconnected user was inside a queue list
-		var userWaitingInsideNormalQueue = this.queueListNormalGame.entries().next().value;
-		var userWaitingInsideCustomQueue = this.queueListCustomGame.entries().next().value;
-		if (userWaitingInsideNormalQueue){
-			if (socket.id == userWaitingInsideNormalQueue[1])
-				this.queueListNormalGame.delete(userWaitingInsideNormalQueue[0]);
+
+		for (let [userId, userSocket] of this.queueListCustomGame.entries()) {
+			if (userSocket == socket.id) {
+				this.queueListCustomGame.delete(userId);
+				console.log(`queue list size ${this.queueListCustomGame.size}`);
+				break;
+			}
 		}
-		else if (userWaitingInsideCustomQueue){
-			if (socket.id == userWaitingInsideCustomQueue[1])
-				this.queueListCustomGame.delete(userWaitingInsideCustomQueue[0]);
+
+		for (let [userId, userSocket] of this.queueListNormalGame.entries()) {
+			if (userSocket == socket.id) {
+				this.queueListNormalGame.delete(userId);
+				console.log(`queue list size ${this.queueListNormalGame.size}`);
+				break;
+			}
 		}
 	}
 
 	afterInit() {
 		setInterval(() => {
 			for (let i = 0; i < this.gameRooms.length; i++){
-				if (this.gameRooms[i] && this.gameRooms[i].running && this.gameRooms[i].started && this.gameRooms[i].finish == false && this.gameRooms[i].pausedAfk == false){
+				if (this.gameRooms[i] && this.gameRooms[i]?.running && this.gameRooms[i]?.started && this.gameRooms[i]?.finish == false && this.gameRooms[i]?.pausedAfk == false){
 					//Loop through every game room
 					//If the game was launch then save her state every SERVER_REFRESH_RATE ms and sending it to game both players of the game.
 					//If it wasnt then launch the game engine
-					const scorePlayer1 = this.gameRooms[i].score.get(this.gameRooms[i].player1UserId.toString());
-					const scorePlayer2 = this.gameRooms[i].score.get(this.gameRooms[i].player2UserId.toString());
+					const scorePlayer1 = this.gameRooms[i]?.score.get(this.gameRooms[i]?.player1UserId.toString());
+					const scorePlayer2 = this.gameRooms[i]?.score.get(this.gameRooms[i]?.player2UserId.toString());
 					this.checkWinConditionMultiGame(this.gameRooms[i]);
-					if (this.gameRooms[i].finish){
+					if (this.gameRooms[i]?.finish){
 						if (scorePlayer1 > scorePlayer2){
-							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+							this.UserService.updateStatus(this.gameRooms[i]?.player1UserId, "online");
+							this.UserService.updateStatus(this.gameRooms[i]?.player2UserId, "online");
 
-							this.UserService.updateUserGame(this.gameRooms[i].player1UserId, true);
-							this.UserService.updateUserGame(this.gameRooms[i].player2UserId, false);
+							this.UserService.updateUserGame(this.gameRooms[i]?.player1UserId, true);
+							this.UserService.updateUserGame(this.gameRooms[i]?.player2UserId, false);
 
-							this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player1UserId);
-							this.gameRooms[i].winnerId = this.gameRooms[i].player1UserId;
+							this.ScoreService.setWinner(this.gameRooms[i]?.roomId, this.gameRooms[i]?.player1UserId);
+							this.gameRooms[i].winnerId = this.gameRooms[i]?.player1UserId;
 
-							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player1UserId,
+							this.server.to(this.gameRooms[i]?.player1SocketId).emit('gameFinish', {
+								winUserId: this.gameRooms[i]?.player1UserId,
 								scoreWinner: scorePlayer1,
 								scoreLooser: scorePlayer2,
 								opponentAfk: false
 							});
-							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player1UserId,
+							this.server.to(this.gameRooms[i]?.player2SocketId).emit('gameFinish', {
+								winUserId: this.gameRooms[i]?.player1UserId,
 								scoreWinner: scorePlayer1,
 								scoreLooser: scorePlayer2,
 								opponentAfk: false
 							});
 
 							this.removeCollisionsEvent(this.gameRooms[i]);
-							World.clear(this.gameRooms[i].world);
-							Engine.clear(this.gameRooms[i].engine);
+							World.clear(this.gameRooms[i]?.world);
+							Engine.clear(this.gameRooms[i]?.engine);
 						}
 						else{
 
-							this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-							this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+							this.UserService.updateStatus(this.gameRooms[i]?.player1UserId, "online");
+							this.UserService.updateStatus(this.gameRooms[i]?.player2UserId, "online");
 		
-							this.UserService.updateUserGame(this.gameRooms[i].player1UserId, false);
-							this.UserService.updateUserGame(this.gameRooms[i].player2UserId, true);
+							this.UserService.updateUserGame(this.gameRooms[i]?.player1UserId, false);
+							this.UserService.updateUserGame(this.gameRooms[i]?.player2UserId, true);
 
-							this.ScoreService.setWinner(this.gameRooms[i].roomId, this.gameRooms[i].player2UserId);
-							this.gameRooms[i].winnerId = this.gameRooms[i].player2UserId;
+							this.ScoreService.setWinner(this.gameRooms[i]?.roomId, this.gameRooms[i]?.player2UserId);
+							this.gameRooms[i].winnerId = this.gameRooms[i]?.player2UserId;
 
-							this.server.to(this.gameRooms[i].player1SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player2UserId,
+							this.server.to(this.gameRooms[i]?.player1SocketId).emit('gameFinish', {
+								winUserId: this.gameRooms[i]?.player2UserId,
 								scoreWinner: scorePlayer2,
 								scoreLooser: scorePlayer1,
 								opponentAfk: false 
 							});
-							this.server.to(this.gameRooms[i].player2SocketId).emit('gameFinish', {
-								winUserId: this.gameRooms[i].player2UserId,
+							this.server.to(this.gameRooms[i]?.player2SocketId).emit('gameFinish', {
+								winUserId: this.gameRooms[i]?.player2UserId,
 								scoreWinner: scorePlayer2,
 								scoreLooser: scorePlayer1,
 								opponentAfk: false
 							});
 							this.removeCollisionsEvent(this.gameRooms[i]);
-							World.clear(this.gameRooms[i].world);
-							Engine.clear(this.gameRooms[i].engine);
+							World.clear(this.gameRooms[i]?.world);
+							Engine.clear(this.gameRooms[i]?.engine);
 						}
-						this.UserService.updateStatus(this.gameRooms[i].player1UserId, "online");
-						this.UserService.updateStatus(this.gameRooms[i].player2UserId, "online");
+						this.UserService.updateStatus(this.gameRooms[i]?.player1UserId, "online");
+						this.UserService.updateStatus(this.gameRooms[i]?.player2UserId, "online");
 						this.gameRooms[i].endDate = new Date();
 						this.GameRoomService.updateGameRoom(
-							this.gameRooms[i].roomId,
-							this.gameRooms[i].player1SocketId,
-							this.gameRooms[i].player2SocketId,
+							this.gameRooms[i]?.roomId,
+							this.gameRooms[i]?.player1SocketId,
+							this.gameRooms[i]?.player2SocketId,
 							false,
 							false);
 					}
-					if (this.gameRooms[i] && this.gameRooms[i].player1Disconnected == false && this.gameRooms[i].player2Disconnected == false){
+					if (this.gameRooms[i] && this.gameRooms[i]?.player1Disconnected == false && this.gameRooms[i]?.player2Disconnected == false){
 						this.saveGameState(this.gameRooms[i]);
-						Engine.update(this.gameRooms[i].engine);
+						Engine.update(this.gameRooms[i]?.engine);
 					}
 			}
-      else if (this.gameRooms[i] &&this.gameRooms[i].running == false){
+      else if (this.gameRooms[i] && this.gameRooms[i]?.running == false){
 				//Starting the game
-				this.createGameWorld(this.gameRooms[i], this.gameRooms[i].engine, this.gameRooms[i].world, this.gameRooms[i].entities);
-				this.GameRoomService.setRunning(this.gameRooms[i].roomId);
-				this.UserService.updateStatus(this.gameRooms[i].player1UserId, "ingame");
-				this.UserService.updateStatus(this.gameRooms[i].player2UserId, "ingame");
-				Matter.Engine.run(this.gameRooms[i].engine);
+				this.createGameWorld(this.gameRooms[i], this.gameRooms[i]?.engine, this.gameRooms[i]?.world, this.gameRooms[i]?.entities);
+				this.GameRoomService.setRunning(this.gameRooms[i]?.roomId);
+				this.UserService.updateStatus(this.gameRooms[i]?.player1UserId, "ingame");
+				this.UserService.updateStatus(this.gameRooms[i]?.player2UserId, "ingame");
+				Matter.Engine.run(this.gameRooms[i]?.engine);
 				this.gameRooms[i].running = true;
 			}
 		}
@@ -600,6 +610,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			this.queueListNormalGame.delete(second[0]);
 
+			console.log(`queue list size when creating the normal game  ${this.queueListNormalGame.size}`);
+
 			//Database service
 			const gameRoom = await this.GameRoomService.createGameRoom(first, second, false);
 
@@ -692,6 +704,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			this.queueListCustomGame.delete(second[0]);
 	
+
+			console.log(`queue list size when creating the custom game ${this.queueListCustomGame.size}`);
+
 			//Database service
 	
 			const gameRoom = await this.GameRoomService.createGameRoom(first, second, true);
@@ -1018,44 +1033,44 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@ConnectedSocket() client: Socket,
 		@MessageBody() data: {roomId: number, socketId: string, x: number,y : number}): void {
 		for (let i = 0; i < this.gameRooms.length; i++){
-			if (this.gameRooms[i].roomId == data.roomId){
+			if (this.gameRooms[i]?.roomId == data.roomId){
 				// Update player position in data structure
-				if (this.gameRooms[i].player1SocketId == data.socketId){
+				if (this.gameRooms[i]?.player1SocketId == data.socketId){
 
-					if (this.gameRooms[i].customGame == false){
-						Matter.Body.setPosition(this.gameRooms[i].entities.players[0].gameObject, {
-							x: this.gameRooms[i].entities.players[0].gameObject.position.x,
+					if (this.gameRooms[i]?.customGame == false){
+						Matter.Body.setPosition(this.gameRooms[i]?.entities.players[0].gameObject, {
+							x: this.gameRooms[i]?.entities.players[0].gameObject.position.x,
 							//The collision between the players and upper lower wall is hardcoded by clamping the y value
 							y: Math.min(Math.max(data.y, 75), 725)
 						});
 					}
 					else{
-						Matter.Body.setPosition(this.gameRooms[i].entities.players[0].gameObject, {
-							x: this.gameRooms[i].entities.players[0].gameObject.position.x,
+						Matter.Body.setPosition(this.gameRooms[i]?.entities.players[0].gameObject, {
+							x: this.gameRooms[i]?.entities.players[0].gameObject.position.x,
 							//The collision between the players and upper lower wall is hardcoded by clamping the y value
 							y: Math.min(Math.max(data.y, 50), 750)
 						});
-						Matter.Body.setPosition(this.gameRooms[i].entities.players[2].gameObject, {
-							x: this.gameRooms[i].entities.players[2].gameObject.position.x,
+						Matter.Body.setPosition(this.gameRooms[i]?.entities.players[2].gameObject, {
+							x: this.gameRooms[i]?.entities.players[2].gameObject.position.x,
 							y: Math.min(Math.max(data.y, 50), 750)
 						});
 					}
 
 				}
-				else if (this.gameRooms[i].player2SocketId == data.socketId){
-					if (this.gameRooms[i].customGame == false){
-						Matter.Body.setPosition(this.gameRooms[i].entities.players[1].gameObject, {
-							x: this.gameRooms[i].entities.players[1].gameObject.position.x,
+				else if (this.gameRooms[i]?.player2SocketId == data.socketId){
+					if (this.gameRooms[i]?.customGame == false){
+						Matter.Body.setPosition(this.gameRooms[i]?.entities.players[1].gameObject, {
+							x: this.gameRooms[i]?.entities.players[1].gameObject.position.x,
 							y: Math.min(Math.max(data.y, 75), 725)
 						});
 					}
 					else{
-						Matter.Body.setPosition(this.gameRooms[i].entities.players[1].gameObject, {
-							x: this.gameRooms[i].entities.players[1].gameObject.position.x,
+						Matter.Body.setPosition(this.gameRooms[i]?.entities.players[1].gameObject, {
+							x: this.gameRooms[i]?.entities.players[1].gameObject.position.x,
 							y: Math.min(Math.max(data.y, 50), 750)
 						});
-						Matter.Body.setPosition(this.gameRooms[i].entities.players[3].gameObject, {
-							x: this.gameRooms[i].entities.players[3].gameObject.position.x,
+						Matter.Body.setPosition(this.gameRooms[i]?.entities.players[3].gameObject, {
+							x: this.gameRooms[i]?.entities.players[3].gameObject.position.x,
 							y: Math.min(Math.max(data.y, 50), 750)
 						});
 					}
@@ -1068,9 +1083,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	// handleBallMovement(
 	// 	@MessageBody() data: {roomId: number, x: number,y : number}): void {
 	// 	for (let i = 0; i < this.gameRooms.length; i++){
-	// 		if (this.gameRooms[i].roomId == data.roomId){
+	// 		if (this.gameRooms[i]?.roomId == data.roomId){
 	// 			console.log("ball movement", data.x, data.y)
-	// 			Matter.Body.setPosition(this.gameRooms[i].entities.ball.gameObject, {
+	// 			Matter.Body.setPosition(this.gameRooms[i]?.entities.ball.gameObject, {
 	// 				x: data.x,
 	// 				y: data.y
 	// 			});
@@ -1080,7 +1095,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	findCorrespondingGame(roomId: number) : GameRoom{
 		for (let i = 0; i < this.gameRooms.length; i++){
-			if (this.gameRooms[i].roomId == roomId){
+			if (this.gameRooms[i]?.roomId == roomId){
 				return (this.gameRooms[i]);
 			}
 		}

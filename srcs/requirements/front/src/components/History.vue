@@ -71,7 +71,7 @@
       <table class="table table-fixed w-full">
         <tbody>
           <tr v-for="(item, index) in combinedData.slice().reverse()" :key="index" v-if="combinedData && user">
-            <td :class="user.userId == item.game.score.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
+            <td :class="item.game.score && user.userId == item.game.score.winnerId ? 'bg-green-700 bg-opacity-50' : 'bg-red-700 bg-opacity-50'">
               <div >
                 <label class="text-xl font-medium font-bold">
                   <span v-if="item.game.customGame" class="text-before"> CUSTOM </span>
@@ -79,7 +79,7 @@
                 </label>
                 <br/>
                 <label class="text-xl font-medium">
-                  <span v-if="user.userId == item.game.score.winnerId">WIN 😎</span>
+                  <span v-if="item.game.score && user.userId == item.game.score.winnerId">WIN 😎</span>
                   <span v-else>DEFEAT 😢</span>
                 </label>
                 <br/> <br/> <br/>
