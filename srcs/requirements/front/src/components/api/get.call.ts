@@ -590,7 +590,6 @@ export async function checkA2F(userName : string, token : string, jwtToken: stri
     });
 
     if (response.ok) {
-      await setStatus(userName, "online", jwtToken);
       const responseData = await response.json();
       return responseData;
     }

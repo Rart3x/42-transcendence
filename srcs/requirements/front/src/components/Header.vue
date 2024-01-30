@@ -106,7 +106,7 @@
       async logout() {
         Cookies.remove("UserId");
         Cookies.remove("Bearer");
-        if (this.user)
+        if (this.user && this.user.A2F == false)
           await setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";
       },
@@ -284,7 +284,7 @@
       this.users = await getAllUsers(this.cookieJWT);
       await setClientSocket(this.user.userName, this.store.state.socket.id, this.cookieJWT);
       this.socketOn();
-    }
+    },
   };
 </script>
 
