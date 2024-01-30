@@ -31,6 +31,7 @@ import Entities from '../entities/entities';
           engine: null,
           entities: null,
           score: new Map<string, number>(),
+          active: true,
           running: false,
           started: false,
           pausedAfk: false,
