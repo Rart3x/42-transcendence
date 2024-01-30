@@ -133,6 +133,7 @@
             });
 
             this.socket.on('lobby', (data : any) => {
+                console.log("test lobby");
 				this.UIElement.destroy();
                 this.socket.off('lobby');
                 this.scene.start('LobbyScene', { user: this.user, gameRoomData: data, UIElement: this.UIElement, socket: this.socket });

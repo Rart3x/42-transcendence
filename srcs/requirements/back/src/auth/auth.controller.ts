@@ -17,7 +17,6 @@ export class AuthController {
     async makeAuth42(@Query('code') code: string, @Res() res: Response) : Promise<any>{
         try {
             if (code) {
-                console.log("redirect uri: ", process.env.VITE_REDIRECT_URI);
                 //Fetch to retrieve the bearer token with query code
                 try{
                     var response = await fetch("https://api.intra.42.fr/oauth/token", {
