@@ -56,7 +56,7 @@
       blockSuccess.value = true;
       if (removedUser.status == 'online') { 
         await store.dispatch('friendRemoved', { socket: removedUser.socket })
-        await store.dispatch('blockUser', { socket: removedUser.socket, userName: userName})
+        await store.dispatch('blockUser', { socket: removedUser.socket, userName: userName})  
         await store.dispatch('updateDM', { socket: user.value.socket, userName: blockedUserName})
       }
       setTimeout(() => {

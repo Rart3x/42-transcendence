@@ -146,6 +146,7 @@
 
         this.store.state.socket.on('blocked', async (body) => {
           await deletePrivateMessages(body.userName, this.user.userName, this.cookieJWT);
+          this.invitationFriendSuccess = false;
           this.privateMessages = await getPrivateMessagesByUserName(this.user.userName, this.cookieJWT);
         })
 
