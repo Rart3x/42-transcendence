@@ -185,6 +185,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    updateProfile(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('updateProfile', body);
+      else
+        console.error('error: socket uninitialized');
+    }
   }
 });
 
