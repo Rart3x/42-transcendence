@@ -58,6 +58,10 @@ export class AuthController {
                     }
 
                     const userData = await userResponse.json();
+                    const userAlreadyTaken = await this.UserService.getUserByName(userData.login);
+                    if (userAlreadyTaken)
+                        userData.login = userData.login + Math.floor(Math.random() * 10000);
+
                     const payload = { sub: userData.id, username: userData.login };
 
                     var user = await this.UserService.getUserByDisplayName(userData.login);
