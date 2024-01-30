@@ -152,7 +152,12 @@ export class AppGateway {
   @SubscribeMessage('removeOperator')
   handleRemoveOperator(@MessageBody() body): any {
     this.server.to(body.socket).emit('removeOperator', body);
-  } 
+  }
+
+  @SubscribeMessage('removeUserFromChannel')
+  handleRemoveUserFromChannel(@MessageBody() body): any {
+    this.server.to(body.socket).emit('removeUserFromChannel', body);
+  }
 
   @SubscribeMessage('sendPrivateMessage')
   handleSendPrivateMessage(@MessageBody() body): any {

@@ -147,7 +147,7 @@
         } else {
           this.removeChannelFailed = true;
           setTimeout(() => {
-            removeChannelFailed = false;
+            this.removeChannelFailed = false;
           }, 3000);
         }
       },

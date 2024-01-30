@@ -191,6 +191,11 @@
         if (response && response.success) {
           quitChannel.value = route.params.channelName;
           quitSuccess.value = true;
+          const usersInChannel = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+            for (const user of usersInChannel) {
+              if (user.status === "online" && user.userName != actualUser.userName)
+                await store.dispatch('removeUserFromChannel', { socket: user.socket} );
+            }
           setTimeout(() => {
             quitSuccess.value = false;
           }, 3000);
@@ -264,6 +269,11 @@
     store.state.socket.on('removeOperator', async (body) => {
       users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
       await updateOperator(users.value);
+      await updateUserImages(users.value);
+    });
+
+    store.state.socket.on('removeUserFromChannel', async (body) => {
+      users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
       await updateUserImages(users.value);
     });
 
