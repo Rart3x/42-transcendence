@@ -56,8 +56,9 @@
 					this.userNameAlreadyTaken = true;
 					setTimeout(() => { this.userNameAlreadyTaken = false; }, 3000);
 				}
-				else if (!user1 && !user2)
+				else if (!user1 && !user2) {
 					await updateUsername(this.user.userName, this.newUserName, this.cookieJWT);
+				}
 				window.location.reload();
 				this.newUserName = '';
 			},

@@ -166,8 +166,8 @@
       user.value = await getUserByUserId(cookieUserId, cookieJWT.value);
     actualUser.value = await getUserByUserName(route.params.userName, cookieJWT.value);
 
-    isFriendBool.value = isFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
-    isBlockBool.value = isBlockFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value).sucess;
+    isFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
+    isBlockFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
 
     messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName, cookieJWT.value);
     socketOn();
