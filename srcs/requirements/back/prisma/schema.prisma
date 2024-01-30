@@ -133,6 +133,8 @@ model User {
 
   scorer       UserScore[]
 
+  A2FValid     Boolean   @default(false)
+
   winner       Score[]
 
   displayName   String?

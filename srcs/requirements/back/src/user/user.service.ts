@@ -481,6 +481,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
         socket: true,
         status: true,
         A2F: true,
+        A2FValid: true,
         A2FSecret: true,
         A2FUrl: true,
       },
@@ -492,6 +493,20 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return this.prisma.user.update({
       where : { userId: userId },
       data : { socket: socket }
+    });
+  }
+
+  async setA2FValid(userName: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userName: userName },
+      data: { A2FValid: true },
+    });
+  }
+
+  async setA2FInvalid(userName: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userName: userName },
+      data: { A2FValid: false },
     });
   }
 
@@ -517,3 +532,5 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return await this.getUserByName(userName);
   }
 }
+
+

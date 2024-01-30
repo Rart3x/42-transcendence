@@ -479,6 +479,45 @@ export async function setClientSocket(userName : string, socket : string, jwtTok
   }
 }
 
+
+export async function setA2FValid(userName : string, jwtToken: string) {
+  try {
+    const response = await fetch(`https://localhost:3000/user/setA2FValid/${userName}`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify({ userName: userName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+export async function setA2FInvalid(userName : string, jwtToken: string) {
+  try {
+    const response = await fetch(`https://localhost:3000/user/setA2FInvalid/${userName}`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify({ userName: userName }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    }
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
 export async function updateA2F(userName : string, A2F : boolean, jwtToken: string) {
   try {
     const response = await fetch(`https://localhost:3000/user/updateA2F/${userName}`, {

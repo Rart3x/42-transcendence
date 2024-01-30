@@ -4,7 +4,7 @@
   import Drawer from "./Drawer.vue";
   import Modal from "./Modal.vue";
   import { getAllUsers, getPrivateMessagesByUserName, getUserByUserId, getUserByUserName, getImage } from "./api/get.call.ts";
-  import { addFriend, createGameRoom, createPrivateMessage, setStatus, setClientSocket } from "./api/post.call.ts";
+  import { addFriend, createGameRoom, createPrivateMessage, setStatus, setClientSocket, setA2FInvalid } from "./api/post.call.ts";
   import { deleteGameRoomById, deletePrivateMessages } from "./api/delete.call.ts";
   import { RouterLink } from "vue-router";
   import { useRouter } from "vue-router";
@@ -106,8 +106,11 @@
       async logout() {
         Cookies.remove("UserId");
         Cookies.remove("Bearer");
-        if (this.user && this.user.A2F == false)
+        if (this.user){
+          console.log(this.user.userId);
+          await setA2FInvalid(this.user.userId, this.cookieJWT);
           await setStatus(this.user.userName, "offline", this.cookieJWT);
+        }
         window.location.href = "/";
       },
       async resetSearchBar(name) {

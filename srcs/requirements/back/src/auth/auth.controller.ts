@@ -62,7 +62,6 @@ export class AuthController {
 
                     const userAlreadyTaken = await this.UserService.getUserByName(userData.login);
                     let jsp = false;
-                    console.log("jsp: " + userData.login);
                     if (userAlreadyTaken && (userAlreadyTaken.displayName !== userData.login)){
                         jsp = true;
                         saveName = userData.login;                        
