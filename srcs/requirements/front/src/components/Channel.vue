@@ -61,9 +61,9 @@
     updateOperator(users.value, route.params.channelName, cookieJWT.value);
 
     const allUsers = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
-    for (const user of allUsers) {
-      if (user.status === "online" && user.userName != actualUser.userName) {
-        await store.dispatch('removeOperator', { socket: user.socket, channelName: channelName })
+    for (let i = 0; i < allUsers.length; i++) {
+      if (allUsers[i].status === 'online' && allUsers[i].userName != actualUser.userName) {
+        await store.dispatch('removeOperator', { socket: allUsers[i].socket, channelName: channelName  });
       }
     }
   };
@@ -153,9 +153,18 @@
 
     if (removedUser.userId === chan.channelAdmin) { 
       if (chan.channelOperators.length > 0) {
+        const allUsers = await getUsersFromChannel(channelName, cookieJWT.value);
         const newAdmin = chan.channelOperators[Math.floor(Math.random() * chan.channelOperators.length)];
+        
         await setAdmin(channelName, newAdmin.userName, cookieJWT.value);
         await removeOperator(channelName, newAdmin.userName, cookieJWT.value);
+        await removeUserFromChannel(channelName, userName, cookieJWT.value);
+        for (let i = 0; i < allUsers.length; i++) {
+          if (allUsers[i].status === 'online') {
+            await store.dispatch('newChannelAdmin', { socket: allUsers[i].socket });
+          }
+        }
+        router.push("/profile");
       }
       else {
         const removedUsers = await getUsersFromChannel(channelName, cookieJWT.value);
@@ -286,9 +295,16 @@
 
     store.state.socket.on('muted', async (body) => { actualUserMuted.value = true; });
 
+    store.state.socket.on('newChannelAdmin', async (body) => { 
+      actualUser.value = await getUserByUserName(actualUser.value.userName, cookieJWT.value);
+      users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
+      updateUserImages(users  .value);
+      channel.value = await getChannelByName(route.params.channelName, cookieJWT.value);
+    }) 
+
     store.state.socket.on('newChannelMember', async (body) => {
       users.value = await getUsersFromChannel(route.params.channelName, cookieJWT.value);
-      updateUserImages(users.value);
+      updateUserImages(users.value); 
     });
 
     store.state.socket.on('removeChannel', async (body) => {
@@ -339,7 +355,6 @@
     if (typeof cookieUserId !== 'undefined' && typeof cookieJWT.value !== 'undefined'){
 
 			actualUser.value = await getUserByUserId(cookieUserId, cookieJWT.value);
-
       actualUser.value.isOperator = await isOperatorInDB(route.params.channelName, actualUser.value.userId, cookieJWT.value);
 
       channel.value = await getChannelByName(route.params.channelName, cookieJWT.value);

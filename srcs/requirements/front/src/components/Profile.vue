@@ -168,7 +168,6 @@
       isBlockBool.value = false;
       iAmBlocked.value = false;
     })
-
   }
 
   onMounted(async () => {

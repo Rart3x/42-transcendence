@@ -124,6 +124,11 @@ export class AppGateway {
     this.server.to(body.socket).emit('muted', body);
   }
 
+  @SubscribeMessage('newChannelAdmin')
+  handleNewChannelAdmin(@MessageBody() body): any {
+    this.server.to(body.socket).emit('newChannelAdmin', body);
+  }
+
   @SubscribeMessage('newChannelMember')
   handleNewChannelMember(@MessageBody() body): any {
     this.server.to(body.socket).emit('newChannelMember', body);
