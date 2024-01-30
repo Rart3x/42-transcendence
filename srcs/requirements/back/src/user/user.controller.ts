@@ -155,6 +155,7 @@ export class UserController {
 
   @Post('setA2FInvalid/:userName')
   async setA2FInvalid(@Body('userName') userName: string): Promise<User> {
+    console.log(`inside the controller of setA2FInvalid ${userName}`)
     const user = await this.userService.setA2FInvalid(userName);
     if (!user)
       console.warn("error: user not found");

@@ -497,6 +497,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   }
 
   async setA2FValid(userName: string): Promise<User> {
+    console.log(`setA2FValid ${userName}`);
     return this.prisma.user.update({
       where: { userName: userName },
       data: { A2FValid: true },
@@ -504,6 +505,8 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
   }
 
   async setA2FInvalid(userName: string): Promise<User> {
+    console.log(`setA2FInvalid ${userName}`);
+
     return this.prisma.user.update({
       where: { userName: userName },
       data: { A2FValid: false },

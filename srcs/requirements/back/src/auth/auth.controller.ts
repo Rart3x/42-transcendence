@@ -76,7 +76,7 @@ export class AuthController {
                     if (user){
                         const access_token = await this.JwtService.signAsync(payload);
                         this.setCookie(res, user.userId, access_token);
-                        if (user.A2F)
+                        if (user.A2F && user.A2FValid === false)
                             res.redirect("https://localhost:1505/2fa");
                         else{
                             this.UserService.setStatus(user.userName, "online");
@@ -85,7 +85,6 @@ export class AuthController {
                         return ;
                     }
                     let newUser;
-                    console.log ("userAlreadyTaken: " + saveName);
                     if (jsp) {
                         newUser = await this.UserService.createUser({ userName: userData.login, image: userData.image.link, displayName: saveName});
                     }

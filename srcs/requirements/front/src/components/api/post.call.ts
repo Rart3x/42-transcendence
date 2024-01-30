@@ -485,6 +485,7 @@ export async function setA2FValid(userName : string, jwtToken: string) {
     const response = await fetch(`https://localhost:3000/user/setA2FValid/${userName}`, {
       method: "POST",
       headers: {
+        "Content-Type": "application/json",
         "Authorization": `Bearer ${jwtToken}`
       },
       body: JSON.stringify({ userName: userName }),
@@ -504,6 +505,7 @@ export async function setA2FInvalid(userName : string, jwtToken: string) {
     const response = await fetch(`https://localhost:3000/user/setA2FInvalid/${userName}`, {
       method: "POST",
       headers: {
+        "Content-Type": "application/json",
         "Authorization": `Bearer ${jwtToken}`
       },
       body: JSON.stringify({ userName: userName }),
