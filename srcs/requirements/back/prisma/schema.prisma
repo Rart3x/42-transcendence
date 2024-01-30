@@ -135,7 +135,7 @@ model User {
 
   winner       Score[]
 
-  displayName   String?    @unique
+  displayName   String?
   image         String
   isChecked     Boolean    @default(false)
 

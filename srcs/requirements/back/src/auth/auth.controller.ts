@@ -58,15 +58,23 @@ export class AuthController {
                     }
 
                     const userData = await userResponse.json();
+                    let saveName;
+
                     const userAlreadyTaken = await this.UserService.getUserByName(userData.login);
-                    if (userAlreadyTaken)
+                    let jsp = false;
+                    console.log("jsp: " + userData.login);
+                    if (userAlreadyTaken && (userAlreadyTaken.displayName !== userData.login)){
+                        jsp = true;
+                        saveName = userData.login;                        
                         userData.login = userData.login + Math.floor(Math.random() * 10000);
+                    }
 
                     const payload = { sub: userData.id, username: userData.login };
-
-                    var user = await this.UserService.getUserByDisplayName(userData.login);
+                    if (jsp)
+                        var user = await this.UserService.getUserByDisplayName(saveName);
+                    else
+                        var user = await this.UserService.getUserByDisplayName(userData.login);
                     if (user){
-                        //If user already exist we set the cookies back and set its status to "online"
                         const access_token = await this.JwtService.signAsync(payload);
                         this.setCookie(res, user.userId, access_token);
                         if (user.A2F)
@@ -77,7 +85,15 @@ export class AuthController {
                         }
                         return ;
                     }
-                    const newUser = await this.UserService.createUser({ userName: userData.login, image: userData.image.link });
+                    let newUser;
+                    console.log ("userAlreadyTaken: " + saveName);
+                    if (jsp) {
+                        newUser = await this.UserService.createUser({ userName: userData.login, image: userData.image.link, displayName: saveName});
+                    }
+                    else
+                    {
+                        newUser = await this.UserService.createUser({ userName: userData.login, image: userData.image.link, displayName: userData.login});
+                    }
                     const access_token = await this.JwtService.signAsync(payload);
                     this.UserService.setStatus(newUser.userName, "online");
                     this.setCookie(res, newUser.userId, access_token);

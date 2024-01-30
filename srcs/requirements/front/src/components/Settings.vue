@@ -150,7 +150,7 @@
 		</div>
 		<img v-if="dataURL" :src="dataURL" class="qrcode col-start-2"/>
 		<div class="flex justify-end">
-			<button type="submit" class="btn btn-primary" @click="saveAll">Apply</button>
+			<button type="submit" class="btn btn-primary" @click="saveAll">Save</button>
 			<button class="btn btn-secondary ml-2" @click="toggleTheme">Switch Theme</button>
 		</div>
 	</div>

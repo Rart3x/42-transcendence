@@ -104,7 +104,6 @@
         }
       },
       async logout() {
-        //Remove cookies and set user status to "offline"
         Cookies.remove("UserId");
         Cookies.remove("Bearer");
         if (this.user)

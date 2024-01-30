@@ -200,7 +200,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     return true;
   }
 
-  async createUser(data : { userName: string, image: string }): Promise<User> {
+  async createUser(data : { userName: string, image: string, displayName: string}): Promise<User> {
     const user = await this.getUserByName(data.userName);
     
     if (user)
@@ -230,7 +230,7 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
     const createUserInput: Prisma.UserCreateInput = {
       ...data,
       userName: data.userName,
-      displayName: data.userName,
+      displayName: data.displayName,
     };
  
     return this.prisma.user.create({
