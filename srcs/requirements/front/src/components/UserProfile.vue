@@ -49,7 +49,15 @@
 
       async createChannelInDB(channelName, userName, currentUserName) {
         let response;
-  
+
+        if (/^\s*$/.test(channelName)) {
+          this.addChannelFailed = true;
+            setTimeout(() => {
+              this.addChannelFailed = false;
+            }, 3000);
+            return;
+        }
+        
         const currentChan = await getChannelByName(channelName, this.cookieJWT);
 
         if (!currentUserName) { 
@@ -122,13 +130,14 @@
       },
 
       async removeChannelFromDB(channelName) {
-        const usersFromChannel = await getUsersFromChannel(channelName, this.cookieJWT);
+        const allUsers = await getAllUsers(this.cookieJWT);
         const response = await removeChannel(channelName, this.cookieJWT);
     
         if (response && response.success) {
-          for (let i = 0; i < usersFromChannel.length; i++) {
-            if (usersFromChannel[i].status === 'online')
-              await this.store.dispatch('removeChannel', { socket: usersFromChannel[i].socket })
+          for (let i = 0; i < allUsers.length; i++) {
+            if (allUsers[i].status === 'online') {
+              await this.store.dispatch('removeChannel', { socket: allUsers[i].socket, channelName: channelName })
+            }
           }
           this.removeChannelSuccess = true;
           setTimeout(() => {
@@ -209,7 +218,7 @@
               setTimeout(() => {
                 this.unsetPassFailed = false;
             }, 3000);
-          }
+           }
         }
         this.closeModal('modalManageChannel');
       },
@@ -246,6 +255,10 @@
         this.store.state.socket.on('friendAdded', async () => {
           this.updateFriends();
         });
+        this.store.state.socket.on('newChannelMember', () => {
+          this.updateAllChannels();
+          this.updateChannels();
+        });
         this.store.state.socket.on('newChannelPass', () => {
           this.updateAllChannels();
           this.updateChannels();
@@ -254,7 +267,7 @@
           this.updateAllChannels();
           this.updateChannels();
         })
-        this.store.state.socket.on('removeChannel', () => {
+        this.store.state.socket.on('removeChannel', async () => {
           this.updateAllChannels();
           this.updateChannels();
         });
