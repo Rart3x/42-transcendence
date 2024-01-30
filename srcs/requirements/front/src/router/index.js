@@ -116,14 +116,18 @@ router.beforeEach(async (to, from, next) => {
   if (path === '/checkPass/:channelName')
     comingFromCheckPass = true;
 
-  if (!user && path !== "/" && path !== "/sign-in")
-    next('/');
-  else if (user && user.A2F && user.status == "online")
-    next();
-  else if (user && user.A2F && user.status == "offline" && from.name == '2fa')
+  // Check if the user is on the 2FA route and their status is offline
+  if (path == '/2fa' && user && user.A2F == true && user.status === 'offline') {
+    // Prevent navigation
+    next(true);
+  } else if (user && user.status === 'offline' && user.A2F == true && to.path != '/2fa') {
+    console.log(Date.now());
     next('/2fa');
-  else
-    next();
+  } else if (user && user.A2F == false){
+    next(true);
+  } else if (!user && to.path == '/'){
+    next(true);
+  }
 });
 
 export default router;
