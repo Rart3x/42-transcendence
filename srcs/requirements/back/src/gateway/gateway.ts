@@ -173,4 +173,9 @@ export class AppGateway {
   handleUpdateDM(@MessageBody() body): any {
     this.server.to(body.socket).emit('updateDM', body);
   }
+
+  @SubscribeMessage('updateProfile')
+  handleUpdateProfile(@MessageBody() body): any {
+    this.server.to(body.socket).emit('updateProfile', body);
+  }
 }

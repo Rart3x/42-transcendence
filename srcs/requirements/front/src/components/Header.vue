@@ -110,8 +110,11 @@
           await setStatus(this.user.userName, "offline", this.cookieJWT);
         window.location.href = "/";
       },
-      resetSearchBar() {
+      async resetSearchBar(name) {
+        const test = await getUserByUserName(name, this.cookieJWT);
+
         this.searchInput = '';
+        window.location.href = "/profile/" + name;
       },
       async socketEmit(emit) {
         const hostUser = await getUserByUserName(this.hostName, this.cookieJWT);
@@ -305,7 +308,7 @@
       <input name="searchBar" type="text" placeholder="Search" class="font-mono input input-bordered w-24 md:w-auto" v-model="searchInput"/>
       <div v-if="filteredUsers && filteredUsers.length > 0" v-show="searchInput" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
         <li v-for="user in filteredUsers" :key="user.id">
-          <router-link :to="'/profile/' + user.userName" @click.native="resetSearchBar">{{ user.userName }}</router-link>
+          <router-link :to="'/profile/' + user.userName" @click.native="resetSearchBar(user.userName)">{{ user.userName }}</router-link>
         </li>     
       </div>
     </div>

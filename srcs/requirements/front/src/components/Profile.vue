@@ -5,7 +5,7 @@
   import UserStatHeader from "./UserStatHeader.vue";
   import { ref, onMounted } from 'vue';
   import { removeFriend } from './api/delete.call';
-  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName } from './api/get.call';
+  import { isBlock, isFriend, getPrivateMessages, getUserByUserId, getUserByUserName, isBlocked } from './api/get.call';
   import { blockUser, createChannel, unblockUser } from './api/post.call';
   import { useRoute } from 'vue-router';
   import { useStore } from 'vuex';
@@ -27,7 +27,7 @@
 
   let isFriendBool = ref(false);
   let isBlockBool = ref(false);
-  let isBlockedBool = ref(false);
+  let iAmBlocked = ref(false);
 
   const route = useRoute();
 
@@ -101,6 +101,15 @@
       isBlockBool.value = false;
   };
 
+  const isBlockedFromDB = async (userName, blockedUserName) => {
+    const response = await isBlocked(userName, blockedUserName, cookieJWT.value);
+
+    if (response && response.success)
+      iAmBlocked.value = true;
+    else
+      iAmBlocked.value = false;
+  };
+
   const isFriendFromDB = async (userName, friendName) => {
     const response = await isFriend(userName, friendName, cookieJWT.value);
 
@@ -139,7 +148,7 @@
   const socketOn = async () => {
     store.state.socket.on('blocked', async () => {
       isBlockBool.value = true;
-      isBlockedBool.value = true;
+      iAmBlocked.value = true;
       if (isFriendBool.value)
         await removeFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
     })
@@ -154,8 +163,9 @@
 
     store.state.socket.on('unblocked', async () => {
       isBlockBool.value = false;
-      isBlockedBool.value = false;
+      iAmBlocked.value = false;
     })
+
   }
 
   onMounted(async () => {
@@ -166,8 +176,9 @@
       user.value = await getUserByUserId(cookieUserId, cookieJWT.value);
     actualUser.value = await getUserByUserName(route.params.userName, cookieJWT.value);
 
-    isFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
-    isBlockFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
+    await isFriendFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
+    await isBlockFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
+    await isBlockedFromDB(user.value.userName, actualUser.value.userName, cookieJWT.value);
 
     messages.value = await getPrivateMessages(user.value.userName, actualUser.value.userName, cookieJWT.value);
     socketOn();
@@ -231,7 +242,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           Block {{ $route.params.userName }}
         </button>
-        <button class="btn" v-else-if="user && isBlockBool && !isBlockedBool" @click="unblockFromDB(user.userName, $route.params.userName)">
+        <button class="btn" v-else-if="user && isBlockBool && !iAmBlocked" @click="unblockFromDB(user.userName, $route.params.userName)">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           Unblock {{ $route.params.userName }}
         </button>
