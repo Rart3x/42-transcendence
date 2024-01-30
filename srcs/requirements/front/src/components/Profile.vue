@@ -79,6 +79,9 @@
     modalChannel.value = false;
 
     if (response && response.success) {
+      const invitedUser = await getUserByUserName(currentUserName, cookieJWT.value);
+      if (invitedUser.status == 'online')
+        store.dispatch("newChannelSuggestion", { socket : invitedUser.socket });
       addChannelSuccess.value = true;
       setTimeout(() => {
         addChannelSuccess.value = false;
