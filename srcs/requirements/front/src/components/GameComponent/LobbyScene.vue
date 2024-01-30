@@ -3,6 +3,8 @@
     import { Socket } from 'socket.io-client';
     import { getImage} from '../api/get.call';
     import GameRoom from "../../gameRoom/gameRoom";
+    import EventBus from '../../services/event-bus';
+import store from '../../store/store';
 
     export default class LobbyScene extends Scene {
 
@@ -13,6 +15,7 @@
         user: any;
         socket: Socket;
         gameRoom: any;
+        EventHandler: any;
 
         constructor(){
             //Call parent class constructor
@@ -24,6 +27,7 @@
             this.socket = data.socket;
             this.UIElement = data.UIElement;
             this.enterLobby(data.gameRoomData);
+            this.EventHandler = EventBus.getInstance();
         }
 
         destroyUI(){
@@ -104,9 +108,6 @@
                 img = new Image();
                 if (imagePlayer1){
                     img.src = imagePlayer1
-                    // img.onload = () => {
-                    //     self.textures.generate('userImage2', img);
-                    // }
                 }
             }
 
@@ -114,9 +115,6 @@
                 img2 = new Image();
                 if (imagePlayer2){
                     img2.src = imagePlayer2;
-                    // img2.onload = () => {
-                    //     self.textures.generate('userImage2', img2);
-                    // }
                 }
             }
 
@@ -189,7 +187,10 @@
                 this.children.removeAll();
                 this.destroyUI();
                 this.removeSocketEvents();
-                this.scene.start('BootScene');
+                store.dispatch('setInvitedFalse');
+                setTimeout(() => {
+                    this.scene.start('BootScene');
+                }, 500);
             });
 
             this.socket.on('init', () => {
@@ -222,7 +223,10 @@
                     self.socket.emit('playerLeaveLobby', self.gameRoom.id);
                     self.UIElement.destroy();
                     self.removeSocketEvents();
-                    self.scene.start('BootScene');
+                    store.dispatch('setInvitedFalse');
+                    setTimeout(() => {
+                        self.scene.start('BootScene');
+                    }, 500);
                 }
             });
 
