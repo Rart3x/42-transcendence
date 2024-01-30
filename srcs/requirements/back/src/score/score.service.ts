@@ -25,12 +25,17 @@ export class ScoreService {
                                         { create : { time: new Date(), scoreA: scoreIdPlayer1, scoreB: scoreIdPlayer2 } };
 
         if (!score){
-            return await this.prisma.score.create({
-                data:{
-                    gameRoomId: gameRoomId,
-                    score: scorePayload,
-                }
-            })
+            try{
+                await this.prisma.score.create({
+                    data:{
+                        gameRoomId: gameRoomId,
+                        score: scorePayload,
+                    }
+                })
+            }
+            catch (e){
+                console.log(e);
+            }
         }
         else{
             await this.prisma.userScore.create({
@@ -46,7 +51,9 @@ export class ScoreService {
                     }
                 }
             });
-            return score
+            return await this.prisma.score.findFirst({
+                where: { gameRoomId: gameRoomId }
+            });
         }
     }
 

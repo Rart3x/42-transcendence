@@ -28,6 +28,7 @@ export interface GameRoom {
     entities: Entities | null;
     score: Map<string, number>;
     running: boolean;
+    active: boolean;
     started: boolean;
     paused: boolean;
     pausedAfk: boolean;
