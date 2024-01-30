@@ -136,16 +136,17 @@
                 console.log("test lobby");
 				this.UIElement.destroy();
                 this.socket.off('lobby');
+                this.scene.stop('BootScene');
                 this.scene.start('LobbyScene', { user: this.user, gameRoomData: data, UIElement: this.UIElement, socket: this.socket });
 			});
         }
 
         gamePage(){
             //Keep reference of the instance this for arrow functions
-            const self = this;
-            const invited = store.state.invited;
+            let self = this;
+            let invited = store.state.invited;
             //Reset the value
-            store.commit('SET_INVITED', false);
+            store.dispatch('setInvitedFalse');
             this.setupInputListeners(self);
             if (invited)
                 this.createLocalGameLoadingHTML();
