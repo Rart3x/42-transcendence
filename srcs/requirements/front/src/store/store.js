@@ -115,6 +115,13 @@ const store = createStore({
       else
         console.error('error: socket uninitialized');
     },
+    newChannelAdmin(context, body) {
+      const socket = context.state.socket;
+      if (socket)
+        socket.emit('newChannelAdmin', body);
+      else
+        console.error('error: socket uninitialized');
+    },
     newChannelMember(context, body) {
       const socket = context.state.socket;
       if (socket)
