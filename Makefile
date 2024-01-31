@@ -6,6 +6,7 @@ all:
 	@make run
 
 run:
+	@${SCRIPTS}/change_hostname.sh
 	@printf "Launch configuration ${NAME}...\n"
 	@docker compose -f ./srcs/docker-compose.yml up -d
 
@@ -29,6 +30,7 @@ clean: down
 	@docker system prune -a
 
 fclean: down
+	@${SCRIPTS}/reset_hostname.sh
 	@printf "Total clean of all configurations docker\n"
 	@if [ $$(docker ps -q | wc -l) -gt 0 ]; then \
 	    docker stop $$(docker ps -qa); \

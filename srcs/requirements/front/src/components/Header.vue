@@ -107,7 +107,9 @@
         Cookies.remove("UserId");
         Cookies.remove("Bearer");
         if (this.user){
-          await setA2FInvalid(this.user.userName, this.cookieJWT);
+          this.user = await getUserByUserId(this.user.userId, this.cookieJWT);
+          if (this.user.A2F)
+            await setA2FInvalid(this.user.userName, this.cookieJWT);
           await setStatus(this.user.userName, "offline", this.cookieJWT);
         }
         window.location.href = "/";
