@@ -3,7 +3,7 @@ import { User } from '../../../../back/node_modules/@prisma/client';
 /*-----------------------------------------------CHANNELS-----------------------------------------------*/
 export async function addOperator(channelName : string, operatorName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}/add/operator/${operatorName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}/add/operator/${operatorName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -23,7 +23,7 @@ export async function addOperator(channelName : string, operatorName : string, j
 
 export async function checkPass(channelName: string, password: string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}/checkPass`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}/checkPass`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export async function checkPass(channelName: string, password: string, jwtToken:
 
 export async function createChannel(channelName : string, userName : string, invitedUserName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -65,7 +65,7 @@ export async function createChannel(channelName : string, userName : string, inv
 
 export async function createEmptyChannel(channelName : string, userName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/create/${channelName}/empty`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/create/${channelName}/empty`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -86,7 +86,7 @@ export async function createEmptyChannel(channelName : string, userName : string
 
 export async function joinChannel(channelName : string, userName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}/join/${userName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}/join/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -107,7 +107,7 @@ export async function joinChannel(channelName : string, userName : string, jwtTo
 
 export async function setAdmin(channelName : string, adminName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}/set/admin/${adminName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}/set/admin/${adminName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -127,7 +127,7 @@ export async function setAdmin(channelName : string, adminName : string, jwtToke
 
 export async function setPassword(channelName : string, password : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}/set/password`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}/set/password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -151,7 +151,7 @@ export async function setPassword(channelName : string, password : string, jwtTo
 
 export async function setPrivateChannel(channelName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}/set/private`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}/set/private`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -170,7 +170,7 @@ export async function setPrivateChannel(channelName : string, jwtToken: string) 
 
 export async function unsetPassword(channelName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}/unset/password`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}/unset/password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -195,7 +195,7 @@ export async function unsetPassword(channelName : string, jwtToken: string) {
 /*-----------------------------------------------FRIENDS-----------------------------------------------*/
 export async function addFriend(userName : string, friendName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user/friend/add/${friendName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/friend/add/${friendName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -215,7 +215,7 @@ export async function addFriend(userName : string, friendName : string, jwtToken
 /*-----------------------------------------------MESSAGES-----------------------------------------------*/
 export async function insertMessage(message_text : string, jwtToken: string) {
   try {
-    const response = await fetch("https://localhost:3000/message", {
+    const response = await fetch("https://2D7.42angouleme.fr:3000/message", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -239,7 +239,7 @@ export async function insertMessage(message_text : string, jwtToken: string) {
 
 export async function insertMessageToChannel(channelName : string, message_text : string, user : User, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/message/${channelName}/post/message`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/message/${channelName}/post/message`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -264,7 +264,7 @@ export async function insertMessageToChannel(channelName : string, message_text 
 /*-----------------------------------------------PRIVATEMESSAGES-----------------------------------------------*/
 export async function createPrivateMessage(userName1: string, userName2: string, messageContent: string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/privateMessage/create/${userName1}/${userName2}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/privateMessage/create/${userName1}/${userName2}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -285,7 +285,7 @@ export async function createPrivateMessage(userName1: string, userName2: string,
 /*-----------------------------------------------USERS-----------------------------------------------*/
 export async function banUserFromChannel(channelName : string, userName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}/ban/${userName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}/ban/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -305,7 +305,7 @@ export async function banUserFromChannel(channelName : string, userName : string
 
 export async function blockUser(userName : string, blockedUserName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user/${userName}/block/${blockedUserName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/${userName}/block/${blockedUserName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -325,7 +325,7 @@ export async function blockUser(userName : string, blockedUserName : string, jwt
 
 export async function unblockUser(userName : string, unblockedUserName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user/${userName}/unblock/${unblockedUserName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/${userName}/unblock/${unblockedUserName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -346,7 +346,7 @@ export async function unblockUser(userName : string, unblockedUserName : string,
 
 export async function insertUser(userName: string, image: string, cookie: string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -369,7 +369,7 @@ export async function insertUser(userName: string, image: string, cookie: string
 
 export async function muteUserFromChannel(channelName : string, userName : string, duration : number, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/channel/${channelName}/mute/${userName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/channel/${channelName}/mute/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -389,7 +389,7 @@ export async function muteUserFromChannel(channelName : string, userName : strin
 
 export async function setStatus(userName : string, status : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user/${userName}/setStatus`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/${userName}/setStatus`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -409,7 +409,7 @@ export async function setStatus(userName : string, status : string, jwtToken: st
 
 export async function updateUsername(userName : string, newUserName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user/updateUsername/${userName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/updateUsername/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -434,7 +434,7 @@ export async function updateUsername(userName : string, newUserName : string, jw
 
 export async function createGameRoom(hostPlayerName : string, invitedPlayerName: string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/gameroom/createGameRoomInvitation/${hostPlayerName}/${invitedPlayerName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/gameroom/createGameRoomInvitation/${hostPlayerName}/${invitedPlayerName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -458,7 +458,7 @@ export async function createGameRoom(hostPlayerName : string, invitedPlayerName:
 /*-----------------------------------------------UTILS-----------------------------------------------*/
 export async function setClientSocket(userName : string, socket : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user/socket/${socket}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/socket/${socket}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -482,7 +482,7 @@ export async function setClientSocket(userName : string, socket : string, jwtTok
 
 export async function setA2FValid(userName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user/setA2FValid/${userName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/setA2FValid/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -502,7 +502,7 @@ export async function setA2FValid(userName : string, jwtToken: string) {
 
 export async function setA2FInvalid(userName : string, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user/setA2FInvalid/${userName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/setA2FInvalid/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -522,7 +522,7 @@ export async function setA2FInvalid(userName : string, jwtToken: string) {
 
 export async function updateA2F(userName : string, A2F : boolean, jwtToken: string) {
   try {
-    const response = await fetch(`https://localhost:3000/user/updateA2F/${userName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/updateA2F/${userName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -549,7 +549,7 @@ export async function updateImage(userName : string, image : string, jwtToken: s
     formData.append("userName", userName);
     formData.append("image", image);
   
-    const response = await fetch(`https://localhost:3000/user/updateImage/${userName}`, {
+    const response = await fetch(`https://2D7.42angouleme.fr:3000/user/updateImage/${userName}`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${jwtToken}`

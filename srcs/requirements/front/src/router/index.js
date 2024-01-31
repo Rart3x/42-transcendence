@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 import { createRouter, createWebHistory } from "vue-router";
 import { getChannelByName, getUserByUserId, getUserByUserName } from "../components/api/get.call";
+import EventBus from "../services/event-bus";
 
 let comingFromCheckPass = false;
 
@@ -104,6 +105,9 @@ const router = createRouter({
   ],
 });
 
+
+let eventInstance = EventBus.getInstance();
+
 router.beforeEach(async (to, from, next) => {
   let cookieUserId = Cookies.get('UserId');
   let cookieJWT = Cookies.get('Bearer');
@@ -120,13 +124,20 @@ router.beforeEach(async (to, from, next) => {
     comingFromCheckPass = true;
 
   if (to.path == '/2fa' && user && user.A2F == true && user.A2FValid == false) {
-    next();
+    next(true);
+    setTimeout(() => {
+      eventInstance.emit('refreshA2F');
+    }, 300);
+    eventInstance.emit('refreshA2F');
   }
   else if (user && user.A2FValid == false && user.A2F == true && to.path != '/2fa') {
+    setTimeout(() => {
+      eventInstance.emit('refreshA2F');
+    }, 300);
     next('/2fa');
   }
   else{
-    next();
+    next(true);
   }
 });
 
