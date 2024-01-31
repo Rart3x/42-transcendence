@@ -187,16 +187,23 @@ async getLastRunningGameByUserId(userId: number) : Promise<GameRoom>
       return false;
 
     await this.prisma.user.update({
+      where: { userId: blockedUser.userId },
+      data: {
+        blockOf: {
+          connect: { userId: user.userId },
+        }
+      },
+    });
+
+    await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
         blockUsers: {
           connect: { userId: blockedUser.userId },
-        },
-        blockOf: {
-          connect: { userId: blockedUser.userId },
         }
       },
     });
+  
     return true;
   }
 

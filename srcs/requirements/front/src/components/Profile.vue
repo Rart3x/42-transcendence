@@ -96,18 +96,19 @@
   };
 
   const isBlockFromDB = async (userName, blockedUserName) => {
-    const response = await isBlock(userName, blockedUserName, cookieJWT.value);
+    const user = await getUserByUserName(userName, cookieJWT.value);
 
-    if (response && response.success)
+    if (user.blockUsers.find(user => user.userName == blockedUserName))
       isBlockBool.value = true;
     else
       isBlockBool.value = false;
   };
 
   const isBlockedFromDB = async (userName, blockedUserName) => {
-    const response = await isBlocked(userName, blockedUserName, cookieJWT.value);
 
-    if (response && response.success)
+    const blockedUser = await getUserByUserName(blockedUserName, cookieJWT.value);
+
+    if (blockedUser.blockUsers.find(user => user.userName == userName))
       iAmBlocked.value = true;
     else
       iAmBlocked.value = false;
