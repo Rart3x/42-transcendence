@@ -212,7 +212,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		for (let [userId, userSocket] of this.queueListCustomGame.entries()) {
 			if (userSocket == socket.id) {
 				this.queueListCustomGame.delete(userId);
-				console.log(`queue list size ${this.queueListCustomGame.size}`);
 				break;
 			}
 		}
@@ -220,7 +219,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		for (let [userId, userSocket] of this.queueListNormalGame.entries()) {
 			if (userSocket == socket.id) {
 				this.queueListNormalGame.delete(userId);
-				console.log(`queue list size ${this.queueListNormalGame.size}`);
 				break;
 			}
 		}
@@ -611,8 +609,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	
 			this.queueListNormalGame.delete(second[0]);
 
-			console.log(`queue list size when creating the normal game  ${this.queueListNormalGame.size}`);
-
 			//Database service
 			const gameRoom = await this.GameRoomService.createGameRoom(first, second, false);
 
@@ -704,11 +700,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			user2 = await this.UserService.getUserById(second[0]);
 	
 			this.queueListCustomGame.delete(second[0]);
-	
 
-			console.log(`queue list size when creating the custom game ${this.queueListCustomGame.size}`);
-
-			//Database service
 	
 			const gameRoom = await this.GameRoomService.createGameRoom(first, second, true);
 	
@@ -1079,20 +1071,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}
 		}
 	}
-
-	// @SubscribeMessage('ballMovement')
-	// handleBallMovement(
-	// 	@MessageBody() data: {roomId: number, x: number,y : number}): void {
-	// 	for (let i = 0; i < this.gameRooms.length; i++){
-	// 		if (this.gameRooms[i]?.roomId == data.roomId){
-	// 			console.log("ball movement", data.x, data.y)
-	// 			Matter.Body.setPosition(this.gameRooms[i]?.entities.ball.gameObject, {
-	// 				x: data.x,
-	// 				y: data.y
-	// 			});
-	// 		}
-	// 	}
-	// }
 
 	findCorrespondingGame(roomId: number) : GameRoom{
 		for (let i = 0; i < this.gameRooms.length; i++){

@@ -133,7 +133,6 @@
             });
 
             this.socket.on('lobby', (data : any) => {
-                console.log("test lobby");
 				this.UIElement.destroy();
                 this.socket.off('lobby');
                 this.scene.stop('BootScene');

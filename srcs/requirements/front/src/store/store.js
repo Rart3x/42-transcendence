@@ -12,12 +12,10 @@ const store = createStore({
     },
     SET_INVITED(state, invited) {
       state.invited = invited;
-      console.log(`SET_INVITED: ${state.invited}`);
     }
   },
   actions: {
     setInvitedFalse(context){
-      console.log('setInvitedFalse');
       context.commit('SET_INVITED', false);
     },
     addOperator(context, body) {

@@ -138,7 +138,6 @@ export class UserController {
       console.warn("error: user not found");
     const checkVal = authenticator.check(token, user.A2FSecret);
     if (checkVal){
-      console.log(`User ${user.userName} has logged in`)
       await this.userService.updateStatus(user.userId, "online");
       await this.userService.setA2FValid(user.userName);
     }
@@ -155,7 +154,6 @@ export class UserController {
 
   @Post('setA2FInvalid/:userName')
   async setA2FInvalid(@Body('userName') userName: string): Promise<User> {
-    console.log(`inside the controller of setA2FInvalid ${userName}`)
     const user = await this.userService.setA2FInvalid(userName);
     if (!user)
       console.warn("error: user not found");
