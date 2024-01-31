@@ -104,7 +104,7 @@
 
 			const allUsers = await getAllUsers(this.cookieJWT);
 			for (let i = 0; i < allUsers.length; i++) {
-				if (allUsers[i].status === 'online' && allUsers[i].status !== 'lobby' && allUsers[i].userId !== cookieUserId) {
+				if (allUsers[i].status === 'online' && allUsers[i].userId !== cookieUserId) {
 					this.store.dispatch('newUser', { socket: allUsers[i].socket });
 				}
 			}
