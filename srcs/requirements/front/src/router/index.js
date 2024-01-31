@@ -116,37 +116,15 @@ router.beforeEach(async (to, from, next) => {
   if (path === '/checkPass/:channelName')
     comingFromCheckPass = true;
 
-  // console.log(to.path);
-  // console.log(from.path);
-
-  if (user)
-    console.log(user.A2FValid);
-
   if (to.path == '/2fa' && user && user.A2F == true && user.A2FValid == false) {
-    // console.log('here');
-    next(true);
+    next();
   }
   else if (user && user.A2FValid == false && user.A2F == true && to.path != '/2fa') {
-    // console.log('there');
     next('/2fa');
   }
   else{
-    // console.log('everywhere');
-    next(true);
+    next();
   }
-  // if (path == '/2fa' && user && user.A2F == true && user.A2FValid == false) {
-  //   console.log('here');
-  //   next(true);
-  // } else if (user && user.A2FValid == false && user.A2F == true && to.path != '/2fa') {
-  //   console.log('there');
-  //   next('/2fa');
-  // } else if (user && user.A2F == false){
-  //   console.log('everywhere');
-  //   next(true);
-  // } else if (!user && to.path == '/'){
-  //   console.log('nowhere');
-  //   next(true);
-  // }
 });
 
 export default router;
