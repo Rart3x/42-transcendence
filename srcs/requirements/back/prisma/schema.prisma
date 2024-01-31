@@ -133,8 +133,6 @@ model User {
 
   scorer       UserScore[]
 
-  A2FValid     Boolean   @default(false)
-
   winner       Score[]
 
   displayName   String?
@@ -145,6 +143,7 @@ model User {
   status        String?    @default("offline")
 
   A2F           Boolean    @default(false)
+  A2FValid      Boolean    @default(true)
   A2FSecret     String?
   A2FUrl        String?
 }
