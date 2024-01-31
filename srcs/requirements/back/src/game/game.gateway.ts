@@ -64,8 +64,9 @@ function Between(min : number, max : number){
 	return (Math.random() * (max - min) + min)
 }
 
-const randomInt = (min : number, max : number) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
+const coinFlip = () => {
+	return Math.random() < 0.5;
+}
 
 @WebSocketGateway({
 	cors : {
@@ -459,8 +460,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			var vecX : number;
 			var vecY : number;
 	
-			var coinFlip = randomInt(0, 1);
-			if (coinFlip == 1)
+			if (coinFlip() == true)
 				vecY = -3;
 			else
 				vecY = 3;
@@ -974,7 +974,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					this.UserService.updateStatus(gameRoom.player1UserId, "ingame");
 					this.UserService.updateStatus(gameRoom.player2UserId, "ingame");
 					gameRoom.started = true;
-					randomInt(0, 1) == 1 ? Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {x: 3, y: 3}) : Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {x: -3, y: -3});
+					coinFlip() == true ? Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {x: 3, y: 3}) : Matter.Body.setVelocity(gameRoom.entities.ball.gameObject, {x: -3, y: -3});
 					gameRoom.inCooldown = false;
 					gameRoom.pausedAfk = false;
 					gameRoom.player2Ready = false;
