@@ -97,8 +97,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		for (let i = 0; i < this.gameRooms.length; i++){
 			if (this.gameRooms[i]?.finish == false && this.gameRooms[i].active == true && this.gameRooms[i]?.running == true && this.gameRooms[i]?.insideLobby == false){
 				//If game is running
-				this.gameRooms[i].active = false;
 				if (this.gameRooms[i]?.player1SocketId == socket.id){
+					this.gameRooms[i].active = false;
 					this.server.to(this.gameRooms[i]?.player2SocketId).emit('gameFinish', {
 						winUserId: this.gameRooms[i]?.player2UserId,
 						scoreWinner: MAX_SCORE,
@@ -135,6 +135,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				}
 				else if (this.gameRooms[i]?.player2SocketId == socket.id){
+					this.gameRooms[i].active = false;
+
 					this.server.to(this.gameRooms[i]?.player1SocketId).emit('gameFinish', {
 						winUserId: this.gameRooms[i]?.player1UserId,
 						scoreWinner: MAX_SCORE,
@@ -168,7 +170,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					Engine.clear(this.gameRooms[i]?.engine);
 
 					this.gameRooms[i].finish = true;
-					this.gameRooms[i].active = false;
 				}
 			}
 			else if (this.gameRooms[i]?.finish == false && this.gameRooms[i].active == true && this.gameRooms[i]?.started == false && this.gameRooms[i]?.insideLobby == true){
@@ -177,18 +178,25 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 					this.gameRooms[i].player1Ready = true;
 					this.UserService.updateStatus(this.gameRooms[i]?.player1UserId, "online");
 					this.server.to(this.gameRooms[i]?.player2SocketId).emit('otherPlayerLeaveLobby', {});
+					//Game never happened
+					this.removeCollisionsEvent(this.gameRooms[i]);
+					World.clear(this.gameRooms[i]?.world);
+					Engine.clear(this.gameRooms[i]?.engine);
+					// this.GameRoomService.deleteGameRoomByGameRoomId(this.gameRooms[i]?.roomId);
+					this.gameRooms[i].active == false;
 				}
-				else{
+				else if (socket.id == this.gameRooms[i]?.player2SocketId){
 					this.gameRooms[i].player2Ready = true;
 					this.UserService.updateStatus(this.gameRooms[i]?.player2UserId, "online");
 					this.server.to(this.gameRooms[i]?.player1SocketId).emit('otherPlayerLeaveLobby', {});
+					//Game never happened
+					this.removeCollisionsEvent(this.gameRooms[i]);
+					World.clear(this.gameRooms[i]?.world);
+					Engine.clear(this.gameRooms[i]?.engine);
+					// this.GameRoomService.deleteGameRoomByGameRoomId(this.gameRooms[i]?.roomId);
+					this.gameRooms[i].active == false;
 				}
-				//Game never happened
-				this.removeCollisionsEvent(this.gameRooms[i]);
-				World.clear(this.gameRooms[i]?.world);
-				Engine.clear(this.gameRooms[i]?.engine);
-				// this.GameRoomService.deleteGameRoomByGameRoomId(this.gameRooms[i]?.roomId);
-				this.gameRooms[i].active == false;
+	
 			}
 			else if(this.gameRooms[i].active == true){
 				//If one player leave once the game is finish without clicking stop button then we delete the gameroom

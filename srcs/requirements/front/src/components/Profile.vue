@@ -215,8 +215,8 @@
   <!--Stats-->
   <UserStatHeader v-if="user"
     :userName="$route.params.userName"
-    :gamePlayed="user.gamePlayed"
-    :gameWon="user.gameWon"
+    :gamePlayed="actualUser.gamePlayed"
+    :gameWon="actualUser.gameWon"
   />
 
   <div class="bg-base-200 overflow-x-auto min-h-[calc(100vh-210px)] font-mono place-items-center shadow">
