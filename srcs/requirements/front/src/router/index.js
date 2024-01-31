@@ -112,6 +112,9 @@ router.beforeEach(async (to, from, next) => {
   if (typeof cookieUserId !== 'undefined' && typeof cookieJWT !== 'undefined'){
     user = await getUserByUserId(cookieUserId, cookieJWT);
   }
+  else if (to.path != '/') {
+    next('/');
+  }
   const path = to.path;
   if (path === '/checkPass/:channelName')
     comingFromCheckPass = true;
