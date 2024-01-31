@@ -50,20 +50,21 @@
   const blockFromDB = async (userName, blockedUserName) => {
     const response = await blockUser(userName, blockedUserName, cookieJWT.value);
     const removedUser = await getUserByUserName(blockedUserName, cookieJWT.value);
+    const testUser = await getUserByUserName(userName, cookieJWT.value);
 
     if (response && response.success) {
       isBlockBool.value = true;
       blockSuccess.value = true;
+      if (isFriendBool.value)
+        await removeFriendFromDB(userName, blockedUserName, cookieJWT.value);
       if (removedUser.status == 'online') { 
         await store.dispatch('friendRemoved', { socket: removedUser.socket })
         await store.dispatch('blockUser', { socket: removedUser.socket, userName: userName})  
-        await store.dispatch('updateDM', { socket: user.value.socket, userName: blockedUserName})
+        await store.dispatch('updateDM', { socket: testUser.socket, userName: blockedUserName})
       }
       setTimeout(() => {
         blockSuccess.value = false;
       }, 3000);
-      if (isFriendBool.value)
-        await removeFriendFromDB(userName, blockedUserName, cookieJWT.value);
     } 
     else {
       blockFailed.value = true;

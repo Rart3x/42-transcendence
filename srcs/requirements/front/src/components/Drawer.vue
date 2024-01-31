@@ -43,9 +43,10 @@
 
         const actualUser = await getUserByUserName(this.user.userName, this.$props.jwtToken);
 
-        if (actualUser.blockUsers) {
+        if (actualUser.blockUsers || actualUser.blockOf ) {
           const blocked = actualUser.blockUsers.find(blockedUser => blockedUser.userName === this.enteredName);
-          if (blocked) {
+          const blockOf = actualUser.blockOf.find(blockedUser => blockedUser.userName === this.enteredName);
+          if (blocked || blockOf) {
             this.userNotFound = true;
             setTimeout(() => this.userNotFound = false, 3000);
             return;
